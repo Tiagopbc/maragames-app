@@ -31,7 +31,14 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# JetBrains IDEs
+.idea/
+
+# Firebase
+serviceAccountKey.json
 
 # typescript
 *.tsbuildinfo
