@@ -12,6 +12,7 @@ import {
     signInWithPopup,
     GoogleAuthProvider,
     signOut,
+    updateProfile,
     type User,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -111,6 +112,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await setDoc(doc(db, 'users', user.uid), completo, { merge: true });
         // Atualiza o estado local em vez de reler do Firestore: o guard reage na hora.
         setPerfil(completo);
+
+        // O perfil mora no Firestore; o displayName do Auth é só um espelho, usado
+        // pelo console do Firebase e por telas que leiam user.displayName direto.
+        // Se o espelho falhar, o perfil continua salvo — por isso não derruba nada.
+        if (user.displayName !== dados.nome) {
+            try {
+                await updateProfile(user, { displayName: dados.nome });
+            } catch (e) {
+                console.warn('Não foi possível espelhar o nome no Auth.', e);
+            }
+        }
     }
 
     return (
