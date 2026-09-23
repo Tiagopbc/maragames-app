@@ -7,12 +7,43 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // O cliente valida para dar mensagem boa; a regra abaixo é a garantia.
+    // Com setDoc({ merge: true }), request.resource.data é o documento já mesclado,
+    // então a checagem vale tanto para a criação quanto para a edição do perfil.
+    function perfilValido(d) {
+      return d.nome is string && d.nome.size() >= 2 && d.nome.size() <= 60
+          && d.apelido is string && d.apelido.size() >= 2 && d.apelido.size() <= 20
+          && d.telefone is string && d.telefone.size() >= 10 && d.telefone.size() <= 11
+          && d.instituicao is string && d.instituicao.size() >= 2 && d.instituicao.size() <= 80
+          && d.curso is string && d.curso.size() >= 2 && d.curso.size() <= 80
+          && d.experiencia in ['iniciante', 'intermediario', 'avancado'];
+    }
+
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && perfilValido(request.resource.data);
     }
 
     match /progress/{uid}/lessons/{lessonId} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if false; // só grava via Admin SDK (seed)
+    }
+
+    match /attempts/{attemptId} {
+      allow read, update: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    match /answers/{answerId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false; // imutável — nem o dono edita depois de gravado
     }
   }
 }
