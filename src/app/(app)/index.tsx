@@ -1,66 +1,61 @@
-import * as Device from 'expo-device';
-import { Button, Platform, StyleSheet } from 'react-native';
+import { Button, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/session';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+type Atalho = {
+  id: string;
+  titulo: string;
+  icone: keyof typeof Ionicons.glyphMap;
+};
+
+const ATALHOS: Atalho[] = [
+  { id: 'continuar', titulo: 'Continuar lição', icone: 'play-circle' },
+  { id: 'licoes', titulo: 'Lições', icone: 'book' },
+  { id: 'progresso', titulo: 'Progresso', icone: 'stats-chart' },
+  { id: 'perfil', titulo: 'Perfil', icone: 'person' },
+];
 
 export default function HomeScreen() {
-  const { sair } = useSession();
+  const { sair, perfil } = useSession();
+  const theme = useTheme();
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
+        <View style={styles.saudacao}>
+          <ThemedText type="title">Olá, {perfil?.apelido}</ThemedText>
+          <ThemedText themeColor="textSecondary">
+            O que vamos estudar hoje?
           </ThemedText>
-        </ThemedView>
+        </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <View style={styles.grade}>
+          {ATALHOS.map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => console.log(item.id)}
+              style={({ pressed }) => [
+                styles.card,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  opacity: pressed ? 0.6 : 1,
+                },
+              ]}>
+              <Ionicons name={item.icone} size={36} color={theme.text} />
+              <ThemedText type="smallBold">{item.titulo}</ThemedText>
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={{ flex: 1 }} />
 
         <Button title="Sair" onPress={sair} />
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
   );
@@ -74,30 +69,27 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+    paddingTop: Spacing.four,
     paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.three,
+    alignItems: 'stretch',
+    gap: Spacing.three,
     maxWidth: MaxContentWidth,
   },
-  heroSection: {
+  saudacao: {
+    gap: Spacing.one,
+  },
+  grade: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.three,
+  },
+  card: {
+    width: '47%',
+    height: 140,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+    gap: Spacing.two,
   },
 });
