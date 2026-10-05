@@ -57,6 +57,8 @@ export interface Lesson {
     title: string;
     order: number;
     topicId?: string;
+    ordem?: number; // ordem de apresentação no piloto (1 a 4 no dia 1, 5 em diante na trilha diária)
+    trilha?: 'medido' | 'diaria';
     modulo?: string | null;
     cartao?: SlideConceito[]; // cartão de conceito mostrado antes da prática
 }
