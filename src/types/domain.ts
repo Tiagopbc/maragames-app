@@ -27,20 +27,38 @@ export interface Alternativa {
     explicacao: string;
 }
 
+// forma_a e forma_b são os blocos medidos do piloto (pré, pós e reteste); pratica fica fora do ganho.
+export type BlocoQuestao = 'forma_a' | 'forma_b' | 'pratica';
+
+// Hipótese do autor da questão, conferida depois pela taxa de acerto. Não confundir com confiança (1 a 3).
+export type Dificuldade = 'basico' | 'intermediario' | 'avancado';
+
 export interface Question {
     id: string;
     lessonId: string;
     topicId: string;
     order: number;
+    bloco: BlocoQuestao;
+    dificuldade: Dificuldade;
     formato: 'multipla_escolha' | 'completar_codigo' | 'ordenar_etapas';
     enunciado: string;
     alternativas: Alternativa[];
+    fonte: string | null;
+    versaoConteudo: string; // hash do content/ no momento do seed
+}
+
+export interface SlideConceito {
+    titulo: string;
+    texto: string;
 }
 
 export interface Lesson {
     id: string;
     title: string;
     order: number;
+    topicId?: string;
+    modulo?: string | null;
+    cartao?: SlideConceito[]; // cartão de conceito mostrado antes da prática
 }
 
 export type Experiencia = 'iniciante' | 'intermediario' | 'avancado';
