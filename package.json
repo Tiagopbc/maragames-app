@@ -38,6 +38,8 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
+    "seed:conteudo": "node ./scripts/seed-conteudo.js",
+    "seed:conteudo:check": "node ./scripts/seed-conteudo.js --dry-run",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",

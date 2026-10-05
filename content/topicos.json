@@ -1,0 +1,130 @@
+[
+  {
+    "topicId": "mda_framework",
+    "lessonOrder": 1,
+    "titulo": "Framework MDA",
+    "modulo": "Fundamentos de Game Design",
+    "cartao": [
+      {
+        "titulo": "Três camadas de um jogo",
+        "texto": "O MDA (Hunicke, LeBlanc e Zubek, 2004) divide um jogo em três camadas: Mecânica, Dinâmica e Estética. Ele serve para pensar como uma regra escrita pelo designer vira, no fim, algo que o jogador sente."
+      },
+      {
+        "titulo": "Mecânica",
+        "texto": "São as regras e os dados do jogo, definidos antes da partida: quanto custa um item, quantos pulos o personagem tem, quanto tempo dura uma rodada. É a única camada que o designer controla diretamente."
+      },
+      {
+        "titulo": "Dinâmica",
+        "texto": "É o comportamento que surge quando as mecânicas entram em ação com as escolhas dos jogadores, ao longo da partida. Ninguém escreve uma dinâmica: ela aparece. Exemplo: num jogo de tiro, se a regra dá vantagem a quem fica parado, surgem jogadores escondidos esperando os outros. Uma cadeia completa: a regra de munição limitada (mecânica) faz o jogador economizar tiros e evitar combates (dinâmica), o que gera tensão e desafio (estética)."
+      },
+      {
+        "titulo": "Estética",
+        "texto": "É a resposta emocional do jogador. O artigo lista oito tipos: Sensação (prazer de ver e ouvir), Fantasia (faz de conta), Narrativa (drama), Desafio (superar obstáculos), Companheirismo (estar com outros), Descoberta (explorar o desconhecido), Expressão (criar, personalizar, se expressar) e Submissão (jogo como passatempo relaxado)."
+      },
+      {
+        "titulo": "Duas direções",
+        "texto": "O designer constrói na ordem Mecânica → Dinâmica → Estética. O jogador percebe ao contrário: sente primeiro a emoção, depois nota os padrões da partida e só por último entende as regras. Para mudar o que o jogador sente, o designer ajusta mecânicas e observa as dinâmicas que elas geram."
+      },
+      {
+        "titulo": "Realimentação",
+        "texto": "Algumas combinações de regras criam bola de neve: quem ganha recebe recursos que o fazem ganhar mais, e a disputa perde a tensão. Esse efeito não está escrito em nenhuma regra: é uma dinâmica. Para equilibrar, o designer cria mecânicas que ajudam quem está atrás ou freiam quem lidera. Do mesmo jeito, regras que fazem um jogador precisar do outro tendem a gerar companheirismo."
+      }
+    ]
+  },
+  {
+    "topicId": "escolha_de_engine",
+    "lessonOrder": 2,
+    "titulo": "Escolhendo a Engine Certa",
+    "modulo": "Game Engines",
+    "cartao": [
+      {
+        "titulo": "Para que serve uma engine",
+        "texto": "Uma engine reúne sistemas que quase todo jogo precisa: renderização, física, áudio, entrada (teclado, toque, controle) e exportação para cada plataforma. Com ela, o mesmo projeto pode virar builds para PC, celular ou web sem reescrever o jogo."
+      },
+      {
+        "titulo": "Unity",
+        "texto": "Scripts em C#. A cena é feita de GameObjects, e o comportamento vem de componentes anexados a eles. Faz 2D e 3D e exporta para muitas plataformas. Não é open source: há código de referência só para leitura, e o código completo do motor exige licença paga."
+      },
+      {
+        "titulo": "Godot",
+        "texto": "Open source sob licença MIT, que permite modificar o motor e distribuir a versão modificada sem pagar. O jogo é uma árvore de nós, agrupados em cenas que podem ser instanciadas umas dentro das outras. A linguagem própria é o GDScript, parecida com Python; aceita C#, mas até a versão atual da Godot 4 projetos em C# não exportam para a web."
+      },
+      {
+        "titulo": "Unreal Engine",
+        "texto": "Referência em 3D de alta fidelidade. Programa-se em C++ ou em Blueprints, um sistema visual de nós que permite criar lógica sem escrever código. Cobra royalties acima de um limite de receita e não tem exportação oficial para a web."
+      },
+      {
+        "titulo": "Outras opções",
+        "texto": "GameMaker é proprietário e focado em 2D, organizado em salas (rooms) com objetos. Construct é 2D, com programação visual por eventos, sem precisar escrever código. Phaser é um framework de jogos em JavaScript que roda direto no navegador."
+      },
+      {
+        "titulo": "Como escolher",
+        "texto": "Compare a engine com o projeto e a equipe: o jogo é 2D ou 3D, quais plataformas precisa atingir, que linguagem a equipe já sabe, se há quem não programa, e o que a licença permite. Não existe engine melhor em tudo; existe a que atende aquele cenário."
+      }
+    ]
+  },
+  {
+    "topicId": "logica_programacao",
+    "lessonOrder": 3,
+    "titulo": "Lógica de Programação",
+    "modulo": "Programação para Jogos",
+    "cartao": [
+      {
+        "titulo": "Variáveis e atribuição",
+        "texto": "Uma variável guarda um valor que pode mudar. Em `x = x + 1`, o lado direito usa o valor atual de x e o resultado substitui o antigo. As instruções rodam em ordem, uma de cada vez, e cada uma enxerga o valor deixado pela anterior."
+      },
+      {
+        "titulo": "Tipos de dados",
+        "texto": "Inteiro guarda números sem casas decimais (pontuação). Real guarda números com casas decimais (velocidade). Texto guarda palavras (nome do jogador). Booleano guarda só verdadeiro ou falso (porta aberta?)."
+      },
+      {
+        "titulo": "Condicionais",
+        "texto": "`se` executa um bloco quando a condição é verdadeira. Numa cadeia `se / senão se / senão`, as condições são testadas em ordem e só o primeiro bloco verdadeiro executa; o `senão` final pega o que sobrou. Atenção a `<` e `<=`: 10 < 10 é falso, 10 <= 10 é verdadeiro."
+      },
+      {
+        "titulo": "E, OU, NÃO",
+        "texto": "`A E B` só é verdadeiro se as duas forem verdadeiras. `A OU B` é verdadeiro se pelo menos uma for. `NÃO A` inverte o valor: NÃO falso é verdadeiro. Parênteses definem o que é calculado primeiro, como na matemática."
+      },
+      {
+        "titulo": "Laços",
+        "texto": "`para i de 1 até 3` repete o bloco com i valendo 1, 2 e 3. Uma variável somada a cada volta (acumulador) guarda o total. `enquanto condição` testa antes de cada volta e para quando a condição fica falsa; se nada no bloco muda a condição, o laço nunca termina. Um laço dentro de outro roda inteiro a cada volta do de fora, então as voltas se multiplicam."
+      },
+      {
+        "titulo": "Trocar dois valores",
+        "texto": "Para trocar os valores de duas variáveis, guarde um deles antes numa variável auxiliar: `aux = x`, `x = y`, `y = aux`. Sem a auxiliar, a primeira atribuição apaga o valor que você ainda ia precisar."
+      }
+    ]
+  },
+  {
+    "topicId": "pixel_art_basico",
+    "lessonOrder": 4,
+    "titulo": "Pixel Art Básico",
+    "modulo": "Arte & Pixel Art",
+    "cartao": [
+      {
+        "titulo": "O que é pixel art",
+        "texto": "É arte em que cada pixel é posto de propósito, em resolução baixa (16×16, 32×32, 64×64) e com paleta limitada. Uma foto reduzida não é pixel art: os pixels dela são resultado de um filtro, não de escolha."
+      },
+      {
+        "titulo": "Ampliar sem borrar",
+        "texto": "Pixel art é ampliada com o método do vizinho mais próximo (nearest neighbor), que transforma cada pixel num bloco da mesma cor. Filtros como bilinear e bicúbico misturam vizinhos e borram. Use fatores inteiros (2x, 3x): em 1,5x, alguns pixels ficam maiores que outros."
+      },
+      {
+        "titulo": "Paleta e rampas",
+        "texto": "Poucas cores bem escolhidas deixam o sprite coeso e fácil de ler. As cores se organizam em rampas, do escuro ao claro. Em vez de só escurecer e clarear, desloque o matiz: sombras puxando para o azul ou roxo, luzes para o amarelo. Isso é hue shifting e evita sombras acinzentadas."
+      },
+      {
+        "titulo": "Linhas e bordas",
+        "texto": "Linhas diagonais ficam limpas com degraus regulares (1:1, 2:1, 3:1). Degraus de tamanhos aleatórios formam jaggies, que parecem tremidos. Para suavizar uma curva, coloque poucos pixels de cor intermediária entre a linha e o fundo: é o anti-aliasing manual."
+      },
+      {
+        "titulo": "Luz e sombra",
+        "texto": "Escolha de onde vem a luz e sombreie a partir dela: as faces voltadas para a luz ficam claras e o lado oposto escurece. Quando a sombra contorna a forma inteira por igual, como uma almofada, o erro tem nome: pillow shading. O volume fica achatado porque a luz deixou de ter direção."
+      },
+      {
+        "titulo": "Dithering e banding",
+        "texto": "Dithering mistura duas cores num padrão xadrez ou de pontos; de longe, o olho lê um tom intermediário. Banding é um erro de contorno e sombra: tons enfileirados acompanhando a borda com a mesma largura fazem a borda parecer grossa e duplicada. Para resolver, varie a largura dos tons ou tire um deles."
+      }
+    ]
+  }
+]

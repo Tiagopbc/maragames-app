@@ -1,0 +1,1402 @@
+[
+  {
+    "id": "logica_programacao_01",
+    "topicId": "logica_programacao",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "No início da fase, `vidas = 3`. O jogador leva dano duas vezes (`vidas = vidas - 1` em cada uma) e depois pega um coração (`vidas = vidas + 1`). Quanto vale `vidas` no fim?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "2",
+        "correta": true,
+        "explicacao": "Correto. 3 - 1 - 1 + 1 = 2. Cada atribuição usa o valor que a variável tem naquele momento."
+      },
+      {
+        "id": "b",
+        "texto": "1",
+        "correta": false,
+        "explicacao": "Esse seria o valor sem o coração. A última linha soma 1 ao valor atual."
+      },
+      {
+        "id": "c",
+        "texto": "3",
+        "correta": false,
+        "explicacao": "As instruções não se anulam de uma vez: são dois danos e só uma cura."
+      },
+      {
+        "id": "d",
+        "texto": "4",
+        "correta": false,
+        "explicacao": "O coração soma 1 ao valor atual (1), não ao valor inicial (3)."
+      }
+    ],
+    "fonte": "Conceito básico de atribuição sequencial"
+  },
+  {
+    "id": "logica_programacao_02",
+    "topicId": "logica_programacao",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Um baú executa, em ordem: `moedas = 5`, depois `moedas = moedas + 3`, depois `moedas = moedas * 2`. Quanto vale `moedas` no fim?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "13",
+        "correta": false,
+        "explicacao": "Somou 5 + 3 + 5. A terceira linha multiplica o valor atual por 2, não soma o valor inicial."
+      },
+      {
+        "id": "b",
+        "texto": "16",
+        "correta": true,
+        "explicacao": "Correto. 5 + 3 = 8, e 8 × 2 = 16. A multiplicação usa o valor já atualizado."
+      },
+      {
+        "id": "c",
+        "texto": "11",
+        "correta": false,
+        "explicacao": "Calculou 5 + 3 × 2 numa linha só. Aqui são três instruções separadas, executadas uma depois da outra."
+      },
+      {
+        "id": "d",
+        "texto": "10",
+        "correta": false,
+        "explicacao": "Multiplicou o valor inicial (5) por 2 e ignorou a soma da segunda linha."
+      }
+    ],
+    "fonte": "Conceito básico de atribuição sequencial"
+  },
+  {
+    "id": "logica_programacao_03",
+    "topicId": "logica_programacao",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O personagem só pula se `energia > 0 E NÃO pulando`. Neste momento, `energia = 0` e `pulando = falso`. O que acontece?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Pula, porque ele não está pulando no momento",
+        "correta": false,
+        "explicacao": "Essa é só uma das condições. Com E, as duas precisam ser verdadeiras."
+      },
+      {
+        "id": "b",
+        "texto": "Pula, porque basta uma das condições ser verdadeira",
+        "correta": false,
+        "explicacao": "Isso vale para OU, não para E."
+      },
+      {
+        "id": "c",
+        "texto": "Não pula, porque `energia > 0` é falso",
+        "correta": true,
+        "explicacao": "Correto. NÃO pulando vale verdadeiro, mas `energia > 0` vale falso, e falso E verdadeiro dá falso."
+      },
+      {
+        "id": "d",
+        "texto": "Não pula, porque `NÃO pulando` resulta em falso",
+        "correta": false,
+        "explicacao": "Como `pulando` é falso, `NÃO pulando` é verdadeiro. O que bloqueia o pulo é a energia."
+      }
+    ],
+    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
+  },
+  {
+    "id": "logica_programacao_04",
+    "topicId": "logica_programacao",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "A porta abre se `(tem_chave OU porta_destrancada) E NÃO alarme_ligado`. Neste momento, `tem_chave = falso`, `porta_destrancada = verdadeiro` e `alarme_ligado = falso`. O que acontece?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Não abre, porque falta a chave",
+        "correta": false,
+        "explicacao": "Com OU, basta uma das condições do parêntese. A porta destrancada já resolve."
+      },
+      {
+        "id": "b",
+        "texto": "Não abre, porque `alarme_ligado` é falso",
+        "correta": false,
+        "explicacao": "O teste é `NÃO alarme_ligado`, que vale verdadeiro quando o alarme está desligado."
+      },
+      {
+        "id": "c",
+        "texto": "Dá erro, porque E e OU não podem ser misturados",
+        "correta": false,
+        "explicacao": "Pode, e o parêntese define a ordem: primeiro o OU, depois o E."
+      },
+      {
+        "id": "d",
+        "texto": "Abre",
+        "correta": true,
+        "explicacao": "Correto. falso OU verdadeiro = verdadeiro; NÃO falso = verdadeiro; verdadeiro E verdadeiro = verdadeiro."
+      }
+    ],
+    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
+  },
+  {
+    "id": "logica_programacao_05",
+    "topicId": "logica_programacao",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual o valor de `pontos` depois deste trecho?\n\n```\npontos = 0\npara i de 1 até 4:\n    pontos = pontos + i * 10\n```",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "40",
+        "correta": false,
+        "explicacao": "Esse é só o valor somado na última volta. A cada volta `pontos` acumula o que já tinha."
+      },
+      {
+        "id": "b",
+        "texto": "100",
+        "correta": true,
+        "explicacao": "Correto. O laço soma 10, 20, 30 e 40, e 10 + 20 + 30 + 40 = 100."
+      },
+      {
+        "id": "c",
+        "texto": "150",
+        "correta": false,
+        "explicacao": "Somou também i = 5. O laço vai de 1 até 4, então são quatro voltas."
+      },
+      {
+        "id": "d",
+        "texto": "10",
+        "correta": false,
+        "explicacao": "Esse é só o valor da primeira volta. O laço repete o bloco quatro vezes."
+      }
+    ],
+    "fonte": "Conceito básico de laço com acumulador"
+  },
+  {
+    "id": "logica_programacao_06",
+    "topicId": "logica_programacao",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Quantas rodadas são contadas neste trecho?\n\n```\ninimigos = 10\nrodadas = 0\nenquanto inimigos > 0:\n    inimigos = inimigos - 3\n    rodadas = rodadas + 1\n```",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "3",
+        "correta": false,
+        "explicacao": "Depois de 3 voltas ainda resta 1 inimigo, e 1 > 0 é verdadeiro, então o laço roda mais uma vez."
+      },
+      {
+        "id": "b",
+        "texto": "5",
+        "correta": false,
+        "explicacao": "Depois da quarta volta inimigos = -2, a condição fica falsa e não há quinta volta."
+      },
+      {
+        "id": "c",
+        "texto": "4",
+        "correta": true,
+        "explicacao": "Correto. inimigos passa por 10, 7, 4, 1 e -2. Na quarta volta fica -2, que não é > 0, e o laço para."
+      },
+      {
+        "id": "d",
+        "texto": "O laço nunca termina",
+        "correta": false,
+        "explicacao": "inimigos diminui a cada volta, então em algum momento fica menor ou igual a zero."
+      }
+    ],
+    "fonte": "Conceito básico de laço com condição de parada"
+  },
+  {
+    "id": "logica_programacao_07",
+    "topicId": "logica_programacao",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual tipo de dado representa melhor a informação \"o jogador está vivo?\"",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Inteiro",
+        "correta": false,
+        "explicacao": "Daria para usar 0 e 1, mas o tipo booleano expressa exatamente dois estados e evita valores sem sentido como 7."
+      },
+      {
+        "id": "b",
+        "texto": "Texto",
+        "correta": false,
+        "explicacao": "Guardar \"sim\" ou \"não\" funciona mal: comparar textos é mais lento e permite erros como \"Sim\" ou \"s\"."
+      },
+      {
+        "id": "c",
+        "texto": "Real (com casas decimais)",
+        "correta": false,
+        "explicacao": "Casas decimais não fazem sentido para algo que é sim ou não."
+      },
+      {
+        "id": "d",
+        "texto": "Booleano",
+        "correta": true,
+        "explicacao": "Correto. A informação só tem dois estados possíveis."
+      }
+    ],
+    "fonte": "Conceito básico de tipos de dados"
+  },
+  {
+    "id": "logica_programacao_08",
+    "topicId": "logica_programacao",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Com `vida = 30`, o que este trecho mostra?\n\n```\nse vida <= 0:\n    mostrar(\"game over\")\nsenão se vida < 30:\n    mostrar(\"alerta\")\nsenão:\n    mostrar(\"normal\")\n```",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "normal",
+        "correta": true,
+        "explicacao": "Correto. 30 <= 0 é falso e 30 < 30 também é falso, então cai no último senão."
+      },
+      {
+        "id": "b",
+        "texto": "alerta",
+        "correta": false,
+        "explicacao": "30 < 30 é falso: o sinal é menor, não menor ou igual."
+      },
+      {
+        "id": "c",
+        "texto": "game over",
+        "correta": false,
+        "explicacao": "30 <= 0 é falso, então o primeiro bloco não executa."
+      },
+      {
+        "id": "d",
+        "texto": "alerta e normal",
+        "correta": false,
+        "explicacao": "Em uma cadeia se / senão se / senão, só um dos blocos executa."
+      }
+    ],
+    "fonte": "Conceito básico de condicional encadeada"
+  },
+  {
+    "id": "logica_programacao_09",
+    "topicId": "logica_programacao",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Com `a = 5` e `b = 8`, o programa executa `a = b` e depois `b = a`. Qual o resultado?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "a = 8 e b = 5",
+        "correta": false,
+        "explicacao": "Seria a troca desejada, mas exige guardar o valor de a numa variável auxiliar antes."
+      },
+      {
+        "id": "b",
+        "texto": "a = 5 e b = 5",
+        "correta": false,
+        "explicacao": "A primeira linha muda a para 8, então b recebe 8, não 5."
+      },
+      {
+        "id": "c",
+        "texto": "a = 8 e b = 8",
+        "correta": true,
+        "explicacao": "Correto. A primeira linha copia 8 para a. A segunda copia o novo valor de a (8) para b. O 5 se perdeu."
+      },
+      {
+        "id": "d",
+        "texto": "a = 5 e b = 8",
+        "correta": false,
+        "explicacao": "A primeira linha muda a para 8. Só b termina com o valor original, porque recebe o 8 que já tinha."
+      }
+    ],
+    "fonte": "Conceito básico de troca de valores com variável auxiliar"
+  },
+  {
+    "id": "logica_programacao_10",
+    "topicId": "logica_programacao",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Quantas vezes `desenhar_tile()` é chamada?\n\n```\npara linha de 1 até 3:\n    para coluna de 1 até 4:\n        desenhar_tile()\n```",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "7",
+        "correta": false,
+        "explicacao": "Somou 3 + 4. O laço interno roda inteiro a cada volta do externo, então multiplica."
+      },
+      {
+        "id": "b",
+        "texto": "4",
+        "correta": false,
+        "explicacao": "Esse é só o laço interno. Ele se repete para cada linha."
+      },
+      {
+        "id": "c",
+        "texto": "3",
+        "correta": false,
+        "explicacao": "Esse é só o laço externo. Cada volta dele chama a função 4 vezes."
+      },
+      {
+        "id": "d",
+        "texto": "12",
+        "correta": true,
+        "explicacao": "Correto. Para cada uma das 3 linhas, o laço interno roda 4 vezes: 3 × 4 = 12."
+      }
+    ],
+    "fonte": "Conceito básico de laços aninhados"
+  },
+  {
+    "id": "mda_framework_01",
+    "topicId": "mda_framework",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "No framework MDA, qual destes itens é uma mecânica?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A regra que dá 10 pontos por moeda coletada",
+        "correta": true,
+        "explicacao": "Correto. Mecânicas são as regras e os dados do jogo, definidos antes da partida."
+      },
+      {
+        "id": "b",
+        "texto": "A tensão que o jogador sente no chefe final",
+        "correta": false,
+        "explicacao": "Isso é estética: a resposta emocional do jogador."
+      },
+      {
+        "id": "c",
+        "texto": "Jogadores que ficam parados num ponto do mapa esperando adversários",
+        "correta": false,
+        "explicacao": "Isso é dinâmica: um comportamento que surge das regras durante a partida."
+      },
+      {
+        "id": "d",
+        "texto": "O prazer de explorar uma área nova",
+        "correta": false,
+        "explicacao": "Isso é estética (descoberta)."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_02",
+    "topicId": "mda_framework",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "No framework MDA, qual destes itens é uma estética?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O limite de 3 vidas por fase",
+        "correta": false,
+        "explicacao": "Isso é mecânica: uma regra definida pelo designer."
+      },
+      {
+        "id": "b",
+        "texto": "O sentimento de desafio ao vencer uma fase difícil",
+        "correta": true,
+        "explicacao": "Correto. Estética é a resposta emocional que o jogo provoca no jogador."
+      },
+      {
+        "id": "c",
+        "texto": "A tabela de dano de cada arma",
+        "correta": false,
+        "explicacao": "Isso é mecânica: dados do jogo."
+      },
+      {
+        "id": "d",
+        "texto": "Jogadores que se aliam por um tempo para derrubar o líder",
+        "correta": false,
+        "explicacao": "Isso é dinâmica: um padrão que surge durante a partida."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_03",
+    "topicId": "mda_framework",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "No Banco Imobiliário, quem está ganhando compra mais propriedades, cobra mais aluguel e se distancia cada vez mais, enquanto quem está atrás fica mais pobre. No MDA, esse padrão que aparece durante a partida é:",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Uma mecânica",
+        "correta": false,
+        "explicacao": "As mecânicas são as regras de compra e aluguel. O efeito de bola de neve surge delas, mas não está escrito em nenhuma."
+      },
+      {
+        "id": "b",
+        "texto": "Uma estética",
+        "correta": false,
+        "explicacao": "A perda de tensão que ele provoca é estética; o padrão em si é dinâmica."
+      },
+      {
+        "id": "c",
+        "texto": "Uma dinâmica",
+        "correta": true,
+        "explicacao": "Correto. É comportamento que emerge das regras ao longo da partida. O artigo do MDA usa esse exemplo."
+      },
+      {
+        "id": "d",
+        "texto": "Um problema de tema, fora do MDA",
+        "correta": false,
+        "explicacao": "O padrão nasce das regras, então está no centro do que o MDA descreve."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_04",
+    "topicId": "mda_framework",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O designer coloca um cronômetro de 60 segundos em uma fase. Pelo MDA, que dinâmica e que estética isso tende a gerar?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Exploração calma do cenário, que gera descoberta",
+        "correta": false,
+        "explicacao": "Um limite de tempo empurra para o lado oposto: pressa, não calma."
+      },
+      {
+        "id": "b",
+        "texto": "O cronômetro já é a estética, porque o jogador o vê",
+        "correta": false,
+        "explicacao": "O cronômetro é mecânica. A estética é o que o jogador sente por causa dele."
+      },
+      {
+        "id": "c",
+        "texto": "Passar o tempo sem compromisso, que gera submissão",
+        "correta": false,
+        "explicacao": "Submissão é o jogo como passatempo relaxado, o contrário do que um relógio correndo provoca."
+      },
+      {
+        "id": "d",
+        "texto": "Pressão de tempo nas decisões, gerando desafio",
+        "correta": true,
+        "explicacao": "Correto. O artigo do MDA cita a pressão de tempo como dinâmica típica para produzir desafio."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_05",
+    "topicId": "mda_framework",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Em testes, jogadores dizem que um jogo de terror \"não dá medo\". Seguindo o MDA, qual é o caminho do designer para corrigir isso?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Reescrever a estética, já que foi ela que falhou",
+        "correta": false,
+        "explicacao": "Não há como programar uma emoção. Ela é o efeito final da cadeia."
+      },
+      {
+        "id": "b",
+        "texto": "Ajustar as mecânicas que geram as dinâmicas de tensão",
+        "correta": true,
+        "explicacao": "Correto. O designer só controla as mecânicas diretamente; muda a estética passando pelas dinâmicas."
+      },
+      {
+        "id": "c",
+        "texto": "Mudar só a trilha sonora e os gráficos, sem mexer nas regras",
+        "correta": false,
+        "explicacao": "Som e imagem reforçam a sensação, mas se as regras não criam situações de ameaça, o medo não aparece."
+      },
+      {
+        "id": "d",
+        "texto": "Acrescentar mais fases ao jogo",
+        "correta": false,
+        "explicacao": "Mais conteúdo não muda as dinâmicas que provocam tensão."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_06",
+    "topicId": "mda_framework",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um designer quer que o jogo cooperativo transmita companheirismo (fellowship). Qual mudança de mecânica tem mais chance de produzir essa estética?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Ranking individual de pontos no fim da fase",
+        "correta": false,
+        "explicacao": "Ranking individual gera competição entre os próprios aliados."
+      },
+      {
+        "id": "b",
+        "texto": "Gráficos mais detalhados nos personagens do time",
+        "correta": false,
+        "explicacao": "Isso pode reforçar sensação, mas não muda como os jogadores interagem."
+      },
+      {
+        "id": "c",
+        "texto": "Só um aliado pode reviver quem caiu",
+        "correta": true,
+        "explicacao": "Correto. A regra cria a dinâmica de depender do outro, e é essa dinâmica que gera companheirismo."
+      },
+      {
+        "id": "d",
+        "texto": "Um cronômetro mais curto em cada fase do jogo",
+        "correta": false,
+        "explicacao": "Pressão de tempo gera desafio, não necessariamente cooperação."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_07",
+    "topicId": "mda_framework",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "No MDA, o que é uma dinâmica?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "As regras e os dados definidos pelo designer",
+        "correta": false,
+        "explicacao": "Isso é mecânica."
+      },
+      {
+        "id": "b",
+        "texto": "A emoção que o jogo provoca em quem joga",
+        "correta": false,
+        "explicacao": "Isso é estética."
+      },
+      {
+        "id": "c",
+        "texto": "O enredo e os personagens que aparecem no jogo",
+        "correta": false,
+        "explicacao": "Narrativa é uma das estéticas do MDA, não a definição de dinâmica."
+      },
+      {
+        "id": "d",
+        "texto": "O comportamento que surge das regras durante a partida",
+        "correta": true,
+        "explicacao": "Correto. É a definição do artigo: comportamento em tempo de execução das mecânicas."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_08",
+    "topicId": "mda_framework",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogo em que a pessoa cria e decora a própria casa e personaliza personagens, sem condição de vitória, tem como estética mais evidente:",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Expressão",
+        "correta": true,
+        "explicacao": "Correto. Expressão é o jogo como forma de se expressar, e personalização é o exemplo típico."
+      },
+      {
+        "id": "b",
+        "texto": "Desafio",
+        "correta": false,
+        "explicacao": "Sem condição de vitória e sem obstáculo central, desafio não é o foco."
+      },
+      {
+        "id": "c",
+        "texto": "Companheirismo",
+        "correta": false,
+        "explicacao": "A descrição não envolve outros jogadores."
+      },
+      {
+        "id": "d",
+        "texto": "Sensação",
+        "correta": false,
+        "explicacao": "Sensação é o prazer sensorial (imagem, som); a descrição fala de criar e personalizar."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_09",
+    "topicId": "mda_framework",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O designer constrói um jogo em uma ordem, e o jogador o experimenta na ordem inversa. Qual sequência descreve a experiência de quem joga?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Mecânica → Dinâmica → Estética",
+        "correta": false,
+        "explicacao": "Essa é a ordem do designer. Ele parte das regras; quem joga parte do que sente."
+      },
+      {
+        "id": "b",
+        "texto": "Dinâmica → Mecânica → Estética",
+        "correta": false,
+        "explicacao": "A dinâmica surge das regras, então não vem antes delas nem é a primeira coisa percebida."
+      },
+      {
+        "id": "c",
+        "texto": "Estética → Dinâmica → Mecânica",
+        "correta": true,
+        "explicacao": "Correto. O jogador sente primeiro a emoção, depois percebe os padrões de jogo que a causam e só então entende as regras."
+      },
+      {
+        "id": "d",
+        "texto": "Mecânica → Estética → Dinâmica",
+        "correta": false,
+        "explicacao": "A estética é o resultado final da cadeia, não um passo do meio."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "mda_framework_10",
+    "topicId": "mda_framework",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Em um jogo de corrida, quem está na frente abre cada vez mais vantagem e a disputa perde a graça no meio da partida. Qual ajuste de mecânica ataca a causa?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dar pontos extras a quem lidera",
+        "correta": false,
+        "explicacao": "Isso amplia a vantagem, ou seja, piora o problema."
+      },
+      {
+        "id": "b",
+        "texto": "Colocar uma trilha sonora mais intensa",
+        "correta": false,
+        "explicacao": "Muda a sensação, mas não a dinâmica de bola de neve."
+      },
+      {
+        "id": "c",
+        "texto": "Fazer pistas mais longas",
+        "correta": false,
+        "explicacao": "Mais tempo de corrida tende a aumentar a distância entre os primeiros e os últimos."
+      },
+      {
+        "id": "d",
+        "texto": "Dar itens melhores a quem está atrás",
+        "correta": true,
+        "explicacao": "Correto. Cria uma realimentação que equilibra a disputa e devolve a tensão, como o artigo sugere para o Banco Imobiliário."
+      }
+    ],
+    "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "escolha_de_engine_01",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual linguagem é usada para programar scripts na Unity?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "C#",
+        "correta": true,
+        "explicacao": "Correto. Os scripts de jogo na Unity são escritos em C#."
+      },
+      {
+        "id": "b",
+        "texto": "GDScript",
+        "correta": false,
+        "explicacao": "GDScript é a linguagem própria da Godot."
+      },
+      {
+        "id": "c",
+        "texto": "Lua",
+        "correta": false,
+        "explicacao": "Lua é usada em outras ferramentas, como Roblox (em versão própria) e Defold, não na Unity."
+      },
+      {
+        "id": "d",
+        "texto": "Java",
+        "correta": false,
+        "explicacao": "Java não é linguagem de script da Unity."
+      }
+    ],
+    "fonte": "Documentação oficial da Unity"
+  },
+  {
+    "id": "escolha_de_engine_02",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual linguagem foi criada especificamente para a Godot, com sintaxe parecida com a do Python?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "C#",
+        "correta": false,
+        "explicacao": "A Godot aceita C#, mas ela não foi criada para a engine e não tem sintaxe de Python."
+      },
+      {
+        "id": "b",
+        "texto": "GDScript",
+        "correta": true,
+        "explicacao": "Correto. É a linguagem própria da Godot, pensada para integrar com nós e cenas."
+      },
+      {
+        "id": "c",
+        "texto": "Blueprint",
+        "correta": false,
+        "explicacao": "Blueprint é o sistema visual da Unreal."
+      },
+      {
+        "id": "d",
+        "texto": "Kotlin",
+        "correta": false,
+        "explicacao": "Kotlin não é linguagem de script da Godot."
+      }
+    ],
+    "fonte": "Documentação oficial da Godot"
+  },
+  {
+    "id": "escolha_de_engine_03",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Na Unreal Engine, o que são Blueprints?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Um formato de arquivo para modelos 3D",
+        "correta": false,
+        "explicacao": "Modelos 3D usam formatos como FBX ou glTF."
+      },
+      {
+        "id": "b",
+        "texto": "Plantas 2D para desenhar o level design",
+        "correta": false,
+        "explicacao": "O nome lembra planta, mas é um sistema de lógica, não de desenho."
+      },
+      {
+        "id": "c",
+        "texto": "Um sistema visual para criar lógica sem C++",
+        "correta": true,
+        "explicacao": "Correto. Blueprints permitem que quem não programa em C++ monte comportamento de jogo."
+      },
+      {
+        "id": "d",
+        "texto": "A loja de assets da Epic",
+        "correta": false,
+        "explicacao": "A loja é outro serviço; Blueprint é parte do editor."
+      }
+    ],
+    "fonte": "Documentação oficial da Unreal Engine"
+  },
+  {
+    "id": "escolha_de_engine_04",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Como um jogo é organizado na Godot?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Em GameObjects com componentes",
+        "correta": false,
+        "explicacao": "Esse é o modelo da Unity."
+      },
+      {
+        "id": "b",
+        "texto": "Em Atores com Blueprints",
+        "correta": false,
+        "explicacao": "Esse é o modelo da Unreal."
+      },
+      {
+        "id": "c",
+        "texto": "Em salas que contêm objetos",
+        "correta": false,
+        "explicacao": "Esse é o modelo do GameMaker."
+      },
+      {
+        "id": "d",
+        "texto": "Em nós agrupados em cenas",
+        "correta": true,
+        "explicacao": "Correto. Nós são os blocos básicos e cenas são composições de nós."
+      }
+    ],
+    "fonte": "Documentação oficial da Godot"
+  },
+  {
+    "id": "escolha_de_engine_05",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Uma equipe de duas pessoas vai fazer um jogo 3D realista para PC, com foco em gráficos de ponta. Uma delas é artista e não programa. Qual engine atende melhor?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Godot",
+        "correta": false,
+        "explicacao": "Tem 3D, mas o foco em renderização de ponta é menor, e sem programação visual a artista depende de código."
+      },
+      {
+        "id": "b",
+        "texto": "Unreal Engine",
+        "correta": true,
+        "explicacao": "Correto. É a referência em 3D de alta fidelidade, e os Blueprints deixam a artista criar lógica sem C++."
+      },
+      {
+        "id": "c",
+        "texto": "GameMaker",
+        "correta": false,
+        "explicacao": "É voltado para jogos 2D."
+      },
+      {
+        "id": "d",
+        "texto": "Construct",
+        "correta": false,
+        "explicacao": "É uma ferramenta 2D sem código, sem recursos para 3D realista."
+      }
+    ],
+    "fonte": "Documentação oficial das engines citadas"
+  },
+  {
+    "id": "escolha_de_engine_06",
+    "topicId": "escolha_de_engine",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Uma equipe precisa poder alterar o código-fonte da própria engine e distribuir a versão modificada sem pagar nem pedir autorização. Qual engine permite isso?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Unreal Engine",
+        "correta": false,
+        "explicacao": "O código-fonte é acessível, mas a licença da Epic restringe a redistribuição e cobra royalties acima de um limite de receita."
+      },
+      {
+        "id": "b",
+        "texto": "Unity",
+        "correta": false,
+        "explicacao": "Não é open source: há código de referência só para leitura, e o código completo do motor exige licença paga."
+      },
+      {
+        "id": "c",
+        "texto": "Godot",
+        "correta": true,
+        "explicacao": "Correto. É open source sob licença MIT, que libera mudar o código do motor e repassar essa versão."
+      },
+      {
+        "id": "d",
+        "texto": "GameMaker",
+        "correta": false,
+        "explicacao": "É uma ferramenta proprietária, de código fechado."
+      }
+    ],
+    "fonte": "Licença MIT da Godot e termos das demais engines"
+  },
+  {
+    "id": "escolha_de_engine_07",
+    "topicId": "escolha_de_engine",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que uma engine de jogos oferece a quem desenvolve?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Apenas um editor de imagens para sprites",
+        "correta": false,
+        "explicacao": "Edição de arte é só uma parte, e muitas engines nem trazem isso."
+      },
+      {
+        "id": "b",
+        "texto": "Uma loja para vender o jogo pronto",
+        "correta": false,
+        "explicacao": "Lojas como a Steam são plataformas de publicação, não engines."
+      },
+      {
+        "id": "c",
+        "texto": "Apenas uma linguagem de programação própria",
+        "correta": false,
+        "explicacao": "A engine pode trazer uma linguagem, mas o principal são os sistemas prontos."
+      },
+      {
+        "id": "d",
+        "texto": "Sistemas prontos, como física e renderização",
+        "correta": true,
+        "explicacao": "Correto. A engine evita reescrever do zero o que todo jogo precisa."
+      }
+    ],
+    "fonte": "Conceito básico de engine"
+  },
+  {
+    "id": "escolha_de_engine_08",
+    "topicId": "escolha_de_engine",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Na Unity, como se adiciona comportamento a um GameObject?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Anexando componentes, como scripts em C#",
+        "correta": true,
+        "explicacao": "Correto. A Unity usa um modelo de componentes: cada um acrescenta uma capacidade ao objeto."
+      },
+      {
+        "id": "b",
+        "texto": "Herdando de um nó, como na árvore de cenas",
+        "correta": false,
+        "explicacao": "Esse é o modelo da Godot."
+      },
+      {
+        "id": "c",
+        "texto": "Criando um Blueprint",
+        "correta": false,
+        "explicacao": "Esse é o recurso da Unreal."
+      },
+      {
+        "id": "d",
+        "texto": "Editando o arquivo de cena à mão em um editor de texto",
+        "correta": false,
+        "explicacao": "É possível tecnicamente, mas não é a forma prevista nem segura."
+      }
+    ],
+    "fonte": "Documentação oficial da Unity"
+  },
+  {
+    "id": "escolha_de_engine_09",
+    "topicId": "escolha_de_engine",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um estúdio quer publicar o mesmo jogo para Windows, Android e Web. Qual recurso da engine torna isso possível sem reescrever o jogo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A loja de assets integrada",
+        "correta": false,
+        "explicacao": "A loja fornece recursos prontos para o projeto, mas não gera versões para cada plataforma."
+      },
+      {
+        "id": "b",
+        "texto": "O suporte a plugins",
+        "correta": false,
+        "explicacao": "Plugins estendem o editor, mas quem gera um executável por plataforma é o sistema de exportação."
+      },
+      {
+        "id": "c",
+        "texto": "O sistema de exportação (build)",
+        "correta": true,
+        "explicacao": "Correto. A engine gera um build diferente para cada plataforma a partir da mesma base."
+      },
+      {
+        "id": "d",
+        "texto": "O controle de versão do editor",
+        "correta": false,
+        "explicacao": "Controle de versão guarda o histórico do projeto, não gera builds."
+      }
+    ],
+    "fonte": "Conceito básico de exportação (build)"
+  },
+  {
+    "id": "escolha_de_engine_10",
+    "topicId": "escolha_de_engine",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Uma equipe só sabe JavaScript e quer fazer um jogo 2D que rode no navegador. Qual opção aproveita melhor o que ela já sabe?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Unreal Engine",
+        "correta": false,
+        "explicacao": "Usa C++ e Blueprints, é focada em 3D e não tem exportação oficial para a web."
+      },
+      {
+        "id": "b",
+        "texto": "Unity",
+        "correta": false,
+        "explicacao": "Exporta para a web, mas a equipe teria que aprender C#."
+      },
+      {
+        "id": "c",
+        "texto": "Godot",
+        "correta": false,
+        "explicacao": "Exporta para a web, mas a equipe teria que aprender GDScript (C# não exporta para a web na Godot 4)."
+      },
+      {
+        "id": "d",
+        "texto": "Phaser",
+        "correta": true,
+        "explicacao": "Correto. É um framework de jogos programado em JavaScript que roda direto no navegador."
+      }
+    ],
+    "fonte": "Documentação oficial do Phaser e das engines citadas"
+  },
+  {
+    "id": "pixel_art_basico_01",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que caracteriza a pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Cada pixel é colocado de propósito",
+        "correta": true,
+        "explicacao": "Correto. A diferença está no controle sobre cada pixel, não só no tamanho da imagem."
+      },
+      {
+        "id": "b",
+        "texto": "Uma foto reduzida para poucos pixels",
+        "correta": false,
+        "explicacao": "Reduzir uma foto gera pixels borrados e sem intenção; não é pixel art."
+      },
+      {
+        "id": "c",
+        "texto": "Arte vetorial com formas simples",
+        "correta": false,
+        "explicacao": "Vetores são formas matemáticas, sem grade de pixels."
+      },
+      {
+        "id": "d",
+        "texto": "Qualquer imagem com baixa resolução",
+        "correta": false,
+        "explicacao": "Resolução baixa sozinha não basta. O que define é a colocação deliberada."
+      }
+    ],
+    "fonte": "Conceito básico de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_02",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Ao ampliar uma pixel art, qual método de escala mantém os pixels nítidos?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Bilinear",
+        "correta": false,
+        "explicacao": "Mistura cores vizinhas e deixa a imagem borrada."
+      },
+      {
+        "id": "b",
+        "texto": "Nearest neighbor",
+        "correta": true,
+        "explicacao": "Correto. É o método do vizinho mais próximo: cada pixel vira um bloco da mesma cor, sem misturar com os vizinhos."
+      },
+      {
+        "id": "c",
+        "texto": "Bicúbico",
+        "correta": false,
+        "explicacao": "Também suaviza e borra as bordas dos pixels."
+      },
+      {
+        "id": "d",
+        "texto": "Lanczos",
+        "correta": false,
+        "explicacao": "É um filtro de suavização pensado para fotos, não para pixel art."
+      }
+    ],
+    "fonte": "Conceito básico de escala de imagem"
+  },
+  {
+    "id": "pixel_art_basico_03",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que é comum trabalhar com poucas cores em pixel art, mesmo sem limite técnico?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Porque as engines limitam as cores de sprites",
+        "correta": false,
+        "explicacao": "As engines aceitam milhões de cores; a limitação é escolha artística."
+      },
+      {
+        "id": "b",
+        "texto": "Só para deixar o arquivo menor",
+        "correta": false,
+        "explicacao": "Isso pesava em hardware antigo, mas hoje o motivo principal é visual."
+      },
+      {
+        "id": "c",
+        "texto": "Para o conjunto ter harmonia visual",
+        "correta": true,
+        "explicacao": "Correto. Poucas cores bem escolhidas dão unidade ao conjunto e facilitam a leitura do sprite."
+      },
+      {
+        "id": "d",
+        "texto": "Para obrigar o uso de dithering",
+        "correta": false,
+        "explicacao": "Dithering é uma técnica opcional, não consequência da paleta."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_04",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O que é dithering em pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Pôr pixels de cor intermediária na borda da curva",
+        "correta": false,
+        "explicacao": "Isso é anti-aliasing manual."
+      },
+      {
+        "id": "b",
+        "texto": "Contornar o sprite inteiro com uma linha escura",
+        "correta": false,
+        "explicacao": "Isso é contorno (outline)."
+      },
+      {
+        "id": "c",
+        "texto": "Desenhar cada quadro da animação separadamente",
+        "correta": false,
+        "explicacao": "Isso é animação, sem relação com dithering."
+      },
+      {
+        "id": "d",
+        "texto": "Um padrão de duas cores que cria um terceiro tom",
+        "correta": true,
+        "explicacao": "Correto. Visto de longe, o padrão se mistura e parece uma cor nova."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_05",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um iniciante desenha uma pedra e põe o tom mais escuro em todo o contorno, clareando aos poucos até o meio. A luz da cena vem do canto superior esquerdo. Qual é o problema?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Banding: faixas de cor paralelas",
+        "correta": false,
+        "explicacao": "Banding é outro erro, sobre faixas paralelas de cor."
+      },
+      {
+        "id": "b",
+        "texto": "Pillow shading: a sombra não segue a luz",
+        "correta": true,
+        "explicacao": "Correto. A sombra deveria ficar no lado oposto à luz (inferior direito), não em volta de toda a forma."
+      },
+      {
+        "id": "c",
+        "texto": "Excesso de cores no sprite",
+        "correta": false,
+        "explicacao": "O problema está em onde a sombra foi colocada, não na quantidade de cores."
+      },
+      {
+        "id": "d",
+        "texto": "Contorno inconsistente",
+        "correta": false,
+        "explicacao": "O enunciado não fala de contorno; o erro é a lógica da sombra."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_06",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Num sprite, o contorno escuro é seguido por um tom médio e depois um claro, todos com a mesma largura, acompanhando a borda. O contorno parece grosso e duplicado. Que erro é esse e o que fazer?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dithering; usar cores sólidas",
+        "correta": false,
+        "explicacao": "Dithering é um padrão alternado de pixels de duas cores, não tons enfileirados."
+      },
+      {
+        "id": "b",
+        "texto": "Jaggies; usar só retas",
+        "correta": false,
+        "explicacao": "Jaggies são degraus irregulares numa linha, não faixas de cor."
+      },
+      {
+        "id": "c",
+        "texto": "Banding; variar a largura dos tons",
+        "correta": true,
+        "explicacao": "Correto. Tons enfileirados com a mesma largura se leem como linhas a mais; variar a largura ou tirar um tom devolve a definição."
+      },
+      {
+        "id": "d",
+        "texto": "Hue shifting; usar cinzas",
+        "correta": false,
+        "explicacao": "Hue shifting é uma técnica de rampa de cor, não esse erro."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_07",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destas linhas diagonais tende a parecer mais limpa em pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Degraus variados, como 3-1-4-2",
+        "correta": false,
+        "explicacao": "Degraus irregulares criam jaggies e a linha parece tremida."
+      },
+      {
+        "id": "b",
+        "texto": "Pixels de cores alternadas",
+        "correta": false,
+        "explicacao": "Variar a cor sem motivo deixa a linha ruidosa."
+      },
+      {
+        "id": "c",
+        "texto": "Pixels soltos e espaçados",
+        "correta": false,
+        "explicacao": "Pixels soltos não são lidos como linha contínua."
+      },
+      {
+        "id": "d",
+        "texto": "Degraus regulares, como 2-2-2-2",
+        "correta": true,
+        "explicacao": "Correto. Padrões regulares (1:1, 2:1) formam degraus uniformes."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_08",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Seu sprite foi desenhado em 32×32 e precisa aparecer maior na tela. Por que a escala deve ser feita em múltiplos inteiros, como 2x ou 3x?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Para todos os pixels terem o mesmo tamanho",
+        "correta": true,
+        "explicacao": "Correto. Em 1,5x um pixel teria 1,5 pixel de tela, que não existe; o arredondamento deixa pixels de tamanhos diferentes."
+      },
+      {
+        "id": "b",
+        "texto": "Para reduzir o tamanho do arquivo final",
+        "correta": false,
+        "explicacao": "A escala acontece na hora de desenhar na tela e não altera o arquivo."
+      },
+      {
+        "id": "c",
+        "texto": "Porque a GPU só aceita potências de dois",
+        "correta": false,
+        "explicacao": "Essa restrição tratava da dimensão de texturas em hardware antigo, não do fator de escala."
+      },
+      {
+        "id": "d",
+        "texto": "Para aumentar a taxa de quadros do jogo",
+        "correta": false,
+        "explicacao": "O motivo é visual, não de desempenho."
+      }
+    ],
+    "fonte": "Conceito básico de escala de imagem"
+  },
+  {
+    "id": "pixel_art_basico_09",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Para suavizar a borda de uma curva, o artista coloca alguns pixels de cor intermediária entre o contorno e o fundo. Como se chama essa técnica?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dithering",
+        "correta": false,
+        "explicacao": "Dithering é um padrão alternado de duas cores, não uma transição na borda."
+      },
+      {
+        "id": "b",
+        "texto": "Outline",
+        "correta": false,
+        "explicacao": "Outline é o contorno em si."
+      },
+      {
+        "id": "c",
+        "texto": "Anti-aliasing",
+        "correta": true,
+        "explicacao": "Correto. Os pixels intermediários suavizam o degrau da curva."
+      },
+      {
+        "id": "d",
+        "texto": "Banding",
+        "correta": false,
+        "explicacao": "Banding é um erro, não uma técnica de suavização."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_10",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Ao montar a rampa de cor de uma armadura verde, o artista desloca o matiz das sombras para o azul e o dos realces para o amarelo, em vez de só escurecer e clarear. Qual é o efeito?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Menos cores na paleta final",
+        "correta": false,
+        "explicacao": "A quantidade de tons pode ser a mesma; muda só o matiz de cada um."
+      },
+      {
+        "id": "b",
+        "texto": "Um padrão de dithering automático",
+        "correta": false,
+        "explicacao": "Dithering é uma técnica separada."
+      },
+      {
+        "id": "c",
+        "texto": "Um erro conhecido como banding",
+        "correta": false,
+        "explicacao": "Banding trata de faixas paralelas, não da escolha de matiz."
+      },
+      {
+        "id": "d",
+        "texto": "Cores mais vivas e naturais",
+        "correta": true,
+        "explicacao": "Correto. É o hue shifting, que imita como a luz e a sombra mudam a cor de verdade."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  }
+]
