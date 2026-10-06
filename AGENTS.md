@@ -14,6 +14,8 @@ App independente do maragames.app. Não há continuidade de lição entre dispos
 
 `docs/decisoes-tecnicas.md` tem todas as decisões numeradas, com o raciocínio, o cronograma e as pendências. Leia antes de propor arquitetura, modelo de dados, regra de pontuação ou fluxo de telas, e não contradiga um item sem apontar qual e por quê.
 
+`docs/rota-recalculada.md` tem a visão de produto: métricas, marcos M1 a M8 com o estado atual do código, telas e relatórios. Use para saber o que construir e em que ordem.
+
 Quando uma decisão técnica relevante for tomada na sessão, atualize esse arquivo (item novo ou "Revisto em dd/mm" no item existente, e a linha de última atualização no topo) e avise que a lista foi atualizada. Pendências ficam no item 24.
 
 ## Stack
@@ -30,7 +32,7 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 
 ## Modelo de dados
 
-- `answers` é evento imutável: uma resposta confirmada = um documento, nunca atualizado. Campos obrigatórios incluem `confianca` (1, 2 ou 3), `fase` (`pre`, `pratica`, `pos`, `reteste`), id da alternativa escolhida, `ordemExibida` e horário do servidor.
+- `answers` é evento imutável: uma resposta confirmada = um documento, nunca atualizado. Campos: `uid`, `questionId`, `topicId`, `attemptId`, `fase` (`pre`, `pratica`, `pos`, `reteste`), id da alternativa escolhida, `ordemExibida`, `correta`, `confianca` (1, 2 ou 3), tempo de resposta e horário do servidor.
 - Nada derivado é gravado: domínio, quadrante, XP, etapa do roteiro, nível da escada e sequência são calculados a partir de `answers`.
 - `questions` é coleção própria, consultável por `topicId`. Conteúdo vem de `content/*.json` e vai ao Firestore só pelo script de seed (ids fixos, `versaoConteudo`). Não editar questões pelo console.
 - `users/{uid}`: perfil, `formaPre` (A ou B, imutável depois de gravada), `consentiuEm`, dados do SUS.
