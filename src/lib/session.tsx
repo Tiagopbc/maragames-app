@@ -18,6 +18,8 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 import { auth, db } from './firebase';
+import { paraPerfil } from '../data/mapeadores';
+import { repositorio } from '../data/repositorio';
 import type { DadosPerfil, Perfil } from '../types/domain';
 
 type SessionValue = {
@@ -29,6 +31,7 @@ type SessionValue = {
     cadastrarComEmail: (email: string, senha: string) => Promise<void>;
     entrarComGoogle: () => Promise<void>;
     salvarPerfil: (dados: DadosPerfil) => Promise<void>;
+    aceitarConsentimento: () => Promise<void>;
     sair: () => Promise<void>;
 };
 
@@ -75,7 +78,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             try {
                 const snap = await getDoc(doc(db, 'users', u.uid));
-                setPerfil(snap.exists() ? (snap.data() as Perfil) : null);
+                // 'estimate': um carimbo ainda não confirmado pelo servidor viria null.
+                setPerfil(snap.exists() ? paraPerfil(snap.data({ serverTimestamps: 'estimate' })) : null);
             } catch (e) {
                 console.warn('Não foi possível ler o perfil de users/' + u.uid, e);
                 setPerfil(null);
@@ -111,7 +115,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         await setDoc(doc(db, 'users', user.uid), completo, { merge: true });
         // Atualiza o estado local em vez de reler do Firestore: o guard reage na hora.
-        setPerfil(completo);
+        // O `merge` mantém no banco a forma e o consentimento, que não estão em `completo`;
+        // o estado local faz o mesmo, ou editar o perfil mandaria a pessoa de volta ao termo.
+        setPerfil((atual) => ({ ...atual, ...completo }));
 
         // O perfil mora no Firestore; o displayName do Auth é só um espelho, usado
         // pelo console do Firebase e por telas que leiam user.displayName direto.
@@ -125,6 +131,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    // Aceite do termo (item 22). Quem grava é o repositório, numa transação com o contador do
+    // piloto; aqui o perfil em memória só recebe o resultado, e a home recalcula a etapa.
+    async function aceitarConsentimento() {
+        if (!user) throw new Error('Não há sessão ativa para registrar o consentimento.');
+
+        const consentimento = await repositorio.registrarConsentimento(user.uid);
+        setPerfil((atual) => (atual ? { ...atual, ...consentimento } : atual));
+    }
+
     return (
         <SessionContext.Provider
             value={{
@@ -136,6 +151,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 cadastrarComEmail,
                 entrarComGoogle,
                 salvarPerfil,
+                aceitarConsentimento,
                 sair: () => signOut(auth),
             }}>
             {children}
