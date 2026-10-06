@@ -10,6 +10,12 @@ App de Programação Mobile (UNDB) para a Beast Maragames. Grupo: Tiago Cavalcan
 
 App independente do maragames.app. Não há continuidade de lição entre dispositivos nem integração com o Supabase da cliente. O eixo do produto é medir aprendizagem com confiança declarada, validado num piloto antes de 14/11. Decisões de produto e interface são do grupo.
 
+## Fonte da verdade das decisões
+
+`docs/decisoes-tecnicas.md` tem todas as decisões numeradas, com o raciocínio, o cronograma e as pendências. Leia antes de propor arquitetura, modelo de dados, regra de pontuação ou fluxo de telas, e não contradiga um item sem apontar qual e por quê.
+
+Quando uma decisão técnica relevante for tomada na sessão, atualize esse arquivo (item novo ou "Revisto em dd/mm" no item existente, e a linha de última atualização no topo) e avise que a lista foi atualizada. Pendências ficam no item 24.
+
 ## Stack
 
 React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, Firebase (Auth + Firestore). Desenvolvimento em macOS.
