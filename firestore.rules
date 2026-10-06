@@ -19,11 +19,83 @@ service cloud.firestore {
           && d.experiencia in ['iniciante', 'intermediario', 'avancado'];
     }
 
+    // --- Consentimento (item 22) ---
+    // No aceite do termo, uma única transação soma 1 em piloto/contador e grava em users/{uid}
+    // a forma do pré-teste e a data. As regras abaixo conferem as duas pontas, uma olhando a
+    // outra: get() vê o documento antes da transação, getAfter() vê como ele fica depois.
+
+    function contadorDoPiloto() {
+      return /databases/$(database)/documents/piloto/contador;
+    }
+
+    // O primeiro aceite cria o contador; antes dele, o total é zero.
+    function totalAntes() {
+      return exists(contadorDoPiloto()) ? get(contadorDoPiloto()).data.total : 0;
+    }
+
+    function totalDepois() {
+      return getAfter(contadorDoPiloto()).data.total;
+    }
+
+    // A, B, A, B... A mesma conta está em formaDoParticipante() (src/lib/participante.ts).
+    // Mudou uma, muda a outra.
+    function formaDoContador(total) {
+      return total % 2 == 1 ? 'A' : 'B';
+    }
+
+    function semConsentimento(d) {
+      return !('formaPre' in d) && !('consentiuEm' in d);
+    }
+
+    // Depois de gravadas, forma e data não mudam nem somem: o contrabalanceamento do piloto
+    // depende delas. Antes do aceite, as duas estão ausentes dos dois lados e a comparação passa.
+    function consentimentoInalterado() {
+      return request.resource.data.get('formaPre', null) == resource.data.get('formaPre', null)
+          && request.resource.data.get('consentiuEm', null) == resource.data.get('consentiuEm', null);
+    }
+
+    // O aceite: o perfil ainda não tinha consentimento, a data é a do servidor, o contador subiu
+    // exatamente 1 nesta mesma transação e a forma gravada é a que o novo total dá. O participante
+    // não escolhe a própria forma, nem gravando direto, nem pulando uma posição do contador.
+    function primeiroAceite() {
+      return semConsentimento(resource.data)
+          && request.resource.data.consentiuEm == request.time
+          && totalDepois() == totalAntes() + 1
+          && request.resource.data.formaPre == formaDoContador(totalDepois());
+    }
+
+    // Quem escreve no contador está, nesta mesma transação, aceitando o termo pela primeira vez.
+    function aceitandoNestaTransacao() {
+      let perfil = /databases/$(database)/documents/users/$(request.auth.uid);
+      return exists(perfil)
+          && !('formaPre' in get(perfil).data)
+          && 'formaPre' in getAfter(perfil).data;
+    }
+
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if request.auth != null
-                   && request.auth.uid == uid
-                   && perfilValido(request.resource.data);
+      // O perfil nasce sem consentimento: forma e data só entram pelo aceite.
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && perfilValido(request.resource.data)
+                    && semConsentimento(request.resource.data);
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && perfilValido(request.resource.data)
+                    && (consentimentoInalterado() || primeiroAceite());
+    }
+
+    // Só anda de 1 em 1, e só junto com o aceite de quem escreve. Ninguém apaga.
+    match /piloto/contador {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['total'])
+                    && request.resource.data.total == 1
+                    && aceitandoNestaTransacao();
+      allow update: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['total'])
+                    && request.resource.data.total == resource.data.total + 1
+                    && aceitandoNestaTransacao();
     }
 
     match /progress/{uid}/lessons/{lessonId} {
@@ -35,14 +107,55 @@ service cloud.firestore {
       allow write: if false; // só grava via Admin SDK (seed)
     }
 
+    function faseValida(f) {
+      return f in ['pre', 'pratica', 'pos', 'reteste'];
+    }
+
     match /attempts/{attemptId} {
-      allow read, update: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uid
+                    && faseValida(request.resource.data.fase);
+      // Dono e fase não mudam depois de criada: a regra de answers confia neles.
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['respostas', 'concluida']);
+    }
+
+    function camposResposta() {
+      return ['uid', 'questionId', 'topicId', 'attemptId', 'fase', 'escolha',
+              'ordemExibida', 'correta', 'confianca', 'tempoMs', 'respondidaEm'];
+    }
+
+    // Todos os campos do evento, nenhum a mais. respondidaEm tem de ser o horário do servidor
+    // (serverTimestamp() no cliente), porque o intervalo do reteste é calculado a partir dele.
+    function respostaValida(d) {
+      return d.keys().hasAll(camposResposta()) && d.keys().hasOnly(camposResposta())
+          && d.uid == request.auth.uid
+          && d.questionId is string && d.questionId.size() > 0
+          && d.topicId is string && d.topicId.size() > 0
+          && d.attemptId is string && d.attemptId.size() > 0
+          && faseValida(d.fase)
+          && d.ordemExibida is list && d.ordemExibida.size() == 4
+          && d.escolha is string && d.escolha in d.ordemExibida
+          && d.correta is bool
+          && d.confianca is int && d.confianca >= 1 && d.confianca <= 3
+          && d.tempoMs is int && d.tempoMs >= 0
+          && d.respondidaEm == request.time;
+    }
+
+    // A tentativa citada existe, é do próprio aluno e é da mesma fase da resposta.
+    function tentativaDoAluno(d) {
+      let t = get(/databases/$(database)/documents/attempts/$(d.attemptId)).data;
+      return t.uid == request.auth.uid && t.fase == d.fase;
     }
 
     match /answers/{answerId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null
+                    && respostaValida(request.resource.data)
+                    && tentativaDoAluno(request.resource.data);
       allow update, delete: if false; // imutável — nem o dono edita depois de gravado
     }
   }
