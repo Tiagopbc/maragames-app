@@ -1,6 +1,8 @@
 [
   {
     "topicId": "mda_framework",
+    "ordem": 1,
+    "trilha": "medido",
     "lessonOrder": 1,
     "titulo": "Framework MDA",
     "modulo": "Fundamentos de Game Design",
@@ -32,7 +34,43 @@
     ]
   },
   {
+    "topicId": "pixel_art_basico",
+    "ordem": 2,
+    "trilha": "medido",
+    "lessonOrder": 4,
+    "titulo": "Pixel Art Básico",
+    "modulo": "Arte & Pixel Art",
+    "cartao": [
+      {
+        "titulo": "O que é pixel art",
+        "texto": "É arte em que cada pixel é posto de propósito, em resolução baixa (16×16, 32×32, 64×64) e com paleta limitada. Uma foto reduzida não é pixel art: os pixels dela são resultado de um filtro, não de escolha."
+      },
+      {
+        "titulo": "Ampliar sem borrar",
+        "texto": "Pixel art é ampliada com o método do vizinho mais próximo (nearest neighbor), que transforma cada pixel num bloco da mesma cor. Filtros como bilinear e bicúbico misturam vizinhos e borram. Use fatores inteiros (2x, 3x): em 1,5x, alguns pixels ficam maiores que outros."
+      },
+      {
+        "titulo": "Paleta e rampas",
+        "texto": "Poucas cores bem escolhidas deixam o sprite coeso e fácil de ler. As cores se organizam em rampas, do escuro ao claro. Em vez de só escurecer e clarear, desloque o matiz: sombras puxando para o azul ou roxo, luzes para o amarelo. Isso é hue shifting e evita sombras acinzentadas."
+      },
+      {
+        "titulo": "Linhas e bordas",
+        "texto": "Linhas diagonais ficam limpas com degraus regulares (1:1, 2:1, 3:1). Degraus de tamanhos aleatórios formam jaggies, que parecem tremidos. Para suavizar uma curva, coloque poucos pixels de cor intermediária entre a linha e o fundo: é o anti-aliasing manual."
+      },
+      {
+        "titulo": "Luz e sombra",
+        "texto": "Escolha de onde vem a luz e sombreie a partir dela: as faces voltadas para a luz ficam claras e o lado oposto escurece. Quando a sombra contorna a forma inteira por igual, como uma almofada, o erro tem nome: pillow shading. O volume fica achatado porque a luz deixou de ter direção."
+      },
+      {
+        "titulo": "Dithering e banding",
+        "texto": "Dithering mistura duas cores num padrão xadrez ou de pontos; de longe, o olho lê um tom intermediário. Banding é um erro de contorno e sombra: tons enfileirados acompanhando a borda com a mesma largura fazem a borda parecer grossa e duplicada. Para resolver, varie a largura dos tons ou tire um deles."
+      }
+    ]
+  },
+  {
     "topicId": "escolha_de_engine",
+    "ordem": 3,
+    "trilha": "medido",
     "lessonOrder": 2,
     "titulo": "Escolhendo a Engine Certa",
     "modulo": "Game Engines",
@@ -65,6 +103,8 @@
   },
   {
     "topicId": "logica_programacao",
+    "ordem": 4,
+    "trilha": "medido",
     "lessonOrder": 3,
     "titulo": "Lógica de Programação",
     "modulo": "Programação para Jogos",
@@ -96,34 +136,132 @@
     ]
   },
   {
-    "topicId": "pixel_art_basico",
-    "lessonOrder": 4,
-    "titulo": "Pixel Art Básico",
-    "modulo": "Arte & Pixel Art",
+    "topicId": "gdd_documento",
+    "ordem": 5,
+    "trilha": "diaria",
+    "lessonOrder": 6,
+    "titulo": "GDD: o documento do jogo",
+    "modulo": "Fundamentos de Game Design",
     "cartao": [
       {
-        "titulo": "O que é pixel art",
-        "texto": "É arte em que cada pixel é posto de propósito, em resolução baixa (16×16, 32×32, 64×64) e com paleta limitada. Uma foto reduzida não é pixel art: os pixels dela são resultado de um filtro, não de escolha."
+        "titulo": "Para que serve",
+        "texto": "O GDD (game design document) registra o que o jogo é e como ele funciona: a ideia, as regras, o conteúdo e o que fica de fora. Serve para a equipe inteira trabalhar na mesma direção. É um documento vivo, que muda junto com o projeto."
       },
       {
-        "titulo": "Ampliar sem borrar",
-        "texto": "Pixel art é ampliada com o método do vizinho mais próximo (nearest neighbor), que transforma cada pixel num bloco da mesma cor. Filtros como bilinear e bicúbico misturam vizinhos e borram. Use fatores inteiros (2x, 3x): em 1,5x, alguns pixels ficam maiores que outros."
+        "titulo": "O que costuma ter",
+        "texto": "A visão do jogo em uma frase, o público e a plataforma, o ciclo principal de jogo (o que o jogador faz repetidamente), as mecânicas e os controles, a progressão, referências de arte e som e o escopo: o que entra e o que não entra."
       },
       {
-        "titulo": "Paleta e rampas",
-        "texto": "Poucas cores bem escolhidas deixam o sprite coeso e fácil de ler. As cores se organizam em rampas, do escuro ao claro. Em vez de só escurecer e clarear, desloque o matiz: sombras puxando para o azul ou roxo, luzes para o amarelo. Isso é hue shifting e evita sombras acinzentadas."
+        "titulo": "Curto primeiro",
+        "texto": "Documento enorme ninguém lê nem atualiza. Muitas equipes começam com um GDD de uma página e acrescentam detalhe à medida que o protótipo é testado. O que o teste mostra que não funciona é corrigido no documento."
       },
       {
-        "titulo": "Linhas e bordas",
-        "texto": "Linhas diagonais ficam limpas com degraus regulares (1:1, 2:1, 3:1). Degraus de tamanhos aleatórios formam jaggies, que parecem tremidos. Para suavizar uma curva, coloque poucos pixels de cor intermediária entre a linha e o fundo: é o anti-aliasing manual."
+        "titulo": "Escopo sob controle",
+        "texto": "Separe o essencial (sem isso o jogo não existe) do desejável (fica para depois). Quando cada reunião acrescenta uma funcionalidade nova e o lançamento escorrega, o nome do problema é aumento descontrolado de escopo, o feature creep."
+      }
+    ]
+  },
+  {
+    "topicId": "ux_ui_jogos",
+    "ordem": 6,
+    "trilha": "diaria",
+    "lessonOrder": 7,
+    "titulo": "UX/UI em jogos",
+    "modulo": "Fundamentos de Game Design",
+    "cartao": [
+      {
+        "titulo": "UI e UX",
+        "texto": "UI é o que aparece na tela: menus, botões e o HUD. UX é a experiência de entender e usar o jogo: saber o que fazer, perceber o que aconteceu, não se perder. Uma boa UI está a serviço de uma boa UX."
       },
       {
-        "titulo": "Luz e sombra",
-        "texto": "Escolha de onde vem a luz e sombreie a partir dela: as faces voltadas para a luz ficam claras e o lado oposto escurece. Quando a sombra contorna a forma inteira por igual, como uma almofada, o erro tem nome: pillow shading. O volume fica achatado porque a luz deixou de ter direção."
+        "titulo": "HUD",
+        "texto": "O HUD é a informação sobreposta à tela durante a partida, como vida, munição e minimapa. Mostre só o que o jogador precisa naquele momento. Uma interface diegética existe dentro do mundo do jogo: um relógio no pulso do personagem, uma luz no traje."
       },
       {
-        "titulo": "Dithering e banding",
-        "texto": "Dithering mistura duas cores num padrão xadrez ou de pontos; de longe, o olho lê um tom intermediário. Banding é um erro de contorno e sombra: tons enfileirados acompanhando a borda com a mesma largura fazem a borda parecer grossa e duplicada. Para resolver, varie a largura dos tons ou tire um deles."
+        "titulo": "Feedback",
+        "texto": "Toda ação precisa de uma resposta que o jogador perceba: um brilho, um som, um número, um tremor na tela. Sem isso ele não sabe se a ação funcionou, e o jogo parece quebrado."
+      },
+      {
+        "titulo": "Ensinar jogando",
+        "texto": "Em vez de uma tela cheia de comandos no começo, apresente uma coisa por vez, numa situação segura em que o jogador já usa o que acabou de aprender. A forma dos objetos também ensina: uma parede rachada sugere que pode ser quebrada."
+      }
+    ]
+  },
+  {
+    "topicId": "efeitos_sonoros",
+    "ordem": 7,
+    "trilha": "diaria",
+    "lessonOrder": 5,
+    "titulo": "Efeitos sonoros",
+    "modulo": "Áudio & Música",
+    "cartao": [
+      {
+        "titulo": "Som também é interface",
+        "texto": "Efeitos sonoros confirmam ações (pulo, acerto, erro), dão informação (passos atrás do jogador, um alarme) e ambientam a cena. Muitas vezes o jogador ouve o que está acontecendo antes de ver."
+      },
+      {
+        "titulo": "De onde vêm os sons",
+        "texto": "Foley é gravar sons do dia a dia, como passos, roupas e objetos, para sincronizar com as ações do jogo. Também se usam bibliotecas de sons prontos; antes de usar, confira a licença: se permite uso comercial e se exige crédito."
+      },
+      {
+        "titulo": "Variação",
+        "texto": "O mesmo som repetido igual cansa e soa artificial. A prática comum é ter várias versões do som e variar um pouco o tom (pitch) e o volume a cada vez que ele toca."
+      },
+      {
+        "titulo": "Camadas e mixagem",
+        "texto": "Um som marcante costuma ser feito em camadas: numa explosão, o impacto, o grave e os detritos. Na mixagem, o que importa para jogar vem primeiro: a música não pode cobrir o aviso de um ataque."
+      }
+    ]
+  },
+  {
+    "topicId": "playtest_iteracao",
+    "ordem": 8,
+    "trilha": "diaria",
+    "lessonOrder": 8,
+    "titulo": "Playtest e iteração",
+    "modulo": "Fundamentos de Game Design",
+    "cartao": [
+      {
+        "titulo": "O que é playtest",
+        "texto": "Playtest é observar pessoas jogando para descobrir onde o jogo não funciona como você queria. Testa-se o jogo, não o jogador. Comece cedo, até com protótipos simples, e repita ao longo do projeto."
+      },
+      {
+        "titulo": "Observe mais do que pergunta",
+        "texto": "Veja onde a pessoa trava, o que ignora, onde desiste. Não explique nem ajude durante o teste. Peça para ela pensar em voz alta. O que alguém diz e o que faz podem ser diferentes; o comportamento costuma revelar mais."
+      },
+      {
+        "titulo": "Quem testa",
+        "texto": "Quem fez o jogo já sabe demais e não enxerga o que confunde um novato. Amigos tendem a ser gentis. Inclua pessoas novas, de preferência do público que o jogo quer atingir."
+      },
+      {
+        "titulo": "Iterar",
+        "texto": "Depois do teste, liste os problemas, priorize pelos que mais afetam a experiência e aparecem com mais jogadores, ajuste e teste de novo. O ciclo é: prototipar, testar, analisar, ajustar."
+      }
+    ]
+  },
+  {
+    "topicId": "publicando_steam",
+    "ordem": 9,
+    "trilha": "diaria",
+    "lessonOrder": 9,
+    "titulo": "Publicando na Steam",
+    "modulo": "Publicação & Monetização",
+    "cartao": [
+      {
+        "titulo": "Steamworks e taxa",
+        "texto": "Para publicar, o desenvolvedor se cadastra no Steamworks e paga a taxa Steam Direct de US$ 100 por jogo. A taxa não é reembolsável, mas é recuperada quando o jogo chega a US$ 1.000 de receita bruta ajustada."
+      },
+      {
+        "titulo": "Página \"Em breve\"",
+        "texto": "Antes do lançamento, o jogo ganha uma página na loja marcada como \"em breve\", com imagens, trailer e descrição. Ela precisa ficar no ar por pelo menos duas semanas antes do lançamento."
+      },
+      {
+        "titulo": "Lista de desejos",
+        "texto": "Jogadores interessados colocam o jogo na lista de desejos. Quando ele é lançado, a Steam avisa essas pessoas por e-mail. Por isso estúdios publicam a página bem antes das duas semanas mínimas: para juntar listas de desejos."
+      },
+      {
+        "titulo": "Ganhar visibilidade",
+        "texto": "A Valve revisa a página e o build antes da liberação. Sem verba de marketing, uma estratégia comum é lançar uma demo e participar de eventos da própria loja, como o Steam Next Fest, para atrair listas de desejos."
       }
     ]
   }

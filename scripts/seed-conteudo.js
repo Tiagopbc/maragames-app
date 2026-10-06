@@ -22,6 +22,8 @@ const CONTENT_DIR = path.join(__dirname, '..', 'content');
 const BLOCOS = ['forma_a', 'forma_b', 'pratica'];
 const DIFICULDADES = ['basico', 'intermediario', 'avancado'];
 const ALTERNATIVAS = ['a', 'b', 'c', 'd'];
+const TRILHAS = ['medido', 'diaria']; // medido: pré, pós e reteste; diaria: um tópico por dia, só prática
+const MIN_PRATICA_DIARIA = 5;
 
 function lerJson(nome) {
     const bruto = fs.readFileSync(path.join(CONTENT_DIR, nome), 'utf8');
@@ -37,6 +39,8 @@ function validar(topicos, questoes) {
 
     const topicIds = new Set();
     const ordens = new Set();
+    const posicoes = new Set();
+    const trilhaDoTopico = {};
     for (const t of topicos) {
         if (!textoOk(t.topicId)) erros.push('tópico sem topicId');
         if (topicIds.has(t.topicId)) erros.push(`topicId repetido: ${t.topicId}`);
@@ -45,6 +49,11 @@ function validar(topicos, questoes) {
         if (ordens.has(t.lessonOrder)) erros.push(`lessonOrder repetido: ${t.lessonOrder}`);
         ordens.add(t.lessonOrder);
         if (!textoOk(t.titulo)) erros.push(`${t.topicId}: sem título`);
+        if (!Number.isInteger(t.ordem)) erros.push(`${t.topicId}: ordem de apresentação deve ser inteiro`);
+        if (posicoes.has(t.ordem)) erros.push(`ordem de apresentação repetida: ${t.ordem}`);
+        posicoes.add(t.ordem);
+        if (!TRILHAS.includes(t.trilha)) erros.push(`${t.topicId}: trilha inválida (${t.trilha})`);
+        trilhaDoTopico[t.topicId] = t.trilha;
         if (!Array.isArray(t.cartao) || t.cartao.length === 0) {
             erros.push(`${t.topicId}: cartão vazio`);
         } else {
@@ -62,6 +71,9 @@ function validar(topicos, questoes) {
         ids.add(q.id);
         if (!topicIds.has(q.topicId)) erros.push(`${tag}: topicId desconhecido (${q.topicId})`);
         if (!BLOCOS.includes(q.bloco)) erros.push(`${tag}: bloco inválido (${q.bloco})`);
+        if (trilhaDoTopico[q.topicId] === 'diaria' && q.bloco !== 'pratica') {
+            erros.push(`${tag}: tópico da trilha diária só tem questões de prática`);
+        }
         if (!DIFICULDADES.includes(q.dificuldade)) erros.push(`${tag}: dificuldade inválida (${q.dificuldade})`);
         if (q.formato !== 'multipla_escolha') erros.push(`${tag}: no piloto só há multipla_escolha`);
         if (!textoOk(q.enunciado)) erros.push(`${tag}: enunciado vazio`);
@@ -77,9 +89,15 @@ function validar(topicos, questoes) {
         });
     }
 
-    // Desenho do piloto: as formas A e B são paralelas, uma questão de cada dificuldade.
+    // Desenho do piloto: nos tópicos medidos, as formas A e B são paralelas, uma questão de
+    // cada dificuldade. Nos tópicos da trilha diária, só prática, com um mínimo por dia.
     for (const t of topicIds) {
         const doTopico = questoes.filter((q) => q.topicId === t);
+        if (trilhaDoTopico[t] === 'diaria') {
+            const n = doTopico.filter((q) => q.bloco === 'pratica').length;
+            if (n < MIN_PRATICA_DIARIA) erros.push(`${t}: trilha diária precisa de pelo menos ${MIN_PRATICA_DIARIA} questões (tem ${n})`);
+            continue;
+        }
         for (const bloco of ['forma_a', 'forma_b']) {
             const difs = doTopico.filter((q) => q.bloco === bloco).map((q) => q.dificuldade).sort().join(',');
             if (difs !== [...DIFICULDADES].sort().join(',')) {
@@ -93,11 +111,11 @@ function validar(topicos, questoes) {
 }
 
 function resumo(topicos, questoes) {
-    for (const t of topicos) {
+    for (const t of [...topicos].sort((a, b) => a.ordem - b.ordem)) {
         const qs = questoes.filter((q) => q.topicId === t.topicId);
         const conta = (b) => qs.filter((q) => q.bloco === b).length;
         console.log(
-            `  lição ${t.lessonOrder} · ${t.titulo}: ${t.cartao.length} slides, ` +
+            `  ${t.ordem}. ${t.titulo} (${t.trilha}, lição ${t.lessonOrder}): ${t.cartao.length} slides, ` +
             `${conta('forma_a')} forma A, ${conta('forma_b')} forma B, ${conta('pratica')} prática`,
         );
     }
@@ -127,6 +145,8 @@ async function gravar(topicos, questoes, versao, prune) {
             {
                 title: t.titulo,
                 topicId: t.topicId,
+                ordem: t.ordem,
+                trilha: t.trilha,
                 modulo: t.modulo || null,
                 cartao: t.cartao,
                 versaoConteudo: versao,
