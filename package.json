@@ -31,8 +31,14 @@
     "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "firebase-admin": "^14.4.0",
+    "firebase-tools": "^15.32.1",
+    "jest": "~29.7.0",
+    "jest-expo": "~57.0.5",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -43,7 +49,20 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "test:regras": "firebase emulators:exec --only firestore --project demo-maragames \"jest --config jest.regras.config.js\""
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/src/test/estilo-vazio.js"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/regras/"
+    ]
   },
   "private": true,
   "allowScripts": {
