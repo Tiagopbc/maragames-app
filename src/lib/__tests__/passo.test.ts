@@ -1,4 +1,5 @@
-import { destinoDaEtapa } from '../passo';
+import type { Etapa } from '../roteiro';
+import { destinoDaEtapa, podeAbrir, travaVale, type DestinoDeEstudo } from '../passo';
 
 const PROGRESSO = { respondidas: 1, total: 12, proximaQuestaoId: 'q2' };
 
@@ -43,5 +44,110 @@ describe('destinoDaEtapa', () => {
     // O SUS ainda não tem tela (item 24); quando tiver, o destino entra aqui.
     it.each(['sus', 'concluido'] as const)('em %s o botão não leva a lugar nenhum', (tipo) => {
         expect(destinoDaEtapa({ tipo })).toBeNull();
+    });
+});
+
+describe('podeAbrir', () => {
+    const ESTUDO_MDA: Etapa = { tipo: 'estudo', topicId: 'mda', respondidas: 0, total: 4, proximaQuestaoId: 'p1' };
+    const ESPERA: Etapa = { tipo: 'espera', liberaEm: 0, diasRestantes: 6 };
+    const PRE: Etapa = { tipo: 'pre', ...PROGRESSO };
+    const POS: Etapa = { tipo: 'pos', ...PROGRESSO };
+    const RETESTE: Etapa = { tipo: 'reteste', foraDaJanela: false, ...PROGRESSO };
+
+    const CARTAO_MDA: DestinoDeEstudo = { tipo: 'cartao', topicId: 'mda' };
+    const PRATICA_MDA: DestinoDeEstudo = { tipo: 'bloco', fase: 'pratica', topicId: 'mda' };
+    const TODOS: DestinoDeEstudo[] = [
+        CARTAO_MDA,
+        PRATICA_MDA,
+        { tipo: 'bloco', fase: 'pre' },
+        { tipo: 'bloco', fase: 'pos' },
+        { tipo: 'bloco', fase: 'reteste' },
+    ];
+
+    describe('no estudo de um tópico', () => {
+        it('abre o cartão e a prática daquele tópico', () => {
+            expect(podeAbrir(ESTUDO_MDA, CARTAO_MDA)).toBe(true);
+            expect(podeAbrir(ESTUDO_MDA, PRATICA_MDA)).toBe(true);
+        });
+
+        it('com a prática já começada, os dois continuam abrindo', () => {
+            const comecada: Etapa = { ...ESTUDO_MDA, respondidas: 2 };
+
+            expect(podeAbrir(comecada, CARTAO_MDA)).toBe(true);
+            expect(podeAbrir(comecada, PRATICA_MDA)).toBe(true);
+        });
+
+        it('não abre o cartão nem a prática de outro tópico: a ordem do roteiro é fixa', () => {
+            expect(podeAbrir(ESTUDO_MDA, { tipo: 'cartao', topicId: 'engine' })).toBe(false);
+            expect(podeAbrir(ESTUDO_MDA, { tipo: 'bloco', fase: 'pratica', topicId: 'engine' })).toBe(false);
+        });
+
+        it('não abre a prática sem tópico: quem escolhe o tópico é o roteiro, não a tela', () => {
+            expect(podeAbrir(ESTUDO_MDA, { tipo: 'bloco', fase: 'pratica' })).toBe(false);
+        });
+
+        it('não abre o pós-teste antes de terminar o estudo', () => {
+            expect(podeAbrir(ESTUDO_MDA, { tipo: 'bloco', fase: 'pos' })).toBe(false);
+        });
+    });
+
+    // É o que a trava protege (item 23): entre o pós e o reteste, rever um tópico medido faria
+    // o reteste medir a revisão, e abrir o reteste antes da hora mediria um dia de memória, não sete.
+    describe('na espera do reteste', () => {
+        it.each(TODOS)('não abre %o', (destino) => {
+            expect(podeAbrir(ESPERA, destino)).toBe(false);
+        });
+    });
+
+    describe('nos blocos medidos', () => {
+        it.each([
+            ['pre', PRE],
+            ['pos', POS],
+            ['reteste', RETESTE],
+        ] as const)('o bloco %s abre na etapa dele', (fase, etapa) => {
+            expect(podeAbrir(etapa, { tipo: 'bloco', fase })).toBe(true);
+        });
+
+        it('o reteste abre também fora da janela: a análise marca o atraso', () => {
+            expect(podeAbrir({ ...RETESTE, foraDaJanela: true }, { tipo: 'bloco', fase: 'reteste' })).toBe(true);
+        });
+
+        it.each([
+            ['pre', PRE],
+            ['pos', POS],
+            ['reteste', RETESTE],
+        ] as const)('na etapa %s, nada além do próprio bloco abre', (fase, etapa) => {
+            for (const destino of TODOS) {
+                const oProprio = destino.tipo === 'bloco' && destino.fase === fase;
+                expect(podeAbrir(etapa, destino)).toBe(oProprio);
+            }
+        });
+    });
+
+    it.each([{ tipo: 'consentimento' }, { tipo: 'sus' }, { tipo: 'concluido' }] as const)(
+        'em $tipo nenhum bloco abre',
+        (etapa) => {
+            for (const destino of TODOS) expect(podeAbrir(etapa, destino)).toBe(false);
+        }
+    );
+});
+
+describe('travaVale', () => {
+    const MEDIDOS = (['pre', 'pos', 'reteste'] as const).map((fase): DestinoDeEstudo => ({ tipo: 'bloco', fase }));
+    const DE_ESTUDO: DestinoDeEstudo[] = [
+        { tipo: 'cartao', topicId: 'mda' },
+        { tipo: 'bloco', fase: 'pratica', topicId: 'mda' },
+    ];
+
+    it('no app do participante, vale para tudo', () => {
+        for (const destino of [...MEDIDOS, ...DE_ESTUDO]) expect(travaVale(destino, false)).toBe(true);
+    });
+
+    it('em desenvolvimento, não vale para os blocos medidos: são os links de teste da home', () => {
+        for (const destino of MEDIDOS) expect(travaVale(destino, true)).toBe(false);
+    });
+
+    it('em desenvolvimento, continua valendo para o cartão e a prática', () => {
+        for (const destino of DE_ESTUDO) expect(travaVale(destino, true)).toBe(true);
     });
 });

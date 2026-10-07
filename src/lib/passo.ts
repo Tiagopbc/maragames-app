@@ -1,4 +1,5 @@
-// Para onde o botão "Continuar estudos" leva em cada etapa do roteiro (item 6).
+// Para onde o botão "Continuar estudos" leva em cada etapa do roteiro (item 6), e o que cada
+// etapa deixa abrir (item 23).
 // Função pura: sem React, sem Firebase, sem estado. A etapa chega pronta de `etapaDoRoteiro`.
 
 import type { Fase } from '../types/domain';
@@ -31,4 +32,34 @@ export function destinoDaEtapa(etapa: Etapa): Destino | null {
         case 'concluido':
             return null;
     }
+}
+
+// O que uma rota de estudo pode pedir: um cartão ou um bloco. O termo tem a sua própria tela.
+export type DestinoDeEstudo = Exclude<Destino, { tipo: 'consentimento' }>;
+
+/**
+ * A trava do roteiro: a tela pedida só abre se for a da etapa em que a pessoa está.
+ * A home já leva sempre à etapa certa; isto vale para quem chega por outro caminho, como a URL
+ * digitada na web. Protege a medida: rever um tópico medido antes do reteste, ou abrir o reteste
+ * antes dos sete dias, mudaria o que o reteste mede.
+ */
+export function podeAbrir(etapa: Etapa, destino: DestinoDeEstudo): boolean {
+    if (destino.tipo === 'cartao') {
+        return etapa.tipo === 'estudo' && etapa.topicId === destino.topicId;
+    }
+    if (destino.fase === 'pratica') {
+        // Sem tópico não abre: quem diz qual é o tópico da vez é o roteiro.
+        return etapa.tipo === 'estudo' && destino.topicId !== undefined && etapa.topicId === destino.topicId;
+    }
+    return etapa.tipo === destino.fase;
+}
+
+/**
+ * Em desenvolvimento, os links da home abrem pré, pós e reteste fora da etapa, para dar para
+ * testar o reteste sem esperar sete dias. No app do participante a trava vale sempre.
+ * Esta exceção sai junto com os links, na limpeza antes do piloto (item 24).
+ */
+export function travaVale(destino: DestinoDeEstudo, emDesenvolvimento: boolean): boolean {
+    const blocoMedido = destino.tipo === 'bloco' && destino.fase !== 'pratica';
+    return !(emDesenvolvimento && blocoMedido);
 }

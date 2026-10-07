@@ -73,6 +73,7 @@ export const TEXTOS = {
     blocoSemQuestoes: 'Este bloco não tem questões. O conteúdo foi carregado no banco?',
     progressoDoBloco: 'Progresso no bloco',
     sair: 'Sair',
+    conferindoRoteiro: 'Conferindo o roteiro',
     continuarEstudos: 'Continuar estudos',
     proximaEtapa: 'Próxima etapa',
     trilhas: 'Trilhas',

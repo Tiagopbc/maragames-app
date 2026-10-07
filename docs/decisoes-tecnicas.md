@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado e a aparência do protótipo entrou no app).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app e a trava do roteiro foi implementada).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -209,6 +209,19 @@ Entrega à Mara Games (decidido em 05/10): o grupo exporta os dados e envia um C
 
 Revisto em 07/10 (confirmado). O grupo reconsiderou espalhar os quatro tópicos medidos por quatro dias, um módulo de 10 questões por dia, e manteve o desenho acima. O que pesou: hoje os dias de engajamento estão separados da medição, e o dado fica completo com duas aberturas do app (dia 1 e reteste); com um módulo medido por dia seriam oito, e cada falta viraria dado perdido, o que pesa com cerca de 15 participantes. O custo aceito é escrever os cinco tópicos da trilha até 23/10; se isso não couber, a alternativa volta à mesa, porque não exige conteúdo novo.
 
+Revisto em 07/10 (trava). A trava dos tópicos medidos virou regra do roteiro inteiro: uma tela de estudo só abre se for a da etapa em que a pessoa está. A home já levava sempre à etapa certa; o que faltava era quem chega por outro caminho, como a URL digitada na web. Antes disso, com a home dizendo "o reteste abre em 6 dias", `/bloco/reteste` abria a questão 1 de 12, e nem o hook do bloco nem o `firestore.rules` olhavam a etapa ou a janela.
+
+- **A regra é função pura**, `podeAbrir(etapa, destino)`, em `src/lib/passo.ts`, ao lado de `destinoDaEtapa`: cartão e prática de um tópico abrem no estudo daquele tópico; pré, pós e reteste, na própria etapa; prática sem tópico na URL não abre, porque quem diz o tópico da vez é o roteiro. Na espera, nada abre.
+- **Vale para os blocos medidos também**, e não só para cartão e prática, como a pendência dizia. Abrir o reteste antes da hora mede um dia de memória, e não sete; abrir o pós antes de estudar transforma o "depois" num segundo "antes". Os dois estragam a medida mais do que uma revisão.
+- **Um portão só** (`src/components/roteiro/portao-do-roteiro.tsx`), usado pelas rotas `cartao/[topicId]` e `bloco/[fase]`. Ele calcula a etapa com o mesmo `useRoteiro` da home, mostra um indicador enquanto lê e, se a tela não é a da etapa, a rota redireciona para a home.
+- **Decide uma vez, ao abrir.** Terminar a prática muda a etapa; se o portão decidisse de novo, tiraria a pessoa da tela antes de ela ver o resultado do bloco.
+- **Falha de leitura fecha.** Sem saber a etapa, a tela não abre e a pessoa volta para a home, que tem "Tentar de novo".
+- **Custo aceito:** tópicos, questões e respostas são lidos duas vezes ao abrir um bloco, uma pelo portão e outra pelo bloco. Pôr a checagem dentro dos hooks do bloco e do cartão evitaria a segunda leitura, mas espalharia a regra em dois lugares.
+- **Exceção de desenvolvimento** (`travaVale`): em `__DEV__`, a trava não vale para pré, pós e reteste, para os links de teste da home continuarem abrindo o reteste sem esperar sete dias. No app do participante vale sempre. A exceção sai com os links, na limpeza antes do piloto.
+- **A trava é do app, não do servidor.** Quem gravar direto no Firestore, fora do app, não passa por ela; validação no servidor está fora do escopo (item 5).
+
+Os tópicos da trilha diária ainda não existem em `etapaDoRoteiro`, então a prática deles fica fechada por esta regra. Quando o limite diário entrar, ele acrescenta a sua parte a `podeAbrir`.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -224,9 +237,8 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Animação de abertura: ainda é a do template, com a logo do Expo e os azuis dele (`src/components/animated-icon.tsx` e a cor da tela de abertura no `app.json`). É a única exceção do teste que barra cor fora do tema.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
-- Trava dos tópicos medidos entre o pós e o reteste (item 23): a home já não leva a eles nesse intervalo, mas as rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL na web, e as duas também abrem fora da ordem do roteiro. A trava é do M5 e deve valer nas duas rotas.
 - Tela de espera do reteste (M5): relatório do dia 1, reaproveitando o componente do resultado (item 27), e contagem dos dias. Hoje a home só mostra a linha "O reteste abre em N dias".
-- Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e confirmar que o build distribuído não é de desenvolvimento.
+- Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
 **Para a sessão 2 (reteste entre 06/11 e 10/11)**
@@ -271,6 +283,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Resolvidas em 07/10**
 
 - Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
+- Trava do roteiro: cartão, prática, pré, pós e reteste só abrem na etapa certa, também para quem digita a URL (item 23). Conferido na web com a conta do Tiago, que está na espera: o cartão e a prática do MDA voltaram para a home.
 - Aparência do protótipo no app: cores, fonte Lexend, estilo dos componentes, logo no login e mascote no consentimento (item 28).
 - Conferência visual na web, com a conta do Tiago: em 375×812 a saudação da home começa a 24 px do topo, sem nada por cima; na pergunta, os três níveis de confiança e o Confirmar ficam à vista no rodapé, e em 320×568 continuam fixos enquanto as alternativas rolam (item 25). Nenhuma resposta foi gravada; abrir o reteste pelo link de desenvolvimento criou uma tentativa de reteste na conta de teste, que entra na limpeza.
 - Rodapé fixo, correção de `topicosMedidos` e documentos de 06/10 em commit, na mesma branch (seis commits, sem push).
@@ -318,6 +331,8 @@ Revisto em 06/10 (regras). As regras do consentimento ganharam teste no emulador
 Revisto em 07/10 (navegação). As rotas ganharam teste, em `src/__tests__/navegacao.test.tsx`, com o `renderRouter` do Expo Router sobre a pasta `src/app` de verdade, sessão simulada e o repositório em memória. Cobre o que a retirada das abas mudou (item 6): a home abre direto em `(app)`, nenhum texto do template aparece e `/explore` não leva a tela nenhuma. O teste fica fora de `src/app` porque lá todo arquivo vira rota. Dois detalhes de ferramenta: no Testing Library 14 o render é assíncrono, então o teste espera a promessa devolvida pelo `renderRouter` antes de ler a rota; e o Jest passou a conhecer o alias `@/assets`, que o `tsconfig.json` já tinha. O teste não mede pixels: sobreposição e rolagem continuam sendo conferência visual.
 
 Revisto em 07/10 (aparência). Quatro testes novos guardam a identidade visual (item 28): o contraste de cada par de texto e fundo do tema; nenhuma cor escrita à mão fora de `src/constants/theme.ts`, nem o `Button` do React Native (esse teste é em JavaScript, porque lê arquivos com o Node e os tipos do Node não entram no `tsconfig`); a família de fonte que cada tipo de texto e cada peso recebem; e a tela de login, pelas rotas reais, com a sessão de quem não entrou. Teste não julga se a tela ficou boa: isso continua sendo conferência visual, nos dois temas. O Jest passou a ignorar `.claude/`, onde ficam os worktrees do assistente.
+
+Revisto em 07/10 (trava). A trava do roteiro (item 23) é testada em três alturas: a regra, etapa por etapa, em `passo.test.ts`; o portão, com o repositório em memória (abre, barra, espera a leitura, fecha na falha e não decide duas vezes); e as rotas reais, em `navegacao.test.tsx`, onde quem está na espera e abre `/cartao/mda` ou `/bloco/reteste` termina em `/`. O teste do "decide uma vez" foi conferido tirando a proteção e vendo-o falhar. Como o Jest roda em modo de desenvolvimento, os testes do app do participante desligam `__DEV__` enquanto rodam.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

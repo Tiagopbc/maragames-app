@@ -77,6 +77,7 @@ Atualizado em 06/10: o resultado do bloco está implementado (quadrantes, XP com
 **M5: Retenção e trilha diária.** Reteste dos quatro tópicos medidos de 7 a 9 dias após o pós, com esses tópicos travados até lá, e cálculo de retenção. Trilha diária nos dias 2 a 6: um tópico novo por dia de calendário, sequência de dias que zera se o aluno pular um dia (o tópico continua esperando) e tela "volte amanhã". A fila "Revisar hoje" fica para depois do piloto.
 Prova: o app mede se o aluno ainda lembra, o que separa aprendizagem de desempenho na sessão.
 Depende de: M4.
+Atualizado em 07/10: a trava está no código. Cartão, prática, pré, pós e reteste só abrem na etapa certa do roteiro, também para quem digita a URL na web (item 23 das decisões). Faltam a tela de espera, o cálculo de retenção e a trilha diária.
 
 **M6: Banco de conteúdo (rascunho pronto).** Nove tópicos. Os quatro medidos, na ordem MDA, Pixel Art Básico, Escolhendo a Engine Certa e Lógica de Programação, têm 10 questões cada. Os cinco da trilha (GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração, Publicando na Steam) têm 6 questões de prática cada. Cada questão tem dificuldade de 1 a 3 (hipótese do autor) e explicação por alternativa; cada tópico tem um cartão de conceito. O conteúdo fica em `content/*.json`, e `npm run seed:conteudo` valida e espelha no Firestore.
 Prova: há questões suficientes para a métrica ter sinal.

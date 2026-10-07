@@ -1,7 +1,9 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { TelaDoBloco } from '@/components/pergunta/tela-do-bloco';
+import { PortaoDoRoteiro } from '@/components/roteiro/portao-do-roteiro';
 import { participanteDoRoteiro } from '@/lib/participante';
+import { travaVale } from '@/lib/passo';
 import { useSession } from '@/lib/session';
 import type { Fase } from '@/types/domain';
 
@@ -12,8 +14,8 @@ function ehFase(valor: unknown): valor is Fase {
     return FASES.includes(valor as Fase);
 }
 
-// /bloco/pratica, /bloco/pre, /bloco/pos, /bloco/reteste. Na prática, `?topicId=` escolhe o
-// tópico; sem ele, abre o primeiro com questão pendente.
+// /bloco/pratica, /bloco/pre, /bloco/pos, /bloco/reteste. Na prática, `?topicId=` diz o tópico.
+// O bloco só abre se for o da etapa em que a pessoa está (item 23); senão, volta para a home.
 export default function BlocoScreen() {
     const { fase, topicId } = useLocalSearchParams<{ fase: string; topicId?: string }>();
     const { user, perfil } = useSession();
@@ -27,16 +29,33 @@ export default function BlocoScreen() {
         else router.replace('/');
     }
 
-    return (
+    const participante = participanteDoRoteiro(perfil);
+    const chave = `${fase}|${topicId ?? ''}`;
+    const bloco = (
         <TelaDoBloco
             // Outro bloco é outra tela: nada do estado anterior é reaproveitado.
-            key={`${fase}|${topicId ?? ''}`}
+            key={chave}
             uid={user.uid}
             fase={fase}
             topicId={topicId ?? null}
             // A forma nasce no aceite do termo. Sem ela, o bloco medido não abre.
-            formaPre={participanteDoRoteiro(perfil).formaPre}
+            formaPre={participante.formaPre}
             aoSair={sair}
         />
+    );
+    const destino = { tipo: 'bloco', fase, topicId } as const;
+
+    // Em desenvolvimento, os links da home abrem os blocos medidos fora da etapa.
+    if (!travaVale(destino, __DEV__)) return bloco;
+
+    return (
+        <PortaoDoRoteiro
+            key={chave}
+            uid={user.uid}
+            participante={participante}
+            destino={destino}
+            barrado={<Redirect href="/" />}>
+            {bloco}
+        </PortaoDoRoteiro>
     );
 }
