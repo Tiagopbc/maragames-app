@@ -4,7 +4,7 @@ import { ActivityIndicator, Platform, Pressable, StyleSheet, TextInput } from 'r
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/session';
 
@@ -41,7 +41,7 @@ export default function SignInScreen() {
     const enviar = () => executar(() => entrarComEmail(email, senha));
     const podeEnviar = !!email && !!senha && !carregando;
 
-    const inputStyle = [styles.input, { color: theme.text, borderColor: theme.borda }];
+    const inputStyle = [styles.input, { color: theme.text, borderColor: theme.borda, fontFamily: Fonts.regular }];
 
     return (
         <ThemedView style={styles.container}>

@@ -2,7 +2,7 @@ import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Erro } from '@/lib/validacao';
 
@@ -23,7 +23,7 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
             <TextInput
                 style={[
                     styles.input,
-                    { color: theme.text, borderColor: erro ? theme.erro : theme.borda },
+                    { color: theme.text, borderColor: erro ? theme.erro : theme.borda, fontFamily: Fonts.regular },
                     style,
                 ]}
                 placeholderTextColor={theme.textSecondary}

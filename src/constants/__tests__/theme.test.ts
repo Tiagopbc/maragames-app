@@ -1,4 +1,4 @@
-import { Colors, type ThemeColor } from '../theme';
+import { Colors, Fonts, type ThemeColor } from '../theme';
 
 // Contraste entre duas cores, pela fórmula da WCAG 2: de 1 (iguais) a 21 (preto no branco).
 function luminancia(hex: string): number {
@@ -65,6 +65,15 @@ describe.each(['light', 'dark'] as const)('tema %s', (tema) => {
 describe('a identidade da Beast Maragames', () => {
     it('o botão principal é o roxo da marca', () => {
         expect(Colors.light.botao).toBe('#3B2781');
+    });
+
+    it('a fonte é a Lexend, uma família por peso', () => {
+        expect(Fonts).toMatchObject({
+            regular: 'Lexend_400Regular',
+            medium: 'Lexend_500Medium',
+            semibold: 'Lexend_600SemiBold',
+            bold: 'Lexend_700Bold',
+        });
     });
 
     it('os dois temas têm os mesmos nomes de cor', () => {

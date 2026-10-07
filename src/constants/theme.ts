@@ -50,30 +50,17 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+// Lexend, a fonte do protótipo. Com fonte própria, cada peso é um arquivo e tem o seu nome de
+// família; os arquivos são carregados no layout raiz. Quem escreve texto usa `ThemedText`, que
+// escolhe a família pelo peso pedido.
+export const Fonts = {
+  regular: 'Lexend_400Regular',
+  medium: 'Lexend_500Medium',
+  semibold: 'Lexend_600SemiBold',
+  bold: 'Lexend_700Bold',
+  // Trechos de código seguem na fonte monoespaçada do aparelho.
+  mono: Platform.select({ ios: 'ui-monospace', web: 'var(--font-mono)', default: 'monospace' }),
+} as const;
 
 export const Spacing = {
   half: 2,

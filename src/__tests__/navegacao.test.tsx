@@ -1,3 +1,4 @@
+import { useFonts } from 'expo-font';
 import { renderRouter, screen } from 'expo-router/testing-library';
 
 // Este teste fica fora de `src/app` de propósito: lá dentro, todo arquivo vira rota.
@@ -22,6 +23,18 @@ jest.mock('@/data/repositorio', () => {
 
 // A animação de abertura não faz parte da navegação.
 jest.mock('@/components/animated-icon', () => ({ AnimatedSplashOverlay: () => null }));
+
+// A fonte é carregada no layout raiz; aqui o teste decide se ela já chegou.
+jest.mock('expo-font', () => ({
+    ...jest.requireActual('expo-font'),
+    useFonts: jest.fn(),
+}));
+
+const fontes = useFonts as jest.Mock;
+
+beforeEach(() => {
+    fontes.mockReturnValue([true, null]);
+});
 
 const ROTAS = './src/app';
 
@@ -60,5 +73,19 @@ describe('a navegação de quem está logado', () => {
 
         expect(rotas.segmentos()).not.toContain('explore');
         expect(screen.queryByText('Expo documentation')).toBeNull();
+    });
+
+    it('nada aparece enquanto a fonte não carrega', async () => {
+        fontes.mockReturnValue([false, null]);
+        await abrirEm('/');
+
+        expect(screen.queryByText('Olá, Tiago')).toBeNull();
+    });
+
+    it('se a fonte falhar, o app abre mesmo assim, com a fonte do aparelho', async () => {
+        fontes.mockReturnValue([false, new Error('sem fonte')]);
+        await abrirEm('/');
+
+        expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
     });
 });
