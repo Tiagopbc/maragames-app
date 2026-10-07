@@ -1,4 +1,4 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { render, screen, userEvent, within } from '@testing-library/react-native';
 
 import { repositorio } from '@/data/repositorio';
 import { ordemDasAlternativas } from '@/lib/embaralhar';
@@ -118,6 +118,50 @@ describe('a pergunta', () => {
         await screen.findByText('Enunciado de mda_p1');
 
         expect(screen.queryByRole('button', { name: /pular/i })).not.toBeOnTheScreen();
+    });
+});
+
+// Em tela de celular, o que fica dentro da área que rola pode sumir abaixo da dobra. A confiança
+// não pode depender de rolagem: um nível que o participante não vê enviesa a medida.
+describe('o rodapé fixo', () => {
+    const rodape = () => within(screen.getByTestId('rodape-da-pergunta'));
+
+    it('os três níveis de confiança e o Confirmar ficam no rodapé', async () => {
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a1');
+
+        expect(rodape().getByRole('radio', { name: 'Palpite' })).toBeOnTheScreen();
+        expect(rodape().getByRole('radio', { name: 'Tenho dúvida' })).toBeOnTheScreen();
+        expect(rodape().getByRole('radio', { name: 'Tenho certeza' })).toBeOnTheScreen();
+        expect(rodape().getByRole('button', { name: 'Confirmar' })).toBeOnTheScreen();
+    });
+
+    it('enunciado e alternativas ficam na área que rola, fora do rodapé', async () => {
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a1');
+
+        expect(rodape().queryByText('Enunciado de mda_a1')).not.toBeOnTheScreen();
+        expect(rodape().queryAllByRole('radio', { name: /de mda_a1/ })).toHaveLength(0);
+    });
+
+    it('no feedback da prática, a confiança declarada continua à vista no rodapé, travada', async () => {
+        await abrir('pratica');
+        await screen.findByText('Enunciado de mda_p1');
+        await responder('Certa', 'Tenho dúvida');
+        await screen.findByText('Você acertou');
+
+        expect(rodape().getByRole('radio', { name: 'Tenho dúvida' })).toBeChecked();
+        expect(rodape().getByRole('radio', { name: 'Tenho dúvida' })).toBeDisabled();
+        expect(rodape().getByRole('button', { name: 'Próxima' })).toBeOnTheScreen();
+    });
+
+    it('o feedback fica na área que rola, e não empurra o rodapé', async () => {
+        await abrir('pratica');
+        await screen.findByText('Enunciado de mda_p1');
+        await responder('Certa', 'Tenho certeza');
+        await screen.findByText('Você acertou');
+
+        expect(rodape().queryByText('Você acertou')).not.toBeOnTheScreen();
     });
 });
 

@@ -32,7 +32,10 @@ export function questoesDoBlocoMedido<T extends QuestaoDoBloco>(
  * Os da trilha diária só têm prática; sem tirá-los, o roteiro mandaria estudá-los antes do pós.
  */
 export function topicosMedidos(questoes: readonly QuestaoDoBloco[], topicos: readonly string[]): string[] {
-    return topicos.filter((topicId) => questoes.some((q) => q.topicId === topicId && q.bloco !== 'pratica'));
+    // Compara com as formas, e não com "diferente de prática": questão sem bloco não é medida.
+    return topicos.filter((topicId) =>
+        questoes.some((q) => q.topicId === topicId && (q.bloco === 'forma_a' || q.bloco === 'forma_b'))
+    );
 }
 
 export function questoesDaPratica<T extends QuestaoDoBloco>(questoes: readonly T[], topicId: string): T[] {

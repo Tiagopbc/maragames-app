@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 06/10/2026 (itens 26 e 27 novos; itens 3, 6, 8, 14, 22, 24, 25 e 26 revistos).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 06/10/2026 (itens 26, 27 e 28 novos; itens 3, 6, 8, 14, 21, 22, 24, 25 e 26 revistos).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -152,6 +152,8 @@ Alternativas descartadas: cadastrar pelo console do Firebase (40 documentos com 
 
 Os cartões ficam no documento da lição (campo `cartao`, uma lista de slides), que já tem leitura liberada nas regras, então não foi preciso abrir uma coleção nova. O conteúdo é rascunho com apoio de IA, com revisão independente de gabaritos, fatos e pistas (por exemplo, a alternativa correta ser sempre a mais longa); ainda precisa da revisão do grupo.
 
+Revisto em 06/10. O seed foi rodado no projeto `maragames-mobile` pela primeira vez com este script: versão de conteúdo `5d59872c96b3`, 4 lições com cartão e 40 questões. Até então o banco tinha o seed antigo (3 questões sem o campo `bloco` e 5 lições sem tópico). O script reaproveitou as lições 1 a 4 pela ordem; as 3 questões antigas e a lição 5 ficaram, porque nada é apagado sem `--prune`. Por causa dessas sobras, `topicosMedidos` (`src/lib/bloco.ts`) passou a reconhecer tópico medido pela presença de questão das formas A ou B, e não por "questão que não é de prática": uma questão sem bloco não pode fazer um tópico contar como medido.
+
 ## 22. Fluxo e estado do participante no piloto
 
 Decidido em 05/10. O caminho principal do app no piloto é um roteiro guiado (consentimento, pré-teste, cartão e prática de cada tópico, pós-teste, relatório, espera, reteste, SUS); a trilha livre de lições aparece na home, mas travada (item 6). Cinco escolhas sustentam esse roteiro:
@@ -205,18 +207,70 @@ Entrega à Mara Games (decidido em 05/10): o grupo exporta os dados e envia um C
 
 ## 24. Pendências que travam o piloto
 
-- Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
+Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
+
+**Antes de qualquer coisa**
+
+- Abrir o pull request da branch `feat/roteiro-do-piloto` (cinco commits, ainda sem push).
+
+**Para a sessão 1 (app até 23/10, sessão até 30/10)**
+
+- Conferir no aparelho o rodapé fixo da pergunta (item 25): está coberto por teste, mas ainda não foi visto desenhado numa tela de celular.
+- Aplicar no app o visual do protótipo (item 28): cores e tipografia no tema, estilo de botões, cartões e alternativas, mascote. Depende de o grupo corrigir o protótipo e fechar os pontos em aberto do item 28.
+- Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
+- Barra de abas do template na web: flutua sobre o topo da home e cobre a saudação. Ainda traz "Expo Starter", a aba "Explore" e o link "Docs" do modelo. Só afeta a web; pesa se a distribuição for por build web.
+- Trava dos tópicos medidos entre o pós e o reteste (item 23): a home já não leva a eles nesse intervalo, mas as rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL na web, e as duas também abrem fora da ordem do roteiro. A trava é do M5 e deve valer nas duas rotas.
+- Tela de espera do reteste (M5): relatório do dia 1, reaproveitando o componente do resultado (item 27), e contagem dos dias. Hoje a home só mostra a linha "O reteste abre em N dias".
+- Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e confirmar que o build distribuído não é de desenvolvimento.
+- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
+
+**Para a sessão 2 (reteste entre 06/11 e 10/11)**
+
+- Tela do SUS (M8). `susRespondidoEm` ainda não existe no tipo `Perfil` nem no `firestore.rules`; entra com ela. Sem a tela, o roteiro para em "Falta o questionário final".
+- Cálculo de retenção, do pós para o reteste (M5).
+
+**Trilha diária, dias 2 a 6 (M5, item 23)**
+
+- Conteúdo dos cinco tópicos: `content/` só tem os quatro medidos (40 questões). A rota fala em nove tópicos com rascunho pronto, mas os da trilha não estão no repositório.
+- Limite de um tópico por dia, sequência de dias e tela "volte amanhã".
+
+**Restante do M4 (item 27)**
+
+- Telas "Meu domínio" e "Detalhe do tópico".
+
+**Exportação (M7)**
+
+- Script do CSV com código no lugar de nome e contato, e os indicadores agregados (item 23).
+
+**Qualidade**
+
+- Regras do Firestore: as do consentimento (`users` e `piloto/contador`) estão testadas no emulador (`npm run test:regras`); as de `answers` e `attempts` continuam sem teste de emulador.
+- O projeto não tem ESLint configurado, então `npm run lint` não roda.
+- Os atalhos Lições, Progresso e Perfil seguem travados e sem destino; é para depois do piloto.
+
+**Decisões do grupo**
+
+- Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
+- Ordem dos tópicos no dia 1: o item 23 diz MDA, Pixel Art, Engine, Lógica; o `lessonOrder` de `content/topicos.json` está MDA, Engine, Lógica, Pixel Art, e é essa a ordem que o app segue; o item 22 cita Pixel Art como último. Definir uma só e alinhar o JSON.
+- Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
+- Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
 - Conteúdo (M6): quem escreve e quem revisa cada tópico (proposta: autor diferente do revisor, rascunhos com apoio de IA revisados pelo grupo). Prazo de 23/10 inclui a trilha diária.
 - Piloto (M8): número e perfil dos participantes (proposta: colegas da UNDB, voluntários e sem nota, meta de pelo menos 15), versão em português do SUS e se haverá pergunta aberta. Comitê de ética e LGPD ficam de lado por ora, por decisão do grupo em 05/10 (público controlado de colegas adultos).
+
+**Dependem de fora**
+
+- Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
-- Regras do Firestore (item 22): ainda não foram publicadas no projeto. As do consentimento (`users` e `piloto/contador`) estão testadas no emulador (`npm run test:regras`); as de `answers` e `attempts` continuam sem teste de emulador.
-- Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
-- Ordem dos tópicos no dia 1: o item 23 diz MDA, Pixel Art, Engine, Lógica; o `lessonOrder` de `content/topicos.json` está MDA, Engine, Lógica, Pixel Art; e o item 22 cita Pixel Art como último. Definir uma só e alinhar o JSON.
-- Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
-- `susRespondidoEm` ainda não existe no tipo `Perfil` nem no `firestore.rules`; entra com a tela do SUS.
-- Entrada de desenvolvimento (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Antes do piloto: apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e confirmar que o build distribuído não é de desenvolvimento.
-- Trava dos tópicos medidos entre o pós e o reteste (item 23): a home já não leva a eles nesse intervalo, mas as rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL na web, e as duas também abrem fora da ordem do roteiro. A trava é do M5 e deve valer nas duas rotas.
-- Restante do M4 (item 27): faltam as telas "Meu domínio" e "Detalhe do tópico". O relatório do dia 1 dentro da espera do reteste (M5) reaproveita o componente do resultado, mas ainda não está na home.
+
+**Resolvidas em 06/10**
+
+- Mascote: ficam os dois estilos, a logo no login e o lobo em cartum no consentimento e na sequência (item 28).
+- Níveis de confiança abaixo da dobra: seletor em linha, fixo no rodapé (item 25).
+- Roteiro do dia 1 percorrido com uma conta real, na web em tamanho de celular: termo, pré-teste, cartão e prática dos quatro tópicos, pós-teste e espera do reteste. Ficaram gravados 40 eventos (12 de pré na forma A, 16 de prática, 12 de pós na forma B), todos com os onze campos, horário do servidor e `correta` batendo com o gabarito; seis tentativas concluídas; contador em 1 e forma A no perfil. Sair no meio do pós e voltar retomou na questão certa, na mesma tentativa. Uma resposta ficou com `tempoMs` de 5 minutos porque a questão ficou aberta parada: é a limitação do relógio corrido registrada no item 25.
+- Regras do Firestore publicadas no projeto `maragames-mobile`.
+- Conteúdo dos quatro tópicos medidos gravado no projeto pelo seed (item 21).
+- Trabalho da sessão em commit, na branch `feat/roteiro-do-piloto`.
+- XP negativo no bloco (item 14), contador do piloto sem regra e participante escolhendo a própria forma (item 22), cartão de conceito e tela de fim de bloco (itens 22 e 27).
 
 ## 25. Interação da questão: alternativa e confiança, em qualquer ordem
 
@@ -233,6 +287,8 @@ Revisto em 06/10 (implementação). A tela ficou em três camadas: regra em fun�
 - **Quais questões entram em cada fase é uma regra só**, em `src/lib/bloco.ts`, usada pela tela e por `etapaDoRoteiro`.
 
 Revisto em 06/10 (fim do bloco). A tela provisória "Bloco concluído" deu lugar ao resultado do bloco (item 27).
+
+Revisto em 06/10 (rodapé fixo). Os três níveis de confiança passaram a ficar numa linha só, dentro de um rodapé fixo, junto do Confirmar; só o enunciado, as alternativas e o feedback rolam. Antes o seletor era uma lista vertical dentro da área de rolagem. Ao rodar o roteiro numa tela de 375×812, "Tenho certeza" só aparecia rolando, e em enunciado longo "Tenho dúvida" também sumia: um nível que o participante não vê enviesa a própria medida. A linha horizontal veio do protótipo do grupo (item 28); o rodapé fixo é o que garante que ela não desça com uma questão longa. No feedback da prática, a confiança declarada continua à vista no rodapé, travada. O nível marcado muda de borda, de fundo e de peso do texto, para não depender só de cor. Coberto por teste de componente; falta a conferência visual no aparelho.
 
 ## 26. Regras de negócio em funções puras, com testes unitários
 
@@ -256,4 +312,29 @@ Decidido em 06/10. No fim de cada bloco, a própria tela do bloco mostra o resul
 - **O resultado é o estado final da tela do bloco, não uma rota.** O hook já tem em mãos as respostas lidas ao abrir e as gravadas na sessão, então o fim do bloco não lê o banco de novo. A apresentação fica num componente separado (`src/components/resultado/`), para o relatório do dia 1 da espera do reteste (M5) reaproveitar.
 
 O XP aparece com o saldo real, inclusive negativo (item 14). O resultado não compara pré com pós: o ganho é da análise (M8), não da tela do aluno.
+
+## 28. Protótipo visual do piloto: ajustes adotados e pontos em aberto
+
+Decidido em 06/10. O grupo tem um protótipo de 12 telas (login, consentimento, home com roteiro, pergunta, cartão, feedback da prática, relatório do dia 1, sequência da trilha, espera do reteste e versões em tema escuro). Ele é a direção visual do app. Antes de virar código, oito ajustes foram adotados:
+
+1. **O XP volta a aparecer**: "+3 XP" no feedback da prática e o saldo no relatório. Sem ponto em jogo à vista, nada incentiva declarar a confiança com sinceridade (item 14). O app já mostra os dois; falta no protótipo.
+2. **Um X no cabeçalho** da pergunta, do cartão e do feedback. Sair não é pular (item 25). O app já tem; falta no protótipo.
+3. **Confiança e Confirmar fixos no rodapé**: só enunciado, alternativas e feedback rolam. Feito no app em 06/10 (item 25); o protótipo precisa mostrar o rodapé fixo.
+4. **Contagens no lugar de percentuais**: "1 de 3 → 3 de 3", "6 de 7". Com 3 questões por tópico e poucas respostas por nível, percentual sugere uma precisão que não existe. O app já usa contagens; falta no protótipo.
+5. **Uma descrição só para cada quadrante**, igual no claro e no escuro, com "sem certeza" no lugar de "com dúvida": Frágil e Lacuna incluem o Palpite (item 15). O app já tem um texto único, em `src/constants/textos.ts`; falta no protótipo.
+6. **Senha com mínimo de 8 caracteres**, como a validação do app (`src/lib/validacao.ts`). Falta no protótipo, que diz 6.
+7. **Desenhar os estados que faltam**, ao menos o feedback de resposta errada, que é o mais visto. O app já tem erro, carregando e falha de rede; faltam o desenho no protótipo e a tela do SUS nos dois.
+8. **Os dois estilos de lobo ficam, cada um no seu lugar.** A sugestão era usar um só; revisto em 06/10, por decisão do grupo: a logo da Beast Maragames aparece no login, e o mascote em cartum, nas telas de consentimento e de sequência da trilha. A logo identifica a marca; o mascote acompanha os momentos de conversa com o participante. Não há troca a fazer no protótipo.
+
+Sete pontos do protótipo contradizem decisões desta lista e continuam em aberto, para o grupo fechar (item 24):
+
+- **Resultado do pré-teste só no fim do dia 1.** O protótipo tem um relatório único, depois do pós; o app mostra um resultado logo depois do pré (item 27). O protótipo está mais perto do item 19 e é melhor para a medida: dizer "Pixel Art 0 de 3" antes do estudo é feedback antes da intervenção e pode inflar o ganho.
+- **Relatório comparando pré e pós por tópico.** O item 27 diz que o resultado não compara os dois.
+- **Consentimento logo depois do login, sem "Agora não".** O item 22 o trata como etapa do roteiro, que a pessoa pode recusar e ainda ver a home.
+- **Home sem os atalhos travados**, com a lista "Seu roteiro" no lugar. O item 6 pede os atalhos.
+- **Ordem dos tópicos** MDA, Pixel Art, Engine, Lógica, a do item 23; o app segue o JSON.
+- **Reteste nos "dias 7 a 9"** com o dia 1 sendo o do pós, o que dá pós + 6; o app implementa pós + 7.
+- **Termo mais curto**, sem os dados do perfil nem quem é o grupo.
+
+Se o visual for adotado, o que muda no código tem três tamanhos: só aparência (tema e estilo dos componentes, que já estão separados); comportamento (relatório único do dia 1, lista do roteiro na home, tela de espera); e conteúdo (os cartões do protótipo têm diagrama e frase de destaque, e hoje um slide só tem título e texto, então `content/topicos.json` precisa de campos novos).
 

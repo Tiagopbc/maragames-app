@@ -67,7 +67,7 @@ Atualizado em 06/10: o repositório lê lições, questões e respostas; a tela 
 **M3: Confiança declarada.** Seletor Palpite, Tenho dúvida e Tenho certeza, obrigatório antes de confirmar e antes do feedback. Textos num único arquivo de strings. Precisa rodar até 16/10, para os prints do relatório de evolução.
 Prova: todo evento novo tem acerto e confiança.
 Depende de: M2.
-Atualizado em 06/10: implementado. O seletor, o feedback da prática (certo ou errado, explicação, XP e selo do quadrante) e os textos em `src/constants/textos.ts` estão no código, cobertos por teste. Falta rodar com as regras do Firestore publicadas (item 24 das decisões).
+Atualizado em 06/10: implementado. O seletor, o feedback da prática (certo ou errado, explicação, XP e selo do quadrante) e os textos em `src/constants/textos.ts` estão no código, cobertos por teste. Regras publicadas e conteúdo no banco em 06/10, e o roteiro do dia 1 foi percorrido com uma conta real: os 40 eventos gravados têm acerto e confiança. Os níveis de confiança, que ficavam abaixo da dobra em tela de celular, foram para um rodapé fixo; falta conferir no aparelho (item 24 das decisões).
 
 **M4: Diagnóstico do aluno.** Resultado com os quatro quadrantes, domínio por tópico, detalhe do tópico com calibração e lista de pontos cegos, e XP. A agregação é função pura, coberta por testes unitários.
 Prova: o app mostra aprendizado, não só conclusão, que é a dor da cliente.

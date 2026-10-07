@@ -135,6 +135,12 @@ describe('topicosMedidos', () => {
         expect(topicosMedidos(comTrilha, ['mda', 'gdd', 'engine'])).toEqual(['mda', 'engine']);
     });
 
+    it('questão sem bloco (sobra de um seed antigo) não faz o tópico contar como medido', () => {
+        const comSobra = [...comTrilha, { id: 'antiga', topicId: 'gdd' }] as QuestaoDoBloco[];
+
+        expect(topicosMedidos(comSobra, ['mda', 'gdd'])).toEqual(['mda']);
+    });
+
     it('tópico só com prática (trilha diária) fica fora do roteiro medido', () => {
         expect(topicosMedidos(comTrilha, ['gdd'])).toEqual([]);
     });

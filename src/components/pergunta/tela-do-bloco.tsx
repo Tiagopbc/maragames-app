@@ -83,7 +83,7 @@ export function TelaDoBloco({ aoSair, ...entrada }: TelaDoBlocoProps) {
                         <ScrollView contentContainerStyle={styles.conteudo}>
                             <ResultadoDoBloco relatorio={estado.relatorio} medido={!faseTemFeedback(entrada.fase)} />
                         </ScrollView>
-                        <View style={styles.rodape}>
+                        <View style={[styles.rodape, { borderTopColor: theme.backgroundSelected }]}>
                             <BotaoPrincipal rotulo={TEXTOS.voltarAoInicio} onPress={aoSair} />
                         </View>
                     </>
@@ -128,6 +128,7 @@ type PerguntaProps = {
 function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps) {
     // Alternativa e confiança são dois campos do mesmo estado, marcados em qualquer ordem.
     // Só existem aqui, na tela: trocar de ideia antes de confirmar não gera evento.
+    const theme = useTheme();
     const [selecao, setSelecao] = useState<Selecao>(SELECAO_VAZIA);
     const rolagem = useRef<ScrollView>(null);
 
@@ -176,16 +177,18 @@ function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps
                     ))}
                 </View>
 
+                {feedback && <FeedbackQuestao feedback={feedback} />}
+            </ScrollView>
+
+            {/* Rodapé fixo: só o enunciado, as alternativas e o feedback rolam. A confiança fica
+                sempre à vista, junto do Confirmar, por mais longa que seja a questão. */}
+            <View testID="rodape-da-pergunta" style={[styles.rodape, { borderTopColor: theme.backgroundSelected }]}>
                 <SeletorConfianca
                     valor={marcado.confianca}
                     desabilitado={travado}
                     onChange={(confianca) => setSelecao((s) => ({ ...s, confianca }))}
                 />
 
-                {feedback && <FeedbackQuestao feedback={feedback} />}
-            </ScrollView>
-
-            <View style={styles.rodape}>
                 {estado.tipo === 'feedback' ? (
                     <BotaoPrincipal
                         rotulo={pergunta.ultima ? TEXTOS.concluir : TEXTOS.proxima}
@@ -241,5 +244,10 @@ const styles = StyleSheet.create({
     conteudo: { gap: Spacing.four, paddingHorizontal: Spacing.four, paddingBottom: Spacing.four },
     enunciado: { fontSize: 18, lineHeight: 26, fontWeight: 600 },
     alternativas: { gap: Spacing.two },
-    rodape: { gap: Spacing.two, paddingHorizontal: Spacing.four, paddingVertical: Spacing.three },
+    rodape: {
+        gap: Spacing.two,
+        paddingHorizontal: Spacing.four,
+        paddingVertical: Spacing.three,
+        borderTopWidth: StyleSheet.hairlineWidth,
+    },
 });
