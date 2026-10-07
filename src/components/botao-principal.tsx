@@ -30,7 +30,7 @@ export function BotaoPrincipal({ rotulo, onPress, desabilitado = false, carregan
             {carregando ? (
                 <ActivityIndicator color={theme.textoDoBotao} />
             ) : (
-                <ThemedText type="smallBold" themeColor="textoDoBotao">
+                <ThemedText themeColor="textoDoBotao" style={styles.rotulo}>
                     {rotulo}
                 </ThemedText>
             )}
@@ -40,11 +40,12 @@ export function BotaoPrincipal({ rotulo, onPress, desabilitado = false, carregan
 
 const styles = StyleSheet.create({
     botao: {
-        borderRadius: Spacing.three,
+        borderRadius: 14,
         paddingVertical: Spacing.three,
         paddingHorizontal: Spacing.four,
-        minHeight: 48,
+        minHeight: 52,
         alignItems: 'center',
         justifyContent: 'center',
     },
+    rotulo: { fontWeight: 600, textAlign: 'center' },
 });

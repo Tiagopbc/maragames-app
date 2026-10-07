@@ -21,7 +21,9 @@ export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfi
 
     return (
         <View accessibilityRole="radiogroup" accessibilityLabel={TEXTOS.perguntaDeConfianca} style={styles.grupo}>
-            <ThemedText type="smallBold">{TEXTOS.perguntaDeConfianca}</ThemedText>
+            <ThemedText type="smallBold" themeColor="textSecondary">
+                {TEXTOS.perguntaDeConfianca}
+            </ThemedText>
 
             <View style={styles.linha}>
                 {NIVEIS_DE_CONFIANCA.map((nivel) => {
@@ -37,7 +39,7 @@ export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfi
                             style={({ pressed }) => [
                                 styles.nivel,
                                 {
-                                    backgroundColor: marcado ? theme.backgroundSelected : theme.backgroundElement,
+                                    backgroundColor: marcado ? theme.backgroundSelected : theme.background,
                                     borderColor: marcado ? theme.bordaSelecionada : theme.borda,
                                     opacity: pressed ? 0.7 : 1,
                                 },
@@ -65,8 +67,8 @@ const styles = StyleSheet.create({
         minHeight: 48,
         paddingVertical: Spacing.two,
         paddingHorizontal: Spacing.one,
-        borderRadius: Spacing.three,
-        borderWidth: 2,
+        borderRadius: 12,
+        borderWidth: 1.5,
     },
     rotulo: { textAlign: 'center' },
 });

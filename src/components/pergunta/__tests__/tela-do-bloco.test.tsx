@@ -123,6 +123,50 @@ describe('a pergunta', () => {
 
 // Em tela de celular, o que fica dentro da área que rola pode sumir abaixo da dobra. A confiança
 // não pode depender de rolagem: um nível que o participante não vê enviesa a medida.
+describe('a barra de progresso', () => {
+    const barra = () => screen.getByRole('progressbar');
+
+    it('começa vazia e conta o total de questões do bloco', async () => {
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a1');
+
+        expect(barra()).toHaveAccessibilityValue({ min: 0, max: 2, now: 0 });
+    });
+
+    it('no bloco medido, anda quando a questão seguinte aparece', async () => {
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a1');
+
+        await responder('Certa de mda_a1', 'Palpite');
+        await screen.findByText('Enunciado de mda_a2');
+
+        expect(barra()).toHaveAccessibilityValue({ min: 0, max: 2, now: 1 });
+    });
+
+    it('na prática, anda já no feedback da questão respondida', async () => {
+        await abrir('pratica');
+        await screen.findByText('Enunciado de mda_p1');
+
+        await responder('Certa de mda_p1', 'Tenho certeza');
+        await screen.findByText('Firme');
+
+        expect(barra()).toHaveAccessibilityValue({ min: 0, max: 2, now: 1 });
+    });
+
+    it('quem retoma o bloco encontra a barra onde parou', async () => {
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a1');
+        await responder('Certa de mda_a1', 'Palpite');
+        await screen.findByText('Enunciado de mda_a2');
+        await screen.unmount();
+
+        await abrir('pre');
+        await screen.findByText('Enunciado de mda_a2');
+
+        expect(barra()).toHaveAccessibilityValue({ min: 0, max: 2, now: 1 });
+    });
+});
+
 describe('o rodapé fixo', () => {
     const rodape = () => within(screen.getByTestId('rodape-da-pergunta'));
 

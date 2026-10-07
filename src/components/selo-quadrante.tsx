@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         gap: Spacing.one,
         paddingVertical: Spacing.one,
         paddingHorizontal: Spacing.two,
-        borderRadius: Spacing.three,
+        borderRadius: 999,
         borderWidth: 1.5,
     },
 });

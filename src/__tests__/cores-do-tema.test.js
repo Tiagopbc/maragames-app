@@ -35,3 +35,12 @@ it('nenhum arquivo fora do tema escreve cor à mão', () => {
 
     expect(comCorFixa).toEqual([]);
 });
+
+// O `Button` do React Native traz a cor do sistema (azul) e não aceita a do tema.
+it('nenhuma tela usa o Button do React Native', () => {
+    const comButton = arquivos(RAIZ)
+        .map((caminho) => relative(RAIZ, caminho))
+        .filter((caminho) => /import \{[^}]*\bButton\b[^}]*\} from 'react-native'/.test(readFileSync(join(RAIZ, caminho), 'utf8')));
+
+    expect(comButton).toEqual([]);
+});

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BarraDeProgresso } from '@/components/barra-de-progresso';
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { ResultadoDoBloco } from '@/components/resultado/resultado-do-bloco';
 import { TextoComCodigo } from '@/components/texto-com-codigo';
@@ -59,6 +60,17 @@ export function TelaDoBloco({ aoSair, ...entrada }: TelaDoBlocoProps) {
                     )}
                 </View>
 
+                {naQuestao && (
+                    <View style={styles.progresso}>
+                        {/* Conta as respondidas: no feedback da prática, a questão da vez já entra. */}
+                        <BarraDeProgresso
+                            rotulo={TEXTOS.progressoDoBloco}
+                            feitas={estado.pergunta.posicao - (estado.tipo === 'feedback' ? 0 : 1)}
+                            total={estado.pergunta.total}
+                        />
+                    </View>
+                )}
+
                 {estado.tipo === 'carregando' && (
                     <View style={styles.centro}>
                         <ActivityIndicator />
@@ -83,7 +95,7 @@ export function TelaDoBloco({ aoSair, ...entrada }: TelaDoBlocoProps) {
                         <ScrollView contentContainerStyle={styles.conteudo}>
                             <ResultadoDoBloco relatorio={estado.relatorio} medido={!faseTemFeedback(entrada.fase)} />
                         </ScrollView>
-                        <View style={[styles.rodape, { borderTopColor: theme.backgroundSelected }]}>
+                        <View style={[styles.rodape, { borderTopColor: theme.borda }]}>
                             <BotaoPrincipal rotulo={TEXTOS.voltarAoInicio} onPress={aoSair} />
                         </View>
                     </>
@@ -182,7 +194,7 @@ function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps
 
             {/* Rodapé fixo: só o enunciado, as alternativas e o feedback rolam. A confiança fica
                 sempre à vista, junto do Confirmar, por mais longa que seja a questão. */}
-            <View testID="rodape-da-pergunta" style={[styles.rodape, { borderTopColor: theme.backgroundSelected }]}>
+            <View testID="rodape-da-pergunta" style={[styles.rodape, { borderTopColor: theme.borda }]}>
                 <SeletorConfianca
                     valor={marcado.confianca}
                     desabilitado={travado}
@@ -233,6 +245,7 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.three,
     },
     titulo: { flex: 1 },
+    progresso: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.three },
     centro: {
         flex: 1,
         alignItems: 'center',
@@ -242,7 +255,7 @@ const styles = StyleSheet.create({
     },
     textoCentral: { textAlign: 'center' },
     conteudo: { gap: Spacing.four, paddingHorizontal: Spacing.four, paddingBottom: Spacing.four },
-    enunciado: { fontSize: 18, lineHeight: 26, fontWeight: 600 },
+    enunciado: { fontSize: 20, lineHeight: 28, fontWeight: 600 },
     alternativas: { gap: Spacing.two },
     rodape: {
         gap: Spacing.two,

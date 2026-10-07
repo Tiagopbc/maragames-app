@@ -49,8 +49,8 @@ const styles = StyleSheet.create({
     cartao: {
         gap: Spacing.two,
         padding: Spacing.three,
-        borderRadius: Spacing.three,
-        borderWidth: 2,
+        borderRadius: 16,
+        borderWidth: 1.5,
     },
     linha: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
     titulo: { flex: 1, fontWeight: 700 },

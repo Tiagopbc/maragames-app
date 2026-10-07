@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Button, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -78,7 +78,8 @@ export default function HomeScreen() {
           </ThemedText>
         </View>
 
-        <View style={[styles.proximaEtapa, { backgroundColor: theme.backgroundElement }]}>
+        <View
+          style={[styles.proximaEtapa, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
           <ThemedText type="small" themeColor="textSecondary">
             {TEXTOS.proximaEtapa}
           </ThemedText>
@@ -124,6 +125,7 @@ export default function HomeScreen() {
                 styles.card,
                 {
                   backgroundColor: theme.backgroundElement,
+                  borderColor: theme.borda,
                   // Travada: o cartão inteiro esmaece e o conteúdo fica em cinza.
                   opacity: item.travado ? 0.5 : pressed ? 0.6 : 1,
                 },
@@ -165,7 +167,9 @@ export default function HomeScreen() {
 
         <View style={{ flex: 1 }} />
 
-        <Button title="Sair" onPress={sair} />
+        <Pressable accessibilityRole="button" onPress={sair} style={styles.sair}>
+          <ThemedText type="linkPrimary">{TEXTOS.sair}</ThemedText>
+        </Pressable>
       </SafeAreaView>
     </ThemedView>
   );
@@ -193,6 +197,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     padding: Spacing.three,
     borderRadius: 16,
+    borderWidth: 1,
   },
   grade: {
     flexDirection: 'row',
@@ -203,6 +208,7 @@ const styles = StyleSheet.create({
     width: '47%',
     height: 140,
     borderRadius: 16,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.two,
@@ -218,5 +224,9 @@ const styles = StyleSheet.create({
   linha: {
     flexDirection: 'row',
     gap: Spacing.four,
+  },
+  sair: {
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.three,
   },
 });

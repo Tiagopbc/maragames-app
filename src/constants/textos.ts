@@ -71,6 +71,8 @@ export const TEXTOS = {
     erroAoGravar: 'Não foi possível gravar a resposta. Confira a conexão e confirme de novo.',
     semConsentimento: 'Este bloco só abre depois do termo de consentimento.',
     blocoSemQuestoes: 'Este bloco não tem questões. O conteúdo foi carregado no banco?',
+    progressoDoBloco: 'Progresso no bloco',
+    sair: 'Sair',
     continuarEstudos: 'Continuar estudos',
     proximaEtapa: 'Próxima etapa',
     trilhas: 'Trilhas',

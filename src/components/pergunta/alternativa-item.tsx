@@ -10,15 +10,17 @@ import { useTheme } from '@/hooks/use-theme';
 // aparecem no feedback da prática, nunca nos blocos medidos.
 export type EstadoDaAlternativa = 'normal' | 'selecionada' | 'certa' | 'errada' | 'apagada';
 
-type Aparencia = { icone: keyof typeof Ionicons.glyphMap; cor: ThemeColor };
+// Como cada estado aparece: a cor da borda e do quadrado da letra e, no feedback, um ícone.
+type Aparencia = { cor: ThemeColor | null; icone: keyof typeof Ionicons.glyphMap | null };
 
-// O estado é dito por ícone e por cor: quem não distingue verde de vermelho lê o ícone.
+// O estado é dito por forma e por cor: a selecionada ganha borda e quadrado cheios; certa e
+// errada ganham também um ícone, para quem não distingue verde de vermelho.
 const APARENCIA: Record<EstadoDaAlternativa, Aparencia> = {
-    normal: { icone: 'radio-button-off', cor: 'textSecondary' },
-    selecionada: { icone: 'radio-button-on', cor: 'primaria' },
-    certa: { icone: 'checkmark-circle', cor: 'sucesso' },
-    errada: { icone: 'close-circle', cor: 'erro' },
-    apagada: { icone: 'radio-button-off', cor: 'textSecondary' },
+    normal: { cor: null, icone: null },
+    selecionada: { cor: 'bordaSelecionada', icone: null },
+    certa: { cor: 'sucesso', icone: 'checkmark-circle' },
+    errada: { cor: 'erro', icone: 'close-circle' },
+    apagada: { cor: null, icone: null },
 };
 
 type AlternativaItemProps = {
@@ -32,8 +34,8 @@ type AlternativaItemProps = {
 
 export function AlternativaItem({ letra, texto, estado, marcada, desabilitada, onPress }: AlternativaItemProps) {
     const theme = useTheme();
-    const { icone, cor } = APARENCIA[estado];
-    const destacada = estado !== 'normal' && estado !== 'apagada';
+    const { cor, icone } = APARENCIA[estado];
+    const selecionada = estado === 'selecionada';
 
     return (
         <Pressable
@@ -45,23 +47,30 @@ export function AlternativaItem({ letra, texto, estado, marcada, desabilitada, o
             style={({ pressed }) => [
                 styles.item,
                 {
-                    backgroundColor: destacada ? theme.backgroundSelected : theme.backgroundElement,
-                    // Selecionada usa a borda de seleção; certa e errada, a cor do próprio estado.
-                    borderColor: !destacada
-                        ? theme.borda
-                        : estado === 'selecionada'
-                          ? theme.bordaSelecionada
-                          : theme[cor],
+                    backgroundColor: selecionada ? theme.backgroundSelected : theme.backgroundElement,
+                    borderColor: cor ? theme[cor] : theme.borda,
                     opacity: estado === 'apagada' ? 0.5 : pressed ? 0.7 : 1,
                 },
             ]}>
-            <Ionicons name={icone} size={22} color={theme[cor]} />
-            <ThemedText type="smallBold" themeColor="textSecondary">
-                {letra}
-            </ThemedText>
+            <View
+                style={[
+                    styles.letra,
+                    // Selecionada: o roxo do botão. Certa e errada: a cor do próprio estado.
+                    { backgroundColor: selecionada ? theme.botao : cor ? theme[cor] : theme.background },
+                    !cor && { borderWidth: 1.5, borderColor: theme.borda },
+                ]}>
+                <ThemedText
+                    type="smallBold"
+                    // Sobre a cor de estado, a letra usa a cor do fundo da tela: é o par que o
+                    // teste de contraste confere, nos dois temas.
+                    themeColor={selecionada ? 'textoDoBotao' : cor ? 'background' : 'textSecondary'}>
+                    {letra}
+                </ThemedText>
+            </View>
             <View style={styles.texto}>
                 <TextoComCodigo>{texto}</TextoComCodigo>
             </View>
+            {icone && cor && <Ionicons name={icone} size={22} color={theme[cor]} />}
         </Pressable>
     );
 }
@@ -70,12 +79,19 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: Spacing.two,
-        minHeight: 52,
-        paddingVertical: Spacing.two,
-        paddingHorizontal: Spacing.three,
-        borderRadius: Spacing.three,
-        borderWidth: 2,
+        gap: Spacing.three,
+        minHeight: 56,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        borderRadius: 14,
+        borderWidth: 1.5,
+    },
+    letra: {
+        width: 28,
+        height: 28,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     texto: { flex: 1 },
 });
