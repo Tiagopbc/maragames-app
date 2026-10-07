@@ -8,6 +8,7 @@ import type { Etapa } from './roteiro';
 export type Destino =
     | { tipo: 'consentimento' }
     | { tipo: 'cartao'; topicId: string }
+    | { tipo: 'dia1' } // o resultado do pós-teste, com os tópicos travados até o reteste
     | { tipo: 'bloco'; fase: Fase; topicId?: string }; // `topicId` só na prática, que é por tópico
 
 /** A tela da etapa, ou null quando não há o que abrir e o botão fica desabilitado. */
@@ -25,8 +26,9 @@ export function destinoDaEtapa(etapa: Etapa): Destino | null {
             return etapa.respondidas === 0
                 ? { tipo: 'cartao', topicId: etapa.topicId }
                 : { tipo: 'bloco', fase: 'pratica', topicId: etapa.topicId };
-        // A espera não tem bloco: o reteste ainda não abriu.
+        // O reteste ainda não abriu: o que há para ver é o resultado do dia 1.
         case 'espera':
+            return { tipo: 'dia1' };
         // O SUS ainda não tem tela (item 24). Quando tiver, o destino entra aqui.
         case 'sus':
         case 'concluido':
@@ -34,7 +36,8 @@ export function destinoDaEtapa(etapa: Etapa): Destino | null {
     }
 }
 
-// O que uma rota de estudo pode pedir: um cartão ou um bloco. O termo tem a sua própria tela.
+// O que uma rota do roteiro pode pedir: um cartão, um bloco ou o resultado do dia 1. O termo
+// tem a sua própria tela.
 export type DestinoDeEstudo = Exclude<Destino, { tipo: 'consentimento' }>;
 
 /**
@@ -46,6 +49,10 @@ export type DestinoDeEstudo = Exclude<Destino, { tipo: 'consentimento' }>;
 export function podeAbrir(etapa: Etapa, destino: DestinoDeEstudo): boolean {
     if (destino.tipo === 'cartao') {
         return etapa.tipo === 'estudo' && etapa.topicId === destino.topicId;
+    }
+    if (destino.tipo === 'dia1') {
+        // É o resultado do pós-teste: existe da espera em diante.
+        return etapa.tipo === 'espera' || etapa.tipo === 'reteste' || etapa.tipo === 'sus' || etapa.tipo === 'concluido';
     }
     if (destino.fase === 'pratica') {
         // Sem tópico não abre: quem diz qual é o tópico da vez é o roteiro.

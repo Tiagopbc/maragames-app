@@ -25,13 +25,14 @@ interface Progresso {
 }
 
 // Cartão e relatório não são etapas: vê-los não gera evento em `answers`. A tela mostra o
-// cartão quando o estudo do tópico tem zero respondidas, e o relatório do dia 1 dentro da espera.
+// cartão quando o estudo do tópico tem zero respondidas, e o resultado do dia 1 a partir da espera.
 export type Etapa =
     | { tipo: 'consentimento' }
     | ({ tipo: 'pre' } & Progresso)
     | ({ tipo: 'estudo'; topicId: string } & Progresso)
     | ({ tipo: 'pos' } & Progresso)
-    | { tipo: 'espera'; liberaEm: number; diasRestantes: number }
+    // `liberaEm` é o começo do dia em que o reteste abre; `ultimoDiaEm`, o do último dia da janela.
+    | { tipo: 'espera'; liberaEm: number; ultimoDiaEm: number; diasRestantes: number }
     | ({ tipo: 'reteste'; foraDaJanela: boolean } & Progresso)
     | { tipo: 'sus' }
     | { tipo: 'concluido' };
@@ -51,6 +52,12 @@ function diaDeCalendario(ms: number): number {
 
 function inicioDoDia(dia: number): number {
     return dia * DIA_MS - FUSO_MS;
+}
+
+/** Dia da semana (0 = domingo), dia e mês de um instante, no mesmo fuso fixo do roteiro. */
+export function dataEmSaoLuis(ms: number): { diaDaSemana: number; dia: number; mes: number } {
+    const local = new Date(ms + FUSO_MS);
+    return { diaDaSemana: local.getUTCDay(), dia: local.getUTCDate(), mes: local.getUTCMonth() + 1 };
 }
 
 export function etapaDoRoteiro(entrada: EntradaDoRoteiro): Etapa {
@@ -102,7 +109,12 @@ export function etapaDoRoteiro(entrada: EntradaDoRoteiro): Etapa {
         const diaDaLiberacao = diaDoPos + DIAS_ATE_RETESTE;
 
         if (hoje < diaDaLiberacao) {
-            return { tipo: 'espera', liberaEm: inicioDoDia(diaDaLiberacao), diasRestantes: diaDaLiberacao - hoje };
+            return {
+                tipo: 'espera',
+                liberaEm: inicioDoDia(diaDaLiberacao),
+                ultimoDiaEm: inicioDoDia(diaDoPos + ULTIMO_DIA_DA_JANELA),
+                diasRestantes: diaDaLiberacao - hoje,
+            };
         }
         return { tipo: 'reteste', foraDaJanela: hoje > diaDoPos + ULTIMO_DIA_DA_JANELA, ...reteste };
     }

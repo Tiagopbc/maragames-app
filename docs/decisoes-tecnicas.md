@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app e a trava do roteiro foi implementada).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -222,6 +222,16 @@ Revisto em 07/10 (trava). A trava dos tópicos medidos virou regra do roteiro in
 
 Os tópicos da trilha diária ainda não existem em `etapaDoRoteiro`, então a prática deles fica fechada por esta regra. Quando o limite diário entrar, ele acrescenta a sua parte a `podeAbrir`.
 
+Revisto em 07/10 (espera do reteste). A espera ganhou tela, em duas partes, sem decidir os pontos do protótipo que seguem em aberto (item 28):
+
+- **Na home**, o cartão "Próxima etapa" vira a contagem: "Seu reteste abre em", o número de dias em destaque e as datas ("Abre na terça, 13/10, e fica disponível até quinta, 15/10."). O botão principal, que ficava apagado, passa a ser "Ver meu resultado do dia 1". Os atalhos travados continuam.
+- **Na rota `/dia-1`**, o resultado do pós-teste, com o mesmo componente do fim do bloco (item 27), e a lista "Travados até o reteste" com os quatro tópicos e o motivo. Nada por questão: o hook nem entrega os enunciados à tela.
+- **O resultado do dia 1 é o do pós-teste**, sem comparar com o pré. A comparação por tópico do protótipo continua em aberto.
+- **Entra na mesma trava**: `destinoDaEtapa` leva a espera a `{ tipo: 'dia1' }`, e `podeAbrir` só deixa abrir da espera em diante, quando o pós já terminou. Com a trava, reabrir `/bloco/pos` deixou de mostrar o resultado; é por aqui que ele volta a ser visto.
+- **Datas no fuso fixo de São Luís**, como o resto do roteiro: a etapa de espera passou a trazer `ultimoDiaEm`, e `dataEmSaoLuis` dá dia da semana, dia e mês sem depender do fuso do aparelho.
+
+Ficou de fora o "Tópico de hoje" da trilha diária, que depende do conteúdo. Um ponto para o grupo ver: o resultado traz a seção "O que revisar primeiro" logo acima de "Travados até o reteste", o que pede revisão de tópicos que estão travados.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -237,7 +247,6 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Animação de abertura: ainda é a do template, com a logo do Expo e os azuis dele (`src/components/animated-icon.tsx` e a cor da tela de abertura no `app.json`). É a única exceção do teste que barra cor fora do tema.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
-- Tela de espera do reteste (M5): relatório do dia 1, reaproveitando o componente do resultado (item 27), e contagem dos dias. Hoje a home só mostra a linha "O reteste abre em N dias".
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
@@ -269,6 +278,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Decisões do grupo**
 
 - Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
+- Resultado do dia 1 (item 23): a seção "O que revisar primeiro" aparece junto de "Travados até o reteste". Decidir se ela some nessa tela ou se o texto muda para "revisar depois do reteste".
 - Ordem dos tópicos no dia 1: o item 23 diz MDA, Pixel Art, Engine, Lógica; o `lessonOrder` de `content/topicos.json` está MDA, Engine, Lógica, Pixel Art, e é essa a ordem que o app segue; o item 22 cita Pixel Art como último. Definir uma só e alinhar o JSON.
 - Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
 - Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
@@ -283,6 +293,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Resolvidas em 07/10**
 
 - Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
+- Tela de espera do reteste: contagem e datas na home, e o resultado do dia 1 com os tópicos travados em `/dia-1` (item 23). Conferido na web com a conta do Tiago.
 - Trava do roteiro: cartão, prática, pré, pós e reteste só abrem na etapa certa, também para quem digita a URL (item 23). Conferido na web com a conta do Tiago, que está na espera: o cartão e a prática do MDA voltaram para a home.
 - Aparência do protótipo no app: cores, fonte Lexend, estilo dos componentes, logo no login e mascote no consentimento (item 28).
 - Conferência visual na web, com a conta do Tiago: em 375×812 a saudação da home começa a 24 px do topo, sem nada por cima; na pergunta, os três níveis de confiança e o Confirmar ficam à vista no rodapé, e em 320×568 continuam fixos enquanto as alternativas rolam (item 25). Nenhuma resposta foi gravada; abrir o reteste pelo link de desenvolvimento criou uma tentativa de reteste na conta de teste, que entra na limpeza.
@@ -333,6 +344,8 @@ Revisto em 07/10 (navegação). As rotas ganharam teste, em `src/__tests__/naveg
 Revisto em 07/10 (aparência). Quatro testes novos guardam a identidade visual (item 28): o contraste de cada par de texto e fundo do tema; nenhuma cor escrita à mão fora de `src/constants/theme.ts`, nem o `Button` do React Native (esse teste é em JavaScript, porque lê arquivos com o Node e os tipos do Node não entram no `tsconfig`); a família de fonte que cada tipo de texto e cada peso recebem; e a tela de login, pelas rotas reais, com a sessão de quem não entrou. Teste não julga se a tela ficou boa: isso continua sendo conferência visual, nos dois temas. O Jest passou a ignorar `.claude/`, onde ficam os worktrees do assistente.
 
 Revisto em 07/10 (trava). A trava do roteiro (item 23) é testada em três alturas: a regra, etapa por etapa, em `passo.test.ts`; o portão, com o repositório em memória (abre, barra, espera a leitura, fecha na falha e não decide duas vezes); e as rotas reais, em `navegacao.test.tsx`, onde quem está na espera e abre `/cartao/mda` ou `/bloco/reteste` termina em `/`. O teste do "decide uma vez" foi conferido tirando a proteção e vendo-o falhar. Como o Jest roda em modo de desenvolvimento, os testes do app do participante desligam `__DEV__` enquanto rodam.
+
+Revisto em 07/10 (espera). A espera do reteste (item 23) tem teste nas mesmas três alturas: as funções puras de data e de texto, incluindo a virada do dia no fuso de São Luís e o "no sábado" e "no domingo"; a tela "Seu dia 1" sobre o repositório em memória (só o pós entra na conta, nenhum enunciado aparece, tópico da trilha não é travado, falha de leitura deixa tentar de novo); e as rotas reais, da home na espera até `/dia-1`, e `/dia-1` antes do pós voltando para a home.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

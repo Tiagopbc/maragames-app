@@ -6,7 +6,7 @@ import type { Confianca, Fase } from '../types/domain';
 import type { Falta } from '../lib/pergunta';
 import type { Quadrante } from '../lib/quadrante';
 import { ORDEM_DE_REVISAO } from '../lib/resultado';
-import type { Etapa } from '../lib/roteiro';
+import { dataEmSaoLuis, type Etapa } from '../lib/roteiro';
 
 // Ordem em que os níveis aparecem na tela, do menor para o maior.
 export const NIVEIS_DE_CONFIANCA: readonly Confianca[] = [1, 2, 3];
@@ -74,6 +74,12 @@ export const TEXTOS = {
     progressoDoBloco: 'Progresso no bloco',
     sair: 'Sair',
     conferindoRoteiro: 'Conferindo o roteiro',
+    verResultadoDoDia1: 'Ver meu resultado do dia 1',
+    seuDia1: 'Seu dia 1',
+    travadosAteOReteste: 'Travados até o reteste',
+    topicoTravado: 'travado',
+    porQueTravados: 'Eles voltam no reteste. Revisar antes mudaria o que estamos medindo.',
+    erroAoCarregarDia1: 'Não foi possível carregar o seu resultado. Confira a conexão e tente de novo.',
     continuarEstudos: 'Continuar estudos',
     proximaEtapa: 'Próxima etapa',
     trilhas: 'Trilhas',
@@ -142,6 +148,27 @@ export function descreverEtapa(etapa: Etapa, nomeDoTopico: string | null): strin
         case 'concluido':
             return 'Você concluiu o roteiro.';
     }
+}
+
+/** O cartão da espera na home: "Seu reteste abre em" + "6 dias", ou "Seu reteste abre" + "amanhã". */
+export function contagemDoReteste(diasRestantes: number): { rotulo: string; destaque: string } {
+    return diasRestantes === 1
+        ? { rotulo: 'Seu reteste abre', destaque: 'amanhã' }
+        : { rotulo: 'Seu reteste abre em', destaque: `${diasRestantes} dias` };
+}
+
+const DIAS_DA_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+/** "Abre na sexta, 06/11, e fica disponível até domingo, 08/11." Datas no fuso de São Luís. */
+export function janelaDoReteste(liberaEm: number, ultimoDiaEm: number): string {
+    const abre = dataEmSaoLuis(liberaEm);
+    const fecha = dataEmSaoLuis(ultimoDiaEm);
+    const doisDigitos = (n: number) => String(n).padStart(2, '0');
+    const data = (d: { dia: number; mes: number }) => `${doisDigitos(d.dia)}/${doisDigitos(d.mes)}`;
+    // Sábado e domingo são masculinos; os outros dias, femininos (a segunda, a terça...).
+    const artigo = abre.diaDaSemana === 0 || abre.diaDaSemana === 6 ? 'no' : 'na';
+
+    return `Abre ${artigo} ${DIAS_DA_SEMANA[abre.diaDaSemana]}, ${data(abre)}, e fica disponível até ${DIAS_DA_SEMANA[fecha.diaDaSemana]}, ${data(fecha)}.`;
 }
 
 /** "+3 XP", "−4 XP", "0 XP". O sinal de menos é o tipográfico (U+2212), que alinha com o de mais. */

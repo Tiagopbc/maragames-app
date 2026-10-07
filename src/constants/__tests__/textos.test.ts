@@ -1,4 +1,12 @@
-import { descreverEtapa, formatarAcertos, formatarTaxa, formatarXp, resumirQuadrantes } from '../textos';
+import {
+    contagemDoReteste,
+    descreverEtapa,
+    formatarAcertos,
+    formatarTaxa,
+    formatarXp,
+    janelaDoReteste,
+    resumirQuadrantes,
+} from '../textos';
 
 describe('formatarXp', () => {
     it('ganho aparece com sinal de mais', () => {
@@ -45,13 +53,13 @@ describe('descreverEtapa', () => {
     });
 
     it('na espera, conta os dias até o reteste', () => {
-        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, diasRestantes: 5 }, null)).toBe(
+        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 5 }, null)).toBe(
             'O reteste abre em 5 dias.'
         );
     });
 
     it('na véspera do reteste, diz "amanhã"', () => {
-        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, diasRestantes: 1 }, null)).toBe(
+        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 1 }, null)).toBe(
             'O reteste abre amanhã.'
         );
     });
@@ -93,5 +101,36 @@ describe('formatarTaxa e formatarAcertos', () => {
     it('o resumo de acertos não depende de plural', () => {
         expect(formatarAcertos(1, 2)).toBe('Acertou 1 de 2');
         expect(formatarAcertos(8, 12)).toBe('Acertou 8 de 12');
+    });
+});
+
+describe('contagemDoReteste', () => {
+    it('com vários dias, destaca a contagem', () => {
+        expect(contagemDoReteste(6)).toEqual({ rotulo: 'Seu reteste abre em', destaque: '6 dias' });
+    });
+
+    it('faltando um dia, diz amanhã', () => {
+        expect(contagemDoReteste(1)).toEqual({ rotulo: 'Seu reteste abre', destaque: 'amanhã' });
+    });
+});
+
+describe('janelaDoReteste', () => {
+    const DIA = 24 * 60 * 60 * 1000;
+    // Meia-noite de sexta, 06/11/2026, em São Luís (UTC−3).
+    const SEXTA = Date.parse('2026-11-06T00:00:00-03:00');
+
+    it('diz o dia da semana e a data em que abre e até quando fica', () => {
+        expect(janelaDoReteste(SEXTA, SEXTA + 2 * DIA)).toBe(
+            'Abre na sexta, 06/11, e fica disponível até domingo, 08/11.'
+        );
+    });
+
+    it('sábado e domingo levam "no"', () => {
+        expect(janelaDoReteste(SEXTA + DIA, SEXTA + 3 * DIA)).toBe(
+            'Abre no sábado, 07/11, e fica disponível até segunda, 09/11.'
+        );
+        expect(janelaDoReteste(SEXTA + 2 * DIA, SEXTA + 4 * DIA)).toBe(
+            'Abre no domingo, 08/11, e fica disponível até terça, 10/11.'
+        );
     });
 });

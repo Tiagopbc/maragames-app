@@ -8,6 +8,7 @@ export default function AppLayout() {
       <Stack.Screen name="bloco/[fase]" options={{ gestureEnabled: false }} />
       <Stack.Screen name="consentimento" />
       <Stack.Screen name="cartao/[topicId]" />
+      <Stack.Screen name="dia-1" />
     </Stack>
   );
 }

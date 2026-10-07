@@ -1,3 +1,4 @@
+import { userEvent } from '@testing-library/react-native';
 import { useFonts } from 'expo-font';
 import { renderRouter, screen } from 'expo-router/testing-library';
 
@@ -188,6 +189,25 @@ describe('a trava do roteiro', () => {
             expect(await screen.findByText('Enunciado de mda_b1')).toBeOnTheScreen();
         });
 
+        it('a home mostra a contagem, as datas e o botão do resultado do dia 1', async () => {
+            await abrirEm('/');
+
+            expect(await screen.findByText('Seu reteste abre em')).toBeOnTheScreen();
+            expect(screen.getByText('7 dias')).toBeOnTheScreen();
+            expect(screen.getByText(/^Abre n[ao] .+, \d\d\/\d\d, e fica disponível até .+, \d\d\/\d\d\.$/)).toBeOnTheScreen();
+            expect(screen.getByRole('button', { name: 'Ver meu resultado do dia 1' })).toBeEnabled();
+        });
+
+        it('o botão da home leva ao resultado do dia 1, com os tópicos travados', async () => {
+            const rotas = await abrirEm('/');
+
+            await userEvent.setup().press(await screen.findByRole('button', { name: 'Ver meu resultado do dia 1' }));
+
+            expect(await screen.findByText('Travados até o reteste')).toBeOnTheScreen();
+            expect(rotas.caminho()).toBe('/dia-1');
+            expect(screen.getByLabelText('Framework MDA, travado')).toBeOnTheScreen();
+        });
+
         it('em desenvolvimento, a exceção não vale para a prática', async () => {
             const rotas = await abrirEm('/bloco/pratica?topicId=mda');
 
@@ -212,6 +232,14 @@ describe('a trava do roteiro', () => {
                 expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
                 expect(rotas.caminho()).toBe('/');
             });
+        });
+
+        it('/dia-1 volta para a home: o resultado só existe depois do pós', async () => {
+            const rotas = await abrirEm('/dia-1');
+
+            expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
+            expect(rotas.caminho()).toBe('/');
+            expect(screen.queryByText('Travados até o reteste')).toBeNull();
         });
 
         it('o cartão de outro tópico volta para a home', async () => {

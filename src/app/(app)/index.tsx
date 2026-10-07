@@ -8,7 +8,7 @@ import { BotaoPrincipal } from '@/components/botao-principal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { TEXTOS, TITULO_DA_FASE, descreverEtapa } from '@/constants/textos';
+import { TEXTOS, TITULO_DA_FASE, contagemDoReteste, descreverEtapa, janelaDoReteste } from '@/constants/textos';
 import { useRoteiro } from '@/hooks/use-roteiro';
 import { useTheme } from '@/hooks/use-theme';
 import { participanteDoRoteiro } from '@/lib/participante';
@@ -62,11 +62,18 @@ export default function HomeScreen() {
       router.push({ pathname: '/cartao/[topicId]', params: { topicId: destino.topicId } });
       return;
     }
+    if (destino.tipo === 'dia1') {
+      router.push('/dia-1');
+      return;
+    }
     const { fase, topicId } = destino;
     router.push({ pathname: '/bloco/[fase]', params: topicId ? { fase, topicId } : { fase } });
   }
 
   const destino = estado.tipo === 'pronto' ? destinoDaEtapa(estado.etapa) : null;
+  // Na espera do reteste, o cartão da próxima etapa vira a contagem dos dias (M5).
+  const espera = estado.tipo === 'pronto' && estado.etapa.tipo === 'espera' ? estado.etapa : null;
+  const contagem = espera && contagemDoReteste(espera.diasRestantes);
 
   return (
     <ThemedView style={styles.container}>
@@ -81,7 +88,7 @@ export default function HomeScreen() {
         <View
           style={[styles.proximaEtapa, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
           <ThemedText type="small" themeColor="textSecondary">
-            {TEXTOS.proximaEtapa}
+            {contagem ? contagem.rotulo : TEXTOS.proximaEtapa}
           </ThemedText>
 
           {estado.tipo === 'erro' ? (
@@ -93,12 +100,21 @@ export default function HomeScreen() {
             </>
           ) : (
             <>
-              {estado.tipo === 'pronto' && (
-                <ThemedText>{descreverEtapa(estado.etapa, estado.nomeDoTopico)}</ThemedText>
+              {espera && contagem ? (
+                <>
+                  <ThemedText style={styles.contagem}>{contagem.destaque}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {janelaDoReteste(espera.liberaEm, espera.ultimoDiaEm)}
+                  </ThemedText>
+                </>
+              ) : (
+                estado.tipo === 'pronto' && (
+                  <ThemedText>{descreverEtapa(estado.etapa, estado.nomeDoTopico)}</ThemedText>
+                )
               )}
-              {/* Sem destino (espera do reteste, SUS ainda sem tela), o botão fica apagado. */}
+              {/* Sem destino (SUS ainda sem tela, roteiro concluído), o botão fica apagado. */}
               <BotaoPrincipal
-                rotulo={TEXTOS.continuarEstudos}
+                rotulo={espera ? TEXTOS.verResultadoDoDia1 : TEXTOS.continuarEstudos}
                 carregando={estado.tipo === 'carregando'}
                 desabilitado={estado.tipo === 'pronto' && !destino}
                 onPress={() => {
@@ -198,6 +214,11 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: 16,
     borderWidth: 1,
+  },
+  contagem: {
+    fontSize: 40,
+    lineHeight: 46,
+    fontWeight: 700,
   },
   grade: {
     flexDirection: 'row',

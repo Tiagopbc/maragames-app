@@ -33,8 +33,10 @@ describe('destinoDaEtapa', () => {
         });
     });
 
-    it('na espera não há para onde ir: o reteste ainda não abriu', () => {
-        expect(destinoDaEtapa({ tipo: 'espera', liberaEm: 0, diasRestantes: 3 })).toBeNull();
+    it('na espera, o que há para abrir é o resultado do dia 1: o reteste ainda não abriu', () => {
+        expect(destinoDaEtapa({ tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 3 })).toEqual({
+            tipo: 'dia1',
+        });
     });
 
     it('o consentimento abre a tela do termo', () => {
@@ -49,7 +51,7 @@ describe('destinoDaEtapa', () => {
 
 describe('podeAbrir', () => {
     const ESTUDO_MDA: Etapa = { tipo: 'estudo', topicId: 'mda', respondidas: 0, total: 4, proximaQuestaoId: 'p1' };
-    const ESPERA: Etapa = { tipo: 'espera', liberaEm: 0, diasRestantes: 6 };
+    const ESPERA: Etapa = { tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 6 };
     const PRE: Etapa = { tipo: 'pre', ...PROGRESSO };
     const POS: Etapa = { tipo: 'pos', ...PROGRESSO };
     const RETESTE: Etapa = { tipo: 'reteste', foraDaJanela: false, ...PROGRESSO };
@@ -124,6 +126,25 @@ describe('podeAbrir', () => {
         });
     });
 
+    // O resultado do dia 1 é o do pós-teste: só existe depois que o pós termina.
+    describe('o resultado do dia 1', () => {
+        const DIA_1: DestinoDeEstudo = { tipo: 'dia1' };
+
+        it.each([ESPERA, RETESTE, { tipo: 'sus' }, { tipo: 'concluido' }] as Etapa[])(
+            'abre em $tipo, com o pós já feito',
+            (etapa) => {
+                expect(podeAbrir(etapa, DIA_1)).toBe(true);
+            }
+        );
+
+        it.each([{ tipo: 'consentimento' }, PRE, ESTUDO_MDA, POS] as Etapa[])(
+            'não abre em $tipo, antes de terminar o pós',
+            (etapa) => {
+                expect(podeAbrir(etapa, DIA_1)).toBe(false);
+            }
+        );
+    });
+
     it.each([{ tipo: 'consentimento' }, { tipo: 'sus' }, { tipo: 'concluido' }] as const)(
         'em $tipo nenhum bloco abre',
         (etapa) => {
@@ -145,6 +166,10 @@ describe('travaVale', () => {
 
     it('em desenvolvimento, não vale para os blocos medidos: são os links de teste da home', () => {
         for (const destino of MEDIDOS) expect(travaVale(destino, true)).toBe(false);
+    });
+
+    it('em desenvolvimento, continua valendo para o resultado do dia 1', () => {
+        expect(travaVale({ tipo: 'dia1' }, true)).toBe(true);
     });
 
     it('em desenvolvimento, continua valendo para o cartão e a prática', () => {
