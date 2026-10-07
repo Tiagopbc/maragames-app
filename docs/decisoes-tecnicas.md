@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25 e 26 revistos: as abas do template saíram, o rodapé fixo foi conferido na web e o desenho do piloto foi confirmado).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado e a aparência do protótipo entrou no app).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -220,7 +220,9 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
 - Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
-- Aplicar no app o visual do protótipo (item 28): cores e tipografia no tema, estilo de botões, cartões e alternativas, mascote. Depende de o grupo corrigir o protótipo e fechar os pontos em aberto do item 28.
+- Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
+- Animação de abertura: ainda é a do template, com a logo do Expo e os azuis dele (`src/components/animated-icon.tsx` e a cor da tela de abertura no `app.json`). É a única exceção do teste que barra cor fora do tema.
+- Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
 - Trava dos tópicos medidos entre o pós e o reteste (item 23): a home já não leva a eles nesse intervalo, mas as rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL na web, e as duas também abrem fora da ordem do roteiro. A trava é do M5 e deve valer nas duas rotas.
 - Tela de espera do reteste (M5): relatório do dia 1, reaproveitando o componente do resultado (item 27), e contagem dos dias. Hoje a home só mostra a linha "O reteste abre em N dias".
@@ -249,6 +251,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Regras do Firestore: as do consentimento (`users` e `piloto/contador`) estão testadas no emulador (`npm run test:regras`); as de `answers` e `attempts` continuam sem teste de emulador.
 - O projeto não tem ESLint configurado, então `npm run lint` não roda.
+- `expo-symbols` ficou sem uso depois da retirada das abas; tirar do `package.json` quando for mexer nas dependências.
 - Os atalhos Lições, Progresso e Perfil seguem travados e sem destino; é para depois do piloto.
 
 **Decisões do grupo**
@@ -268,6 +271,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Resolvidas em 07/10**
 
 - Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
+- Aparência do protótipo no app: cores, fonte Lexend, estilo dos componentes, logo no login e mascote no consentimento (item 28).
 - Conferência visual na web, com a conta do Tiago: em 375×812 a saudação da home começa a 24 px do topo, sem nada por cima; na pergunta, os três níveis de confiança e o Confirmar ficam à vista no rodapé, e em 320×568 continuam fixos enquanto as alternativas rolam (item 25). Nenhuma resposta foi gravada; abrir o reteste pelo link de desenvolvimento criou uma tentativa de reteste na conta de teste, que entra na limpeza.
 - Rodapé fixo, correção de `topicosMedidos` e documentos de 06/10 em commit, na mesma branch (seis commits, sem push).
 
@@ -313,6 +317,8 @@ Revisto em 06/10 (regras). As regras do consentimento ganharam teste no emulador
 
 Revisto em 07/10 (navegação). As rotas ganharam teste, em `src/__tests__/navegacao.test.tsx`, com o `renderRouter` do Expo Router sobre a pasta `src/app` de verdade, sessão simulada e o repositório em memória. Cobre o que a retirada das abas mudou (item 6): a home abre direto em `(app)`, nenhum texto do template aparece e `/explore` não leva a tela nenhuma. O teste fica fora de `src/app` porque lá todo arquivo vira rota. Dois detalhes de ferramenta: no Testing Library 14 o render é assíncrono, então o teste espera a promessa devolvida pelo `renderRouter` antes de ler a rota; e o Jest passou a conhecer o alias `@/assets`, que o `tsconfig.json` já tinha. O teste não mede pixels: sobreposição e rolagem continuam sendo conferência visual.
 
+Revisto em 07/10 (aparência). Quatro testes novos guardam a identidade visual (item 28): o contraste de cada par de texto e fundo do tema; nenhuma cor escrita à mão fora de `src/constants/theme.ts`, nem o `Button` do React Native (esse teste é em JavaScript, porque lê arquivos com o Node e os tipos do Node não entram no `tsconfig`); a família de fonte que cada tipo de texto e cada peso recebem; e a tela de login, pelas rotas reais, com a sessão de quem não entrou. Teste não julga se a tela ficou boa: isso continua sendo conferência visual, nos dois temas. O Jest passou a ignorar `.claude/`, onde ficam os worktrees do assistente.
+
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 
 Decidido em 06/10. No fim de cada bloco, a própria tela do bloco mostra o resultado (M4): XP do bloco, acertos, a contagem dos quatro quadrantes e o que revisar primeiro. Quatro escolhas:
@@ -349,3 +355,13 @@ Sete pontos do protótipo contradizem decisões desta lista e continuam em abert
 
 Se o visual for adotado, o que muda no código tem três tamanhos: só aparência (tema e estilo dos componentes, que já estão separados); comportamento (relatório único do dia 1, lista do roteiro na home, tela de espera); e conteúdo (os cartões do protótipo têm diagrama e frase de destaque, e hoje um slide só tem título e texto, então `content/topicos.json` precisa de campos novos).
 
+Revisto em 07/10 (aparência aplicada). A primeira das três partes entrou no app, em quatro passos, cada um com teste antes do código:
+
+- **Cores.** A paleta do protótipo foi para `src/constants/theme.ts`, nos dois temas, com tokens novos: `borda`, `bordaSelecionada`, `botao`, `textoDoBotao`, `fundoDaLogo` e `lacuna` (a Lacuna era cinza e passou ao azul do protótipo). Uma diferença deliberada: no tema escuro, as cores de estado e de quadrante entram clareadas. No protótipo elas são fundos com texto branco; no app são texto, ícone e borda sobre fundo escuro, e ali o azul da Lacuna dava contraste de 1,9 para 1 e o vermelho do Ponto cego, 3 para 1. Um teste calcula o contraste de cada par de texto e fundo usado nas telas e exige 4,5 para 1; outro barra cor escrita à mão fora do tema e o `Button` do React Native, que traz o azul do sistema.
+- **Fonte.** Lexend nos pesos 400, 500, 600 e 700, pelo pacote `@expo-google-fonts/lexend`, carregada no layout raiz com `useFonts`, que funciona no Expo Go e na web (o config plugin do `expo-font` exigiria build próprio). A tela de abertura segura até a fonte chegar; se a carga falhar, o app abre com a fonte do aparelho. Com fonte própria cada peso é um arquivo, e no Android `fontWeight` sozinho não troca de arquivo: `ThemedText` transforma o peso pedido na família daquele peso, então nenhuma tela precisa saber o nome das famílias.
+- **Componentes.** Botão principal, alternativa (a letra num quadrado, cheio quando selecionada e na cor do estado quando certa ou errada, que continuam com ícone), seletor de confiança, campo de texto, selo e cartões no tratamento do protótipo. Entrou a barra de progresso no cabeçalho da pergunta, contando as questões respondidas.
+- **Logo e mascote.** A logo em SVG no login, sobre círculo branco (no escuro é o que a faz aparecer), com a chamada "Pronto pra soltar a fera?"; o mascote em cartum no consentimento, marcado como enfeite para o leitor de tela. O login passou a usar os mesmos campo e botão das outras telas.
+
+Ficou igual ao que já estava decidido, mesmo diferente do PDF de 06/10: o X e o rodapé fixo da pergunta, a senha de 8 caracteres, o botão "Continuar com Google", os atalhos travados da home e o texto do termo. As outras duas partes (comportamento e conteúdo) continuam esperando os pontos em aberto acima.
+
+Conferido na web, em 375×812, nos dois temas: home, pergunta e login. O consentimento com o mascote só foi conferido por teste, porque a conta usada já aceitou o termo. Nada foi visto num aparelho.

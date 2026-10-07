@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { Mascote } from '@/components/mascote';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -44,6 +45,7 @@ export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoPr
         <ThemedView style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <ScrollView contentContainerStyle={styles.conteudo}>
+                    <Mascote />
                     <ThemedText type="subtitle">{TEXTOS_DO_TERMO.titulo}</ThemedText>
 
                     {TERMO.map((secao) => (

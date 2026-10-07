@@ -149,3 +149,20 @@ export function formatarXp(xp: number): string {
     if (xp < 0) return `−${Math.abs(xp)} XP`;
     return '0 XP';
 }
+
+// Tela de login: a chamada da marca e os campos (item 28).
+export const TEXTOS_DO_LOGIN = {
+    logo: 'Logo da Beast Maragames',
+    marca: 'Beast Maragames',
+    chamada: 'Pronto pra soltar a fera?',
+    convite: 'Entre para começar o desafio de hoje.',
+    email: 'E-mail',
+    exemploDeEmail: 'voce@exemplo.com',
+    senha: 'Senha',
+    dicaDaSenha: 'Mínimo 8 caracteres',
+    entrar: 'Entrar',
+    entrarComGoogle: 'Continuar com Google',
+    semConta: 'Ainda não tem conta?',
+    criarConta: 'Criar agora',
+    erroAoEntrar: 'Não foi possível entrar. Tente de novo.',
+} as const;

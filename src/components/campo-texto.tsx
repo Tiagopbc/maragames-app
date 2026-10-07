@@ -1,7 +1,6 @@
-import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Erro } from '@/lib/validacao';
@@ -15,12 +14,14 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
     const theme = useTheme();
 
     return (
-        <ThemedView style={styles.container}>
+        // Sem fundo próprio: o campo pode estar sobre a tela ou dentro de um cartão.
+        <View style={styles.container}>
             <ThemedText type="smallBold" themeColor="textSecondary" style={styles.rotulo}>
                 {rotulo}
             </ThemedText>
 
             <TextInput
+                accessibilityLabel={rotulo}
                 style={[
                     styles.input,
                     {
@@ -40,7 +41,7 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
                     {erro}
                 </ThemedText>
             )}
-        </ThemedView>
+        </View>
     );
 }
 

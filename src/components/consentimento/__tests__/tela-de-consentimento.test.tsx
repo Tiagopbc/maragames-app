@@ -23,6 +23,13 @@ describe('a tela de consentimento', () => {
         }
     });
 
+    it('mostra o mascote, que é enfeite e não é lido pelo leitor de tela', async () => {
+        await render(<TelaDeConsentimento aoAceitar={jest.fn()} aoSair={aoSair} />);
+
+        expect(screen.getByTestId('mascote')).toBeOnTheScreen();
+        expect(screen.queryByRole('image')).toBeNull();
+    });
+
     it('começa com a caixa desmarcada e o aceite desabilitado', async () => {
         await render(<TelaDeConsentimento aoAceitar={jest.fn()} aoSair={aoSair} />);
 

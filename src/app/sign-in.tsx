@@ -1,10 +1,14 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, TextInput } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { BotaoPrincipal } from '@/components/botao-principal';
+import { CampoTexto } from '@/components/campo-texto';
+import { LogoBeast } from '@/components/logo-beast';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { TEXTOS_DO_LOGIN } from '@/constants/textos';
 import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/session';
 
@@ -32,92 +36,110 @@ export default function SignInScreen() {
         try {
             await acao();
         } catch (e: any) {
-            setErro(ERROS[e?.code] ?? 'Não foi possível entrar. Tente de novo.');
+            setErro(ERROS[e?.code] ?? TEXTOS_DO_LOGIN.erroAoEntrar);
         } finally {
             setCarregando(false);
         }
     }
 
     const enviar = () => executar(() => entrarComEmail(email, senha));
-    const podeEnviar = !!email && !!senha && !carregando;
-
-    const inputStyle = [styles.input, { color: theme.text, borderColor: theme.borda, fontFamily: Fonts.regular }];
 
     return (
         <ThemedView style={styles.container}>
-            <ThemedView style={styles.card}>
-                <ThemedText type="subtitle">Entrar</ThemedText>
-
-                <TextInput
-                    style={inputStyle}
-                    placeholder="email"
-                    placeholderTextColor={theme.textSecondary}
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoComplete="email"
-                    keyboardType="email-address"
-                    editable={!carregando}
-                />
-
-                <TextInput
-                    style={inputStyle}
-                    placeholder="senha"
-                    placeholderTextColor={theme.textSecondary}
-                    value={senha}
-                    onChangeText={setSenha}
-                    secureTextEntry
-                    autoComplete="current-password"
-                    editable={!carregando}
-                    onSubmitEditing={enviar}
-                />
-
-                {erro && (
-                    <ThemedText type="small" themeColor="textSecondary">
-                        {erro}
+            <View style={styles.coluna}>
+                <View style={styles.topo}>
+                    <LogoBeast />
+                    <ThemedText themeColor="primaria" style={styles.marca}>
+                        {TEXTOS_DO_LOGIN.marca}
                     </ThemedText>
-                )}
+                    <ThemedText type="title" style={styles.centro}>
+                        {TEXTOS_DO_LOGIN.chamada}
+                    </ThemedText>
+                    <ThemedText themeColor="textSecondary" style={styles.centro}>
+                        {TEXTOS_DO_LOGIN.convite}
+                    </ThemedText>
+                </View>
 
-                <Pressable disabled={!podeEnviar} onPress={enviar}>
-                    <ThemedView
-                        type="backgroundSelected"
-                        style={[styles.botao, !podeEnviar && styles.desabilitado]}>
-                        {carregando ? <ActivityIndicator /> : <ThemedText type="smallBold">Entrar</ThemedText>}
-                    </ThemedView>
-                </Pressable>
+                <View style={[styles.cartao, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
+                    <CampoTexto
+                        rotulo={TEXTOS_DO_LOGIN.email}
+                        placeholder={TEXTOS_DO_LOGIN.exemploDeEmail}
+                        value={email}
+                        onChangeText={setEmail}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        autoComplete="email"
+                        keyboardType="email-address"
+                        editable={!carregando}
+                    />
 
-                {Platform.OS === 'web' && (
-                    <Pressable disabled={carregando} onPress={() => executar(entrarComGoogle)}>
-                        <ThemedView type="backgroundElement" style={styles.botao}>
-                            <ThemedText type="smallBold">Continuar com Google</ThemedText>
-                        </ThemedView>
-                    </Pressable>
-                )}
+                    <CampoTexto
+                        rotulo={TEXTOS_DO_LOGIN.senha}
+                        placeholder={TEXTOS_DO_LOGIN.dicaDaSenha}
+                        value={senha}
+                        onChangeText={setSenha}
+                        secureTextEntry
+                        autoComplete="current-password"
+                        editable={!carregando}
+                        onSubmitEditing={enviar}
+                    />
 
-                <Link href="/sign-up">
-                    <ThemedText type="linkPrimary">Não tenho conta — criar perfil</ThemedText>
-                </Link>
-            </ThemedView>
+                    {erro && (
+                        <ThemedText type="small" themeColor="erro" accessibilityLiveRegion="polite">
+                            {erro}
+                        </ThemedText>
+                    )}
+
+                    <BotaoPrincipal
+                        rotulo={TEXTOS_DO_LOGIN.entrar}
+                        desabilitado={!email || !senha}
+                        carregando={carregando}
+                        onPress={enviar}
+                    />
+
+                    {Platform.OS === 'web' && (
+                        <Pressable
+                            accessibilityRole="button"
+                            disabled={carregando}
+                            onPress={() => executar(entrarComGoogle)}
+                            style={({ pressed }) => [
+                                styles.secundario,
+                                { borderColor: theme.borda, opacity: pressed ? 0.7 : 1 },
+                            ]}>
+                            <ThemedText themeColor="primaria" style={styles.rotuloSecundario}>
+                                {TEXTOS_DO_LOGIN.entrarComGoogle}
+                            </ThemedText>
+                        </Pressable>
+                    )}
+                </View>
+
+                <View style={styles.cadastro}>
+                    <ThemedText type="small" themeColor="textSecondary">
+                        {TEXTOS_DO_LOGIN.semConta}
+                    </ThemedText>
+                    <Link href="/sign-up">
+                        <ThemedText type="linkPrimary">{TEXTOS_DO_LOGIN.criarConta}</ThemedText>
+                    </Link>
+                </View>
+            </View>
         </ThemedView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    card: { width: '100%', maxWidth: 360, gap: Spacing.three, padding: Spacing.four },
-    input: {
-        borderWidth: 1,
-        borderRadius: Spacing.three,
-        paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.two,
-    },
-    botao: {
-        borderRadius: Spacing.three,
-        paddingVertical: Spacing.three,
+    coluna: { width: '100%', maxWidth: 400, gap: Spacing.four, padding: Spacing.four },
+    topo: { alignItems: 'center', gap: Spacing.two },
+    marca: { fontSize: 20, lineHeight: 26, fontWeight: 600 },
+    centro: { textAlign: 'center' },
+    cartao: { gap: Spacing.three, padding: Spacing.three, borderRadius: 20, borderWidth: 1 },
+    secundario: {
         minHeight: 48,
+        borderRadius: 14,
+        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    desabilitado: { opacity: 0.5 },
+    rotuloSecundario: { fontWeight: 600 },
+    cadastro: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.one },
 });

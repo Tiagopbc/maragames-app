@@ -22,6 +22,7 @@ export const Colors = {
     primaria: '#3B2781', // links, ícones e destaques sobre o fundo
     botao: '#3B2781',
     textoDoBotao: '#FFFFFF',
+    fundoDaLogo: '#FFFFFF',
     // Estado e quadrante: sucesso = Firme, aviso = Frágil, lacuna = Lacuna, erro = Ponto cego.
     sucesso: '#1E7A4C',
     aviso: '#8A6100',
@@ -39,6 +40,7 @@ export const Colors = {
     primaria: '#BEB1D7',
     botao: '#554495',
     textoDoBotao: '#FFFFFF',
+    fundoDaLogo: '#FFFFFF', // a logo é roxa: no escuro ela vai sobre um círculo branco
     // No protótipo escuro estas quatro são fundos com texto branco. Aqui elas são texto, ícone
     // e borda sobre fundo escuro, então entram clareadas: as do protótipo não passam no contraste.
     sucesso: '#3DD68C',
