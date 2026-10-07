@@ -7,7 +7,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS, TITULO_DA_FASE, descreverEtapa } from '@/constants/textos';
 import { useRoteiro } from '@/hooks/use-roteiro';
 import { useTheme } from '@/hooks/use-theme';
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: Spacing.four,
     paddingHorizontal: Spacing.four,
-    paddingBottom: BottomTabInset + Spacing.three,
+    paddingBottom: Spacing.three,
     alignItems: 'stretch',
     gap: Spacing.three,
     maxWidth: MaxContentWidth,

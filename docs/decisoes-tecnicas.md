@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 06/10/2026 (itens 26, 27 e 28 novos; itens 3, 6, 8, 14, 21, 22, 24, 25 e 26 revistos).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25 e 26 revistos: as abas do template saíram, o rodapé fixo foi conferido na web e o desenho do piloto foi confirmado).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -49,6 +49,8 @@ Revisto em 06/10. Implementado: "Continuar lição" saiu do array e virou o bot�
 Revisto em 06/10 (consentimento). O aceite simulado saiu: a tela de consentimento existe (item 22), e `participante.ts` passou a ler `formaPre` e `consentiuEm` do perfil, em desenvolvimento ou não. Na etapa `consentimento`, "Continuar estudos" abre o termo. Só o SUS e o roteiro concluído ainda deixam o botão apagado.
 
 Revisto em 06/10 (cartão). Na etapa `estudo`, o botão abre o cartão de conceito enquanto o tópico não tem resposta de prática, e a prática depois disso (item 22). A linha da home acompanha: "Cartão de Framework MDA" e, com a prática começada, "Prática de Framework MDA · 1 de 4".
+
+Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/app/(app)/index.tsx`, direto no `Stack` de `(app)`; bloco, cartão e termo continuam abrindo por cima dela. As abas eram as do template do Expo: na web, uma barra flutuante com "Expo Starter", a aba Explore e o link Docs, que cobria a saudação; no celular, uma aba "Expo" que abria a tela de exemplo. Tirada a Explore, sobraria uma aba só, e barra de uma aba não navega: no piloto, quem navega é o "Continuar estudos" e os atalhos. Saíram junto os componentes e as imagens que só o template usava, e `BottomTabInset` do tema. Se depois do piloto os atalhos virarem abas, o grupo volta. Coberto por teste de navegação (item 26).
 
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
@@ -205,20 +207,21 @@ Indicadores para a Mara Games, todos derivados de `answers`: aprendizagem (ganho
 
 Entrega à Mara Games (decidido em 05/10): o grupo exporta os dados e envia um CSV com um código no lugar de nome e contato, junto com os indicadores agregados (M7). Não há painel nem papel de administrador dentro do app, o que evita mexer em autenticação e regras para algo usado uma vez. Com cerca de 15 pessoas e sem grupo de controle, os números descrevem e não provam causa.
 
+Revisto em 07/10 (confirmado). O grupo reconsiderou espalhar os quatro tópicos medidos por quatro dias, um módulo de 10 questões por dia, e manteve o desenho acima. O que pesou: hoje os dias de engajamento estão separados da medição, e o dado fica completo com duas aberturas do app (dia 1 e reteste); com um módulo medido por dia seriam oito, e cada falta viraria dado perdido, o que pesa com cerca de 15 participantes. O custo aceito é escrever os cinco tópicos da trilha até 23/10; se isso não couber, a alternativa volta à mesa, porque não exige conteúdo novo.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
 
 **Antes de qualquer coisa**
 
-- Abrir o pull request da branch `feat/roteiro-do-piloto` (cinco commits, ainda sem push).
+- Abrir o pull request da branch `feat/roteiro-do-piloto` (ainda sem push). Em 07/10 o Tiago deixou push e pull request para depois.
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
-- Conferir no aparelho o rodapé fixo da pergunta (item 25): está coberto por teste, mas ainda não foi visto desenhado numa tela de celular.
+- Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
 - Aplicar no app o visual do protótipo (item 28): cores e tipografia no tema, estilo de botões, cartões e alternativas, mascote. Depende de o grupo corrigir o protótipo e fechar os pontos em aberto do item 28.
 - Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
-- Barra de abas do template na web: flutua sobre o topo da home e cobre a saudação. Ainda traz "Expo Starter", a aba "Explore" e o link "Docs" do modelo. Só afeta a web; pesa se a distribuição for por build web.
 - Trava dos tópicos medidos entre o pós e o reteste (item 23): a home já não leva a eles nesse intervalo, mas as rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL na web, e as duas também abrem fora da ordem do roteiro. A trava é do M5 e deve valer nas duas rotas.
 - Tela de espera do reteste (M5): relatório do dia 1, reaproveitando o componente do resultado (item 27), e contagem dos dias. Hoje a home só mostra a linha "O reteste abre em N dias".
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e confirmar que o build distribuído não é de desenvolvimento.
@@ -262,6 +265,12 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
 
+**Resolvidas em 07/10**
+
+- Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
+- Conferência visual na web, com a conta do Tiago: em 375×812 a saudação da home começa a 24 px do topo, sem nada por cima; na pergunta, os três níveis de confiança e o Confirmar ficam à vista no rodapé, e em 320×568 continuam fixos enquanto as alternativas rolam (item 25). Nenhuma resposta foi gravada; abrir o reteste pelo link de desenvolvimento criou uma tentativa de reteste na conta de teste, que entra na limpeza.
+- Rodapé fixo, correção de `topicosMedidos` e documentos de 06/10 em commit, na mesma branch (seis commits, sem push).
+
 **Resolvidas em 06/10**
 
 - Mascote: ficam os dois estilos, a logo no login e o lobo em cartum no consentimento e na sequência (item 28).
@@ -288,7 +297,7 @@ Revisto em 06/10 (implementação). A tela ficou em três camadas: regra em fun�
 
 Revisto em 06/10 (fim do bloco). A tela provisória "Bloco concluído" deu lugar ao resultado do bloco (item 27).
 
-Revisto em 06/10 (rodapé fixo). Os três níveis de confiança passaram a ficar numa linha só, dentro de um rodapé fixo, junto do Confirmar; só o enunciado, as alternativas e o feedback rolam. Antes o seletor era uma lista vertical dentro da área de rolagem. Ao rodar o roteiro numa tela de 375×812, "Tenho certeza" só aparecia rolando, e em enunciado longo "Tenho dúvida" também sumia: um nível que o participante não vê enviesa a própria medida. A linha horizontal veio do protótipo do grupo (item 28); o rodapé fixo é o que garante que ela não desça com uma questão longa. No feedback da prática, a confiança declarada continua à vista no rodapé, travada. O nível marcado muda de borda, de fundo e de peso do texto, para não depender só de cor. Coberto por teste de componente; falta a conferência visual no aparelho.
+Revisto em 06/10 (rodapé fixo). Os três níveis de confiança passaram a ficar numa linha só, dentro de um rodapé fixo, junto do Confirmar; só o enunciado, as alternativas e o feedback rolam. Antes o seletor era uma lista vertical dentro da área de rolagem. Ao rodar o roteiro numa tela de 375×812, "Tenho certeza" só aparecia rolando, e em enunciado longo "Tenho dúvida" também sumia: um nível que o participante não vê enviesa a própria medida. A linha horizontal veio do protótipo do grupo (item 28); o rodapé fixo é o que garante que ela não desça com uma questão longa. No feedback da prática, a confiança declarada continua à vista no rodapé, travada. O nível marcado muda de borda, de fundo e de peso do texto, para não depender só de cor. Coberto por teste de componente. Visto na web em 07/10, em 375×812 e 320×568; falta um aparelho de verdade (item 24).
 
 ## 26. Regras de negócio em funções puras, com testes unitários
 
@@ -301,6 +310,8 @@ Os testes foram escritos antes do código e cobrem as bordas que mudam a medida:
 Revisto em 06/10. A tela da pergunta ganhou teste de componente (`src/components/pergunta/__tests__/`), com `@testing-library/react-native`, que é o caminho da documentação do Expo. O teste monta a tela inteira sobre um repositório em memória (`src/test/repositorio-falso.ts`), que implementa a mesma interface `ProgressRepository`, então exercita hook e componentes sem emulador do Firestore. Cobre o que muda a medida: Confirmar só com as duas seleções, em qualquer ordem; nenhum feedback em pré, pós e reteste; o tempo de resposta; a retomada; e a falha de gravação sem evento duplicado. O relógio entra na tela como parâmetro, como nas funções puras. Na configuração do Jest, imports de `.css` caem num módulo vazio.
 
 Revisto em 06/10 (regras). As regras do consentimento ganharam teste no emulador do Firestore: `npm run test:regras`, com `firebase-tools` e `@firebase/rules-unit-testing` como dependências de desenvolvimento. Fica separado de `npm test` (pasta `regras/`, configuração própria em `jest.regras.config.js`) porque precisa de Java e sobe o emulador; o projeto usado é `demo-maragames`, e o prefixo `demo-` garante que nada chega ao Firebase de verdade. O teste roda a transação real do repositório contra as regras reais e depois tenta cada atalho na mão: escolher a forma, pular posição, mexer no contador sem aceitar, usar data do aparelho, trocar ou apagar depois. Cada condição da regra foi conferida tirando-a e vendo um teste falhar; foi assim que apareceram uma brecha sem teste e a recusa no aceite simultâneo (item 22).
+
+Revisto em 07/10 (navegação). As rotas ganharam teste, em `src/__tests__/navegacao.test.tsx`, com o `renderRouter` do Expo Router sobre a pasta `src/app` de verdade, sessão simulada e o repositório em memória. Cobre o que a retirada das abas mudou (item 6): a home abre direto em `(app)`, nenhum texto do template aparece e `/explore` não leva a tela nenhuma. O teste fica fora de `src/app` porque lá todo arquivo vira rota. Dois detalhes de ferramenta: no Testing Library 14 o render é assíncrono, então o teste espera a promessa devolvida pelo `renderRouter` antes de ler a rota; e o Jest passou a conhecer o alias `@/assets`, que o `tsconfig.json` já tinha. O teste não mede pixels: sobreposição e rolagem continuam sendo conferência visual.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

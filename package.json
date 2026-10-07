@@ -57,7 +57,8 @@
   "jest": {
     "preset": "jest-expo",
     "moduleNameMapper": {
-      "\\.css$": "<rootDir>/src/test/estilo-vazio.js"
+      "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
+      "^@/assets/(.*)$": "<rootDir>/assets/$1"
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
