@@ -12,7 +12,7 @@ type Aparencia = { icone: keyof typeof Ionicons.glyphMap; cor: ThemeColor };
 const APARENCIA: Record<Quadrante, Aparencia> = {
     firme: { icone: 'shield-checkmark', cor: 'sucesso' },
     fragil: { icone: 'leaf', cor: 'aviso' },
-    lacuna: { icone: 'help-circle', cor: 'textSecondary' },
+    lacuna: { icone: 'help-circle', cor: 'lacuna' },
     ponto_cego: { icone: 'eye-off', cor: 'erro' },
 };
 

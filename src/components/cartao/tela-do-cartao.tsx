@@ -84,7 +84,7 @@ export function TelaDoCartao({ topicId, aoComecarPratica, aoSair }: TelaDoCartao
                                     key={s.titulo}
                                     style={[
                                         styles.barra,
-                                        { backgroundColor: i <= indice ? theme.primaria : theme.backgroundSelected },
+                                        { backgroundColor: i <= indice ? theme.primaria : theme.borda },
                                     ]}
                                 />
                             ))}

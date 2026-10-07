@@ -11,7 +11,7 @@ type BotaoPrincipalProps = {
     carregando?: boolean; // mostra o indicador e ignora toques
 };
 
-// A ação principal da tela: uma por tela, na cor primária do tema.
+// A ação principal da tela: uma por tela, no roxo da marca.
 export function BotaoPrincipal({ rotulo, onPress, desabilitado = false, carregando = false }: BotaoPrincipalProps) {
     const theme = useTheme();
     const parado = desabilitado || carregando;
@@ -25,12 +25,12 @@ export function BotaoPrincipal({ rotulo, onPress, desabilitado = false, carregan
             onPress={onPress}
             style={({ pressed }) => [
                 styles.botao,
-                { backgroundColor: theme.primaria, opacity: desabilitado ? 0.4 : pressed ? 0.7 : 1 },
+                { backgroundColor: theme.botao, opacity: desabilitado ? 0.4 : pressed ? 0.7 : 1 },
             ]}>
             {carregando ? (
-                <ActivityIndicator color={theme.background} />
+                <ActivityIndicator color={theme.textoDoBotao} />
             ) : (
-                <ThemedText type="smallBold" style={{ color: theme.background }}>
+                <ThemedText type="smallBold" themeColor="textoDoBotao">
                     {rotulo}
                 </ThemedText>
             )}

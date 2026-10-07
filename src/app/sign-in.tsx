@@ -41,7 +41,7 @@ export default function SignInScreen() {
     const enviar = () => executar(() => entrarComEmail(email, senha));
     const podeEnviar = !!email && !!senha && !carregando;
 
-    const inputStyle = [styles.input, { color: theme.text, borderColor: theme.textSecondary }];
+    const inputStyle = [styles.input, { color: theme.text, borderColor: theme.borda }];
 
     return (
         <ThemedView style={styles.container}>

@@ -38,7 +38,7 @@ export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfi
                                 styles.nivel,
                                 {
                                     backgroundColor: marcado ? theme.backgroundSelected : theme.backgroundElement,
-                                    borderColor: marcado ? theme.primaria : theme.backgroundElement,
+                                    borderColor: marcado ? theme.bordaSelecionada : theme.borda,
                                     opacity: pressed ? 0.7 : 1,
                                 },
                             ]}>

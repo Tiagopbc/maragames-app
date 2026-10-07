@@ -46,7 +46,12 @@ export function AlternativaItem({ letra, texto, estado, marcada, desabilitada, o
                 styles.item,
                 {
                     backgroundColor: destacada ? theme.backgroundSelected : theme.backgroundElement,
-                    borderColor: destacada ? theme[cor] : theme.backgroundElement,
+                    // Selecionada usa a borda de seleção; certa e errada, a cor do próprio estado.
+                    borderColor: !destacada
+                        ? theme.borda
+                        : estado === 'selecionada'
+                          ? theme.bordaSelecionada
+                          : theme[cor],
                     opacity: estado === 'apagada' ? 0.5 : pressed ? 0.7 : 1,
                 },
             ]}>

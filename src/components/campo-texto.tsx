@@ -23,7 +23,7 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
             <TextInput
                 style={[
                     styles.input,
-                    { color: theme.text, borderColor: erro ? theme.erro : theme.textSecondary },
+                    { color: theme.text, borderColor: erro ? theme.erro : theme.borda },
                     style,
                 ]}
                 placeholderTextColor={theme.textSecondary}
