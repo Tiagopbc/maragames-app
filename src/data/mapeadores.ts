@@ -14,6 +14,8 @@ export function paraLesson(id: string, d: Dados): Lesson {
         title: d.title,
         order: d.order,
         topicId: d.topicId,
+        ordem: d.ordem,
+        trilha: d.trilha,
         modulo: d.modulo ?? null,
         cartao: d.cartao ?? [],
     };
@@ -75,15 +77,23 @@ export function paraPerfil(d: Dados): Perfil {
 // O tópico não tem coleção própria: o seed grava uma lição por tópico, e é dela que ele sai.
 // Lição sem `topicId` (anterior ao seed de conteúdo) não vira tópico.
 export function topicosDasLicoes(
-    licoes: readonly Pick<Lesson, 'title' | 'order' | 'topicId' | 'modulo'>[]
+    licoes: readonly Pick<Lesson, 'title' | 'order' | 'ordem' | 'topicId' | 'modulo'>[]
 ): Topico[] {
     return ordenarLicoes(licoes).flatMap((l) =>
-        l.topicId ? [{ id: l.topicId, titulo: l.title, modulo: l.modulo ?? null, ordem: l.order }] : []
+        l.topicId ? [{ id: l.topicId, titulo: l.title, modulo: l.modulo ?? null, ordem: l.ordem ?? l.order }] : []
     );
 }
 
-export function ordenarLicoes<T extends Pick<Lesson, 'order'>>(licoes: readonly T[]): T[] {
-    return [...licoes].sort((a, b) => a.order - b.order);
+// A ordem do piloto é a de apresentação (`ordem`), decidida pelo grupo e gravada pelo seed
+// (item 23); `order` é só o número da lição no curso. Lição sem `ordem`, sobra de um seed
+// antigo, vai para o fim, pelo número da lição, para não furar a fila de quem tem.
+export function ordenarLicoes<T extends Pick<Lesson, 'order' | 'ordem'>>(licoes: readonly T[]): T[] {
+    return [...licoes].sort((a, b) => {
+        if (a.ordem !== undefined && b.ordem !== undefined) return a.ordem - b.ordem;
+        if (a.ordem !== undefined) return -1;
+        if (b.ordem !== undefined) return 1;
+        return a.order - b.order;
+    });
 }
 
 // `order` é a posição da questão dentro do tópico, então a lista sai agrupada por tópico.

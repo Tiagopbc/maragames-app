@@ -87,7 +87,7 @@ export interface Topico {
     id: string; // o `topicId` das questões e das respostas
     titulo: string;
     modulo: string | null;
-    ordem: number; // a `order` da lição
+    ordem: number; // a ordem de apresentação da lição; sem ela, o número da lição
 }
 
 export type Experiencia ='iniciante' | 'intermediario' | 'avancado';

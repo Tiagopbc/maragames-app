@@ -46,6 +46,12 @@ describe('paraLesson', () => {
         });
     });
 
+    it('traz a ordem de apresentação e a trilha, quando o seed as gravou', () => {
+        const licao = paraLesson('l4', { title: 'Pixel Art Básico', order: 4, topicId: 'pixel_art', ordem: 2, trilha: 'medido' });
+
+        expect(licao).toMatchObject({ order: 4, ordem: 2, trilha: 'medido' });
+    });
+
     it('aceita lição antiga, sem tópico, módulo nem cartão', () => {
         expect(paraLesson('l0', { title: 'Lição antiga', order: 9 })).toEqual({
             id: 'l0',
@@ -68,6 +74,24 @@ describe('topicosDasLicoes', () => {
         expect(topicosDasLicoes(licoes)).toEqual([
             { id: 'mda_framework', titulo: 'Framework MDA', modulo: null, ordem: 1 },
             { id: 'pixel_art', titulo: 'Pixel Art Básico', modulo: 'Arte & Pixel Art', ordem: 2 },
+        ]);
+    });
+
+    // `order` é o número da lição no curso; `ordem` é a posição no piloto, decidida pelo grupo
+    // (item 23): MDA, Pixel Art, Engine, Lógica.
+    it('com ordem de apresentação, os tópicos saem por ela, e não pelo número da lição', () => {
+        const licoes = [
+            { id: 'l1', title: 'Framework MDA', order: 1, ordem: 1, topicId: 'mda' },
+            { id: 'l2', title: 'Escolhendo a Engine Certa', order: 2, ordem: 3, topicId: 'engine' },
+            { id: 'l3', title: 'Lógica de Programação', order: 3, ordem: 4, topicId: 'logica' },
+            { id: 'l4', title: 'Pixel Art Básico', order: 4, ordem: 2, topicId: 'pixel' },
+        ];
+
+        expect(topicosDasLicoes(licoes).map((t) => [t.id, t.ordem])).toEqual([
+            ['mda', 1],
+            ['pixel', 2],
+            ['engine', 3],
+            ['logica', 4],
         ]);
     });
 
@@ -147,6 +171,28 @@ describe('paraAnswer', () => {
 });
 
 describe('ordenação', () => {
+    it('lições com ordem de apresentação saem por ela', () => {
+        const licoes = [
+            { id: 'engine', title: 'Engine', order: 2, ordem: 3 },
+            { id: 'pixel', title: 'Pixel Art', order: 4, ordem: 2 },
+            { id: 'mda', title: 'MDA', order: 1, ordem: 1 },
+        ];
+
+        expect(ordenarLicoes(licoes).map((l) => l.id)).toEqual(['mda', 'pixel', 'engine']);
+    });
+
+    // Sobra de um seed antigo: não tem `ordem` e não pode furar a fila de quem tem.
+    it('lição sem ordem de apresentação vai para o fim, pelo número da lição', () => {
+        const licoes = [
+            { id: 'antiga_b', title: 'Antiga B', order: 2 },
+            { id: 'pixel', title: 'Pixel Art', order: 4, ordem: 2 },
+            { id: 'antiga_a', title: 'Antiga A', order: 1 },
+            { id: 'mda', title: 'MDA', order: 5, ordem: 1 },
+        ];
+
+        expect(ordenarLicoes(licoes).map((l) => l.id)).toEqual(['mda', 'pixel', 'antiga_a', 'antiga_b']);
+    });
+
     it('lições saem pela ordem, sem alterar a lista recebida', () => {
         const licoes = [
             { id: 'l3', title: 'C', order: 3 },

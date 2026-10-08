@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7) e cálculo de retenção (item 23); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -243,6 +243,8 @@ Revisto em 08/10 (retenção). O cálculo ficou em `src/lib/retencao.ts`, funç�
 
 Não aparece em tela nenhuma: serve ao script de exportação (M7) e à análise.
 
+Revisto em 08/10 (ordem no app). O conteúdo passou a trazer, em cada lição, a ordem de apresentação (`ordem`) e a trilha (`medido` ou `diaria`), e o app passou a ler as duas. `ordenarLicoes` ordena por `ordem`; `order` continua sendo só o número da lição no curso. Lição sem `ordem`, sobra de um seed antigo, vai para o fim, pelo número da lição, para não furar a fila. Como a ordem do roteiro sai da ordem das lições, o dia 1 passa a seguir MDA, Pixel Art, Engine, Lógica assim que o seed novo rodar; até lá, o banco não tem o campo e nada muda. Quem já passou do estudo não é afetado.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -251,11 +253,10 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
 - Rodar o seed com o conteúdo novo (`npm run seed:conteudo`), que veio do `main` em 08/10: 9 tópicos e 70 questões. O banco ainda tem a versão de 06/10, com 4 tópicos e 40 questões.
-- O app ainda ordena os tópicos por `lessonOrder`. O campo `ordem`, que veio do `main` com a ordem decidida pelo grupo (MDA, Pixel Art, Engine, Lógica), ainda não é lido por `ordenarLicoes`. Enquanto não for, o dia 1 segue MDA, Engine, Lógica, Pixel Art.
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
-- Conferir num aparelho de verdade (Expo Go) o que falta: a logo em SVG no login, o mascote no consentimento, o ícone ao abrir, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). A tela da pergunta num iPhone, em tema escuro, já foi vista em 08/10 (ver resolvidas).
+- Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
@@ -290,6 +291,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
 - Resultado do dia 1 (item 23): a seção "O que revisar primeiro" aparece junto de "Travados até o reteste". Decidir se ela some nessa tela ou se o texto muda para "revisar depois do reteste".
 - Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
+- Nome do app: no carregamento do Expo Go aparece "maragames-app", que é o `name` do `app.json`. Decidir se vira "Beast Maragames" ou outro nome de exibição.
 - Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
 - Texto das explicações (M6): a explicação da alternativa certa começa com "Correto.". Quando a pessoa erra, ela aparece sob "Resposta certa" e fica "Resposta certa: Correto. Expressão é...". Rever a redação na revisão do conteúdo.
 - Conteúdo (M6): quem escreve e quem revisa cada tópico (proposta: autor diferente do revisor, rascunhos com apoio de IA revisados pelo grupo). Prazo de 23/10 inclui a trilha diária.
@@ -302,10 +304,11 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Login num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): a logo em SVG aparece, sobre o círculo branco, e a fonte está certa. Ao carregar, o Expo Go mostra o ícone novo, com a logo.
 - Tela da pergunta num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): fonte Lexend com os pesos certos, cabeçalho abaixo da ilha do aparelho, os três níveis de confiança numa linha só e o Confirmar acima da barra de gestos, sem rolar. O contador "1/12" ficou atrás do botão flutuante de ferramentas do Expo Go, que não existe fora do Expo Go.
 - Pull request nº 5 aberto, com o `main` já trazido para a branch. O único conflito foi `assets/images/logo-beast.svg`, criado nos dois lados com o mesmo desenho; ficou a versão com a cor escrita em cada caminho.
 - Conteúdo da trilha diária no repositório (veio do `main`): GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração e Publicando na Steam, com cartão de 4 slides e 6 questões de prática cada.
-- Ordem dos tópicos no dia 1 decidida pelo grupo e gravada no conteúdo, no campo `ordem` (falta o app usar; ver acima).
+- Ordem dos tópicos no dia 1 decidida pelo grupo, gravada no conteúdo no campo `ordem` e usada pelo app (item 23). Passa a valer no app quando o seed novo rodar.
 - Tela própria para endereço que não existe, em português, e mapa de rotas do Expo Router desligado (item 7).
 - Cálculo de retenção, do pós para o reteste, em função pura (item 23).
 - Abertura e ícone do app (item 28): saiu a animação do template, com a logo do Expo; o ícone, o favicon e a tela de abertura passaram a ser a logo da Beast Maragames. Conferido na web (o app abre sem a animação e o favicon novo é servido); ícone e tela de abertura no celular só aparecem num build próprio, que ainda não foi feito.

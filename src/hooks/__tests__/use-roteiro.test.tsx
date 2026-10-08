@@ -114,6 +114,30 @@ describe('useRoteiro', () => {
         });
     });
 
+    it('o estudo segue a ordem de apresentação do conteúdo, e não o número da lição', async () => {
+        // Engine é a lição 2 e Pixel Art, a 4; no piloto, Pixel Art vem antes (item 23).
+        repo.licoes = [
+            { id: 'licao_mda', title: 'Framework MDA', order: 1, ordem: 1, topicId: 'mda' },
+            { id: 'licao_engine', title: 'Escolhendo a Engine Certa', order: 2, ordem: 3, topicId: 'engine' },
+            { id: 'licao_pixel', title: 'Pixel Art Básico', order: 4, ordem: 2, topicId: 'pixel' },
+        ];
+        repo.questoes = ['mda', 'engine', 'pixel'].flatMap((t) => [
+            questao(`${t}_a1`, t, 'forma_a', 1),
+            questao(`${t}_b1`, t, 'forma_b', 2),
+            questao(`${t}_p1`, t, 'pratica', 3),
+        ]);
+        responder('pre', ['mda_a1', 'engine_a1', 'pixel_a1']);
+        responder('pratica', ['mda_p1']);
+
+        const { result } = await abrir();
+
+        expect(result.current.estado).toMatchObject({
+            tipo: 'pronto',
+            etapa: { tipo: 'estudo', topicId: 'pixel' },
+            nomeDoTopico: 'Pixel Art Básico',
+        });
+    });
+
     it('tópico da trilha diária não entra no roteiro: depois da prática do medido vem o pós', async () => {
         responder('pre', ['mda_a1']);
         responder('pratica', ['mda_p1']);
