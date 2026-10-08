@@ -80,3 +80,6 @@ coverage/
 *.tgz
 .cache/
 tmp/
+
+# exportação do piloto: tem a chave que liga cada código ao nome
+exportacao/

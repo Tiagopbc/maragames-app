@@ -86,6 +86,7 @@ Depende de: nada. Falta a revisão do grupo, até 23/10.
 **M7: Relatório e exportação.** Visão agregada por tópico e por questão (por exemplo, as questões com mais pontos cegos), gerada fora do app, e CSV por script com Admin SDK, com um código no lugar de nome e contato. O grupo exporta e envia à cliente; não há painel nem papel de administrador no app.
 Prova: dado real e consultável para o paper e para a cliente.
 Depende de: M4.
+Atualizado em 08/10: o script existe (`npm run exportar`) e gera os CSVs de eventos, participantes e questões, o resumo em texto e a chave do grupo. Falta rodar com os dados de verdade e incluir o SUS.
 
 **M8: Piloto e análise.** Sessão 1 (cerca de 30 min): consentimento, pré-teste sem feedback, estudo com cartão e prática, pós-teste sem feedback e relatório. Sessão 2, de 7 a 9 dias após o pós (cerca de 10 min): reteste com as mesmas questões do pós, alternativas reembaralhadas, e SUS. Formas A e B contrabalanceadas; respostas de prática marcadas e fora do ganho.
 Prova: resultados reais, com as limitações de amostra declaradas.

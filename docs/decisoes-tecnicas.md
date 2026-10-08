@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -265,6 +265,20 @@ Revisto em 08/10 (trilha no app). A trilha diária foi implementada, em função
 
 Ficaram de fora: lembrete por notificação, protetor de sequência e a fila "Revisar hoje".
 
+Revisto em 08/10 (exportação). O script de exportação está em `scripts/exportar-piloto.ts`, e as contas, em `src/lib/exportacao.ts`, função pura. O script só lê o Firestore, com a chave de serviço, e escreve em `exportacao/AAAA-MM-DD/`, que está fora do git.
+
+- **Cinco arquivos.** `eventos.csv` (uma linha por resposta), `participantes.csv` (uma por pessoa), `questoes.csv` (uma por questão) e `resumo.md` podem ser enviados. `chave.csv` liga cada código ao nome e fica só com o grupo.
+- **Código pela ordem do aceite do termo** (P01, P02...), para ser o mesmo a cada rodada com o mesmo filtro.
+- **Do perfil, só a experiência com games sai.** Nome, apelido, e-mail, telefone, curso e instituição ficam de fora: com cerca de 15 colegas, curso e instituição já identificam. Um teste confere que nome, contato e `uid` não aparecem em nenhum arquivo que é enviado.
+- **`--desde AAAA-MM-DD`** deixa de fora quem aceitou o termo antes da data, que é como as contas de teste ficam de fora sem depender da limpeza.
+- **As contas são as do app.** Quadrante, XP, resultado do bloco, retenção e trilha vêm das funções de `src/lib`. Para o script rodar TypeScript entrou o `tsx` como dependência de desenvolvimento; reescrever as regras em JavaScript abriria espaço para o número do CSV divergir do que o aluno vê.
+- **Por participante:** acertos no pré, no pós e no reteste; ganho normalizado de Hake (indefinido se o pré já foi 100%); retenção; acertos Firmes e Frágeis do pós mantidos no reteste; pontos cegos no pós; tópicos da trilha; dias ativos e maior sequência. Sem reteste, os campos dele ficam vazios, e não com zero.
+- **Dias entre o pós e o reteste pelos horários do servidor**, com a marca de quem ficou fora de 7 a 9. É a resposta à limitação do relógio do aparelho (item 22).
+- **Por questão:** acerto, ponto cego e distrator mais escolhido, com a dificuldade prevista ao lado. O reteste não entra, porque repete as questões do pós.
+- **Formato:** ponto e vírgula, decimal com vírgula e UTF-8 com marca, para abrir direto no Excel em português.
+
+O script não faz teste estatístico nem gráfico, e ainda não tem o SUS.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -299,7 +313,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Exportação (M7)**
 
-- Script do CSV com código no lugar de nome e contato, e os indicadores agregados (item 23). Inclui os dias entre pós e reteste calculados pelos horários do servidor, marcando quem ficou fora de 7 a 9 (item 22).
+- Rodar a exportação com os dados de verdade, depois do reteste (`npm run exportar -- --desde 2026-10-30`), e conferir os arquivos antes de enviar. O script está pronto (item 23); o SUS entra nele quando a tela existir.
 
 **Qualidade**
 
@@ -326,6 +340,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Script de exportação (M7, item 23): `npm run exportar` gera `eventos.csv`, `participantes.csv`, `questoes.csv`, `resumo.md` e a chave do grupo. Rodado contra o banco, só lendo, com as duas contas de teste: 2 participantes, 86 eventos e 70 questões; os acertos e os pontos cegos batem com o que o app mostra para cada conta.
 - Tópico da trilha percorrido no app, na web, em tamanho de celular, com a conta do Tiago: cartão do GDD (4 slides), as 6 questões de prática com feedback (visto também no tema claro: rodapé fixo e confiança travada), e a tela da sequência, com "1 dia seguido", "Sequência iniciada!", "Você acertou 5 de 6", as bolinhas de terça (dia do pós) e de quinta cheias e a de quarta vazia, e o próximo tópico com "Libera amanhã". De volta à home: "Feito por hoje. Próximo: UX/UI em jogos. Libera amanhã." e o selo "Sequência: 1 dia". A conta do Tiago ficou com 6 respostas de prática a mais e o GDD concluído em 08/10.
 - Seed com o conteúdo novo rodado pelo Tiago (versão `f870c2d83e2b`): 9 lições, com `ordem` e `trilha`, e 70 questões. Conferido no banco.
 - Trilha diária vista no app, na web, com a conta do Tiago (pós em 06/10): a home mostra "Tópico de hoje" com "GDD: o documento do jogo" e "Começar", e "Ver meu resultado do dia 1" como botão de contorno; o cartão do GDD abre, com 4 slides; `/cartao/ux_ui_jogos` e `/bloco/pratica?topicId=publicando_steam` voltam para a home.
@@ -413,6 +428,8 @@ Revisto em 08/10 (abertura). O teste de cores ficou sem exceção nenhuma, e ent
 Revisto em 08/10 (retenção e rotas). `retencao.test.ts` cobre as bordas que mudam o número: pós com zero acertos, reteste pela metade, resposta repetida na mesma fase, questão de fora do bloco e a confiança do reteste não contaminando o quadrante. O teste de navegação ganhou o endereço que não existe, logado e deslogado; o do `app.json` confere que o mapa de rotas está desligado.
 
 Revisto em 08/10 (trilha). A trilha diária (item 23) tem teste nas três alturas de sempre: `trilha.test.ts`, com a fila, a virada do dia em São Luís, o tópico pela metade, a sequência com e sem dia pulado e a semana do piloto; o cartão da home, em cada estado; e as rotas reais, do "Começar" na home à tela da sequência e de volta, mais o tópico de amanhã barrado pela URL. O repositório em memória ganhou `acertarRelogio`, para o teste gravar respostas "hoje": antes ele carimbava tudo em 1970, o que bastava enquanto nada dependia do dia.
+
+Revisto em 08/10 (exportação). `exportacao.test.ts` monta um piloto pequeno, com duas participantes, uma conta de teste e alguém sem termo, e cobre quem entra, o anonimato dos arquivos enviados, cada coluna que muda uma conclusão (ganho normalizado nas bordas, dias até o reteste, fora da janela, reteste ausente) e o formato do CSV. O script em si não tem teste: ele só lê o banco, chama a função e escreve os arquivos; foi conferido rodando contra as contas de teste.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

@@ -44,7 +44,7 @@ export const ULTIMO_DIA_DA_JANELA = 9;
 // Dia de calendário em São Luís (UTC−3, sem horário de verão), fixo para não depender
 // do fuso configurado no aparelho.
 const DIA_MS = 24 * 60 * 60 * 1000;
-const FUSO_MS = -3 * 60 * 60 * 1000;
+export const FUSO_MS = -3 * 60 * 60 * 1000;
 
 /** Número do dia de calendário de um instante, no fuso fixo do roteiro. */
 export function diaDeCalendario(ms: number): number {
