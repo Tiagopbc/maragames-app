@@ -24,8 +24,6 @@ jest.mock('@/data/repositorio', () => {
     return { repositorio: new RepositorioFalso() };
 });
 
-jest.mock('@/components/animated-icon', () => ({ AnimatedSplashOverlay: () => null }));
-
 jest.mock('expo-font', () => ({
     ...jest.requireActual('expo-font'),
     useFonts: jest.fn(),

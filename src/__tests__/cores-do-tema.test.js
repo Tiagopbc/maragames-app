@@ -9,10 +9,6 @@ const { join, relative } = require('path');
 const RAIZ = join(__dirname, '..');
 const TEMA = 'constants/theme.ts';
 
-// A animação de abertura ainda é a do template do Expo, com os azuis dele (item 24).
-// Esta lista só pode encolher.
-const EXCECOES = ['components/animated-icon.tsx', 'components/animated-icon.module.css'];
-
 const COR_FIXA = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/;
 
 function arquivos(pasta) {
@@ -26,7 +22,7 @@ function arquivos(pasta) {
 it('nenhum arquivo fora do tema escreve cor à mão', () => {
     const comCorFixa = arquivos(RAIZ)
         .map((caminho) => relative(RAIZ, caminho))
-        .filter((caminho) => caminho !== TEMA && !EXCECOES.includes(caminho))
+        .filter((caminho) => caminho !== TEMA)
         .filter((caminho) =>
             readFileSync(join(RAIZ, caminho), 'utf8')
                 .split('\n')

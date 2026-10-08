@@ -5,9 +5,9 @@ import { Lexend_700Bold } from '@expo-google-fonts/lexend/700Bold';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { SessionProvider, useSession } from '@/lib/session';
@@ -24,14 +24,18 @@ export default function RootLayout() {
     [Fonts.bold]: Lexend_700Bold,
   });
 
-  // A tela de abertura segura até a fonte chegar, para o texto não trocar de fonte à vista.
-  // Se a carga falhar, o app abre com a fonte do aparelho em vez de travar.
-  if (!fontesProntas && !erroNasFontes) return null;
+  // A tela de abertura do aparelho segura até a fonte chegar, para o texto não trocar de fonte à
+  // vista. Se a carga falhar, o app abre com a fonte do aparelho em vez de travar.
+  const pronto = fontesProntas || !!erroNasFontes;
+  useEffect(() => {
+    if (pronto) SplashScreen.hide();
+  }, [pronto]);
+
+  if (!pronto) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <SessionProvider>
-        <AnimatedSplashOverlay />
         <RootNavigator />
       </SessionProvider>
     </ThemeProvider>

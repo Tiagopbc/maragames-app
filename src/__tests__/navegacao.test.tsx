@@ -1,6 +1,7 @@
 import { userEvent } from '@testing-library/react-native';
 import { useFonts } from 'expo-font';
 import { renderRouter, screen } from 'expo-router/testing-library';
+import * as SplashScreen from 'expo-splash-screen';
 
 import { repositorio } from '@/data/repositorio';
 import type { RepositorioFalso } from '@/test/repositorio-falso';
@@ -27,8 +28,11 @@ jest.mock('@/data/repositorio', () => {
     return { repositorio: new RepositorioFalso() };
 });
 
-// A animação de abertura não faz parte da navegação.
-jest.mock('@/components/animated-icon', () => ({ AnimatedSplashOverlay: () => null }));
+// A tela de abertura é do aparelho; aqui só interessa quando o app manda escondê-la.
+jest.mock('expo-splash-screen', () => ({
+    preventAutoHideAsync: jest.fn(),
+    hide: jest.fn(),
+}));
 
 // A fonte é carregada no layout raiz; aqui o teste decide se ela já chegou.
 jest.mock('expo-font', () => ({
@@ -79,6 +83,7 @@ function responder(fase: Fase, questionId: string) {
 
 // Um tópico medido, com uma questão por forma e uma de prática; nenhuma resposta ainda.
 beforeEach(() => {
+    (SplashScreen.hide as jest.Mock).mockClear();
     fontes.mockReturnValue([true, null]);
     repo.reiniciar();
     repo.licoes = [{ id: 'licao_mda', title: 'Framework MDA', order: 1, topicId: 'mda' }];
@@ -124,11 +129,19 @@ describe('a navegação de quem está logado', () => {
         expect(screen.queryByText('Expo documentation')).toBeNull();
     });
 
-    it('nada aparece enquanto a fonte não carrega', async () => {
+    it('enquanto a fonte não carrega, nada aparece e a tela de abertura continua', async () => {
         fontes.mockReturnValue([false, null]);
         await abrirEm('/');
 
         expect(screen.queryByText('Olá, Tiago')).toBeNull();
+        expect(SplashScreen.hide).not.toHaveBeenCalled();
+    });
+
+    it('com a fonte pronta, a tela de abertura some', async () => {
+        await abrirEm('/');
+        await screen.findByText('Olá, Tiago');
+
+        expect(SplashScreen.hide).toHaveBeenCalled();
     });
 
     it('se a fonte falhar, o app abre mesmo assim, com a fonte do aparelho', async () => {
@@ -136,6 +149,7 @@ describe('a navegação de quem está logado', () => {
         await abrirEm('/');
 
         expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
+        expect(SplashScreen.hide).toHaveBeenCalled();
     });
 });
 
