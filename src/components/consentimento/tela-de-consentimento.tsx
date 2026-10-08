@@ -60,7 +60,7 @@ export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoPr
                     <Pressable
                         accessibilityRole="checkbox"
                         accessibilityLabel={TEXTOS_DO_TERMO.concordo}
-                        accessibilityState={{ checked: concordo }}
+                        aria-checked={concordo}
                         disabled={enviando}
                         onPress={() => setConcordo((marcado) => !marcado)}
                         style={styles.caixa}>
@@ -75,7 +75,7 @@ export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoPr
                     </Pressable>
 
                     {erro && (
-                        <ThemedText type="small" themeColor="erro" accessibilityLiveRegion="polite">
+                        <ThemedText type="small" themeColor="erro" aria-live="polite">
                             {TEXTOS_DO_TERMO.erroAoAceitar}
                         </ThemedText>
                     )}

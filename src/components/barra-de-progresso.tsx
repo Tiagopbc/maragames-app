@@ -19,7 +19,9 @@ export function BarraDeProgresso({ feitas, total, rotulo }: BarraDeProgressoProp
             accessible
             accessibilityRole="progressbar"
             accessibilityLabel={rotulo}
-            accessibilityValue={{ min: 0, max: total, now: feitas }}
+            aria-valuemin={0}
+            aria-valuemax={total}
+            aria-valuenow={feitas}
             style={[styles.trilho, { backgroundColor: theme.borda }]}>
             <View style={[styles.feito, { backgroundColor: theme.bordaSelecionada, width: `${fracao * 100}%` }]} />
         </View>

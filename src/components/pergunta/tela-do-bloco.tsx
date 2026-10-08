@@ -209,7 +209,7 @@ function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps
                 ) : (
                     <>
                         {estado.erroAoGravar ? (
-                            <ThemedText type="small" themeColor="erro" accessibilityLiveRegion="polite">
+                            <ThemedText type="small" themeColor="erro" aria-live="polite">
                                 {TEXTOS.erroAoGravar}
                             </ThemedText>
                         ) : (

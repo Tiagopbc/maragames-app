@@ -33,7 +33,7 @@ export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfi
                             key={nivel}
                             accessibilityRole="radio"
                             accessibilityLabel={ROTULO_CONFIANCA[nivel]}
-                            accessibilityState={{ checked: marcado }}
+                            aria-checked={marcado}
                             disabled={desabilitado}
                             onPress={() => onChange(nivel)}
                             style={({ pressed }) => [

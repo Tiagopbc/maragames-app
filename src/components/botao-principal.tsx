@@ -20,7 +20,7 @@ export function BotaoPrincipal({ rotulo, onPress, desabilitado = false, carregan
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={rotulo}
-            accessibilityState={{ busy: carregando }}
+            aria-busy={carregando}
             disabled={parado}
             onPress={onPress}
             style={({ pressed }) => [

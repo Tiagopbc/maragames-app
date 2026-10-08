@@ -41,7 +41,7 @@ export function AlternativaItem({ letra, texto, estado, marcada, desabilitada, o
         <Pressable
             accessibilityRole="radio"
             accessibilityLabel={`${letra}. ${texto.replaceAll('`', '')}`}
-            accessibilityState={{ checked: marcada }}
+            aria-checked={marcada}
             disabled={desabilitada}
             onPress={onPress}
             style={({ pressed }) => [

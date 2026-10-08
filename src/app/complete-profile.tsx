@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
+import { BotaoPrincipal } from '@/components/botao-principal';
 import { CampoTexto } from '@/components/campo-texto';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/session';
 import {
     formatarTelefone,
@@ -23,6 +25,7 @@ const EXPERIENCIAS: { valor: Experiencia; rotulo: string }[] = [
 ];
 
 export default function CompleteProfileScreen() {
+    const theme = useTheme();
     const { user, salvarPerfil, sair } = useSession();
 
     const [nome, setNome] = useState(user?.displayName ?? '');
@@ -151,18 +154,23 @@ export default function CompleteProfileScreen() {
                             return (
                                 <Pressable
                                     key={opcao.valor}
+                                    accessibilityRole="radio"
+                                    accessibilityLabel={opcao.rotulo}
+                                    aria-checked={ativa}
                                     disabled={salvando}
                                     onPress={() => setExperiencia(opcao.valor)}
-                                    style={styles.opcaoPressable}>
-                                    <ThemedView
-                                        type={ativa ? 'backgroundSelected' : 'backgroundElement'}
-                                        style={styles.opcao}>
-                                        <ThemedText
-                                            type="small"
-                                            themeColor={ativa ? 'text' : 'textSecondary'}>
-                                            {opcao.rotulo}
-                                        </ThemedText>
-                                    </ThemedView>
+                                    // A marcada muda de borda, de fundo e de peso, como os níveis
+                                    // de confiança: só o fundo quase não se distingue no tema claro.
+                                    style={[
+                                        styles.opcao,
+                                        {
+                                            backgroundColor: ativa ? theme.backgroundSelected : theme.background,
+                                            borderColor: ativa ? theme.bordaSelecionada : theme.borda,
+                                        },
+                                    ]}>
+                                    <ThemedText type={ativa ? 'smallBold' : 'small'} style={styles.rotuloDaOpcao}>
+                                        {opcao.rotulo}
+                                    </ThemedText>
                                 </Pressable>
                             );
                         })}
@@ -174,17 +182,7 @@ export default function CompleteProfileScreen() {
                         </ThemedText>
                     )}
 
-                    <Pressable disabled={salvando} onPress={enviar}>
-                        <ThemedView
-                            type="backgroundSelected"
-                            style={[styles.botao, salvando && styles.desabilitado]}>
-                            {salvando ? (
-                                <ActivityIndicator />
-                            ) : (
-                                <ThemedText type="smallBold">Salvar e começar</ThemedText>
-                            )}
-                        </ThemedView>
-                    </Pressable>
+                    <BotaoPrincipal rotulo="Salvar e começar" carregando={salvando} onPress={enviar} />
 
                     <Pressable disabled={salvando} onPress={sair}>
                         <ThemedText type="link" themeColor="textSecondary" style={styles.sair}>
@@ -202,19 +200,16 @@ const styles = StyleSheet.create({
     scroll: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
     card: { width: '100%', maxWidth: 420, gap: Spacing.three },
     opcoes: { flexDirection: 'row', gap: Spacing.two },
-    opcaoPressable: { flex: 1 },
     opcao: {
-        borderRadius: Spacing.three,
+        flex: 1,
+        minHeight: 44,
+        borderRadius: 12,
+        borderWidth: 1.5,
         paddingVertical: Spacing.two,
-        alignItems: 'center',
-    },
-    botao: {
-        borderRadius: Spacing.three,
-        paddingVertical: Spacing.three,
-        minHeight: 48,
+        paddingHorizontal: Spacing.one,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    desabilitado: { opacity: 0.5 },
+    rotuloDaOpcao: { textAlign: 'center' },
     sair: { textAlign: 'center' },
 });

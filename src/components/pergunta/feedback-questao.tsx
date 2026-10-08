@@ -16,7 +16,7 @@ export function FeedbackQuestao({ feedback }: { feedback: Feedback }) {
 
     return (
         <View
-            accessibilityLiveRegion="polite"
+            aria-live="polite"
             style={[styles.cartao, { backgroundColor: theme.backgroundElement, borderColor: cor }]}>
             <View style={styles.linha}>
                 <Ionicons name={feedback.correta ? 'checkmark-circle' : 'close-circle'} size={24} color={cor} />

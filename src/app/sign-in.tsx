@@ -1,8 +1,9 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { BotaoSecundario } from '@/components/botao-secundario';
 import { CampoTexto } from '@/components/campo-texto';
 import { LogoBeast } from '@/components/logo-beast';
 import { ThemedText } from '@/components/themed-text';
@@ -85,7 +86,7 @@ export default function SignInScreen() {
                     />
 
                     {erro && (
-                        <ThemedText type="small" themeColor="erro" accessibilityLiveRegion="polite">
+                        <ThemedText type="small" themeColor="erro" aria-live="polite">
                             {erro}
                         </ThemedText>
                     )}
@@ -98,18 +99,11 @@ export default function SignInScreen() {
                     />
 
                     {Platform.OS === 'web' && (
-                        <Pressable
-                            accessibilityRole="button"
-                            disabled={carregando}
+                        <BotaoSecundario
+                            rotulo={TEXTOS_DO_LOGIN.entrarComGoogle}
+                            desabilitado={carregando}
                             onPress={() => executar(entrarComGoogle)}
-                            style={({ pressed }) => [
-                                styles.secundario,
-                                { borderColor: theme.borda, opacity: pressed ? 0.7 : 1 },
-                            ]}>
-                            <ThemedText themeColor="primaria" style={styles.rotuloSecundario}>
-                                {TEXTOS_DO_LOGIN.entrarComGoogle}
-                            </ThemedText>
-                        </Pressable>
+                        />
                     )}
                 </View>
 
@@ -133,13 +127,5 @@ const styles = StyleSheet.create({
     marca: { fontSize: 20, lineHeight: 26, fontWeight: 600 },
     centro: { textAlign: 'center' },
     cartao: { gap: Spacing.three, padding: Spacing.three, borderRadius: 20, borderWidth: 1 },
-    secundario: {
-        minHeight: 48,
-        borderRadius: 14,
-        borderWidth: 1.5,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    rotuloSecundario: { fontWeight: 600 },
     cadastro: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.one },
 });

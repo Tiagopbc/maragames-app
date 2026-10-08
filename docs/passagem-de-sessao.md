@@ -38,7 +38,7 @@ O protótipo é o arquivo do Figma "MaraGames App - Protótipo do piloto" (o PDF
 
 Link do arquivo: https://www.figma.com/design/OPPSR056vzLH6vNTVBOxSi
 
-O assistente tentou abrir o arquivo em 06/10 e foi barrado pelo limite de chamadas do plano Starter, então **nenhuma correção foi aplicada ainda**. Caminhos: aplicar à mão no Figma, seguindo a tabela abaixo; esperar o limite renovar ou mudar de plano; ou pedir ao assistente as telas corrigidas em HTML, para servirem de modelo. As correções, tela a tela:
+O assistente tentou abrir o arquivo em 06/10 e foi barrado pelo limite de chamadas do plano Starter. **Os ajustes foram aplicados à mão pelo Tiago e o protótipo está pronto desde 08/10.** A tabela abaixo fica como registro do que mudou:
 
 | # | Ajuste | Telas | O que mudar |
 |---|---|---|---|
@@ -51,7 +51,7 @@ O assistente tentou abrir o arquivo em 06/10 e foi barrado pelo limite de chamad
 | 7 | Estado de erro | tela nova | Feedback de resposta errada na prática: a escolhida em vermelho com "✕", a certa em verde, cartão "Você errou" com o selo "Ponto cego", "−4 XP", a explicação da escolha e "Resposta certa: …". Dá para duplicar a tela 6 e marcar a alternativa A como a escolhida errada: "Essa é a ordem do designer. Ele parte das regras; quem joga parte do que sente." |
 | 8 | Logo e mascote | nenhuma | Nada a trocar. Decidido em 06/10: ficam os dois estilos, a logo no login (telas 1 e 10) e o lobo em cartum no consentimento e na sequência (telas 2 e 8) |
 
-Anotações de 07/10: o arquivo usa layout automático, com camadas nomeadas ("Topo", "Alternativas", "Seletor de confiança", "Espaço", "Botão Confirmar"), então os ajustes são feitos arrastando na lista de camadas. Os quadros 10, 11 e 12 são, provavelmente, os três primeiros quadros do tema escuro. Ficou pendente repetir no quadro escuro da questão o que foi feito no "04 Questão (pré-teste)": o "✕" no "Topo" e o "Rodapé fixo", com as cores do tema escuro. Há um lembrete agendado no app para 08/10, às 9h.
+Anotações de 07/10: o arquivo usa layout automático, com camadas nomeadas ("Topo", "Alternativas", "Seletor de confiança", "Espaço", "Botão Confirmar"), então os ajustes são feitos arrastando na lista de camadas. Os quadros 10, 11 e 12 são, provavelmente, os três primeiros quadros do tema escuro. O ajuste do quadro escuro da questão (o "✕" no "Topo" e o "Rodapé fixo", com as cores do tema escuro) foi feito pelo Tiago em 08/10.
 
 A logo em SVG está no artefato "Protótipo Maragames Mobile" do claude.ai (constante `LOGO`), nas cores `#3c2782`, `#b9201f` e `#beb1d7`. O mascote em cartum está em `~/Downloads/mascote-beast.png`. Quando o visual for para o app, entram os dois.
 
@@ -59,7 +59,7 @@ A logo em SVG está no artefato "Protótipo Maragames Mobile" do claude.ai (cons
 
 ### Antes de qualquer coisa
 
-1. **[Tiago]** Aplicar à mão os ajustes no Figma (sete, já que o da logo virou "ficam os dois"), porque o arquivo do Figma é o que vai para o professor em 09/10 e a integração está barrada pelo limite do plano. O passo a passo foi dado na conversa de 06/10; a tabela da seção do protótipo tem a tela e o texto de cada ajuste.
+1. ~~Aplicar à mão os ajustes no Figma.~~ Feito em 08/10.
 2. **[Tiago]** Decidir sobre push e pull request da branch.
 3. **[Tiago]** Entrar no painel do navegador para a conferência visual do rodapé fixo.
 

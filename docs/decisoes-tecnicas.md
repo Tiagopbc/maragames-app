@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 07/10/2026 (itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, estado de acessibilidade em `aria-*` e botões do cadastro e do perfil; em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -244,9 +244,10 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
+- Endereço que não existe (por exemplo `/explore`) mostra a tela padrão do Expo, em inglês ("Unmatched Route"), com link para o mapa de rotas. Falta uma tela própria, em português, que leve de volta à home. Só aparece na web.
+- Roteiro do dia 1 com uma conta nova, depois da identidade visual: consentimento com o mascote, feedback de acerto e de erro na prática e o rodapé travado no feedback ainda não foram vistos desenhados. Precisa de uma conta criada pelo Tiago.
 - Animação de abertura: ainda é a do template, com a logo do Expo e os azuis dele (`src/components/animated-icon.tsx` e a cor da tela de abertura no `app.json`). É a única exceção do teste que barra cor fora do tema.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
-- Corrigir o protótipo (item 28): os oito ajustes adotados em 06/10. A correção é no arquivo do Figma "MaraGames App - Protótipo do piloto"; o que mudar em cada tela está em `docs/passagem-de-sessao.md`. Em 06/10 a integração com o Figma recusou a leitura do arquivo por limite de chamadas do plano Starter, então nada foi aplicado ainda.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
@@ -290,6 +291,13 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
 
+**Resolvidas em 08/10**
+
+- Validação de 08/10: `npm test` (394), `npx tsc --noEmit` e `npm run test:regras` (25) passando. Na web, no Chrome do Tiago, em tema escuro e com a conta dele na espera: home com a contagem, "Seu dia 1", saída pelo X, `/cartao/mda_framework`, `/bloco/pratica?topicId=mda_framework` e `/bloco/pratica` voltando para a home, e a tela da pergunta com o rodapé inteiro à vista em 440×956.
+- Estado de acessibilidade na web (item 25): alternativa e confiança marcadas, caixa do termo, botão ocupado, barra de progresso e avisos passaram para as props `aria-*`. As antigas não chegavam à página.
+- Cadastro e perfil com os botões do tema, que tinham ficado no estilo antigo; as opções de experiência ganharam borda, porque só o fundo quase não se distinguia no tema claro (item 28).
+- Protótipo do Figma corrigido (item 28): o Tiago aplicou à mão, no arquivo "MaraGames App - Protótipo do piloto", os ajustes adotados em 06/10, inclusive nos quadros do tema escuro. É o arquivo que vai para o professor em 09/10.
+
 **Resolvidas em 07/10**
 
 - Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
@@ -327,6 +335,8 @@ Revisto em 06/10 (fim do bloco). A tela provisória "Bloco concluído" deu lugar
 
 Revisto em 06/10 (rodapé fixo). Os três níveis de confiança passaram a ficar numa linha só, dentro de um rodapé fixo, junto do Confirmar; só o enunciado, as alternativas e o feedback rolam. Antes o seletor era uma lista vertical dentro da área de rolagem. Ao rodar o roteiro numa tela de 375×812, "Tenho certeza" só aparecia rolando, e em enunciado longo "Tenho dúvida" também sumia: um nível que o participante não vê enviesa a própria medida. A linha horizontal veio do protótipo do grupo (item 28); o rodapé fixo é o que garante que ela não desça com uma questão longa. No feedback da prática, a confiança declarada continua à vista no rodapé, travada. O nível marcado muda de borda, de fundo e de peso do texto, para não depender só de cor. Coberto por teste de componente. Visto na web em 07/10, em 375×812 e 320×568; falta um aparelho de verdade (item 24).
 
+Revisto em 08/10 (acessibilidade na web). O estado e o valor que a tela informa ao leitor de tela passaram para as props `aria-*`: `aria-checked` na alternativa, no nível de confiança, na caixa do termo e nas opções de experiência do perfil; `aria-busy` no botão; `aria-valuemin`, `aria-valuemax` e `aria-valuenow` na barra de progresso; `aria-live` nos avisos. O React Native entende essas props no celular, e o react-native-web as entrega ao navegador. As antigas (`accessibilityState`, `accessibilityValue`, `accessibilityLiveRegion`) não chegavam à página: no Chrome, a alternativa marcada saía sem `aria-checked` e a barra, sem `aria-valuenow`, embora o desenho estivesse certo. Papel e rótulo (`accessibilityRole`, `accessibilityLabel`) chegam e continuam como estão. Os testes de tela não pegaram porque rodam no ambiente do iOS; quem pegou foi a conferência no navegador.
+
 ## 26. Regras de negócio em funções puras, com testes unitários
 
 Decidido em 06/10. Tudo o que é derivado de `answers` (itens 2 e 13) fica em funções puras em `src/lib`, sem React nem Firebase, uma regra por arquivo: `quadrante.ts` (item 15), `xp.ts` e `dominio.ts` (item 14), `embaralhar.ts` e `roteiro.ts` (item 22). Recebem dados simples e devolvem dados simples, e o horário atual entra como parâmetro. Telas, hooks e os scripts de exportação (M7) usam as mesmas funções, então o número que o aluno vê e o que vai para o paper saem do mesmo código.
@@ -346,6 +356,8 @@ Revisto em 07/10 (aparência). Quatro testes novos guardam a identidade visual (
 Revisto em 07/10 (trava). A trava do roteiro (item 23) é testada em três alturas: a regra, etapa por etapa, em `passo.test.ts`; o portão, com o repositório em memória (abre, barra, espera a leitura, fecha na falha e não decide duas vezes); e as rotas reais, em `navegacao.test.tsx`, onde quem está na espera e abre `/cartao/mda` ou `/bloco/reteste` termina em `/`. O teste do "decide uma vez" foi conferido tirando a proteção e vendo-o falhar. Como o Jest roda em modo de desenvolvimento, os testes do app do participante desligam `__DEV__` enquanto rodam.
 
 Revisto em 07/10 (espera). A espera do reteste (item 23) tem teste nas mesmas três alturas: as funções puras de data e de texto, incluindo a virada do dia no fuso de São Luís e o "no sábado" e "no domingo"; a tela "Seu dia 1" sobre o repositório em memória (só o pós entra na conta, nenhum enunciado aparece, tópico da trilha não é travado, falha de leitura deixa tentar de novo); e as rotas reais, da home na espera até `/dia-1`, e `/dia-1` antes do pós voltando para a home.
+
+Revisto em 08/10. Mais um teste de varredura, `src/__tests__/acessibilidade-na-web.test.js`: nenhuma tela usa as props de acessibilidade que não chegam à web (item 25). E o Jest das regras passou a ignorar `.claude/`, como o `npm test` já fazia.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 
@@ -393,3 +405,10 @@ Revisto em 07/10 (aparência aplicada). A primeira das três partes entrou no ap
 Ficou igual ao que já estava decidido, mesmo diferente do PDF de 06/10: o X e o rodapé fixo da pergunta, a senha de 8 caracteres, o botão "Continuar com Google", os atalhos travados da home e o texto do termo. As outras duas partes (comportamento e conteúdo) continuam esperando os pontos em aberto acima.
 
 Conferido na web, em 375×812, nos dois temas: home, pergunta e login. O consentimento com o mascote só foi conferido por teste, porque a conta usada já aceitou o termo. Nada foi visto num aparelho.
+
+Revisto em 08/10. Os ajustes foram aplicados à mão no Figma, pelo Tiago, porque a integração do assistente com o Figma ficou barrada pelo limite de chamadas do plano gratuito. O arquivo usa layout automático com camadas nomeadas, então o "✕" entrou no "Topo" de cada quadro e o rodapé virou um quadro "Rodapé fixo" com traço só em cima. Os pontos em que o protótipo contradiz decisões continuam valendo como estão descritos acima.
+
+Conferido em 08/10 a partir do arquivo `.fig` exportado, lendo a árvore de camadas dos 13 quadros: os textos, o "Rodapé fixo" com traço só em cima nos quadros 04, 06, 06b e no 04 escuro, o selo de XP no feedback e no relatório, as contagens, as descrições dos quadrantes e a senha de 8 caracteres estão como combinado, e não sobrou percentual. As duas sobras cosméticas que havia foram corrigidas no mesmo dia, pela IA do Figma: o "X" de sair virou "✕" em todos os quadros, e o 06b voltou a 390 × 844, com a linha "Resposta certa: alternativa B." e 7 px entre os itens do cartão. A troca do "✕" e a altura foram conferidas num segundo `.fig`; o último ajuste de texto e de espaço vale pelo relato da IA.
+
+Revisto em 08/10 (cadastro e perfil). As duas telas tinham ficado com o botão no estilo antigo, cinza. Passaram a usar o botão principal do tema, e "Continuar com Google" virou um botão secundário, só de contorno (`src/components/botao-secundario.tsx`), o mesmo do login. No perfil, as opções de experiência ganharam borda e peso na marcada, como os níveis de confiança: com a paleta nova, o fundo da marcada (`#F1EDF8`) e o da não marcada (`#F6F4FA`) quase não se distinguiam no tema claro. O cadastro foi conferido na web; o perfil, só por tipos e testes, porque exige uma conta sem perfil.
+
