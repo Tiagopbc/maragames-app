@@ -46,11 +46,13 @@ export const ULTIMO_DIA_DA_JANELA = 9;
 const DIA_MS = 24 * 60 * 60 * 1000;
 const FUSO_MS = -3 * 60 * 60 * 1000;
 
-function diaDeCalendario(ms: number): number {
+/** Número do dia de calendário de um instante, no fuso fixo do roteiro. */
+export function diaDeCalendario(ms: number): number {
     return Math.floor((ms + FUSO_MS) / DIA_MS);
 }
 
-function inicioDoDia(dia: number): number {
+/** O instante em que um dia de calendário começa (meia-noite em São Luís). */
+export function inicioDoDia(dia: number): number {
     return dia * DIA_MS - FUSO_MS;
 }
 
@@ -58,6 +60,27 @@ function inicioDoDia(dia: number): number {
 export function dataEmSaoLuis(ms: number): { diaDaSemana: number; dia: number; mes: number } {
     const local = new Date(ms + FUSO_MS);
     return { diaDaSemana: local.getUTCDay(), dia: local.getUTCDate(), mes: local.getUTCMonth() + 1 };
+}
+
+/**
+ * Quando o pós-teste terminou: o horário da última resposta dele, ou null enquanto falta
+ * questão (ou enquanto não há forma). É de onde a trilha diária começa a contar (item 23).
+ */
+export function terminoDoPos(
+    entrada: Pick<EntradaDoRoteiro, 'respostas' | 'questoes' | 'topicos' | 'formaPre'>
+): number | null {
+    const { respostas, questoes, topicos, formaPre } = entrada;
+    if (formaPre === null) return null;
+
+    const ids = questoesDoBlocoMedido(questoes, 'pos', topicos, formaPre).map((q) => q.id);
+    const horarios = new Map<string, number>();
+    for (const r of respostas) {
+        if (r.fase === 'pos' && ids.includes(r.questionId)) {
+            horarios.set(r.questionId, Math.max(horarios.get(r.questionId) ?? 0, r.respondidaEm));
+        }
+    }
+    if (ids.length === 0 || horarios.size < ids.length) return null;
+    return Math.max(...horarios.values());
 }
 
 export function etapaDoRoteiro(entrada: EntradaDoRoteiro): Etapa {

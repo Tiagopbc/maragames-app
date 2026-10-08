@@ -1,5 +1,6 @@
 import type { Etapa } from '../roteiro';
-import { destinoDaEtapa, podeAbrir, travaVale, type DestinoDeEstudo } from '../passo';
+import { destinoDaEtapa, destinoDaTrilha, podeAbrir, travaVale, type DestinoDeEstudo } from '../passo';
+import type { Trilha } from '../trilha';
 
 const PROGRESSO = { respondidas: 1, total: 12, proximaQuestaoId: 'q2' };
 
@@ -174,5 +175,67 @@ describe('travaVale', () => {
 
     it('em desenvolvimento, continua valendo para o cartão e a prática', () => {
         for (const destino of DE_ESTUDO) expect(travaVale(destino, true)).toBe(true);
+    });
+});
+
+describe('a trilha diária na trava', () => {
+    const ESPERA: Etapa = { tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 5 };
+    const HOJE: Trilha = { tipo: 'hoje', topicId: 'gdd', respondidas: 0, total: 6, posicao: 1, de: 5 };
+    const AMANHA: Trilha = { tipo: 'amanha', topicId: 'ux', liberaEm: 0, feitoHoje: 'gdd', posicao: 2, de: 5 };
+
+    const cartao = (topicId: string): DestinoDeEstudo => ({ tipo: 'cartao', topicId });
+    const pratica = (topicId: string): DestinoDeEstudo => ({ tipo: 'bloco', fase: 'pratica', topicId });
+
+    it('o tópico de hoje abre, cartão e prática, mesmo na espera do reteste', () => {
+        expect(podeAbrir(ESPERA, cartao('gdd'), HOJE)).toBe(true);
+        expect(podeAbrir(ESPERA, pratica('gdd'), HOJE)).toBe(true);
+    });
+
+    it('outro tópico da trilha não abre: a fila tem ordem', () => {
+        expect(podeAbrir(ESPERA, cartao('ux'), HOJE)).toBe(false);
+        expect(podeAbrir(ESPERA, pratica('ux'), HOJE)).toBe(false);
+    });
+
+    it('o tópico de amanhã não abre hoje', () => {
+        expect(podeAbrir(ESPERA, cartao('ux'), AMANHA)).toBe(false);
+        expect(podeAbrir(ESPERA, pratica('ux'), AMANHA)).toBe(false);
+    });
+
+    it('o que já foi feito hoje não reabre', () => {
+        expect(podeAbrir(ESPERA, pratica('gdd'), AMANHA)).toBe(false);
+    });
+
+    it('a trilha não destrava os tópicos medidos nem os blocos medidos', () => {
+        expect(podeAbrir(ESPERA, cartao('mda'), HOJE)).toBe(false);
+        expect(podeAbrir(ESPERA, { tipo: 'bloco', fase: 'reteste' }, HOJE)).toBe(false);
+    });
+
+    it.each([{ tipo: 'fechada' }, { tipo: 'concluida' }] as Trilha[])('com a trilha $tipo, nenhum tópico dela abre', (trilha) => {
+        expect(podeAbrir(ESPERA, cartao('gdd'), trilha)).toBe(false);
+    });
+});
+
+describe('destinoDaTrilha', () => {
+    it('tópico de hoje ainda sem resposta abre o cartão', () => {
+        expect(destinoDaTrilha({ tipo: 'hoje', topicId: 'gdd', respondidas: 0, total: 6, posicao: 1, de: 5 })).toEqual({
+            tipo: 'cartao',
+            topicId: 'gdd',
+        });
+    });
+
+    it('tópico de hoje já começado abre a prática', () => {
+        expect(destinoDaTrilha({ tipo: 'hoje', topicId: 'gdd', respondidas: 2, total: 6, posicao: 1, de: 5 })).toEqual({
+            tipo: 'bloco',
+            fase: 'pratica',
+            topicId: 'gdd',
+        });
+    });
+
+    it.each([
+        { tipo: 'fechada' },
+        { tipo: 'concluida' },
+        { tipo: 'amanha', topicId: 'ux', liberaEm: 0, feitoHoje: null, posicao: 2, de: 5 },
+    ] as Trilha[])('com a trilha $tipo, não há o que abrir', (trilha) => {
+        expect(destinoDaTrilha(trilha)).toBeNull();
     });
 });

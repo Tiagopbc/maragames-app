@@ -3,6 +3,7 @@ import {
     proximoTopicoDaPratica,
     questoesDaPratica,
     questoesDoBlocoMedido,
+    topicosDaTrilha,
     topicosMedidos,
     type QuestaoDoBloco,
 } from '../bloco';
@@ -143,5 +144,21 @@ describe('topicosMedidos', () => {
 
     it('tópico só com prática (trilha diária) fica fora do roteiro medido', () => {
         expect(topicosMedidos(comTrilha, ['gdd'])).toEqual([]);
+    });
+});
+
+describe('topicosDaTrilha', () => {
+    const comTrilha: QuestaoDoBloco[] = [...QUESTOES, { id: 'gdd_p1', topicId: 'gdd', bloco: 'pratica' }];
+
+    it('são os tópicos que só têm prática, na ordem recebida', () => {
+        expect(topicosDaTrilha(comTrilha, ['gdd', 'mda', 'engine'])).toEqual(['gdd']);
+    });
+
+    it('tópico medido não é da trilha, mesmo tendo prática', () => {
+        expect(topicosDaTrilha(QUESTOES, TOPICOS)).toEqual([]);
+    });
+
+    it('tópico sem questão nenhuma não é da trilha', () => {
+        expect(topicosDaTrilha(comTrilha, ['vazio', 'gdd'])).toEqual(['gdd']);
     });
 });

@@ -31,7 +31,7 @@ export function PortaoDoRoteiro({ uid, participante, destino, barrado, relogio, 
     useEffect(() => {
         if (liberado !== null || estado.tipo === 'carregando') return;
         // Sem conseguir ler o roteiro, não abre: na dúvida, a medida fica protegida.
-        setLiberado(estado.tipo === 'pronto' && podeAbrir(estado.etapa, destino));
+        setLiberado(estado.tipo === 'pronto' && podeAbrir(estado.etapa, destino, estado.trilha));
     }, [liberado, estado, destino]);
 
     if (liberado === null) {

@@ -1,5 +1,5 @@
 import type { Fase } from '../../types/domain';
-import { dataEmSaoLuis, etapaDoRoteiro, type EntradaDoRoteiro, type QuestaoDoRoteiro } from '../roteiro';
+import { dataEmSaoLuis, etapaDoRoteiro, terminoDoPos, type EntradaDoRoteiro, type QuestaoDoRoteiro } from '../roteiro';
 
 // Dois tópicos, cada um com 2 questões da forma A, 2 da forma B e 2 de prática.
 const QUESTOES: QuestaoDoRoteiro[] = ['mda', 'engine'].flatMap((topicId) => [
@@ -321,5 +321,32 @@ describe('dataEmSaoLuis', () => {
 
     it('à meia-noite já é o dia seguinte', () => {
         expect(dataEmSaoLuis(em('2026-11-01 00:00'))).toEqual({ diaDaSemana: 0, dia: 1, mes: 11 });
+    });
+});
+
+describe('terminoDoPos', () => {
+    const base = { questoes: QUESTOES, topicos: ['mda', 'engine'], formaPre: 'A' as const };
+
+    it('é o horário da última resposta do pós, quando o pós está completo', () => {
+        const respostas = [
+            ...responder('pos', ['mda_b1', 'mda_b2', 'engine_b1'], em('2026-10-30 20:00')),
+            ...responder('pos', ['engine_b2'], em('2026-10-30 20:30')),
+        ];
+
+        expect(terminoDoPos({ ...base, respostas })).toBe(em('2026-10-30 20:30'));
+    });
+
+    it('é null enquanto falta questão do pós', () => {
+        const respostas = responder('pos', ['mda_b1', 'mda_b2', 'engine_b1']);
+
+        expect(terminoDoPos({ ...base, respostas })).toBeNull();
+    });
+
+    it('é null sem a forma do participante', () => {
+        expect(terminoDoPos({ ...base, formaPre: null, respostas: responder('pos', FORMA_B) })).toBeNull();
+    });
+
+    it('resposta do reteste nas mesmas questões não conta como pós', () => {
+        expect(terminoDoPos({ ...base, respostas: responder('reteste', FORMA_B) })).toBeNull();
     });
 });

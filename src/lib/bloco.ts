@@ -38,6 +38,17 @@ export function topicosMedidos(questoes: readonly QuestaoDoBloco[], topicos: rea
     );
 }
 
+/**
+ * Tópicos da trilha diária (item 23): os que têm prática e nenhuma questão das formas A ou B,
+ * na ordem recebida. É o complemento de `topicosMedidos` entre os tópicos com conteúdo.
+ */
+export function topicosDaTrilha(questoes: readonly QuestaoDoBloco[], topicos: readonly string[]): string[] {
+    const medidos = new Set(topicosMedidos(questoes, topicos));
+    return topicos.filter(
+        (topicId) => !medidos.has(topicId) && questoes.some((q) => q.topicId === topicId && q.bloco === 'pratica')
+    );
+}
+
 export function questoesDaPratica<T extends QuestaoDoBloco>(questoes: readonly T[], topicId: string): T[] {
     return questoes.filter((q) => q.bloco === 'pratica' && q.topicId === topicId);
 }

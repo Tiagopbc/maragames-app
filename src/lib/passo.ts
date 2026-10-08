@@ -4,6 +4,7 @@
 
 import type { Fase } from '../types/domain';
 import type { Etapa } from './roteiro';
+import type { Trilha } from './trilha';
 
 export type Destino =
     | { tipo: 'consentimento' }
@@ -46,7 +47,13 @@ export type DestinoDeEstudo = Exclude<Destino, { tipo: 'consentimento' }>;
  * digitada na web. Protege a medida: rever um tópico medido antes do reteste, ou abrir o reteste
  * antes dos sete dias, mudaria o que o reteste mede.
  */
-export function podeAbrir(etapa: Etapa, destino: DestinoDeEstudo): boolean {
+export function podeAbrir(etapa: Etapa, destino: DestinoDeEstudo, trilha: Trilha = { tipo: 'fechada' }): boolean {
+    // O tópico de hoje da trilha diária abre em qualquer etapa: ele corre ao lado do roteiro
+    // medido, e não mexe no que o reteste mede (item 23).
+    const topicoPedido =
+        destino.tipo === 'cartao' ? destino.topicId : destino.tipo === 'bloco' && destino.fase === 'pratica' ? destino.topicId : undefined;
+    if (topicoPedido !== undefined && trilha.tipo === 'hoje' && trilha.topicId === topicoPedido) return true;
+
     if (destino.tipo === 'cartao') {
         return etapa.tipo === 'estudo' && etapa.topicId === destino.topicId;
     }
@@ -69,4 +76,13 @@ export function podeAbrir(etapa: Etapa, destino: DestinoDeEstudo): boolean {
 export function travaVale(destino: DestinoDeEstudo, emDesenvolvimento: boolean): boolean {
     const blocoMedido = destino.tipo === 'bloco' && destino.fase !== 'pratica';
     return !(emDesenvolvimento && blocoMedido);
+}
+
+/** O que o botão do cartão "Tópico de hoje" abre, ou null quando não há tópico para hoje. */
+export function destinoDaTrilha(trilha: Trilha): Destino | null {
+    if (trilha.tipo !== 'hoje') return null;
+    // O mesmo corte do estudo no roteiro: sem resposta, começa pelo cartão.
+    return trilha.respondidas === 0
+        ? { tipo: 'cartao', topicId: trilha.topicId }
+        : { tipo: 'bloco', fase: 'pratica', topicId: trilha.topicId };
 }

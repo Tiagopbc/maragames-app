@@ -89,13 +89,16 @@ describe('useRoteiro', () => {
             tipo: 'pronto',
             etapa: { tipo: 'consentimento' },
             nomeDoTopico: null,
+            trilha: { tipo: 'fechada' },
+            sequencia: 0,
+            nomes: { mda: 'Framework MDA', gdd: 'GDD' },
         });
     });
 
     it('depois do aceite, a etapa é o pré-teste na forma do participante', async () => {
         const { result } = await abrir();
 
-        expect(result.current.estado).toEqual({
+        expect(result.current.estado).toMatchObject({
             tipo: 'pronto',
             etapa: { tipo: 'pre', respondidas: 0, total: 1, proximaQuestaoId: 'mda_a1' },
             nomeDoTopico: null,
@@ -194,6 +197,49 @@ describe('useRoteiro', () => {
             const { result } = await abrir();
 
             expect(result.current.estado).toEqual({ tipo: 'erro' });
+        });
+    });
+
+    describe('a trilha diária', () => {
+        const DIA = 24 * 60 * 60 * 1000;
+
+        function terminarODia1() {
+            responder('pre', ['mda_a1']);
+            responder('pratica', ['mda_p1']);
+            responder('pos', ['mda_b1']); // `respondidaEm` é 1.000 ms: o dia 1
+        }
+
+        it('antes do pós, está fechada', async () => {
+            const { result } = await abrir();
+
+            expect(result.current.estado).toMatchObject({ tipo: 'pronto', trilha: { tipo: 'fechada' } });
+        });
+
+        it('no dia do pós, o primeiro tópico libera amanhã, e a sequência é 1', async () => {
+            terminarODia1();
+
+            const { result } = await abrir(ACEITOU, 2_000);
+
+            expect(result.current.estado).toMatchObject({
+                tipo: 'pronto',
+                etapa: { tipo: 'espera' },
+                trilha: { tipo: 'amanha', topicId: 'gdd', feitoHoje: null },
+                sequencia: 1,
+                nomes: { gdd: 'GDD', mda: 'Framework MDA' },
+            });
+        });
+
+        it('no dia seguinte, o tópico da trilha é o de hoje', async () => {
+            terminarODia1();
+
+            const { result } = await abrir(ACEITOU, 1_000 + DIA);
+
+            expect(result.current.estado).toMatchObject({
+                tipo: 'pronto',
+                etapa: { tipo: 'espera' },
+                trilha: { tipo: 'hoje', topicId: 'gdd', respondidas: 0, total: 1 },
+                sequencia: 1,
+            });
         });
     });
 });
