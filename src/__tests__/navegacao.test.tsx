@@ -1,7 +1,8 @@
-import { userEvent } from '@testing-library/react-native';
+import { act, userEvent } from '@testing-library/react-native';
 import { useFonts } from 'expo-font';
 import { renderRouter, screen } from 'expo-router/testing-library';
 import * as SplashScreen from 'expo-splash-screen';
+import { AppState, type AppStateStatus } from 'react-native';
 
 import { repositorio } from '@/data/repositorio';
 import type { RepositorioFalso } from '@/test/repositorio-falso';
@@ -236,6 +237,27 @@ describe('a trava do roteiro', () => {
             expect(await screen.findByText('Travados até o reteste')).toBeOnTheScreen();
             expect(rotas.caminho()).toBe('/dia-1');
             expect(screen.getByLabelText('Framework MDA, travado')).toBeOnTheScreen();
+        });
+
+        // O app fica dias na memória do celular. Quem volta no dia do reteste não troca de tela,
+        // então a home precisa refazer a conta ao voltar a ficar ativa.
+        it('quem deixou o app aberto e volta depois da liberação encontra o reteste', async () => {
+            const ouvintes: ((estado: AppStateStatus) => void)[] = [];
+            jest.spyOn(AppState, 'addEventListener').mockImplementation((_evento, ouvinte) => {
+                ouvintes.push(ouvinte as (estado: AppStateStatus) => void);
+                return { remove: () => {} };
+            });
+            await abrirEm('/');
+            await screen.findByText('Seu reteste abre em');
+
+            jest.setSystemTime(Date.now() + 8 * 24 * 60 * 60 * 1000);
+            await act(async () => {
+                ouvintes.forEach((ouvinte) => ouvinte('active'));
+            });
+
+            expect(await screen.findByText('Reteste · 0 de 1')).toBeOnTheScreen();
+            expect(screen.queryByText('Seu reteste abre em')).toBeNull();
+            jest.restoreAllMocks();
         });
 
         it('em desenvolvimento, a exceção não vale para a prática', async () => {

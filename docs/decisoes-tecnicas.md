@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -196,6 +196,11 @@ Revisto em 06/10 (cartão de conceito). O cartão virou tela: `src/components/ca
 - **Sem revisão durante a prática.** Depois da primeira resposta, a home leva direto à prática e não há link para reabrir o cartão: a prática com feedback é a intervenção, e o cartão vem antes dela.
 - **A prática toma o lugar do cartão na pilha de telas** (`replace`, e não `push`), então sair da prática volta à home, e não a um cartão que já não deveria abrir. Tópico sem cartão vai direto à prática, em vez de mostrar uma tela vazia.
 
+Revisto em 08/10 (relógio e volta ao app). Dois pontos levantados na revisão automática do pull request nº 5:
+
+- **A home refaz a conta quando o app volta a ficar ativo**, e não só quando a tela ganha foco. O app fica dias na memória do celular; quem voltava no dia do reteste via "O reteste abre amanhã", porque não tinha trocado de tela. `useAoVoltarAoApp` escuta o estado do app (no celular) e a visibilidade da aba (na web) e chama o mesmo `recarregar`. Não há relógio marcado para a meia-noite: só serviria a quem deixa a tela aberta na virada do dia.
+- **A liberação do reteste usa o relógio do aparelho** contra o horário do servidor gravado no pós. Com o relógio adiantado o reteste abre antes; atrasado, segura. Limitação aceita: saber a hora do servidor pediria uma escrita a cada abertura da home ou uma regra no servidor, que está fora do escopo (item 5). A medida não se perde, porque a resposta do reteste também leva horário do servidor: a exportação (M7) calcula os dias entre pós e reteste por esses horários e marca quem ficou fora de 7 a 9.
+
 ## 23. Trilha diária com limite por dia e indicadores para a Mara Games
 
 Decidido em 05/10. O app não é tratado só como instrumento do estudo: a ideia é que vire um produto real da Beast Maragames, e um app parado por seis dias ensina o usuário a não abri-lo. Por isso, entre o pós-teste e o reteste, entra uma trilha diária no estilo Duolingo, sem tocar no que é medido.
@@ -277,7 +282,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Exportação (M7)**
 
-- Script do CSV com código no lugar de nome e contato, e os indicadores agregados (item 23).
+- Script do CSV com código no lugar de nome e contato, e os indicadores agregados (item 23). Inclui os dias entre pós e reteste calculados pelos horários do servidor, marcando quem ficou fora de 7 a 9 (item 22).
 
 **Qualidade**
 
@@ -304,6 +309,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Home refaz a conta do roteiro quando o app volta do segundo plano (item 22), apontado na revisão automática do pull request nº 5.
 - Login num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): a logo em SVG aparece, sobre o círculo branco, e a fonte está certa. Ao carregar, o Expo Go mostra o ícone novo, com a logo.
 - Tela da pergunta num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): fonte Lexend com os pesos certos, cabeçalho abaixo da ilha do aparelho, os três níveis de confiança numa linha só e o Confirmar acima da barra de gestos, sem rolar. O contador "1/12" ficou atrás do botão flutuante de ferramentas do Expo Go, que não existe fora do Expo Go.
 - Pull request nº 5 aberto, com o `main` já trazido para a branch. O único conflito foi `assets/images/logo-beast.svg`, criado nos dois lados com o mesmo desenho; ficou a versão com a cor escrita em cada caminho.

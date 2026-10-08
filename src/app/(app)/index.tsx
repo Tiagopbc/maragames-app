@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS, TITULO_DA_FASE, contagemDoReteste, descreverEtapa, janelaDoReteste } from '@/constants/textos';
+import { useAoVoltarAoApp } from '@/hooks/use-ao-voltar-ao-app';
 import { useRoteiro } from '@/hooks/use-roteiro';
 import { useTheme } from '@/hooks/use-theme';
 import { participanteDoRoteiro } from '@/lib/participante';
@@ -69,6 +70,10 @@ export default function HomeScreen() {
     const { fase, topicId } = destino;
     router.push({ pathname: '/bloco/[fase]', params: topicId ? { fase, topicId } : { fase } });
   }
+
+  // E quando o app volta do segundo plano: a contagem do reteste depende do dia, e quem deixou
+  // o app aberto e volta no dia da liberação não troca de tela.
+  useAoVoltarAoApp(recarregar);
 
   const destino = estado.tipo === 'pronto' ? destinoDaEtapa(estado.etapa) : null;
   // Na espera do reteste, o cartão da próxima etapa vira a contagem dos dias (M5).
