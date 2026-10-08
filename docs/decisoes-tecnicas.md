@@ -255,7 +255,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
-- Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
+- Conferir num aparelho de verdade (Expo Go) o que falta: a logo em SVG no login, o mascote no consentimento, o ícone ao abrir, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). A tela da pergunta num iPhone, em tema escuro, já foi vista em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
@@ -302,6 +302,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Tela da pergunta num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): fonte Lexend com os pesos certos, cabeçalho abaixo da ilha do aparelho, os três níveis de confiança numa linha só e o Confirmar acima da barra de gestos, sem rolar. O contador "1/12" ficou atrás do botão flutuante de ferramentas do Expo Go, que não existe fora do Expo Go.
 - Pull request nº 5 aberto, com o `main` já trazido para a branch. O único conflito foi `assets/images/logo-beast.svg`, criado nos dois lados com o mesmo desenho; ficou a versão com a cor escrita em cada caminho.
 - Conteúdo da trilha diária no repositório (veio do `main`): GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração e Publicando na Steam, com cartão de 4 slides e 6 questões de prática cada.
 - Ordem dos tópicos no dia 1 decidida pelo grupo e gravada no conteúdo, no campo `ordem` (falta o app usar; ver acima).
