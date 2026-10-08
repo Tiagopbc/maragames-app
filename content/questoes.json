@@ -1,355 +1,5 @@
 [
   {
-    "id": "logica_programacao_01",
-    "topicId": "logica_programacao",
-    "bloco": "forma_a",
-    "dificuldade": "basico",
-    "formato": "multipla_escolha",
-    "enunciado": "No início da fase, `vidas = 3`. O jogador leva dano duas vezes (`vidas = vidas - 1` em cada uma) e depois pega um coração (`vidas = vidas + 1`). Quanto vale `vidas` no fim?",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "2",
-        "correta": true,
-        "explicacao": "Correto. 3 - 1 - 1 + 1 = 2. Cada atribuição usa o valor que a variável tem naquele momento."
-      },
-      {
-        "id": "b",
-        "texto": "1",
-        "correta": false,
-        "explicacao": "Esse seria o valor sem o coração. A última linha soma 1 ao valor atual."
-      },
-      {
-        "id": "c",
-        "texto": "3",
-        "correta": false,
-        "explicacao": "As instruções não se anulam de uma vez: são dois danos e só uma cura."
-      },
-      {
-        "id": "d",
-        "texto": "4",
-        "correta": false,
-        "explicacao": "O coração soma 1 ao valor atual (1), não ao valor inicial (3)."
-      }
-    ],
-    "fonte": "Conceito básico de atribuição sequencial"
-  },
-  {
-    "id": "logica_programacao_02",
-    "topicId": "logica_programacao",
-    "bloco": "forma_b",
-    "dificuldade": "basico",
-    "formato": "multipla_escolha",
-    "enunciado": "Um baú executa, em ordem: `moedas = 5`, depois `moedas = moedas + 3`, depois `moedas = moedas * 2`. Quanto vale `moedas` no fim?",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "13",
-        "correta": false,
-        "explicacao": "Somou 5 + 3 + 5. A terceira linha multiplica o valor atual por 2, não soma o valor inicial."
-      },
-      {
-        "id": "b",
-        "texto": "16",
-        "correta": true,
-        "explicacao": "Correto. 5 + 3 = 8, e 8 × 2 = 16. A multiplicação usa o valor já atualizado."
-      },
-      {
-        "id": "c",
-        "texto": "11",
-        "correta": false,
-        "explicacao": "Calculou 5 + 3 × 2 numa linha só. Aqui são três instruções separadas, executadas uma depois da outra."
-      },
-      {
-        "id": "d",
-        "texto": "10",
-        "correta": false,
-        "explicacao": "Multiplicou o valor inicial (5) por 2 e ignorou a soma da segunda linha."
-      }
-    ],
-    "fonte": "Conceito básico de atribuição sequencial"
-  },
-  {
-    "id": "logica_programacao_03",
-    "topicId": "logica_programacao",
-    "bloco": "forma_a",
-    "dificuldade": "intermediario",
-    "formato": "multipla_escolha",
-    "enunciado": "O personagem só pula se `energia > 0 E NÃO pulando`. Neste momento, `energia = 0` e `pulando = falso`. O que acontece?",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "Pula, porque ele não está pulando no momento",
-        "correta": false,
-        "explicacao": "Essa é só uma das condições. Com E, as duas precisam ser verdadeiras."
-      },
-      {
-        "id": "b",
-        "texto": "Pula, porque basta uma das condições ser verdadeira",
-        "correta": false,
-        "explicacao": "Isso vale para OU, não para E."
-      },
-      {
-        "id": "c",
-        "texto": "Não pula, porque `energia > 0` é falso",
-        "correta": true,
-        "explicacao": "Correto. NÃO pulando vale verdadeiro, mas `energia > 0` vale falso, e falso E verdadeiro dá falso."
-      },
-      {
-        "id": "d",
-        "texto": "Não pula, porque `NÃO pulando` resulta em falso",
-        "correta": false,
-        "explicacao": "Como `pulando` é falso, `NÃO pulando` é verdadeiro. O que bloqueia o pulo é a energia."
-      }
-    ],
-    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
-  },
-  {
-    "id": "logica_programacao_04",
-    "topicId": "logica_programacao",
-    "bloco": "forma_b",
-    "dificuldade": "intermediario",
-    "formato": "multipla_escolha",
-    "enunciado": "A porta abre se `(tem_chave OU porta_destrancada) E NÃO alarme_ligado`. Neste momento, `tem_chave = falso`, `porta_destrancada = verdadeiro` e `alarme_ligado = falso`. O que acontece?",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "Não abre, porque falta a chave",
-        "correta": false,
-        "explicacao": "Com OU, basta uma das condições do parêntese. A porta destrancada já resolve."
-      },
-      {
-        "id": "b",
-        "texto": "Não abre, porque `alarme_ligado` é falso",
-        "correta": false,
-        "explicacao": "O teste é `NÃO alarme_ligado`, que vale verdadeiro quando o alarme está desligado."
-      },
-      {
-        "id": "c",
-        "texto": "Dá erro, porque E e OU não podem ser misturados",
-        "correta": false,
-        "explicacao": "Pode, e o parêntese define a ordem: primeiro o OU, depois o E."
-      },
-      {
-        "id": "d",
-        "texto": "Abre",
-        "correta": true,
-        "explicacao": "Correto. falso OU verdadeiro = verdadeiro; NÃO falso = verdadeiro; verdadeiro E verdadeiro = verdadeiro."
-      }
-    ],
-    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
-  },
-  {
-    "id": "logica_programacao_05",
-    "topicId": "logica_programacao",
-    "bloco": "forma_a",
-    "dificuldade": "avancado",
-    "formato": "multipla_escolha",
-    "enunciado": "Qual o valor de `pontos` depois deste trecho?\n\n```\npontos = 0\npara i de 1 até 4:\n    pontos = pontos + i * 10\n```",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "40",
-        "correta": false,
-        "explicacao": "Esse é só o valor somado na última volta. A cada volta `pontos` acumula o que já tinha."
-      },
-      {
-        "id": "b",
-        "texto": "100",
-        "correta": true,
-        "explicacao": "Correto. O laço soma 10, 20, 30 e 40, e 10 + 20 + 30 + 40 = 100."
-      },
-      {
-        "id": "c",
-        "texto": "150",
-        "correta": false,
-        "explicacao": "Somou também i = 5. O laço vai de 1 até 4, então são quatro voltas."
-      },
-      {
-        "id": "d",
-        "texto": "10",
-        "correta": false,
-        "explicacao": "Esse é só o valor da primeira volta. O laço repete o bloco quatro vezes."
-      }
-    ],
-    "fonte": "Conceito básico de laço com acumulador"
-  },
-  {
-    "id": "logica_programacao_06",
-    "topicId": "logica_programacao",
-    "bloco": "forma_b",
-    "dificuldade": "avancado",
-    "formato": "multipla_escolha",
-    "enunciado": "Quantas rodadas são contadas neste trecho?\n\n```\ninimigos = 10\nrodadas = 0\nenquanto inimigos > 0:\n    inimigos = inimigos - 3\n    rodadas = rodadas + 1\n```",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "3",
-        "correta": false,
-        "explicacao": "Depois de 3 voltas ainda resta 1 inimigo, e 1 > 0 é verdadeiro, então o laço roda mais uma vez."
-      },
-      {
-        "id": "b",
-        "texto": "5",
-        "correta": false,
-        "explicacao": "Depois da quarta volta inimigos = -2, a condição fica falsa e não há quinta volta."
-      },
-      {
-        "id": "c",
-        "texto": "4",
-        "correta": true,
-        "explicacao": "Correto. inimigos passa por 10, 7, 4, 1 e -2. Na quarta volta fica -2, que não é > 0, e o laço para."
-      },
-      {
-        "id": "d",
-        "texto": "O laço nunca termina",
-        "correta": false,
-        "explicacao": "inimigos diminui a cada volta, então em algum momento fica menor ou igual a zero."
-      }
-    ],
-    "fonte": "Conceito básico de laço com condição de parada"
-  },
-  {
-    "id": "logica_programacao_07",
-    "topicId": "logica_programacao",
-    "bloco": "pratica",
-    "dificuldade": "basico",
-    "formato": "multipla_escolha",
-    "enunciado": "Qual tipo de dado representa melhor a informação \"o jogador está vivo?\"",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "Inteiro",
-        "correta": false,
-        "explicacao": "Daria para usar 0 e 1, mas o tipo booleano expressa exatamente dois estados e evita valores sem sentido como 7."
-      },
-      {
-        "id": "b",
-        "texto": "Texto",
-        "correta": false,
-        "explicacao": "Guardar \"sim\" ou \"não\" funciona mal: comparar textos é mais lento e permite erros como \"Sim\" ou \"s\"."
-      },
-      {
-        "id": "c",
-        "texto": "Real (com casas decimais)",
-        "correta": false,
-        "explicacao": "Casas decimais não fazem sentido para algo que é sim ou não."
-      },
-      {
-        "id": "d",
-        "texto": "Booleano",
-        "correta": true,
-        "explicacao": "Correto. A informação só tem dois estados possíveis."
-      }
-    ],
-    "fonte": "Conceito básico de tipos de dados"
-  },
-  {
-    "id": "logica_programacao_08",
-    "topicId": "logica_programacao",
-    "bloco": "pratica",
-    "dificuldade": "intermediario",
-    "formato": "multipla_escolha",
-    "enunciado": "Com `vida = 30`, o que este trecho mostra?\n\n```\nse vida <= 0:\n    mostrar(\"game over\")\nsenão se vida < 30:\n    mostrar(\"alerta\")\nsenão:\n    mostrar(\"normal\")\n```",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "normal",
-        "correta": true,
-        "explicacao": "Correto. 30 <= 0 é falso e 30 < 30 também é falso, então cai no último senão."
-      },
-      {
-        "id": "b",
-        "texto": "alerta",
-        "correta": false,
-        "explicacao": "30 < 30 é falso: o sinal é menor, não menor ou igual."
-      },
-      {
-        "id": "c",
-        "texto": "game over",
-        "correta": false,
-        "explicacao": "30 <= 0 é falso, então o primeiro bloco não executa."
-      },
-      {
-        "id": "d",
-        "texto": "alerta e normal",
-        "correta": false,
-        "explicacao": "Em uma cadeia se / senão se / senão, só um dos blocos executa."
-      }
-    ],
-    "fonte": "Conceito básico de condicional encadeada"
-  },
-  {
-    "id": "logica_programacao_09",
-    "topicId": "logica_programacao",
-    "bloco": "pratica",
-    "dificuldade": "intermediario",
-    "formato": "multipla_escolha",
-    "enunciado": "Com `a = 5` e `b = 8`, o programa executa `a = b` e depois `b = a`. Qual o resultado?",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "a = 8 e b = 5",
-        "correta": false,
-        "explicacao": "Seria a troca desejada, mas exige guardar o valor de a numa variável auxiliar antes."
-      },
-      {
-        "id": "b",
-        "texto": "a = 5 e b = 5",
-        "correta": false,
-        "explicacao": "A primeira linha muda a para 8, então b recebe 8, não 5."
-      },
-      {
-        "id": "c",
-        "texto": "a = 8 e b = 8",
-        "correta": true,
-        "explicacao": "Correto. A primeira linha copia 8 para a. A segunda copia o novo valor de a (8) para b. O 5 se perdeu."
-      },
-      {
-        "id": "d",
-        "texto": "a = 5 e b = 8",
-        "correta": false,
-        "explicacao": "A primeira linha muda a para 8. Só b termina com o valor original, porque recebe o 8 que já tinha."
-      }
-    ],
-    "fonte": "Conceito básico de troca de valores com variável auxiliar"
-  },
-  {
-    "id": "logica_programacao_10",
-    "topicId": "logica_programacao",
-    "bloco": "pratica",
-    "dificuldade": "avancado",
-    "formato": "multipla_escolha",
-    "enunciado": "Quantas vezes `desenhar_tile()` é chamada?\n\n```\npara linha de 1 até 3:\n    para coluna de 1 até 4:\n        desenhar_tile()\n```",
-    "alternativas": [
-      {
-        "id": "a",
-        "texto": "7",
-        "correta": false,
-        "explicacao": "Somou 3 + 4. O laço interno roda inteiro a cada volta do externo, então multiplica."
-      },
-      {
-        "id": "b",
-        "texto": "4",
-        "correta": false,
-        "explicacao": "Esse é só o laço interno. Ele se repete para cada linha."
-      },
-      {
-        "id": "c",
-        "texto": "3",
-        "correta": false,
-        "explicacao": "Esse é só o laço externo. Cada volta dele chama a função 4 vezes."
-      },
-      {
-        "id": "d",
-        "texto": "12",
-        "correta": true,
-        "explicacao": "Correto. Para cada uma das 3 linhas, o laço interno roda 4 vezes: 3 × 4 = 12."
-      }
-    ],
-    "fonte": "Conceito básico de laços aninhados"
-  },
-  {
     "id": "mda_framework_01",
     "topicId": "mda_framework",
     "bloco": "forma_a",
@@ -698,6 +348,356 @@
       }
     ],
     "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
+  },
+  {
+    "id": "pixel_art_basico_01",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que caracteriza a pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Cada pixel é colocado de propósito",
+        "correta": true,
+        "explicacao": "Correto. A diferença está no controle sobre cada pixel, não só no tamanho da imagem."
+      },
+      {
+        "id": "b",
+        "texto": "Uma foto reduzida para poucos pixels",
+        "correta": false,
+        "explicacao": "Reduzir uma foto gera pixels borrados e sem intenção; não é pixel art."
+      },
+      {
+        "id": "c",
+        "texto": "Arte vetorial com formas simples",
+        "correta": false,
+        "explicacao": "Vetores são formas matemáticas, sem grade de pixels."
+      },
+      {
+        "id": "d",
+        "texto": "Qualquer imagem com baixa resolução",
+        "correta": false,
+        "explicacao": "Resolução baixa sozinha não basta. O que define é a colocação deliberada."
+      }
+    ],
+    "fonte": "Conceito básico de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_02",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Ao ampliar uma pixel art, qual método de escala mantém os pixels nítidos?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Bilinear",
+        "correta": false,
+        "explicacao": "Mistura cores vizinhas e deixa a imagem borrada."
+      },
+      {
+        "id": "b",
+        "texto": "Nearest neighbor",
+        "correta": true,
+        "explicacao": "Correto. É o método do vizinho mais próximo: cada pixel vira um bloco da mesma cor, sem misturar com os vizinhos."
+      },
+      {
+        "id": "c",
+        "texto": "Bicúbico",
+        "correta": false,
+        "explicacao": "Também suaviza e borra as bordas dos pixels."
+      },
+      {
+        "id": "d",
+        "texto": "Lanczos",
+        "correta": false,
+        "explicacao": "É um filtro de suavização pensado para fotos, não para pixel art."
+      }
+    ],
+    "fonte": "Conceito básico de escala de imagem"
+  },
+  {
+    "id": "pixel_art_basico_03",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que é comum trabalhar com poucas cores em pixel art, mesmo sem limite técnico?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Porque as engines limitam as cores de sprites",
+        "correta": false,
+        "explicacao": "As engines aceitam milhões de cores; a limitação é escolha artística."
+      },
+      {
+        "id": "b",
+        "texto": "Só para deixar o arquivo menor",
+        "correta": false,
+        "explicacao": "Isso pesava em hardware antigo, mas hoje o motivo principal é visual."
+      },
+      {
+        "id": "c",
+        "texto": "Para o conjunto ter harmonia visual",
+        "correta": true,
+        "explicacao": "Correto. Poucas cores bem escolhidas dão unidade ao conjunto e facilitam a leitura do sprite."
+      },
+      {
+        "id": "d",
+        "texto": "Para obrigar o uso de dithering",
+        "correta": false,
+        "explicacao": "Dithering é uma técnica opcional, não consequência da paleta."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_04",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O que é dithering em pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Pôr pixels de cor intermediária na borda da curva",
+        "correta": false,
+        "explicacao": "Isso é anti-aliasing manual."
+      },
+      {
+        "id": "b",
+        "texto": "Contornar o sprite inteiro com uma linha escura",
+        "correta": false,
+        "explicacao": "Isso é contorno (outline)."
+      },
+      {
+        "id": "c",
+        "texto": "Desenhar cada quadro da animação separadamente",
+        "correta": false,
+        "explicacao": "Isso é animação, sem relação com dithering."
+      },
+      {
+        "id": "d",
+        "texto": "Um padrão de duas cores que cria um terceiro tom",
+        "correta": true,
+        "explicacao": "Correto. Visto de longe, o padrão se mistura e parece uma cor nova."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_05",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um iniciante desenha uma pedra e põe o tom mais escuro em todo o contorno, clareando aos poucos até o meio. A luz da cena vem do canto superior esquerdo. Qual é o problema?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Banding: faixas de cor paralelas",
+        "correta": false,
+        "explicacao": "Banding é outro erro, sobre faixas paralelas de cor."
+      },
+      {
+        "id": "b",
+        "texto": "Pillow shading: a sombra não segue a luz",
+        "correta": true,
+        "explicacao": "Correto. A sombra deveria ficar no lado oposto à luz (inferior direito), não em volta de toda a forma."
+      },
+      {
+        "id": "c",
+        "texto": "Excesso de cores no sprite",
+        "correta": false,
+        "explicacao": "O problema está em onde a sombra foi colocada, não na quantidade de cores."
+      },
+      {
+        "id": "d",
+        "texto": "Contorno inconsistente",
+        "correta": false,
+        "explicacao": "O enunciado não fala de contorno; o erro é a lógica da sombra."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_06",
+    "topicId": "pixel_art_basico",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Num sprite, o contorno escuro é seguido por um tom médio e depois um claro, todos com a mesma largura, acompanhando a borda. O contorno parece grosso e duplicado. Que erro é esse e o que fazer?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dithering; usar cores sólidas",
+        "correta": false,
+        "explicacao": "Dithering é um padrão alternado de pixels de duas cores, não tons enfileirados."
+      },
+      {
+        "id": "b",
+        "texto": "Jaggies; usar só retas",
+        "correta": false,
+        "explicacao": "Jaggies são degraus irregulares numa linha, não faixas de cor."
+      },
+      {
+        "id": "c",
+        "texto": "Banding; variar a largura dos tons",
+        "correta": true,
+        "explicacao": "Correto. Tons enfileirados com a mesma largura se leem como linhas a mais; variar a largura ou tirar um tom devolve a definição."
+      },
+      {
+        "id": "d",
+        "texto": "Hue shifting; usar cinzas",
+        "correta": false,
+        "explicacao": "Hue shifting é uma técnica de rampa de cor, não esse erro."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_07",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destas linhas diagonais tende a parecer mais limpa em pixel art?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Degraus variados, como 3-1-4-2",
+        "correta": false,
+        "explicacao": "Degraus irregulares criam jaggies e a linha parece tremida."
+      },
+      {
+        "id": "b",
+        "texto": "Pixels de cores alternadas",
+        "correta": false,
+        "explicacao": "Variar a cor sem motivo deixa a linha ruidosa."
+      },
+      {
+        "id": "c",
+        "texto": "Pixels soltos e espaçados",
+        "correta": false,
+        "explicacao": "Pixels soltos não são lidos como linha contínua."
+      },
+      {
+        "id": "d",
+        "texto": "Degraus regulares, como 2-2-2-2",
+        "correta": true,
+        "explicacao": "Correto. Padrões regulares (1:1, 2:1) formam degraus uniformes."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_08",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Seu sprite foi desenhado em 32×32 e precisa aparecer maior na tela. Por que a escala deve ser feita em múltiplos inteiros, como 2x ou 3x?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Para todos os pixels terem o mesmo tamanho",
+        "correta": true,
+        "explicacao": "Correto. Em 1,5x um pixel teria 1,5 pixel de tela, que não existe; o arredondamento deixa pixels de tamanhos diferentes."
+      },
+      {
+        "id": "b",
+        "texto": "Para reduzir o tamanho do arquivo final",
+        "correta": false,
+        "explicacao": "A escala acontece na hora de desenhar na tela e não altera o arquivo."
+      },
+      {
+        "id": "c",
+        "texto": "Porque a GPU só aceita potências de dois",
+        "correta": false,
+        "explicacao": "Essa restrição tratava da dimensão de texturas em hardware antigo, não do fator de escala."
+      },
+      {
+        "id": "d",
+        "texto": "Para aumentar a taxa de quadros do jogo",
+        "correta": false,
+        "explicacao": "O motivo é visual, não de desempenho."
+      }
+    ],
+    "fonte": "Conceito básico de escala de imagem"
+  },
+  {
+    "id": "pixel_art_basico_09",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Para suavizar a borda de uma curva, o artista coloca alguns pixels de cor intermediária entre o contorno e o fundo. Como se chama essa técnica?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dithering",
+        "correta": false,
+        "explicacao": "Dithering é um padrão alternado de duas cores, não uma transição na borda."
+      },
+      {
+        "id": "b",
+        "texto": "Outline",
+        "correta": false,
+        "explicacao": "Outline é o contorno em si."
+      },
+      {
+        "id": "c",
+        "texto": "Anti-aliasing",
+        "correta": true,
+        "explicacao": "Correto. Os pixels intermediários suavizam o degrau da curva."
+      },
+      {
+        "id": "d",
+        "texto": "Banding",
+        "correta": false,
+        "explicacao": "Banding é um erro, não uma técnica de suavização."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
+  },
+  {
+    "id": "pixel_art_basico_10",
+    "topicId": "pixel_art_basico",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Ao montar a rampa de cor de uma armadura verde, o artista desloca o matiz das sombras para o azul e o dos realces para o amarelo, em vez de só escurecer e clarear. Qual é o efeito?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Menos cores na paleta final",
+        "correta": false,
+        "explicacao": "A quantidade de tons pode ser a mesma; muda só o matiz de cada um."
+      },
+      {
+        "id": "b",
+        "texto": "Um padrão de dithering automático",
+        "correta": false,
+        "explicacao": "Dithering é uma técnica separada."
+      },
+      {
+        "id": "c",
+        "texto": "Um erro conhecido como banding",
+        "correta": false,
+        "explicacao": "Banding trata de faixas paralelas, não da escolha de matiz."
+      },
+      {
+        "id": "d",
+        "texto": "Cores mais vivas e naturais",
+        "correta": true,
+        "explicacao": "Correto. É o hue shifting, que imita como a luz e a sombra mudam a cor de verdade."
+      }
+    ],
+    "fonte": "Guias de fundamentos de pixel art"
   },
   {
     "id": "escolha_de_engine_01",
@@ -1050,353 +1050,1403 @@
     "fonte": "Documentação oficial do Phaser e das engines citadas"
   },
   {
-    "id": "pixel_art_basico_01",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_01",
+    "topicId": "logica_programacao",
     "bloco": "forma_a",
     "dificuldade": "basico",
     "formato": "multipla_escolha",
-    "enunciado": "O que caracteriza a pixel art?",
+    "enunciado": "No início da fase, `vidas = 3`. O jogador leva dano duas vezes (`vidas = vidas - 1` em cada uma) e depois pega um coração (`vidas = vidas + 1`). Quanto vale `vidas` no fim?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Cada pixel é colocado de propósito",
+        "texto": "2",
         "correta": true,
-        "explicacao": "Correto. A diferença está no controle sobre cada pixel, não só no tamanho da imagem."
+        "explicacao": "Correto. 3 - 1 - 1 + 1 = 2. Cada atribuição usa o valor que a variável tem naquele momento."
       },
       {
         "id": "b",
-        "texto": "Uma foto reduzida para poucos pixels",
+        "texto": "1",
         "correta": false,
-        "explicacao": "Reduzir uma foto gera pixels borrados e sem intenção; não é pixel art."
+        "explicacao": "Esse seria o valor sem o coração. A última linha soma 1 ao valor atual."
       },
       {
         "id": "c",
-        "texto": "Arte vetorial com formas simples",
+        "texto": "3",
         "correta": false,
-        "explicacao": "Vetores são formas matemáticas, sem grade de pixels."
+        "explicacao": "As instruções não se anulam de uma vez: são dois danos e só uma cura."
       },
       {
         "id": "d",
-        "texto": "Qualquer imagem com baixa resolução",
+        "texto": "4",
         "correta": false,
-        "explicacao": "Resolução baixa sozinha não basta. O que define é a colocação deliberada."
+        "explicacao": "O coração soma 1 ao valor atual (1), não ao valor inicial (3)."
       }
     ],
-    "fonte": "Conceito básico de pixel art"
+    "fonte": "Conceito básico de atribuição sequencial"
   },
   {
-    "id": "pixel_art_basico_02",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_02",
+    "topicId": "logica_programacao",
     "bloco": "forma_b",
     "dificuldade": "basico",
     "formato": "multipla_escolha",
-    "enunciado": "Ao ampliar uma pixel art, qual método de escala mantém os pixels nítidos?",
+    "enunciado": "Um baú executa, em ordem: `moedas = 5`, depois `moedas = moedas + 3`, depois `moedas = moedas * 2`. Quanto vale `moedas` no fim?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Bilinear",
+        "texto": "13",
         "correta": false,
-        "explicacao": "Mistura cores vizinhas e deixa a imagem borrada."
+        "explicacao": "Somou 5 + 3 + 5. A terceira linha multiplica o valor atual por 2, não soma o valor inicial."
       },
       {
         "id": "b",
-        "texto": "Nearest neighbor",
+        "texto": "16",
         "correta": true,
-        "explicacao": "Correto. É o método do vizinho mais próximo: cada pixel vira um bloco da mesma cor, sem misturar com os vizinhos."
+        "explicacao": "Correto. 5 + 3 = 8, e 8 × 2 = 16. A multiplicação usa o valor já atualizado."
       },
       {
         "id": "c",
-        "texto": "Bicúbico",
+        "texto": "11",
         "correta": false,
-        "explicacao": "Também suaviza e borra as bordas dos pixels."
+        "explicacao": "Calculou 5 + 3 × 2 numa linha só. Aqui são três instruções separadas, executadas uma depois da outra."
       },
       {
         "id": "d",
-        "texto": "Lanczos",
+        "texto": "10",
         "correta": false,
-        "explicacao": "É um filtro de suavização pensado para fotos, não para pixel art."
+        "explicacao": "Multiplicou o valor inicial (5) por 2 e ignorou a soma da segunda linha."
       }
     ],
-    "fonte": "Conceito básico de escala de imagem"
+    "fonte": "Conceito básico de atribuição sequencial"
   },
   {
-    "id": "pixel_art_basico_03",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_03",
+    "topicId": "logica_programacao",
     "bloco": "forma_a",
     "dificuldade": "intermediario",
     "formato": "multipla_escolha",
-    "enunciado": "Por que é comum trabalhar com poucas cores em pixel art, mesmo sem limite técnico?",
+    "enunciado": "O personagem só pula se `energia > 0 E NÃO pulando`. Neste momento, `energia = 0` e `pulando = falso`. O que acontece?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Porque as engines limitam as cores de sprites",
+        "texto": "Pula, porque ele não está pulando no momento",
         "correta": false,
-        "explicacao": "As engines aceitam milhões de cores; a limitação é escolha artística."
+        "explicacao": "Essa é só uma das condições. Com E, as duas precisam ser verdadeiras."
       },
       {
         "id": "b",
-        "texto": "Só para deixar o arquivo menor",
+        "texto": "Pula, porque basta uma das condições ser verdadeira",
         "correta": false,
-        "explicacao": "Isso pesava em hardware antigo, mas hoje o motivo principal é visual."
+        "explicacao": "Isso vale para OU, não para E."
       },
       {
         "id": "c",
-        "texto": "Para o conjunto ter harmonia visual",
+        "texto": "Não pula, porque `energia > 0` é falso",
         "correta": true,
-        "explicacao": "Correto. Poucas cores bem escolhidas dão unidade ao conjunto e facilitam a leitura do sprite."
+        "explicacao": "Correto. NÃO pulando vale verdadeiro, mas `energia > 0` vale falso, e falso E verdadeiro dá falso."
       },
       {
         "id": "d",
-        "texto": "Para obrigar o uso de dithering",
+        "texto": "Não pula, porque `NÃO pulando` resulta em falso",
         "correta": false,
-        "explicacao": "Dithering é uma técnica opcional, não consequência da paleta."
+        "explicacao": "Como `pulando` é falso, `NÃO pulando` é verdadeiro. O que bloqueia o pulo é a energia."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
   },
   {
-    "id": "pixel_art_basico_04",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_04",
+    "topicId": "logica_programacao",
     "bloco": "forma_b",
     "dificuldade": "intermediario",
     "formato": "multipla_escolha",
-    "enunciado": "O que é dithering em pixel art?",
+    "enunciado": "A porta abre se `(tem_chave OU porta_destrancada) E NÃO alarme_ligado`. Neste momento, `tem_chave = falso`, `porta_destrancada = verdadeiro` e `alarme_ligado = falso`. O que acontece?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Pôr pixels de cor intermediária na borda da curva",
+        "texto": "Não abre, porque falta a chave",
         "correta": false,
-        "explicacao": "Isso é anti-aliasing manual."
+        "explicacao": "Com OU, basta uma das condições do parêntese. A porta destrancada já resolve."
       },
       {
         "id": "b",
-        "texto": "Contornar o sprite inteiro com uma linha escura",
+        "texto": "Não abre, porque `alarme_ligado` é falso",
         "correta": false,
-        "explicacao": "Isso é contorno (outline)."
+        "explicacao": "O teste é `NÃO alarme_ligado`, que vale verdadeiro quando o alarme está desligado."
       },
       {
         "id": "c",
-        "texto": "Desenhar cada quadro da animação separadamente",
+        "texto": "Dá erro, porque E e OU não podem ser misturados",
         "correta": false,
-        "explicacao": "Isso é animação, sem relação com dithering."
+        "explicacao": "Pode, e o parêntese define a ordem: primeiro o OU, depois o E."
       },
       {
         "id": "d",
-        "texto": "Um padrão de duas cores que cria um terceiro tom",
+        "texto": "Abre",
         "correta": true,
-        "explicacao": "Correto. Visto de longe, o padrão se mistura e parece uma cor nova."
+        "explicacao": "Correto. falso OU verdadeiro = verdadeiro; NÃO falso = verdadeiro; verdadeiro E verdadeiro = verdadeiro."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
   },
   {
-    "id": "pixel_art_basico_05",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_05",
+    "topicId": "logica_programacao",
     "bloco": "forma_a",
     "dificuldade": "avancado",
     "formato": "multipla_escolha",
-    "enunciado": "Um iniciante desenha uma pedra e põe o tom mais escuro em todo o contorno, clareando aos poucos até o meio. A luz da cena vem do canto superior esquerdo. Qual é o problema?",
+    "enunciado": "Qual o valor de `pontos` depois deste trecho?\n\n```\npontos = 0\npara i de 1 até 4:\n    pontos = pontos + i * 10\n```",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Banding: faixas de cor paralelas",
+        "texto": "40",
         "correta": false,
-        "explicacao": "Banding é outro erro, sobre faixas paralelas de cor."
+        "explicacao": "Esse é só o valor somado na última volta. A cada volta `pontos` acumula o que já tinha."
       },
       {
         "id": "b",
-        "texto": "Pillow shading: a sombra não segue a luz",
+        "texto": "100",
         "correta": true,
-        "explicacao": "Correto. A sombra deveria ficar no lado oposto à luz (inferior direito), não em volta de toda a forma."
+        "explicacao": "Correto. O laço soma 10, 20, 30 e 40, e 10 + 20 + 30 + 40 = 100."
       },
       {
         "id": "c",
-        "texto": "Excesso de cores no sprite",
+        "texto": "150",
         "correta": false,
-        "explicacao": "O problema está em onde a sombra foi colocada, não na quantidade de cores."
+        "explicacao": "Somou também i = 5. O laço vai de 1 até 4, então são quatro voltas."
       },
       {
         "id": "d",
-        "texto": "Contorno inconsistente",
+        "texto": "10",
         "correta": false,
-        "explicacao": "O enunciado não fala de contorno; o erro é a lógica da sombra."
+        "explicacao": "Esse é só o valor da primeira volta. O laço repete o bloco quatro vezes."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de laço com acumulador"
   },
   {
-    "id": "pixel_art_basico_06",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_06",
+    "topicId": "logica_programacao",
     "bloco": "forma_b",
     "dificuldade": "avancado",
     "formato": "multipla_escolha",
-    "enunciado": "Num sprite, o contorno escuro é seguido por um tom médio e depois um claro, todos com a mesma largura, acompanhando a borda. O contorno parece grosso e duplicado. Que erro é esse e o que fazer?",
+    "enunciado": "Quantas rodadas são contadas neste trecho?\n\n```\ninimigos = 10\nrodadas = 0\nenquanto inimigos > 0:\n    inimigos = inimigos - 3\n    rodadas = rodadas + 1\n```",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Dithering; usar cores sólidas",
+        "texto": "3",
         "correta": false,
-        "explicacao": "Dithering é um padrão alternado de pixels de duas cores, não tons enfileirados."
+        "explicacao": "Depois de 3 voltas ainda resta 1 inimigo, e 1 > 0 é verdadeiro, então o laço roda mais uma vez."
       },
       {
         "id": "b",
-        "texto": "Jaggies; usar só retas",
+        "texto": "5",
         "correta": false,
-        "explicacao": "Jaggies são degraus irregulares numa linha, não faixas de cor."
+        "explicacao": "Depois da quarta volta inimigos = -2, a condição fica falsa e não há quinta volta."
       },
       {
         "id": "c",
-        "texto": "Banding; variar a largura dos tons",
+        "texto": "4",
         "correta": true,
-        "explicacao": "Correto. Tons enfileirados com a mesma largura se leem como linhas a mais; variar a largura ou tirar um tom devolve a definição."
+        "explicacao": "Correto. inimigos passa por 10, 7, 4, 1 e -2. Na quarta volta fica -2, que não é > 0, e o laço para."
       },
       {
         "id": "d",
-        "texto": "Hue shifting; usar cinzas",
+        "texto": "O laço nunca termina",
         "correta": false,
-        "explicacao": "Hue shifting é uma técnica de rampa de cor, não esse erro."
+        "explicacao": "inimigos diminui a cada volta, então em algum momento fica menor ou igual a zero."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de laço com condição de parada"
   },
   {
-    "id": "pixel_art_basico_07",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_07",
+    "topicId": "logica_programacao",
     "bloco": "pratica",
     "dificuldade": "basico",
     "formato": "multipla_escolha",
-    "enunciado": "Qual destas linhas diagonais tende a parecer mais limpa em pixel art?",
+    "enunciado": "Qual tipo de dado representa melhor a informação \"o jogador está vivo?\"",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Degraus variados, como 3-1-4-2",
+        "texto": "Inteiro",
         "correta": false,
-        "explicacao": "Degraus irregulares criam jaggies e a linha parece tremida."
+        "explicacao": "Daria para usar 0 e 1, mas o tipo booleano expressa exatamente dois estados e evita valores sem sentido como 7."
       },
       {
         "id": "b",
-        "texto": "Pixels de cores alternadas",
+        "texto": "Texto",
         "correta": false,
-        "explicacao": "Variar a cor sem motivo deixa a linha ruidosa."
+        "explicacao": "Guardar \"sim\" ou \"não\" funciona mal: comparar textos é mais lento e permite erros como \"Sim\" ou \"s\"."
       },
       {
         "id": "c",
-        "texto": "Pixels soltos e espaçados",
+        "texto": "Real (com casas decimais)",
         "correta": false,
-        "explicacao": "Pixels soltos não são lidos como linha contínua."
+        "explicacao": "Casas decimais não fazem sentido para algo que é sim ou não."
       },
       {
         "id": "d",
-        "texto": "Degraus regulares, como 2-2-2-2",
+        "texto": "Booleano",
         "correta": true,
-        "explicacao": "Correto. Padrões regulares (1:1, 2:1) formam degraus uniformes."
+        "explicacao": "Correto. A informação só tem dois estados possíveis."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de tipos de dados"
   },
   {
-    "id": "pixel_art_basico_08",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_08",
+    "topicId": "logica_programacao",
     "bloco": "pratica",
     "dificuldade": "intermediario",
     "formato": "multipla_escolha",
-    "enunciado": "Seu sprite foi desenhado em 32×32 e precisa aparecer maior na tela. Por que a escala deve ser feita em múltiplos inteiros, como 2x ou 3x?",
+    "enunciado": "Com `vida = 30`, o que este trecho mostra?\n\n```\nse vida <= 0:\n    mostrar(\"game over\")\nsenão se vida < 30:\n    mostrar(\"alerta\")\nsenão:\n    mostrar(\"normal\")\n```",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Para todos os pixels terem o mesmo tamanho",
+        "texto": "normal",
         "correta": true,
-        "explicacao": "Correto. Em 1,5x um pixel teria 1,5 pixel de tela, que não existe; o arredondamento deixa pixels de tamanhos diferentes."
+        "explicacao": "Correto. 30 <= 0 é falso e 30 < 30 também é falso, então cai no último senão."
       },
       {
         "id": "b",
-        "texto": "Para reduzir o tamanho do arquivo final",
+        "texto": "alerta",
         "correta": false,
-        "explicacao": "A escala acontece na hora de desenhar na tela e não altera o arquivo."
+        "explicacao": "30 < 30 é falso: o sinal é menor, não menor ou igual."
       },
       {
         "id": "c",
-        "texto": "Porque a GPU só aceita potências de dois",
+        "texto": "game over",
         "correta": false,
-        "explicacao": "Essa restrição tratava da dimensão de texturas em hardware antigo, não do fator de escala."
+        "explicacao": "30 <= 0 é falso, então o primeiro bloco não executa."
       },
       {
         "id": "d",
-        "texto": "Para aumentar a taxa de quadros do jogo",
+        "texto": "alerta e normal",
         "correta": false,
-        "explicacao": "O motivo é visual, não de desempenho."
+        "explicacao": "Em uma cadeia se / senão se / senão, só um dos blocos executa."
       }
     ],
-    "fonte": "Conceito básico de escala de imagem"
+    "fonte": "Conceito básico de condicional encadeada"
   },
   {
-    "id": "pixel_art_basico_09",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_09",
+    "topicId": "logica_programacao",
     "bloco": "pratica",
     "dificuldade": "intermediario",
     "formato": "multipla_escolha",
-    "enunciado": "Para suavizar a borda de uma curva, o artista coloca alguns pixels de cor intermediária entre o contorno e o fundo. Como se chama essa técnica?",
+    "enunciado": "Com `a = 5` e `b = 8`, o programa executa `a = b` e depois `b = a`. Qual o resultado?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Dithering",
+        "texto": "a = 8 e b = 5",
         "correta": false,
-        "explicacao": "Dithering é um padrão alternado de duas cores, não uma transição na borda."
+        "explicacao": "Seria a troca desejada, mas exige guardar o valor de a numa variável auxiliar antes."
       },
       {
         "id": "b",
-        "texto": "Outline",
+        "texto": "a = 5 e b = 5",
         "correta": false,
-        "explicacao": "Outline é o contorno em si."
+        "explicacao": "A primeira linha muda a para 8, então b recebe 8, não 5."
       },
       {
         "id": "c",
-        "texto": "Anti-aliasing",
+        "texto": "a = 8 e b = 8",
         "correta": true,
-        "explicacao": "Correto. Os pixels intermediários suavizam o degrau da curva."
+        "explicacao": "Correto. A primeira linha copia 8 para a. A segunda copia o novo valor de a (8) para b. O 5 se perdeu."
       },
       {
         "id": "d",
-        "texto": "Banding",
+        "texto": "a = 5 e b = 8",
         "correta": false,
-        "explicacao": "Banding é um erro, não uma técnica de suavização."
+        "explicacao": "A primeira linha muda a para 8. Só b termina com o valor original, porque recebe o 8 que já tinha."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de troca de valores com variável auxiliar"
   },
   {
-    "id": "pixel_art_basico_10",
-    "topicId": "pixel_art_basico",
+    "id": "logica_programacao_10",
+    "topicId": "logica_programacao",
     "bloco": "pratica",
     "dificuldade": "avancado",
     "formato": "multipla_escolha",
-    "enunciado": "Ao montar a rampa de cor de uma armadura verde, o artista desloca o matiz das sombras para o azul e o dos realces para o amarelo, em vez de só escurecer e clarear. Qual é o efeito?",
+    "enunciado": "Quantas vezes `desenhar_tile()` é chamada?\n\n```\npara linha de 1 até 3:\n    para coluna de 1 até 4:\n        desenhar_tile()\n```",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Menos cores na paleta final",
+        "texto": "7",
         "correta": false,
-        "explicacao": "A quantidade de tons pode ser a mesma; muda só o matiz de cada um."
+        "explicacao": "Somou 3 + 4. O laço interno roda inteiro a cada volta do externo, então multiplica."
       },
       {
         "id": "b",
-        "texto": "Um padrão de dithering automático",
+        "texto": "4",
         "correta": false,
-        "explicacao": "Dithering é uma técnica separada."
+        "explicacao": "Esse é só o laço interno. Ele se repete para cada linha."
       },
       {
         "id": "c",
-        "texto": "Um erro conhecido como banding",
+        "texto": "3",
         "correta": false,
-        "explicacao": "Banding trata de faixas paralelas, não da escolha de matiz."
+        "explicacao": "Esse é só o laço externo. Cada volta dele chama a função 4 vezes."
       },
       {
         "id": "d",
-        "texto": "Cores mais vivas e naturais",
+        "texto": "12",
         "correta": true,
-        "explicacao": "Correto. É o hue shifting, que imita como a luz e a sombra mudam a cor de verdade."
+        "explicacao": "Correto. Para cada uma das 3 linhas, o laço interno roda 4 vezes: 3 × 4 = 12."
       }
     ],
-    "fonte": "Guias de fundamentos de pixel art"
+    "fonte": "Conceito básico de laços aninhados"
+  },
+  {
+    "id": "gdd_documento_01",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Para que serve, principalmente, um GDD?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Para substituir a escrita do código do jogo",
+        "correta": false,
+        "explicacao": "O GDD descreve o jogo; ele não executa nada e não dispensa a programação."
+      },
+      {
+        "id": "b",
+        "texto": "Para alinhar a equipe sobre o que é o jogo",
+        "correta": true,
+        "explicacao": "Correto. O GDD alinha quem faz arte, código, som e design em torno do mesmo jogo."
+      },
+      {
+        "id": "c",
+        "texto": "Para servir de contrato de venda com a loja",
+        "correta": false,
+        "explicacao": "Lojas pedem outras coisas, como página e build. O GDD é para uso interno."
+      },
+      {
+        "id": "d",
+        "texto": "Para ser o manual que o jogador recebe",
+        "correta": false,
+        "explicacao": "O manual é voltado a quem joga. O GDD é escrito para quem desenvolve."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "gdd_documento_02",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destas frases funciona melhor como visão do jogo em uma frase?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Um jogo divertido e bonito para todas as idades",
+        "correta": false,
+        "explicacao": "É vaga: serve para qualquer jogo e não diz o que este tem de próprio."
+      },
+      {
+        "id": "b",
+        "texto": "Plataforma 2D: vinte fases com três chefes",
+        "correta": false,
+        "explicacao": "Fala de gênero e quantidade, não do que torna este jogo diferente dos outros."
+      },
+      {
+        "id": "c",
+        "texto": "O melhor jogo de plataforma que já foi feito",
+        "correta": false,
+        "explicacao": "É uma ambição, não uma descrição do jogo."
+      },
+      {
+        "id": "d",
+        "texto": "Roguelike de cozinha: cada pedido muda as regras",
+        "correta": true,
+        "explicacao": "Correto. Diz o gênero, o tema e o que torna o jogo diferente, em poucas palavras."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "gdd_documento_03",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "No playtest, a equipe descobre que uma mecânica descrita no GDD não funciona. O que fazer com o documento?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Atualizar o GDD com a mudança e o motivo dela",
+        "correta": true,
+        "explicacao": "Correto. O GDD acompanha o jogo; registrar o motivo evita repetir o erro depois."
+      },
+      {
+        "id": "b",
+        "texto": "Manter o GDD como está, porque ele é um contrato fixo",
+        "correta": false,
+        "explicacao": "Um GDD congelado deixa de descrever o jogo real e para de ser útil."
+      },
+      {
+        "id": "c",
+        "texto": "Descartar o GDD, já que ele errou",
+        "correta": false,
+        "explicacao": "O documento continua útil; só aquela parte precisa mudar."
+      },
+      {
+        "id": "d",
+        "texto": "Criar um segundo GDD paralelo só com a mudança",
+        "correta": false,
+        "explicacao": "Dois documentos competindo confundem a equipe sobre qual vale."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "gdd_documento_04",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Na primeira reunião o líder pede multiplayer, na segunda um editor de fases, na terceira um modo história. Nada sai da lista, e o lançamento vai sendo adiado. Como se chama esse problema?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Crunch",
+        "correta": false,
+        "explicacao": "Crunch são as horas extras excessivas para cumprir prazo. Pode ser consequência, mas não é o problema descrito."
+      },
+      {
+        "id": "b",
+        "texto": "Game feel",
+        "correta": false,
+        "explicacao": "Game feel é a sensação de controle e resposta ao jogar, não um problema de planejamento."
+      },
+      {
+        "id": "c",
+        "texto": "Feature creep",
+        "correta": true,
+        "explicacao": "Correto. O escopo cresce sem que nada saia, e o prazo escorrega."
+      },
+      {
+        "id": "d",
+        "texto": "Soft launch",
+        "correta": false,
+        "explicacao": "Soft launch é lançar para um público restrito antes do lançamento amplo."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "gdd_documento_05",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Uma equipe pequena tem três meses para fazer o jogo. O que o GDD precisa deixar claro primeiro?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O essencial e o que fica para depois",
+        "correta": true,
+        "explicacao": "Correto. Com pouco tempo, separar o essencial do desejável é o que garante um jogo terminado."
+      },
+      {
+        "id": "b",
+        "texto": "A lista completa de todas as fases do jogo",
+        "correta": false,
+        "explicacao": "Detalhar todas as fases antes de testar o essencial gasta tempo em algo que pode mudar."
+      },
+      {
+        "id": "c",
+        "texto": "A história completa de cada personagem",
+        "correta": false,
+        "explicacao": "A história pode vir depois; primeiro é preciso saber o que o jogador faz."
+      },
+      {
+        "id": "d",
+        "texto": "O orçamento de marketing do lançamento",
+        "correta": false,
+        "explicacao": "Importa em algum momento, mas não define o que a equipe vai construir."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "gdd_documento_06",
+    "topicId": "gdd_documento",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que muitas equipes começam com um GDD de uma página em vez de um documento de oitenta?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Porque as lojas só aceitam GDDs de uma página",
+        "correta": false,
+        "explicacao": "Lojas não pedem GDD. O formato é escolha da equipe."
+      },
+      {
+        "id": "b",
+        "texto": "Porque as engines não abrem documentos longos",
+        "correta": false,
+        "explicacao": "A engine não tem relação com o documento de design."
+      },
+      {
+        "id": "c",
+        "texto": "Porque uma página dispensa fazer o protótipo",
+        "correta": false,
+        "explicacao": "O GDD curto funciona junto com o protótipo, não no lugar dele."
+      },
+      {
+        "id": "d",
+        "texto": "Porque um texto curto é lido e mantido em dia",
+        "correta": true,
+        "explicacao": "Correto. Um documento enxuto continua sendo lido e atualizado, e o detalhe nasce do que o protótipo mostra."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_01",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destes itens descreve a UI de um jogo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A sensação geral de entender e usar o jogo",
+        "correta": false,
+        "explicacao": "Isso é UX, a experiência. A UI é uma parte do que forma essa experiência."
+      },
+      {
+        "id": "b",
+        "texto": "O código que controla a física do jogo",
+        "correta": false,
+        "explicacao": "Física é sistema interno do jogo, não interface."
+      },
+      {
+        "id": "c",
+        "texto": "Menus, botões e HUD na tela",
+        "correta": true,
+        "explicacao": "Correto. UI é a interface visível com que o jogador interage."
+      },
+      {
+        "id": "d",
+        "texto": "A trilha sonora que toca no menu inicial",
+        "correta": false,
+        "explicacao": "Som pode apoiar a interface, mas a trilha sonora não é a UI."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_02",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Placar, tempo restante e mira desenhados sobre a imagem enquanto se joga formam o quê?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O HUD",
+        "correta": true,
+        "explicacao": "Correto. HUD é a informação sobreposta à tela durante o jogo."
+      },
+      {
+        "id": "b",
+        "texto": "O GDD",
+        "correta": false,
+        "explicacao": "GDD é o documento de design, usado pela equipe, não algo que aparece na tela."
+      },
+      {
+        "id": "c",
+        "texto": "O menu de pausa",
+        "correta": false,
+        "explicacao": "O menu de pausa interrompe o jogo; o HUD fica visível enquanto se joga."
+      },
+      {
+        "id": "d",
+        "texto": "O tutorial",
+        "correta": false,
+        "explicacao": "O tutorial ensina a jogar; o HUD informa o estado atual da partida."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_03",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Num jogo de tiro, a munição restante aparece num pequeno visor no próprio modelo da arma, e não num contador no canto da tela. Que tipo de interface é essa?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "HUD tradicional, sobreposta à tela",
+        "correta": false,
+        "explicacao": "Seria uma barra desenhada sobre a imagem, fora do mundo do jogo."
+      },
+      {
+        "id": "b",
+        "texto": "Menu radial",
+        "correta": false,
+        "explicacao": "Menu radial é um seletor em círculo, usado para escolher itens ou ações."
+      },
+      {
+        "id": "c",
+        "texto": "Tela de carregamento",
+        "correta": false,
+        "explicacao": "A tela de carregamento aparece entre trechos do jogo, não durante a ação."
+      },
+      {
+        "id": "d",
+        "texto": "Diegética",
+        "correta": true,
+        "explicacao": "Correto. A informação faz parte do mundo, o que preserva a imersão."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_04",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Em testes, jogadores dizem que não sabem se acertaram o inimigo. O que está faltando?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Mais inimigos na fase",
+        "correta": false,
+        "explicacao": "Mais inimigos não resolve a dúvida sobre o acerto; pode até piorar."
+      },
+      {
+        "id": "b",
+        "texto": "Feedback visual e sonoro do golpe",
+        "correta": true,
+        "explicacao": "Correto. A resposta visível e sonora confirma que o golpe acertou."
+      },
+      {
+        "id": "c",
+        "texto": "Um tutorial mais longo no início",
+        "correta": false,
+        "explicacao": "O jogador sabe atacar; o que ele não percebe é o resultado do ataque."
+      },
+      {
+        "id": "d",
+        "texto": "Uma fonte maior no menu principal",
+        "correta": false,
+        "explicacao": "O menu não aparece durante o combate."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_05",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual forma de ensinar um comando novo costuma funcionar melhor?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Uma tela com todos os comandos logo no início",
+        "correta": false,
+        "explicacao": "Muita informação de uma vez é esquecida antes de ser usada."
+      },
+      {
+        "id": "b",
+        "texto": "Um manual em PDF para ler antes de jogar",
+        "correta": false,
+        "explicacao": "Pouca gente lê, e ler não é o mesmo que praticar."
+      },
+      {
+        "id": "c",
+        "texto": "Deixar que descubra sozinho, sem nenhuma pista",
+        "correta": false,
+        "explicacao": "Sem pista, muitos jogadores travam e desistem."
+      },
+      {
+        "id": "d",
+        "texto": "Usar o comando logo, num trecho seguro",
+        "correta": true,
+        "explicacao": "Correto. Aprender e usar logo em seguida fixa o comando sem punição."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "ux_ui_jogos_06",
+    "topicId": "ux_ui_jogos",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogo de corrida mostra ao mesmo tempo velocidade, mapa, posição, tempo, combustível, pneus, clima e mensagens. Os jogadores batem mais. Qual é o problema de UX?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Faltam cores para separar as informações",
+        "correta": false,
+        "explicacao": "Mais cores não reduzem a quantidade de coisas a ler."
+      },
+      {
+        "id": "b",
+        "texto": "Informação demais disputando a atenção",
+        "correta": true,
+        "explicacao": "Correto. Cada item a mais compete com a pista; o HUD deve mostrar só o que importa naquele momento."
+      },
+      {
+        "id": "c",
+        "texto": "Faltam ainda mais informações no HUD",
+        "correta": false,
+        "explicacao": "O problema é o oposto: há informação demais."
+      },
+      {
+        "id": "d",
+        "texto": "O problema é apenas o tamanho da tela",
+        "correta": false,
+        "explicacao": "Mesmo numa tela grande, o olhar sai da pista para ler tudo isso."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_01",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que o pulo do personagem costuma ter um som?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Para confirmar que a ação aconteceu",
+        "correta": true,
+        "explicacao": "Correto. É feedback: o som diz que o comando funcionou."
+      },
+      {
+        "id": "b",
+        "texto": "Para deixar o arquivo do jogo maior",
+        "correta": false,
+        "explicacao": "O tamanho do arquivo não é objetivo de design."
+      },
+      {
+        "id": "c",
+        "texto": "Porque toda engine exige som em cada ação",
+        "correta": false,
+        "explicacao": "Nenhuma engine exige isso; é uma escolha de design."
+      },
+      {
+        "id": "d",
+        "texto": "Para substituir a animação do pulo",
+        "correta": false,
+        "explicacao": "O som complementa a animação, não a substitui."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_02",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Para o som de passos na neve, a equipe grava um saco de amido de milho sendo apertado, sincronizado com a animação. Essa técnica se chama:",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Reverb",
+        "correta": false,
+        "explicacao": "Reverb é o efeito de reverberação, que simula o espaço; não é uma técnica de gravação."
+      },
+      {
+        "id": "b",
+        "texto": "Mixagem",
+        "correta": false,
+        "explicacao": "Mixagem é equilibrar os sons já existentes, não gravá-los."
+      },
+      {
+        "id": "c",
+        "texto": "Foley",
+        "correta": true,
+        "explicacao": "Correto. Foley é gravar sons do dia a dia, muitas vezes com objetos inesperados, sincronizados com a ação."
+      },
+      {
+        "id": "d",
+        "texto": "Compressão",
+        "correta": false,
+        "explicacao": "Compressão reduz a diferença de volume ou o tamanho do arquivo; não é gravação."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_03",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O som dos passos fica irritante depois de um minuto de jogo. Qual é a solução comum?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Aumentar o volume dos passos",
+        "correta": false,
+        "explicacao": "Mais alto, o som repetido incomoda ainda mais."
+      },
+      {
+        "id": "b",
+        "texto": "Variar versões, tom e volume",
+        "correta": true,
+        "explicacao": "Correto. A variação faz cada passo soar um pouco diferente, como na vida real."
+      },
+      {
+        "id": "c",
+        "texto": "Tirar o som dos passos do jogo",
+        "correta": false,
+        "explicacao": "Perde-se informação útil, como saber que alguém se aproxima."
+      },
+      {
+        "id": "d",
+        "texto": "Repetir a mesma gravação, sem nenhuma mudança",
+        "correta": false,
+        "explicacao": "É exatamente o que causa o cansaço: o ouvido percebe a repetição idêntica."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_04",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Você achou um som perfeito num site. Antes de usar num jogo que será vendido, o que precisa conferir?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Se o som tem boa qualidade de gravação",
+        "correta": false,
+        "explicacao": "Qualidade importa para o jogo, mas não diz se você pode usar o som."
+      },
+      {
+        "id": "b",
+        "texto": "Se o site é conhecido e confiável",
+        "correta": false,
+        "explicacao": "Um site conhecido pode hospedar sons com licenças diferentes; é a licença de cada som que vale."
+      },
+      {
+        "id": "c",
+        "texto": "Se o som já aparece em outros jogos",
+        "correta": false,
+        "explicacao": "Estar em outros jogos não diz nada sobre a sua permissão de uso."
+      },
+      {
+        "id": "d",
+        "texto": "Os termos da licença do som",
+        "correta": true,
+        "explicacao": "Correto. Estar disponível na internet não significa ser livre para uso comercial."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_05",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Numa luta, a música alta cobre o som que avisa o ataque do chefe. O que ajustar?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Tirar o som de aviso do ataque",
+        "correta": false,
+        "explicacao": "O aviso é informação de jogo; tirá-lo deixa a luta injusta."
+      },
+      {
+        "id": "b",
+        "texto": "Aumentar o volume de todos os sons",
+        "correta": false,
+        "explicacao": "Se tudo sobe junto, o aviso continua coberto."
+      },
+      {
+        "id": "c",
+        "texto": "A mixagem, priorizando o aviso",
+        "correta": true,
+        "explicacao": "Correto. O som que importa para jogar vem primeiro."
+      },
+      {
+        "id": "d",
+        "texto": "Trocar a música por outra também alta",
+        "correta": false,
+        "explicacao": "A nova música continuaria disputando com o aviso."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "efeitos_sonoros_06",
+    "topicId": "efeitos_sonoros",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Como sound designers costumam construir o som de um soco marcante num jogo de luta?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Em camadas: estalo, corpo grave e roupa",
+        "correta": true,
+        "explicacao": "Correto. Cada camada cobre uma parte do som, e juntas soam mais cheias do que qualquer gravação sozinha."
+      },
+      {
+        "id": "b",
+        "texto": "Com uma única gravação real de um soco",
+        "correta": false,
+        "explicacao": "Gravações reais costumam soar fracas sozinhas; por isso se usam camadas."
+      },
+      {
+        "id": "c",
+        "texto": "Aumentando o volume de um estalo curto",
+        "correta": false,
+        "explicacao": "Volume não cria o corpo e o grave que um golpe marcante precisa."
+      },
+      {
+        "id": "d",
+        "texto": "Usando apenas eco e reverberação",
+        "correta": false,
+        "explicacao": "Eco e reverberação dão espaço, mas não criam o som em si."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_01",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual é o objetivo principal de um playtest?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Avaliar se o jogador é habilidoso",
+        "correta": false,
+        "explicacao": "O alvo do teste é o jogo, não a habilidade de quem joga."
+      },
+      {
+        "id": "b",
+        "texto": "Divulgar o jogo antes do lançamento",
+        "correta": false,
+        "explicacao": "Divulgação é marketing; playtest é investigação."
+      },
+      {
+        "id": "c",
+        "texto": "Testar se o computador aguenta o jogo",
+        "correta": false,
+        "explicacao": "Isso é teste de desempenho, outro tipo de teste."
+      },
+      {
+        "id": "d",
+        "texto": "Achar onde o jogo não funciona",
+        "correta": true,
+        "explicacao": "Correto. O teste revela a distância entre o jogo imaginado e o jogado."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_02",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Quando começar a fazer playtests?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Só quando o jogo estiver pronto",
+        "correta": false,
+        "explicacao": "Com o jogo pronto, corrigir um problema de base custa muito mais."
+      },
+      {
+        "id": "b",
+        "texto": "Desde cedo, com protótipos",
+        "correta": true,
+        "explicacao": "Correto. Quanto antes um problema aparece, mais barato é corrigir."
+      },
+      {
+        "id": "c",
+        "texto": "Na fase beta, perto do lançamento",
+        "correta": false,
+        "explicacao": "Perto do lançamento, mudar a base do jogo já custa caro; os testes devem começar bem antes."
+      },
+      {
+        "id": "d",
+        "texto": "Só se sobrar tempo no fim",
+        "correta": false,
+        "explicacao": "Deixar o teste para o fim costuma significar não testar."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_03",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Durante o teste, o jogador fica perdido numa fase. O que o designer deve fazer?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Explicar logo como passar daquele ponto",
+        "correta": false,
+        "explicacao": "Na vida real ninguém vai estar ao lado do jogador para explicar."
+      },
+      {
+        "id": "b",
+        "texto": "Pegar o controle e mostrar o caminho",
+        "correta": false,
+        "explicacao": "Assim se perde a informação de onde e por que ele travou."
+      },
+      {
+        "id": "c",
+        "texto": "Observar e anotar, sem explicar",
+        "correta": true,
+        "explicacao": "Correto. Explicar esconde o problema que o teste existe para revelar."
+      },
+      {
+        "id": "d",
+        "texto": "Encerrar o teste e chamar outra pessoa",
+        "correta": false,
+        "explicacao": "Esse momento de dificuldade é justamente o dado mais valioso."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_04",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que testes só com a própria equipe enganam?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Ela já sabe como o jogo funciona",
+        "correta": true,
+        "explicacao": "Correto. Quem fez o jogo preenche as lacunas sem perceber."
+      },
+      {
+        "id": "b",
+        "texto": "Porque a equipe joga mal o próprio jogo",
+        "correta": false,
+        "explicacao": "A equipe costuma jogar bem demais, e esse é o problema."
+      },
+      {
+        "id": "c",
+        "texto": "Porque a equipe não consegue instalar o jogo",
+        "correta": false,
+        "explicacao": "Instalação não tem relação com a validade do teste."
+      },
+      {
+        "id": "d",
+        "texto": "Porque a equipe esconde os resultados",
+        "correta": false,
+        "explicacao": "Não é questão de honestidade, e sim de conhecimento prévio."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_05",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogador diz que a fase está fácil, mas morreu oito vezes no mesmo ponto. Em que confiar mais?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "No que ele disse, porque ele sabe o que sentiu",
+        "correta": false,
+        "explicacao": "Jogadores muitas vezes minimizam dificuldades ao falar."
+      },
+      {
+        "id": "b",
+        "texto": "No que ele fez, e investigar aquele ponto",
+        "correta": true,
+        "explicacao": "Correto. O comportamento observado costuma dizer mais do que a opinião."
+      },
+      {
+        "id": "c",
+        "texto": "Na média entre o que disse e o que fez",
+        "correta": false,
+        "explicacao": "Fala e comportamento não se somam; o comportamento aponta o problema concreto."
+      },
+      {
+        "id": "d",
+        "texto": "Em nenhum dos dois: descartar esse jogador",
+        "correta": false,
+        "explicacao": "Descartar o teste joga fora justamente o dado que mostra o problema."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "playtest_iteracao_06",
+    "topicId": "playtest_iteracao",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Depois do teste, a lista tem 20 problemas e o tempo é curto. Como decidir o que corrigir primeiro?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Na ordem em que foram anotados",
+        "correta": false,
+        "explicacao": "A ordem da anotação não diz nada sobre a gravidade."
+      },
+      {
+        "id": "b",
+        "texto": "Sempre pelos mais fáceis de corrigir",
+        "correta": false,
+        "explicacao": "Fáceis podem ser irrelevantes, enquanto um problema grave fica de pé."
+      },
+      {
+        "id": "c",
+        "texto": "Por impacto e frequência, e testar de novo",
+        "correta": true,
+        "explicacao": "Correto. Impacto e frequência guiam a prioridade, e o novo teste confirma a correção."
+      },
+      {
+        "id": "d",
+        "texto": "Corrigir todos de uma vez antes de testar de novo",
+        "correta": false,
+        "explicacao": "Muitas mudanças juntas impedem saber qual delas resolveu, ou piorou, algo."
+      }
+    ],
+    "fonte": "Conceito básico de desenvolvimento de jogos"
+  },
+  {
+    "id": "publicando_steam_01",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Quanto custa a taxa Steam Direct para publicar um jogo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Nada: publicar na Steam é gratuito",
+        "correta": false,
+        "explicacao": "Há uma taxa por jogo, a Steam Direct."
+      },
+      {
+        "id": "b",
+        "texto": "US$ 100 por jogo",
+        "correta": true,
+        "explicacao": "Correto. A taxa é cobrada por jogo e volta ao desenvolvedor quando o jogo atinge US$ 1.000 de receita bruta ajustada."
+      },
+      {
+        "id": "c",
+        "texto": "US$ 100 por ano, como uma assinatura",
+        "correta": false,
+        "explicacao": "A taxa é cobrada uma vez por jogo, não por ano."
+      },
+      {
+        "id": "d",
+        "texto": "Metade de todas as vendas do jogo",
+        "correta": false,
+        "explicacao": "A Steam fica com uma parte das vendas, mas a taxa Steam Direct é outra coisa."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "publicando_steam_02",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Quando um jogo é lançado, o que acontece com quem o colocou na lista de desejos?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Recebe um aviso",
+        "correta": true,
+        "explicacao": "Correto. A lista de desejos vira um aviso direto no dia do lançamento."
+      },
+      {
+        "id": "b",
+        "texto": "Ganha o jogo de graça",
+        "correta": false,
+        "explicacao": "A lista de desejos não dá o jogo a ninguém."
+      },
+      {
+        "id": "c",
+        "texto": "Paga o jogo automaticamente",
+        "correta": false,
+        "explicacao": "Não há compra automática; a pessoa decide se compra."
+      },
+      {
+        "id": "d",
+        "texto": "Nada acontece",
+        "correta": false,
+        "explicacao": "A Steam avisa essas pessoas; esse é o valor da lista."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "publicando_steam_03",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual é o tempo mínimo que a página \"em breve\" precisa ficar no ar antes do lançamento?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Um dia",
+        "correta": false,
+        "explicacao": "Um dia é menos que o mínimo exigido."
+      },
+      {
+        "id": "b",
+        "texto": "Seis meses",
+        "correta": false,
+        "explicacao": "Muitos estúdios deixam a página no ar por meses, mas isso é escolha, não exigência."
+      },
+      {
+        "id": "c",
+        "texto": "Ela não é obrigatória",
+        "correta": false,
+        "explicacao": "Para jogos novos, a página antecipada é exigida."
+      },
+      {
+        "id": "d",
+        "texto": "Duas semanas",
+        "correta": true,
+        "explicacao": "Correto. É a exigência mínima da Steam para produtos novos."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "publicando_steam_04",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que estúdios publicam a página da loja meses antes do lançamento, e não só nas duas semanas mínimas?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Porque a Steam cobra uma taxa menor por isso",
+        "correta": false,
+        "explicacao": "A taxa é a mesma, com ou sem antecedência."
+      },
+      {
+        "id": "b",
+        "texto": "Para conseguir atrasar o lançamento",
+        "correta": false,
+        "explicacao": "A página antecipada não tem relação com adiar o jogo."
+      },
+      {
+        "id": "c",
+        "texto": "Para que mais gente seja avisada no lançamento",
+        "correta": true,
+        "explicacao": "Correto. Cada lista de desejos acumulada vira um aviso no dia do lançamento."
+      },
+      {
+        "id": "d",
+        "texto": "Para esconder o jogo da imprensa",
+        "correta": false,
+        "explicacao": "É o contrário: a página serve para tornar o jogo visível."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "publicando_steam_05",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogo vendeu US$ 600 brutos até agora. O que aconteceu com a taxa de US$ 100?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Ainda não foi recuperada",
+        "correta": true,
+        "explicacao": "Correto. A taxa só volta quando a receita bruta ajustada atinge US$ 1.000."
+      },
+      {
+        "id": "b",
+        "texto": "Já foi devolvida, porque o jogo vendeu",
+        "correta": false,
+        "explicacao": "Vender algo não basta; é preciso atingir o limite."
+      },
+      {
+        "id": "c",
+        "texto": "Foi devolvida pela metade",
+        "correta": false,
+        "explicacao": "Não há devolução parcial; ou atingiu o limite ou não."
+      },
+      {
+        "id": "d",
+        "texto": "Nunca é devolvida, em nenhum caso",
+        "correta": false,
+        "explicacao": "Ela não é reembolsável, mas é recuperada quando o jogo atinge US$ 1.000."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "publicando_steam_06",
+    "topicId": "publicando_steam",
+    "bloco": "pratica",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um estúdio pequeno, sem verba de marketing, quer visibilidade antes do lançamento. Qual estratégia usa recursos da própria Steam?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Esperar que a Steam destaque o jogo sozinha",
+        "correta": false,
+        "explicacao": "Sem sinais de interesse, como listas de desejos, o destaque dificilmente vem."
+      },
+      {
+        "id": "b",
+        "texto": "Lançar de graça e cobrar depois",
+        "correta": false,
+        "explicacao": "Mudar de gratuito para pago gera reação negativa e não resolve a visibilidade antes do lançamento."
+      },
+      {
+        "id": "c",
+        "texto": "Publicar o jogo sem página antecipada",
+        "correta": false,
+        "explicacao": "Além de não ser permitido para jogos novos, elimina o tempo de juntar listas de desejos."
+      },
+      {
+        "id": "d",
+        "texto": "Uma versão de teste num festival da loja",
+        "correta": true,
+        "explicacao": "Correto. Demos em eventos como o Steam Next Fest atraem jogadores para a página e geram listas de desejos."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
   }
 ]
