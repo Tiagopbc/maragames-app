@@ -278,7 +278,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
-- Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
+- Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): restam 3 questões fora do JSON, sem versão de conteúdo. A lição 5, que estava solta, foi reaproveitada pelo seed de 08/10 como "Efeitos sonoros". Decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
@@ -288,7 +288,6 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Trilha diária, dias 2 a 6 (M5, item 23)**
 
-- Ver desenhadas a prática de um tópico da trilha e a tela da sequência: só os testes as cobrem. Precisa responder as 6 questões de um tópico numa conta que esteja na espera.
 - Lembrar o participante de voltar: hoje é por mensagem no grupo da turma (item 19); notificação está fora do escopo.
 
 **
@@ -327,6 +326,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Tópico da trilha percorrido no app, na web, em tamanho de celular, com a conta do Tiago: cartão do GDD (4 slides), as 6 questões de prática com feedback (visto também no tema claro: rodapé fixo e confiança travada), e a tela da sequência, com "1 dia seguido", "Sequência iniciada!", "Você acertou 5 de 6", as bolinhas de terça (dia do pós) e de quinta cheias e a de quarta vazia, e o próximo tópico com "Libera amanhã". De volta à home: "Feito por hoje. Próximo: UX/UI em jogos. Libera amanhã." e o selo "Sequência: 1 dia". A conta do Tiago ficou com 6 respostas de prática a mais e o GDD concluído em 08/10.
 - Seed com o conteúdo novo rodado pelo Tiago (versão `f870c2d83e2b`): 9 lições, com `ordem` e `trilha`, e 70 questões. Conferido no banco.
 - Trilha diária vista no app, na web, com a conta do Tiago (pós em 06/10): a home mostra "Tópico de hoje" com "GDD: o documento do jogo" e "Começar", e "Ver meu resultado do dia 1" como botão de contorno; o cartão do GDD abre, com 4 slides; `/cartao/ux_ui_jogos` e `/bloco/pratica?topicId=publicando_steam` voltam para a home.
 - Trilha diária no app (item 23): fila de um tópico por dia, sequência de dias, cartão "Tópico de hoje" na home, tela da sequência no fim do tópico e a trava estendida aos tópicos da trilha.
