@@ -129,6 +129,22 @@ describe('a navegação de quem está logado', () => {
         expect(screen.queryByText('Expo documentation')).toBeNull();
     });
 
+    it('endereço que não existe mostra o aviso do app, em português', async () => {
+        await abrirEm('/explore');
+
+        expect(await screen.findByText('Essa página não existe.')).toBeOnTheScreen();
+        expect(screen.queryByText(/Unmatched Route|Sitemap|Go back/)).toBeNull();
+    });
+
+    it('do aviso, "Voltar ao início" leva à home', async () => {
+        const rotas = await abrirEm('/um/endereco/qualquer');
+
+        await userEvent.setup().press(await screen.findByRole('button', { name: 'Voltar ao início' }));
+
+        expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/');
+    });
+
     it('enquanto a fonte não carrega, nada aparece e a tela de abertura continua', async () => {
         fontes.mockReturnValue([false, null]);
         await abrirEm('/');

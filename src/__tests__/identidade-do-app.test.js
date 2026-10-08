@@ -47,3 +47,11 @@ it('a tela de abertura usa o fundo do tema, no claro e no escuro', () => {
 it('o ícone do Android usa o fundo da logo', () => {
     expect(expo.android.adaptiveIcon.backgroundColor).toBe(Colors.light.fundoDaLogo);
 });
+
+// O mapa de rotas do Expo Router lista todos os endereços do app para quem abrir /_sitemap.
+// Serve para depurar; no app do participante, não.
+it('o mapa de rotas do Expo Router está desligado', () => {
+    const rotas = expo.plugins.find((p) => Array.isArray(p) && p[0] === 'expo-router');
+
+    expect(rotas && rotas[1].sitemap).toBe(false);
+});

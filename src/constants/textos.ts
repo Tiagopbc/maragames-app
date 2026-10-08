@@ -80,6 +80,8 @@ export const TEXTOS = {
     topicoTravado: 'travado',
     porQueTravados: 'Eles voltam no reteste. Revisar antes mudaria o que estamos medindo.',
     erroAoCarregarDia1: 'Não foi possível carregar o seu resultado. Confira a conexão e tente de novo.',
+    paginaNaoExiste: 'Essa página não existe.',
+    paginaNaoExisteDetalhe: 'O endereço pode ter mudado ou ter sido digitado errado.',
     continuarEstudos: 'Continuar estudos',
     proximaEtapa: 'Próxima etapa',
     trilhas: 'Trilhas',

@@ -101,4 +101,12 @@ describe('a tela de login', () => {
 
         expect(await screen.findByText('Criar agora')).toBeOnTheScreen();
     });
+
+    it('quem não entrou e abre um endereço que não existe vê o aviso, e de lá chega ao login', async () => {
+        await renderRouter('./src/app', { initialUrl: '/nao-existe' });
+
+        await userEvent.setup().press(await screen.findByRole('button', { name: 'Voltar ao início' }));
+
+        expect(await screen.findByText('Pronto pra soltar a fera?')).toBeOnTheScreen();
+    });
 });
