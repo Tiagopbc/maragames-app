@@ -6,7 +6,13 @@ import { useEffect, useRef, useState } from 'react';
 
 import { TEXTOS, TITULO_DA_FASE } from '@/constants/textos';
 import { repositorio } from '@/data/repositorio';
-import { pendentes, proximoTopicoDaPratica, questoesDaPratica, questoesDoBlocoMedido } from '@/lib/bloco';
+import {
+    pendentes,
+    proximoTopicoDaPratica,
+    questoesDaPratica,
+    questoesDoBlocoMedido,
+    topicosDaTrilha,
+} from '@/lib/bloco';
 import { ordemDasAlternativas } from '@/lib/embaralhar';
 import {
     faseTemFeedback,
@@ -39,6 +45,9 @@ export interface Relatorio {
     resultado: ResultadoDoBloco;
     enunciados: Record<string, string>; // por id de questão
     nomesDosTopicos: Record<string, string>; // por id de tópico
+    // O tópico, quando o bloco é a prática de um tópico da trilha diária: o fim dele é a tela
+    // da sequência, e não o resultado detalhado (item 23).
+    topicoDaTrilha: string | null;
 }
 
 export type EstadoDoBloco =
@@ -58,6 +67,7 @@ interface Sessao {
     bloco: Question[]; // o bloco inteiro, para o resultado do fim
     respostas: RespostaDoResultado[]; // as desta fase: as já gravadas antes mais as desta sessão
     nomesDosTopicos: Record<string, string>;
+    topicoDaTrilha: string | null;
 }
 
 interface Controle {
@@ -85,11 +95,12 @@ function perguntaDe(s: Sessao, uid: string, fase: Fase): PerguntaAtual {
 }
 
 // O resultado sai das respostas que a tela já tem em mãos, sem ler o banco de novo.
-function relatorioDe(s: Pick<Sessao, 'bloco' | 'respostas' | 'nomesDosTopicos'>): Relatorio {
+function relatorioDe(s: Pick<Sessao, 'bloco' | 'respostas' | 'nomesDosTopicos' | 'topicoDaTrilha'>): Relatorio {
     return {
         resultado: resultadoDoBloco(s.respostas, s.bloco),
         enunciados: Object.fromEntries(s.bloco.map((q) => [q.id, q.enunciado])),
         nomesDosTopicos: s.nomesDosTopicos,
+        topicoDaTrilha: s.topicoDaTrilha,
     };
 }
 
@@ -112,6 +123,7 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
 
             let doBloco: Question[];
             let nome: string;
+            let topicoDaTrilha: string | null = null;
             if (fase === 'pratica') {
                 const alvo =
                     topicId ??
@@ -125,6 +137,11 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 }
                 doBloco = questoesDaPratica(questoes, alvo);
                 nome = topicos.find((t) => t.id === alvo)?.titulo ?? '';
+                const daTrilha = topicosDaTrilha(
+                    questoes,
+                    topicos.map((t) => t.id)
+                );
+                if (daTrilha.includes(alvo)) topicoDaTrilha = alvo;
             } else {
                 if (formaPre === null) {
                     return { tipo: 'erro', mensagem: TEXTOS.semConsentimento, podeTentarDeNovo: false } as const;
@@ -146,6 +163,7 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 bloco: doBloco,
                 respostas: respostas.filter((r) => r.fase === fase) as RespostaDoResultado[],
                 nomesDosTopicos: Object.fromEntries(topicos.map((t) => [t.id, t.titulo])),
+                topicoDaTrilha,
             };
 
             // Bloco já concluído: reabrir mostra o resultado, recalculado das respostas.

@@ -1,6 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { TelaDoBloco } from '@/components/pergunta/tela-do-bloco';
+import { FimDoTopico } from '@/components/trilha/fim-do-topico';
 import { PortaoDoRoteiro } from '@/components/roteiro/portao-do-roteiro';
 import { participanteDoRoteiro } from '@/lib/participante';
 import { travaVale } from '@/lib/passo';
@@ -41,6 +42,7 @@ export default function BlocoScreen() {
             // A forma nasce no aceite do termo. Sem ela, o bloco medido não abre.
             formaPre={participante.formaPre}
             aoSair={sair}
+            fimDaTrilha={(fim) => <FimDoTopico uid={user.uid} participante={participante} aoSair={sair} {...fim} />}
         />
     );
     const destino = { tipo: 'bloco', fase, topicId } as const;

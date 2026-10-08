@@ -46,6 +46,7 @@ export function useDia1({ uid, formaPre }: { uid: string; formaPre: FormaPre }) 
                         // mostrar o que não recebe (item 27).
                         enunciados: {},
                         nomesDosTopicos: Object.fromEntries(topicos.map((t) => [t.id, t.titulo])),
+                        topicoDaTrilha: null,
                     },
                     travados: topicos.filter((t) => medidos.includes(t.id)).map((t) => ({ id: t.id, titulo: t.titulo })),
                 });

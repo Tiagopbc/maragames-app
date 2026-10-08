@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -51,6 +51,8 @@ Revisto em 06/10 (consentimento). O aceite simulado saiu: a tela de consentiment
 Revisto em 06/10 (cartão). Na etapa `estudo`, o botão abre o cartão de conceito enquanto o tópico não tem resposta de prática, e a prática depois disso (item 22). A linha da home acompanha: "Cartão de Framework MDA" e, com a prática começada, "Prática de Framework MDA · 1 de 4".
 
 Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/app/(app)/index.tsx`, direto no `Stack` de `(app)`; bloco, cartão e termo continuam abrindo por cima dela. As abas eram as do template do Expo: na web, uma barra flutuante com "Expo Starter", a aba Explore e o link Docs, que cobria a saudação; no celular, uma aba "Expo" que abria a tela de exemplo. Tirada a Explore, sobraria uma aba só, e barra de uma aba não navega: no piloto, quem navega é o "Continuar estudos" e os atalhos. Saíram junto os componentes e as imagens que só o template usava, e `BottomTabInset` do tema. Se depois do piloto os atalhos virarem abas, o grupo volta. Coberto por teste de navegação (item 26).
+
+Revisto em 08/10 (rolagem). A home passou a rolar. Com a contagem do reteste, o cartão da trilha diária e os atalhos, ela passa da altura de um celular pequeno: em 375×667 o conteúdo tem 818 px. O "Sair" fica no pé da tela quando o conteúdo é curto e desce com ele quando é longo.
 
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
@@ -250,6 +252,19 @@ Não aparece em tela nenhuma: serve ao script de exportação (M7) e à análise
 
 Revisto em 08/10 (ordem no app). O conteúdo passou a trazer, em cada lição, a ordem de apresentação (`ordem`) e a trilha (`medido` ou `diaria`), e o app passou a ler as duas. `ordenarLicoes` ordena por `ordem`; `order` continua sendo só o número da lição no curso. Lição sem `ordem`, sobra de um seed antigo, vai para o fim, pelo número da lição, para não furar a fila. Como a ordem do roteiro sai da ordem das lições, o dia 1 passa a seguir MDA, Pixel Art, Engine, Lógica assim que o seed novo rodar; até lá, o banco não tem o campo e nada muda. Quem já passou do estudo não é afetado.
 
+Revisto em 08/10 (trilha no app). A trilha diária foi implementada, em função pura (`src/lib/trilha.ts`), sem gravar nada a mais: a fila e a sequência saem de `answers`.
+
+- **Uma regra só decide a fila:** o próximo tópico abre no dia de calendário seguinte ao da conclusão do anterior, e o primeiro, no dia seguinte ao do pós-teste. Cobre os três casos sem regra à parte: quem faz um por dia, quem pula dias (encontra o mesmo tópico esperando) e quem começa um tópico num dia e termina no outro (o que vale é o dia do fim).
+- **Tópico começado continua aberto** até terminar, em qualquer dia.
+- **Quais são os tópicos da trilha** sai das questões, como os medidos: são os que têm prática e nenhuma questão das formas A ou B (`topicosDaTrilha`). O campo `trilha` do conteúdo confere com isso, mas a regra não depende dele.
+- **Sequência:** dias seguidos com pelo menos uma resposta confirmada, de qualquer fase; o dia 1 conta. Antes de responder hoje, a sequência que vinha até ontem continua valendo; um dia inteiro sem resposta zera. Abrir o app sem responder não conta, porque isso não gera evento.
+- **A trilha corre ao lado do roteiro**, e não dentro dele: não é uma `Etapa`. `useRoteiro` entrega as duas coisas, e a home mostra o cartão "Tópico de hoje" abaixo do cartão do roteiro. Na espera do reteste, com tópico para hoje, a ação principal da tela é o tópico, e "Ver meu resultado do dia 1" vira botão de contorno; no dia do reteste, o reteste continua na frente.
+- **No fim do tópico, a tela da sequência entra no lugar do resultado detalhado:** mascote, dias seguidos, acerto do tópico, os sete dias do piloto e o próximo tópico com "Libera amanhã". O feedback já foi dado questão a questão; o que traz a pessoa de volta é a sequência.
+- **Trava:** `podeAbrir` deixa abrir o cartão e a prática do tópico de hoje em qualquer etapa. O de amanhã, o já feito e qualquer outro voltam para a home.
+- **Relógio:** a liberação do tópico usa o relógio do aparelho contra horários do servidor, a mesma limitação do reteste (item 22).
+
+Ficaram de fora: lembrete por notificação, protetor de sequência e a fila "Revisar hoje".
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -274,7 +289,11 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Trilha diária, dias 2 a 6 (M5, item 23)**
 
-- Limite de um tópico por dia, sequência de dias e tela "volte amanhã".
+- Ver a trilha no app de verdade: a regra, a home e a tela da sequência estão no código e nos testes, mas o banco ainda não tem os cinco tópicos. Depende do seed novo (acima).
+- Lembrar o participante de voltar: hoje é por mensagem no grupo da turma (item 19); notificação está fora do escopo.
+
+**
+
 
 **Restante do M4 (item 27)**
 
@@ -309,6 +328,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Trilha diária no app (item 23): fila de um tópico por dia, sequência de dias, cartão "Tópico de hoje" na home, tela da sequência no fim do tópico e a trava estendida aos tópicos da trilha.
 - Home refaz a conta do roteiro quando o app volta do segundo plano (item 22), apontado na revisão automática do pull request nº 5.
 - Login num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): a logo em SVG aparece, sobre o círculo branco, e a fonte está certa. Ao carregar, o Expo Go mostra o ícone novo, com a logo.
 - Tela da pergunta num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): fonte Lexend com os pesos certos, cabeçalho abaixo da ilha do aparelho, os três níveis de confiança numa linha só e o Confirmar acima da barra de gestos, sem rolar. O contador "1/12" ficou atrás do botão flutuante de ferramentas do Expo Go, que não existe fora do Expo Go.
@@ -390,6 +410,8 @@ Revisto em 08/10 (embaralhamento). `embaralhar.test.ts` ganhou um teste de unifo
 Revisto em 08/10 (abertura). O teste de cores ficou sem exceção nenhuma, e entrou `src/__tests__/identidade-do-app.test.js`, que lê o `app.json`: as imagens do ícone, do favicon e da tela de abertura existem, nenhuma é a do template, nenhuma cor é o azul do Expo, e o fundo da tela de abertura é o do tema, no claro e no escuro. O teste de navegação passou a conferir que a tela de abertura só é escondida quando a fonte está pronta.
 
 Revisto em 08/10 (retenção e rotas). `retencao.test.ts` cobre as bordas que mudam o número: pós com zero acertos, reteste pela metade, resposta repetida na mesma fase, questão de fora do bloco e a confiança do reteste não contaminando o quadrante. O teste de navegação ganhou o endereço que não existe, logado e deslogado; o do `app.json` confere que o mapa de rotas está desligado.
+
+Revisto em 08/10 (trilha). A trilha diária (item 23) tem teste nas três alturas de sempre: `trilha.test.ts`, com a fila, a virada do dia em São Luís, o tópico pela metade, a sequência com e sem dia pulado e a semana do piloto; o cartão da home, em cada estado; e as rotas reais, do "Começar" na home à tela da sequência e de volta, mais o tópico de amanhã barrado pela URL. O repositório em memória ganhou `acertarRelogio`, para o teste gravar respostas "hoje": antes ele carimbava tudo em 1970, o que bastava enquanto nada dependia do dia.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

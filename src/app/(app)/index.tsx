@@ -1,10 +1,12 @@
 import { useCallback } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { BotaoSecundario } from '@/components/botao-secundario';
+import { CartaoDaTrilha } from '@/components/trilha/cartao-da-trilha';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -13,7 +15,7 @@ import { useAoVoltarAoApp } from '@/hooks/use-ao-voltar-ao-app';
 import { useRoteiro } from '@/hooks/use-roteiro';
 import { useTheme } from '@/hooks/use-theme';
 import { participanteDoRoteiro } from '@/lib/participante';
-import { destinoDaEtapa, type Destino } from '@/lib/passo';
+import { destinoDaEtapa, destinoDaTrilha, type Destino } from '@/lib/passo';
 import { useSession } from '@/lib/session';
 import type { Fase } from '@/types/domain';
 
@@ -79,10 +81,18 @@ export default function HomeScreen() {
   // Na espera do reteste, o cartão da próxima etapa vira a contagem dos dias (M5).
   const espera = estado.tipo === 'pronto' && estado.etapa.tipo === 'espera' ? estado.etapa : null;
   const contagem = espera && contagemDoReteste(espera.diasRestantes);
+  // A trilha diária corre ao lado do roteiro, do fim do pós em diante (item 23).
+  const trilha = estado.tipo === 'pronto' ? estado.trilha : null;
+  const destinoDoTopico = trilha ? destinoDaTrilha(trilha) : null;
+  // Na espera, com tópico para hoje, a ação do dia é o tópico: o resultado do dia 1 vira o botão
+  // de contorno. Fora da espera, a ação do roteiro (o reteste, por exemplo) continua na frente.
+  const topicoNaFrente = espera !== null && destinoDoTopico !== null;
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
+        {/* Com a contagem do reteste e a trilha diária, a home passa da altura de um celular. */}
+        <ScrollView contentContainerStyle={styles.conteudo} showsVerticalScrollIndicator={false}>
         <View style={styles.saudacao}>
           <ThemedText type="title">Olá, {perfil?.apelido}</ThemedText>
           <ThemedText themeColor="textSecondary">
@@ -118,17 +128,38 @@ export default function HomeScreen() {
                 )
               )}
               {/* Sem destino (SUS ainda sem tela, roteiro concluído), o botão fica apagado. */}
-              <BotaoPrincipal
-                rotulo={espera ? TEXTOS.verResultadoDoDia1 : TEXTOS.continuarEstudos}
-                carregando={estado.tipo === 'carregando'}
-                desabilitado={estado.tipo === 'pronto' && !destino}
-                onPress={() => {
-                  if (destino) abrir(destino);
-                }}
-              />
+              {topicoNaFrente ? (
+                <BotaoSecundario
+                  rotulo={TEXTOS.verResultadoDoDia1}
+                  onPress={() => {
+                    if (destino) abrir(destino);
+                  }}
+                />
+              ) : (
+                <BotaoPrincipal
+                  rotulo={espera ? TEXTOS.verResultadoDoDia1 : TEXTOS.continuarEstudos}
+                  carregando={estado.tipo === 'carregando'}
+                  desabilitado={estado.tipo === 'pronto' && !destino}
+                  onPress={() => {
+                    if (destino) abrir(destino);
+                  }}
+                />
+              )}
             </>
           )}
         </View>
+
+        {estado.tipo === 'pronto' && (
+          <CartaoDaTrilha
+            trilha={estado.trilha}
+            sequencia={estado.sequencia}
+            nomes={estado.nomes}
+            principal={topicoNaFrente}
+            aoAbrir={() => {
+              if (destinoDoTopico) abrir(destinoDoTopico);
+            }}
+          />
+        )}
 
         <ThemedText type="small" themeColor="textSecondary">
           {TEXTOS.trilhas}
@@ -191,6 +222,7 @@ export default function HomeScreen() {
         <Pressable accessibilityRole="button" onPress={sair} style={styles.sair}>
           <ThemedText type="linkPrimary">{TEXTOS.sair}</ThemedText>
         </Pressable>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -204,12 +236,16 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+    maxWidth: MaxContentWidth,
+  },
+  // `flexGrow` deixa o "Sair" no pé da tela quando o conteúdo é curto; quando é longo, rola.
+  conteudo: {
+    flexGrow: 1,
     paddingTop: Spacing.four,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.three,
     alignItems: 'stretch',
     gap: Spacing.three,
-    maxWidth: MaxContentWidth,
   },
   saudacao: {
     gap: Spacing.one,

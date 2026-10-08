@@ -82,6 +82,19 @@ export const TEXTOS = {
     erroAoCarregarDia1: 'Não foi possível carregar o seu resultado. Confira a conexão e tente de novo.',
     paginaNaoExiste: 'Essa página não existe.',
     paginaNaoExisteDetalhe: 'O endereço pode ter mudado ou ter sido digitado errado.',
+    topicoDeHoje: 'Tópico de hoje',
+    trilhaDiaria: 'Trilha diária',
+    comecar: 'Começar',
+    continuar: 'Continuar',
+    feitoPorHoje: 'Feito por hoje.',
+    trilhaComecaAmanha: 'Começa amanhã.',
+    trilhaConcluida: 'Você concluiu a trilha diária.',
+    sequenciaMantida: 'Sequência mantida!',
+    sequenciaIniciada: 'Sequência iniciada!',
+    liberaAmanha: 'Libera amanhã. Volte para manter a sequência.',
+    proximoTopico: 'Próximo tópico',
+    voltarParaOInicio: 'Voltar para o início',
+    erroAoCarregarSequencia: 'Não foi possível carregar a sua sequência. Confira a conexão e tente de novo.',
     continuarEstudos: 'Continuar estudos',
     proximaEtapa: 'Próxima etapa',
     trilhas: 'Trilhas',
@@ -158,6 +171,34 @@ export function contagemDoReteste(diasRestantes: number): { rotulo: string; dest
         ? { rotulo: 'Seu reteste abre', destaque: 'amanhã' }
         : { rotulo: 'Seu reteste abre em', destaque: `${diasRestantes} dias` };
 }
+
+/** "Sequência: 3 dias", para o selo da home. */
+export function formatarSequencia(dias: number): string {
+    return `Sequência: ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+}
+
+/** "dia seguido" ou "dias seguidos", sob o número grande da tela da sequência. */
+export function diasSeguidos(dias: number): string {
+    return dias === 1 ? 'dia seguido' : 'dias seguidos';
+}
+
+/** "Cartão curto e 6 questões": o tamanho do tópico de hoje. */
+export function tamanhoDoTopico(questoes: number): string {
+    return `Cartão curto e ${questoes} ${questoes === 1 ? 'questão' : 'questões'}`;
+}
+
+/** "Prática · 2 de 6": onde a pessoa parou no tópico de hoje. */
+export function progressoDoTopico(respondidas: number, total: number): string {
+    return `Prática · ${respondidas} de ${total}`;
+}
+
+/** "Você acertou 5 de 6 questões de UX/UI em jogos." */
+export function acertosDoTopico(acertos: number, total: number, topico: string): string {
+    return `Você acertou ${acertos} de ${total} questões de ${topico}.`;
+}
+
+// Abreviações para as bolinhas da semana, na tela da sequência (0 = domingo).
+export const DIA_ABREVIADO = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'] as const;
 
 const DIAS_DA_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 

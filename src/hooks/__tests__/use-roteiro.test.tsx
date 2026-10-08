@@ -91,6 +91,7 @@ describe('useRoteiro', () => {
             nomeDoTopico: null,
             trilha: { tipo: 'fechada' },
             sequencia: 0,
+            semana: [],
             nomes: { mda: 'Framework MDA', gdd: 'GDD' },
         });
     });

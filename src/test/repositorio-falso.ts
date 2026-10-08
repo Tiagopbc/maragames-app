@@ -31,6 +31,11 @@ export class RepositorioFalso implements ProgressRepository {
 
     private relogio = 1_000;
 
+    /** Põe o "horário do servidor" das próximas gravações onde o teste precisa (em ms). */
+    acertarRelogio(ms: number): void {
+        this.relogio = ms;
+    }
+
     reiniciar(): void {
         this.licoes = [];
         this.questoes = [];

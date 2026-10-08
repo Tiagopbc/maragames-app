@@ -7,7 +7,7 @@ import { repositorio } from '@/data/repositorio';
 import { topicosDaTrilha, topicosMedidos } from '@/lib/bloco';
 import type { Participante } from '@/lib/participante';
 import { etapaDoRoteiro, terminoDoPos, type Etapa } from '@/lib/roteiro';
-import { estadoDaTrilha, sequenciaDeDias, type Trilha } from '@/lib/trilha';
+import { estadoDaTrilha, semanaDoPiloto, sequenciaDeDias, type DiaDaSemana, type Trilha } from '@/lib/trilha';
 
 export interface EntradaDoRoteiroDoAluno {
     uid: string;
@@ -24,6 +24,7 @@ export type EstadoDoRoteiro =
           nomeDoTopico: string | null; // nome só na etapa de estudo
           trilha: Trilha; // a trilha diária corre ao lado do roteiro, do fim do pós em diante
           sequencia: number; // dias seguidos com resposta
+          semana: DiaDaSemana[]; // os sete dias da tela da sequência; vazia antes do fim do pós
           nomes: Record<string, string>; // título de cada tópico, por id
       };
 
@@ -61,11 +62,12 @@ export function useRoteiro({ uid, participante, relogio = Date.now }: EntradaDoR
                 susRespondidoEm,
                 agora,
             });
+            const fimDoPos = terminoDoPos({ respostas, questoes, topicos: medidos, formaPre });
             const trilha = estadoDaTrilha({
                 respostas,
                 questoes,
                 topicos: topicosDaTrilha(questoes, ids),
-                fimDoPos: terminoDoPos({ respostas, questoes, topicos: medidos, formaPre }),
+                fimDoPos,
                 agora,
             });
             const nomeDoTopico =
@@ -76,6 +78,7 @@ export function useRoteiro({ uid, participante, relogio = Date.now }: EntradaDoR
                 nomeDoTopico,
                 trilha,
                 sequencia: sequenciaDeDias(respostas, agora),
+                semana: fimDoPos === null ? [] : semanaDoPiloto(respostas, fimDoPos, agora),
                 nomes: Object.fromEntries(topicos.map((t) => [t.id, t.titulo])),
             };
         } catch (e) {

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -28,13 +28,19 @@ import { SeletorConfianca } from './seletor-confianca';
 
 const LETRAS = 'ABCD';
 
+// O que a tela do fim de um tópico da trilha precisa saber do bloco que terminou.
+export type FimDaTrilha = { topicId: string; acertos: number; total: number };
+
 type TelaDoBlocoProps = EntradaDoBloco & {
     aoSair: () => void; // fecha a tela; quem navega é a rota
+    // O fim da prática de um tópico da trilha diária é a tela da sequência (item 23). Quem a
+    // monta é a rota, que conhece o participante; sem ela, vale o resultado de sempre.
+    fimDaTrilha?: (fim: FimDaTrilha) => ReactNode;
 };
 
 // A tela inteira de um bloco: cabeçalho, a pergunta da vez e o fim. Não sabe de onde os dados
 // vêm (isso é do hook) nem para onde a navegação vai (isso é da rota).
-export function TelaDoBloco({ aoSair, ...entrada }: TelaDoBlocoProps) {
+export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProps) {
     const theme = useTheme();
     const { estado, titulo, confirmar, avancar, tentarDeNovo } = useBloco(entrada);
     const naQuestao = estado.tipo === 'pergunta' || estado.tipo === 'feedback';
@@ -90,7 +96,17 @@ export function TelaDoBloco({ aoSair, ...entrada }: TelaDoBlocoProps) {
                 )}
 
                 {/* Fim do bloco: o resultado, calculado das respostas (M4). */}
-                {estado.tipo === 'concluido' && estado.relatorio && (
+                {estado.tipo === 'concluido' &&
+                    estado.relatorio &&
+                    estado.relatorio.topicoDaTrilha !== null &&
+                    fimDaTrilha &&
+                    fimDaTrilha({
+                        topicId: estado.relatorio.topicoDaTrilha,
+                        acertos: estado.relatorio.resultado.acertos,
+                        total: estado.relatorio.resultado.total,
+                    })}
+
+                {estado.tipo === 'concluido' && estado.relatorio && !(estado.relatorio.topicoDaTrilha !== null && fimDaTrilha) && (
                     <>
                         <ScrollView contentContainerStyle={styles.conteudo}>
                             <ResultadoDoBloco relatorio={estado.relatorio} medido={!faseTemFeedback(entrada.fase)} />
