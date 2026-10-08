@@ -272,7 +272,6 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Antes de qualquer coisa**
 
 - Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
-- Rodar o seed com o conteúdo novo (`npm run seed:conteudo`), que veio do `main` em 08/10: 9 tópicos e 70 questões. O banco ainda tem a versão de 06/10, com 4 tópicos e 40 questões.
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
@@ -281,7 +280,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
-- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
+- Sobras do seed antigo no banco (item 21): restam 3 questões fora do JSON, sem versão de conteúdo. A lição 5, que estava solta, foi reaproveitada pelo seed de 08/10 como "Efeitos sonoros". Decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
 **Para a sessão 2 (reteste entre 06/11 e 10/11)**
 
@@ -289,7 +288,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Trilha diária, dias 2 a 6 (M5, item 23)**
 
-- Ver a trilha no app de verdade: a regra, a home e a tela da sequência estão no código e nos testes, mas o banco ainda não tem os cinco tópicos. Depende do seed novo (acima).
+- Ver desenhadas a prática de um tópico da trilha e a tela da sequência: só os testes as cobrem. Precisa responder as 6 questões de um tópico numa conta que esteja na espera.
 - Lembrar o participante de voltar: hoje é por mensagem no grupo da turma (item 19); notificação está fora do escopo.
 
 **
@@ -328,6 +327,8 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Seed com o conteúdo novo rodado pelo Tiago (versão `f870c2d83e2b`): 9 lições, com `ordem` e `trilha`, e 70 questões. Conferido no banco.
+- Trilha diária vista no app, na web, com a conta do Tiago (pós em 06/10): a home mostra "Tópico de hoje" com "GDD: o documento do jogo" e "Começar", e "Ver meu resultado do dia 1" como botão de contorno; o cartão do GDD abre, com 4 slides; `/cartao/ux_ui_jogos` e `/bloco/pratica?topicId=publicando_steam` voltam para a home.
 - Trilha diária no app (item 23): fila de um tópico por dia, sequência de dias, cartão "Tópico de hoje" na home, tela da sequência no fim do tópico e a trava estendida aos tópicos da trilha.
 - Home refaz a conta do roteiro quando o app volta do segundo plano (item 22), apontado na revisão automática do pull request nº 5.
 - Login num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): a logo em SVG aparece, sobre o círculo branco, e a fonte está certa. Ao carregar, o Expo Go mostra o ícone novo, com a logo.
