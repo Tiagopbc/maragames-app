@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, estado de acessibilidade em `aria-*` e botões do cadastro e do perfil; em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*` e botões do cadastro e do perfil; em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -245,9 +245,9 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Endereço que não existe (por exemplo `/explore`) mostra a tela padrão do Expo, em inglês ("Unmatched Route"), com link para o mapa de rotas. Falta uma tela própria, em português, que leve de volta à home. Só aparece na web.
-- Roteiro do dia 1 com uma conta nova, depois da identidade visual: consentimento com o mascote, feedback de acerto e de erro na prática e o rodapé travado no feedback ainda não foram vistos desenhados. Precisa de uma conta criada pelo Tiago.
 - Animação de abertura: ainda é a do template, com a logo do Expo e os azuis dele (`src/components/animated-icon.tsx` e a cor da tela de abertura no `app.json`). É a única exceção do teste que barra cor fora do tema.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
+- Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): 3 questões fora do JSON e a lição 5, sem tópico. Não atrapalham o roteiro; decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
 
@@ -283,6 +283,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 - Ordem dos tópicos no dia 1: o item 23 diz MDA, Pixel Art, Engine, Lógica; o `lessonOrder` de `content/topicos.json` está MDA, Engine, Lógica, Pixel Art, e é essa a ordem que o app segue; o item 22 cita Pixel Art como último. Definir uma só e alinhar o JSON.
 - Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
 - Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
+- Texto das explicações (M6): a explicação da alternativa certa começa com "Correto.". Quando a pessoa erra, ela aparece sob "Resposta certa" e fica "Resposta certa: Correto. Expressão é...". Rever a redação na revisão do conteúdo.
 - Conteúdo (M6): quem escreve e quem revisa cada tópico (proposta: autor diferente do revisor, rascunhos com apoio de IA revisados pelo grupo). Prazo de 23/10 inclui a trilha diária.
 - Piloto (M8): número e perfil dos participantes (proposta: colegas da UNDB, voluntários e sem nota, meta de pelo menos 15), versão em português do SUS e se haverá pergunta aberta. Comitê de ética e LGPD ficam de lado por ora, por decisão do grupo em 05/10 (público controlado de colegas adultos).
 
@@ -293,6 +294,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Roteiro do dia 1 percorrido com uma conta nova (apelido Tiagopbc), depois da identidade visual e da trava, na web, no Chrome do Tiago, em tema escuro e largura de computador: termo com o mascote, pré-teste (12 questões sem nenhum feedback, com saída no meio pelo X e retomada na questão 6), cartão e prática dos quatro tópicos (feedback de acerto com "+3 XP" e selo Firme; feedback de erro com a escolhida em vermelho, a certa em verde, "−4 XP", selo Ponto cego e as duas explicações; confiança travada no rodapé), pós-teste e espera ("7 dias", de quinta, 15/10, a sábado, 17/10). No estudo do MDA, `/cartao/pixel_art_basico` voltou para a home. No banco: 40 respostas com os onze campos, `correta` igual ao gabarito em todas, pré na forma B e pós na forma A, seis tentativas concluídas, contador em 2.
 - Validação de 08/10: `npm test` (394), `npx tsc --noEmit` e `npm run test:regras` (25) passando. Na web, no Chrome do Tiago, em tema escuro e com a conta dele na espera: home com a contagem, "Seu dia 1", saída pelo X, `/cartao/mda_framework`, `/bloco/pratica?topicId=mda_framework` e `/bloco/pratica` voltando para a home, e a tela da pergunta com o rodapé inteiro à vista em 440×956.
 - Estado de acessibilidade na web (item 25): alternativa e confiança marcadas, caixa do termo, botão ocupado, barra de progresso e avisos passaram para as props `aria-*`. As antigas não chegavam à página.
 - Cadastro e perfil com os botões do tema, que tinham ficado no estilo antigo; as opções de experiência ganharam borda, porque só o fundo quase não se distinguia no tema claro (item 28).
@@ -358,6 +360,8 @@ Revisto em 07/10 (trava). A trava do roteiro (item 23) é testada em três altur
 Revisto em 07/10 (espera). A espera do reteste (item 23) tem teste nas mesmas três alturas: as funções puras de data e de texto, incluindo a virada do dia no fuso de São Luís e o "no sábado" e "no domingo"; a tela "Seu dia 1" sobre o repositório em memória (só o pós entra na conta, nenhum enunciado aparece, tópico da trilha não é travado, falha de leitura deixa tentar de novo); e as rotas reais, da home na espera até `/dia-1`, e `/dia-1` antes do pós voltando para a home.
 
 Revisto em 08/10. Mais um teste de varredura, `src/__tests__/acessibilidade-na-web.test.js`: nenhuma tela usa as props de acessibilidade que não chegam à web (item 25). E o Jest das regras passou a ignorar `.claude/`, como o `npm test` já fazia.
+
+Revisto em 08/10 (embaralhamento). `embaralhar.test.ts` ganhou um teste de uniformidade: em 4.000 sorteios por fase, cada alternativa cai em cada posição entre 22% e 28% das vezes. Veio de uma dúvida da validação: uma conta de teste teve a alternativa certa 7 vezes em 12 na posição D, no pós. Era acaso, e agora há teste que diz isso.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 

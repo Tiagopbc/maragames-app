@@ -76,4 +76,27 @@ describe('ordemDasAlternativas', () => {
         expect(ordemDasAlternativas('uid-1', 'q', 'pos', ['a'])).toEqual(['a']);
         expect(ordemDasAlternativas('uid-1', 'q', 'reteste', ['a'])).toEqual(['a']);
     });
+
+    // A análise confere efeito de posição (item 22): o sorteio não pode favorecer uma letra.
+    it.each(['pre', 'pratica', 'pos', 'reteste'] as const)(
+        'na fase %s, cada alternativa cai em cada posição perto de um quarto das vezes',
+        (fase) => {
+            const ids = ['a', 'b', 'c', 'd'];
+            const vezes = 4000;
+            // contagem[id][posição]
+            const contagem: Record<string, number[]> = Object.fromEntries(ids.map((id) => [id, [0, 0, 0, 0]]));
+
+            for (let n = 0; n < vezes; n++) {
+                const ordem = ordemDasAlternativas(`uid${n}`, `questao_${n % 40}`, fase, ids);
+                ordem.forEach((id, posicao) => contagem[id][posicao]++);
+            }
+
+            for (const id of ids) {
+                for (const total of contagem[id]) {
+                    expect(total / vezes).toBeGreaterThan(0.22);
+                    expect(total / vezes).toBeLessThan(0.28);
+                }
+            }
+        }
+    );
 });
