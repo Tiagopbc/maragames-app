@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, e abertura e ícone com a logo; em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7) e cálculo de retenção (item 23); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -55,6 +55,8 @@ Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/a
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
 O layout raiz (`src/app/_layout.tsx`) usa `Stack.Protected` com três guards mutuamente exclusivos: deslogado (sign-in/sign-up), logado sem perfil (complete-profile) e logado com perfil completo (grupo `(app)`). Nenhuma tela chama `router.push` depois de login ou de salvar o perfil: a tela muda porque o estado do `SessionProvider` mudou. Rota com guard falso deixa de existir, então nem pela URL na web dá pra abrir a área logada sem sessão. O `isLoading` segura a renderização até o Firebase restaurar a sessão e o perfil ser lido, evitando que o login ou o complete-profile "pisquem".
+
+Revisto em 08/10 (endereço que não existe). Entrou `src/app/+not-found.tsx`: "Essa página não existe." e "Voltar ao início", no lugar da tela padrão do Expo Router, que é em inglês. O botão escolhe o destino pelo estado da sessão (login, perfil ou home), pela mesma razão do resto deste item: a home é protegida, e mandar para ela quem não entrou não sai do lugar. Foi o teste que mostrou isso. O mapa de rotas do Expo Router (`/_sitemap`), que lista todos os endereços do app, foi desligado no `app.json`; no servidor de desenvolvimento ele pode continuar aparecendo até limpar o cache, mas o build web gerado não tem a página.
 
 ## 8. Perfil no Firestore, Auth só para credencial
 
@@ -232,19 +234,29 @@ Revisto em 07/10 (espera do reteste). A espera ganhou tela, em duas partes, sem 
 
 Ficou de fora o "Tópico de hoje" da trilha diária, que depende do conteúdo. Um ponto para o grupo ver: o resultado traz a seção "O que revisar primeiro" logo acima de "Travados até o reteste", o que pede revisão de tópicos que estão travados.
 
+Revisto em 08/10 (retenção). O cálculo ficou em `src/lib/retencao.ts`, função pura: `retencao(respostas, questoes)` compara o pós com o reteste, questão a questão, e devolve a razão entre os acertos do reteste e os do pós, no geral e por tópico, e o indicador central deste item: dos acertos do pós, quantos continuam certos no reteste, separando os que eram Firmes dos Frágeis. Quatro escolhas:
+
+- **Só entram as questões respondidas nas duas fases.** Quem parou o reteste no meio é comparado no que respondeu; as que faltam não contam como esquecidas.
+- **Pós sem acerto dá razão indefinida (`null`), e não zero.** Não havia o que reter.
+- **A razão pode passar de 1**, quando a pessoa acerta no reteste o que errou no pós. O número fica como é; quem interpreta é a análise.
+- **O quadrante que vale é o do pós.** A confiança declarada no reteste não entra na separação entre Firme e Frágil.
+
+Não aparece em tela nenhuma: serve ao script de exportação (M7) e à análise.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
 
 **Antes de qualquer coisa**
 
-- Abrir o pull request da branch `feat/roteiro-do-piloto` (ainda sem push). Em 07/10 o Tiago deixou push e pull request para depois.
+- Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
+- Rodar o seed com o conteúdo novo (`npm run seed:conteudo`), que veio do `main` em 08/10: 9 tópicos e 70 questões. O banco ainda tem a versão de 06/10, com 4 tópicos e 40 questões.
+- O app ainda ordena os tópicos por `lessonOrder`. O campo `ordem`, que veio do `main` com a ordem decidida pelo grupo (MDA, Pixel Art, Engine, Lógica), ainda não é lido por `ordenarLicoes`. Enquanto não for, o dia 1 segue MDA, Engine, Lógica, Pixel Art.
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
 - Conferir num aparelho de verdade (Expo Go) o rodapé fixo da pergunta e a home sem abas: na web em tamanho de celular já foram vistos (resolvidas em 07/10). Falta também ver o rodapé travado no feedback da prática, que a conta de teste não tem mais como abrir.
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
-- Endereço que não existe (por exemplo `/explore`) mostra a tela padrão do Expo, em inglês ("Unmatched Route"), com link para o mapa de rotas. Falta uma tela própria, em português, que leve de volta à home. Só aparece na web.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma mais uma tentativa de reteste aberta na do Tiago, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
@@ -253,11 +265,9 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 **Para a sessão 2 (reteste entre 06/11 e 10/11)**
 
 - Tela do SUS (M8). `susRespondidoEm` ainda não existe no tipo `Perfil` nem no `firestore.rules`; entra com ela. Sem a tela, o roteiro para em "Falta o questionário final".
-- Cálculo de retenção, do pós para o reteste (M5).
 
 **Trilha diária, dias 2 a 6 (M5, item 23)**
 
-- Conteúdo dos cinco tópicos: `content/` só tem os quatro medidos (40 questões). A rota fala em nove tópicos com rascunho pronto, mas os da trilha não estão no repositório.
 - Limite de um tópico por dia, sequência de dias e tela "volte amanhã".
 
 **Restante do M4 (item 27)**
@@ -279,7 +289,6 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
 - Resultado do dia 1 (item 23): a seção "O que revisar primeiro" aparece junto de "Travados até o reteste". Decidir se ela some nessa tela ou se o texto muda para "revisar depois do reteste".
-- Ordem dos tópicos no dia 1: o item 23 diz MDA, Pixel Art, Engine, Lógica; o `lessonOrder` de `content/topicos.json` está MDA, Engine, Lógica, Pixel Art, e é essa a ordem que o app segue; o item 22 cita Pixel Art como último. Definir uma só e alinhar o JSON.
 - Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
 - Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
 - Texto das explicações (M6): a explicação da alternativa certa começa com "Correto.". Quando a pessoa erra, ela aparece sob "Resposta certa" e fica "Resposta certa: Correto. Expressão é...". Rever a redação na revisão do conteúdo.
@@ -293,6 +302,11 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 08/10**
 
+- Pull request nº 5 aberto, com o `main` já trazido para a branch. O único conflito foi `assets/images/logo-beast.svg`, criado nos dois lados com o mesmo desenho; ficou a versão com a cor escrita em cada caminho.
+- Conteúdo da trilha diária no repositório (veio do `main`): GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração e Publicando na Steam, com cartão de 4 slides e 6 questões de prática cada.
+- Ordem dos tópicos no dia 1 decidida pelo grupo e gravada no conteúdo, no campo `ordem` (falta o app usar; ver acima).
+- Tela própria para endereço que não existe, em português, e mapa de rotas do Expo Router desligado (item 7).
+- Cálculo de retenção, do pós para o reteste, em função pura (item 23).
 - Abertura e ícone do app (item 28): saiu a animação do template, com a logo do Expo; o ícone, o favicon e a tela de abertura passaram a ser a logo da Beast Maragames. Conferido na web (o app abre sem a animação e o favicon novo é servido); ícone e tela de abertura no celular só aparecem num build próprio, que ainda não foi feito.
 - Roteiro do dia 1 percorrido com uma conta nova (apelido Tiagopbc), depois da identidade visual e da trava, na web, no Chrome do Tiago, em tema escuro e largura de computador: termo com o mascote, pré-teste (12 questões sem nenhum feedback, com saída no meio pelo X e retomada na questão 6), cartão e prática dos quatro tópicos (feedback de acerto com "+3 XP" e selo Firme; feedback de erro com a escolhida em vermelho, a certa em verde, "−4 XP", selo Ponto cego e as duas explicações; confiança travada no rodapé), pós-teste e espera ("7 dias", de quinta, 15/10, a sábado, 17/10). No estudo do MDA, `/cartao/pixel_art_basico` voltou para a home. No banco: 40 respostas com os onze campos, `correta` igual ao gabarito em todas, pré na forma B e pós na forma A, seis tentativas concluídas, contador em 2.
 - Validação de 08/10: `npm test` (394), `npx tsc --noEmit` e `npm run test:regras` (25) passando. Na web, no Chrome do Tiago, em tema escuro e com a conta dele na espera: home com a contagem, "Seu dia 1", saída pelo X, `/cartao/mda_framework`, `/bloco/pratica?topicId=mda_framework` e `/bloco/pratica` voltando para a home, e a tela da pergunta com o rodapé inteiro à vista em 440×956.
@@ -364,6 +378,8 @@ Revisto em 08/10. Mais um teste de varredura, `src/__tests__/acessibilidade-na-w
 Revisto em 08/10 (embaralhamento). `embaralhar.test.ts` ganhou um teste de uniformidade: em 4.000 sorteios por fase, cada alternativa cai em cada posição entre 22% e 28% das vezes. Veio de uma dúvida da validação: uma conta de teste teve a alternativa certa 7 vezes em 12 na posição D, no pós. Era acaso, e agora há teste que diz isso.
 
 Revisto em 08/10 (abertura). O teste de cores ficou sem exceção nenhuma, e entrou `src/__tests__/identidade-do-app.test.js`, que lê o `app.json`: as imagens do ícone, do favicon e da tela de abertura existem, nenhuma é a do template, nenhuma cor é o azul do Expo, e o fundo da tela de abertura é o do tema, no claro e no escuro. O teste de navegação passou a conferir que a tela de abertura só é escondida quando a fonte está pronta.
+
+Revisto em 08/10 (retenção e rotas). `retencao.test.ts` cobre as bordas que mudam o número: pós com zero acertos, reteste pela metade, resposta repetida na mesma fase, questão de fora do bloco e a confiança do reteste não contaminando o quadrante. O teste de navegação ganhou o endereço que não existe, logado e deslogado; o do `app.json` confere que o mapa de rotas está desligado.
 
 ## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
 
