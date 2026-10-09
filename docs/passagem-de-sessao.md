@@ -4,7 +4,7 @@ Resumo para continuar o trabalho em outra conversa, sem depender do histórico d
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24 e 29 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24 e 30 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
