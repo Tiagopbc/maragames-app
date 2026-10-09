@@ -1,5 +1,13 @@
 import type { Answer, BlocoQuestao, Confianca, Fase, Question, Topico } from '../../types/domain';
-import { exportarPiloto, ganhoNormalizado, paraCsv, type DadosDoPiloto, type PerfilDoExport } from '../exportacao';
+import {
+    arquivosDaExportacao,
+    exportarPiloto,
+    ganhoNormalizado,
+    paraCsv,
+    pastaDaExportacao,
+    type DadosDoPiloto,
+    type PerfilDoExport,
+} from '../exportacao';
 
 /** Horário de São Luís (UTC−3) em milissegundos. Ex.: em('2026-10-30 20:00'). */
 function em(dataHora: string): number {
@@ -380,5 +388,40 @@ describe('paraCsv', () => {
 
     it('sem linhas, devolve só a marca', () => {
         expect(paraCsv([])).toBe('\uFEFF');
+    });
+});
+
+// Duas rodadas no mesmo dia, com filtros diferentes, não podem escrever uma por cima da outra.
+describe('pastaDaExportacao', () => {
+    it('sem filtro, é o dia da rodada', () => {
+        expect(pastaDaExportacao('2026-11-12')).toBe('2026-11-12');
+    });
+
+    it('com filtro, leva a data do filtro no nome', () => {
+        expect(pastaDaExportacao('2026-11-12', '2026-10-30')).toBe('2026-11-12-desde-2026-10-30');
+    });
+});
+
+describe('arquivosDaExportacao', () => {
+    it('com participantes, são os cinco arquivos, cada um com o seu conteúdo', () => {
+        const arquivos = arquivosDaExportacao(exportado());
+
+        expect(arquivos.map((a) => a.nome)).toEqual([
+            'eventos.csv',
+            'participantes.csv',
+            'questoes.csv',
+            'resumo.md',
+            'chave.csv',
+        ]);
+        expect(arquivos[1].conteudo).toBe(paraCsv(exportado().participantes));
+        expect(arquivos[3].conteudo).toBe(exportado().resumo);
+    });
+
+    // Um filtro que não pega ninguém gravava arquivos vazios, sem avisar, por cima dos de antes.
+    it('sem participantes, não há arquivo nenhum para gravar', () => {
+        const ninguem = exportarPiloto(DADOS, { desde: em('2027-01-01 00:00') });
+
+        expect(ninguem.participantes).toHaveLength(0);
+        expect(arquivosDaExportacao(ninguem)).toEqual([]);
     });
 });

@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -279,13 +279,14 @@ Revisto em 08/10 (exportação). O script de exportação está em `scripts/expo
 
 O script não faz teste estatístico nem gráfico, e ainda não tem o SUS.
 
+Revisto em 09/10. Dois ajustes depois de rodar o script com o filtro: a pasta passou a ser `exportacao/AAAA-MM-DD-desde-AAAA-MM-DD` quando há `--desde`, para a rodada filtrada não escrever por cima da completa; e, se ninguém entra no filtro, o script avisa e não grava arquivo nenhum. O que gravar e com que nome saiu do script para duas funções puras (`pastaDaExportacao` e `arquivosDaExportacao`), com teste.
+
 ## 24. Pendências que travam o piloto
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
 
 **Antes de qualquer coisa**
 
-- Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
@@ -337,6 +338,11 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
+
+**Resolvidas em 09/10**
+
+- Pull request nº 5 integrado ao `main` pelo Tiago. O trabalho novo parte do `main`, em branch própria.
+- Exportação: a pasta leva a data do filtro no nome, e um filtro que não pega ninguém avisa e não grava nada (item 23). Antes, duas rodadas no mesmo dia escreviam uma por cima da outra, e a segunda, vazia, apagou os arquivos da primeira.
 
 **Resolvidas em 08/10**
 

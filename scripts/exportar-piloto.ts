@@ -6,7 +6,10 @@
 // Uso:
 //   npm run exportar                         todo mundo que aceitou o termo
 //   npm run exportar -- --desde 2026-10-30   só quem aceitou a partir desse dia (sem as contas de teste)
-//   npm run exportar -- --saida pasta        escolhe a pasta (padrão: exportacao/AAAA-MM-DD)
+//   npm run exportar -- --saida pasta        escolhe a pasta
+//
+// Sem --saida, grava em exportacao/AAAA-MM-DD, ou em exportacao/AAAA-MM-DD-desde-AAAA-MM-DD
+// quando há filtro. Se ninguém entra no filtro, avisa e não grava nada.
 //
 // Gera eventos.csv, participantes.csv, questoes.csv e resumo.md, que podem ser enviados, e
 // chave.csv, que liga cada código ao nome e NÃO sai do grupo.
@@ -25,7 +28,7 @@ import {
     paraQuestion,
     topicosDasLicoes,
 } from '../src/data/mapeadores';
-import { exportarPiloto, paraCsv, type PerfilDoExport } from '../src/lib/exportacao';
+import { arquivosDaExportacao, exportarPiloto, pastaDaExportacao, type PerfilDoExport } from '../src/lib/exportacao';
 
 function argumento(nome: string): string | undefined {
     const i = process.argv.indexOf(`--${nome}`);
@@ -74,15 +77,20 @@ async function main() {
         { desde }
     );
 
-    const hoje = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const pasta = argumento('saida') ?? join(raiz, 'exportacao', hoje);
-    mkdirSync(pasta, { recursive: true });
+    const arquivos = arquivosDaExportacao(exportado);
+    if (arquivos.length === 0) {
+        console.log(
+            desdeTexto
+                ? `Ninguém aceitou o termo a partir de ${desdeTexto}: nada foi exportado.`
+                : 'Ninguém aceitou o termo ainda: nada foi exportado.'
+        );
+        return;
+    }
 
-    writeFileSync(join(pasta, 'eventos.csv'), paraCsv(exportado.eventos));
-    writeFileSync(join(pasta, 'participantes.csv'), paraCsv(exportado.participantes));
-    writeFileSync(join(pasta, 'questoes.csv'), paraCsv(exportado.questoes));
-    writeFileSync(join(pasta, 'resumo.md'), exportado.resumo);
-    writeFileSync(join(pasta, 'chave.csv'), paraCsv(exportado.chave));
+    const hoje = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const pasta = argumento('saida') ?? join(raiz, 'exportacao', pastaDaExportacao(hoje, desdeTexto));
+    mkdirSync(pasta, { recursive: true });
+    for (const arquivo of arquivos) writeFileSync(join(pasta, arquivo.nome), arquivo.conteudo);
 
     console.log(`Exportado em ${pasta}`);
     console.log(`  participantes: ${exportado.participantes.length}${desdeTexto ? ` (aceite a partir de ${desdeTexto})` : ''}`);
