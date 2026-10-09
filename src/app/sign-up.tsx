@@ -1,11 +1,14 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
+import { BotaoPrincipal } from '@/components/botao-principal';
+import { BotaoSecundario } from '@/components/botao-secundario';
 import { CampoTexto } from '@/components/campo-texto';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { TEXTOS_DO_LOGIN } from '@/constants/textos';
 import { useSession } from '@/lib/session';
 import {
     tudoValido,
@@ -79,7 +82,7 @@ export default function SignUpScreen() {
                 </ThemedText>
 
                 <CampoTexto
-                    rotulo="Email"
+                    rotulo={TEXTOS_DO_LOGIN.email}
                     erro={erros.email}
                     value={email}
                     onChangeText={setEmail}
@@ -123,24 +126,14 @@ export default function SignUpScreen() {
                     </ThemedText>
                 )}
 
-                <Pressable disabled={carregando} onPress={enviar}>
-                    <ThemedView
-                        type="backgroundSelected"
-                        style={[styles.botao, carregando && styles.desabilitado]}>
-                        {carregando ? (
-                            <ActivityIndicator />
-                        ) : (
-                            <ThemedText type="smallBold">Criar conta</ThemedText>
-                        )}
-                    </ThemedView>
-                </Pressable>
+                <BotaoPrincipal rotulo="Criar conta" carregando={carregando} onPress={enviar} />
 
                 {Platform.OS === 'web' && (
-                    <Pressable disabled={carregando} onPress={comGoogle}>
-                        <ThemedView type="backgroundElement" style={styles.botao}>
-                            <ThemedText type="smallBold">Continuar com Google</ThemedText>
-                        </ThemedView>
-                    </Pressable>
+                    <BotaoSecundario
+                        rotulo={TEXTOS_DO_LOGIN.entrarComGoogle}
+                        desabilitado={carregando}
+                        onPress={comGoogle}
+                    />
                 )}
 
                 <Link href="/sign-in">
@@ -154,12 +147,4 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     card: { width: '100%', maxWidth: 360, gap: Spacing.three, padding: Spacing.four },
-    botao: {
-        borderRadius: Spacing.three,
-        paddingVertical: Spacing.three,
-        minHeight: 48,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    desabilitado: { opacity: 0.5 },
 });

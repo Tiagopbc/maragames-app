@@ -1,24 +1,43 @@
+// Só a fase diz o que a resposta mede: a mesma questão é pré-teste para metade dos
+// participantes e pós-teste para a outra, e o reteste repete as questões do pós.
+export type Fase = 'pre' | 'pratica' | 'pos' | 'reteste';
+
+// Valor gravado no evento. Os rótulos ("Palpite", "Tenho dúvida", "Tenho certeza") ficam só na tela.
+export type Confianca = 1 | 2 | 3;
+
+// Forma que o participante faz no pré-teste; a outra fica para o pós e o reteste.
+export type FormaPre = 'A' | 'B';
+
 export interface Attempt {
     id: string;
-    userId: string;
-    lessonId: string;
+    uid: string;
+    fase: Fase; // não muda depois de criada
+    lessonId: string | null; // null nos blocos pré, pós e reteste, que atravessam os quatro tópicos
     respostas: string[]; // ids das questões já respondidas nesta tentativa
     concluida: boolean;
     createdAt: number;
 }
 
+// Evento imutável: uma resposta confirmada = um documento em `answers`, nunca atualizado.
+// Os campos são exatamente os que `respostaValida()` exige no firestore.rules. Mudou um, muda o outro.
 export interface Answer {
     id: string;
-    attemptId: string;
-    userId: string;
+    uid: string;
     questionId: string;
-    lessonId: string;
     topicId: string;
+    attemptId: string;
+    fase: Fase;
     escolha: string; // id da alternativa marcada
+    ordemExibida: string[]; // ids das 4 alternativas, na ordem em que apareceram na tela
     correta: boolean;
-    tempoMs: number;
-    timestamp: number;
+    confianca: Confianca;
+    tempoMs: number; // inteiro, do momento em que a questão aparece até o Confirmar
+    respondidaEm: number; // horário do servidor, em ms
 }
+
+// O que a tela entrega ao confirmar. `id` e `respondidaEm` não vêm do aparelho:
+// o Firestore gera o id e o servidor carimba o horário.
+export type NovaResposta = Omit<Answer, 'id' | 'respondidaEm'>;
 
 export interface Alternativa {
     id: string;
@@ -63,7 +82,15 @@ export interface Lesson {
     cartao?: SlideConceito[]; // cartão de conceito mostrado antes da prática
 }
 
-export type Experiencia = 'iniciante' | 'intermediario' | 'avancado';
+// Não tem coleção própria: sai da lição do tópico (uma lição por tópico no seed de conteúdo).
+export interface Topico {
+    id: string; // o `topicId` das questões e das respostas
+    titulo: string;
+    modulo: string | null;
+    ordem: number; // a ordem de apresentação da lição; sem ela, o número da lição
+}
+
+export type Experiencia ='iniciante' | 'intermediario' | 'avancado';
 
 export interface Perfil {
     uid: string;
@@ -74,9 +101,15 @@ export interface Perfil {
     instituicao: string;
     curso: string;
     experiencia: Experiencia;
+    // Os dois abaixo nascem juntos, no aceite do termo, e não mudam mais (item 22).
+    formaPre?: FormaPre; // forma do pré-teste, alternada pelo contador do piloto
+    consentiuEm?: number; // horário do servidor, em ms
     criadoEm: number;
     atualizadoEm: number;
 }
 
 // O que a tela de perfil preenche. O resto (uid, email, datas) o contexto deriva.
-export type DadosPerfil = Omit<Perfil, 'uid' | 'email' | 'criadoEm' | 'atualizadoEm'>;
+export type DadosPerfil = Omit<Perfil, 'uid' | 'email' | 'formaPre' | 'consentiuEm' | 'criadoEm' | 'atualizadoEm'>;
+
+// O que o aceite do termo grava no perfil.
+export type Consentimento = Required<Pick<Perfil, 'formaPre' | 'consentiuEm'>>;

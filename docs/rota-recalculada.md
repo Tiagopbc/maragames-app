@@ -62,18 +62,22 @@ Prova: um bloco completo gera um evento por questão no Firestore.
 Depende de: M1.
 Já existe no main (último commit em 25/09): tipos `Attempt`, `Answer` e `Question`; `ProgressRepository` com implementação em Firebase só de escrita (criar tentativa, gravar resposta, concluir); regras com `answers` imutável. Na branch `feat/conteudo-piloto`: pasta `content/` completa e `seed-conteudo.js`, que substitui o seed antigo de 3 questões.
 Falta: leitura de lições e questões, roteiro do piloto, tela da pergunta, tempo de resposta, retomar tentativa, resultado e ligar os atalhos da home, que hoje só fazem `console.log`. Nenhuma tela usa o repositório ainda.
+Atualizado em 06/10: o repositório lê lições, questões e respostas; a tela da pergunta (rota `bloco/[fase]`) grava um evento por confirmação, com tempo de resposta, e retoma de onde parou; "Continuar estudos" na home segue `etapaDoRoteiro`; a primeira etapa, o consentimento, tem tela e regras testadas no emulador; o estudo de cada tópico abre pelo cartão de conceito; e cada bloco termina no resultado (M4).
 
 **M3: Confiança declarada.** Seletor Palpite, Tenho dúvida e Tenho certeza, obrigatório antes de confirmar e antes do feedback. Textos num único arquivo de strings. Precisa rodar até 16/10, para os prints do relatório de evolução.
 Prova: todo evento novo tem acerto e confiança.
 Depende de: M2.
+Atualizado em 06/10: implementado. O seletor, o feedback da prática (certo ou errado, explicação, XP e selo do quadrante) e os textos em `src/constants/textos.ts` estão no código, cobertos por teste. Regras publicadas e conteúdo no banco em 06/10, e o roteiro do dia 1 foi percorrido com uma conta real: os 40 eventos gravados têm acerto e confiança. Os níveis de confiança, que ficavam abaixo da dobra em tela de celular, foram para um rodapé fixo; falta conferir no aparelho (item 24 das decisões).
 
 **M4: Diagnóstico do aluno.** Resultado com os quatro quadrantes, domínio por tópico, detalhe do tópico com calibração e lista de pontos cegos, e XP. A agregação é função pura, coberta por testes unitários.
 Prova: o app mostra aprendizado, não só conclusão, que é a dor da cliente.
 Depende de: M3.
+Atualizado em 06/10: o resultado do bloco está implementado (quadrantes, XP com saldo real, acerto por tópico e por confiança nos blocos medidos, e o que revisar primeiro), com a agregação em função pura e testada. Faltam "Meu domínio" e "Detalhe do tópico".
 
 **M5: Retenção e trilha diária.** Reteste dos quatro tópicos medidos de 7 a 9 dias após o pós, com esses tópicos travados até lá, e cálculo de retenção. Trilha diária nos dias 2 a 6: um tópico novo por dia de calendário, sequência de dias que zera se o aluno pular um dia (o tópico continua esperando) e tela "volte amanhã". A fila "Revisar hoje" fica para depois do piloto.
 Prova: o app mede se o aluno ainda lembra, o que separa aprendizagem de desempenho na sessão.
 Depende de: M4.
+Atualizado em 07/10: a trava está no código. Cartão, prática, pré, pós e reteste só abrem na etapa certa do roteiro, também para quem digita a URL na web (item 23 das decisões). A espera também: a home mostra a contagem e as datas do reteste, e `/dia-1` mostra o resultado do pós-teste com os tópicos travados. Atualizado em 08/10: o cálculo de retenção está em `src/lib/retencao.ts`, com testes, e o conteúdo dos cinco tópicos da trilha veio do `main`. A trilha diária também está no app (fila de um tópico por dia, sequência e tela da sequência no fim do tópico), coberta por teste; falta vê-la com o conteúdo de verdade, depois do seed novo.
 
 **M6: Banco de conteúdo (rascunho pronto).** Nove tópicos. Os quatro medidos, na ordem MDA, Pixel Art Básico, Escolhendo a Engine Certa e Lógica de Programação, têm 10 questões cada. Os cinco da trilha (GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração, Publicando na Steam) têm 6 questões de prática cada. Cada questão tem dificuldade de 1 a 3 (hipótese do autor) e explicação por alternativa; cada tópico tem um cartão de conceito. O conteúdo fica em `content/*.json`, e `npm run seed:conteudo` valida e espelha no Firestore.
 Prova: há questões suficientes para a métrica ter sinal.
@@ -82,6 +86,7 @@ Depende de: nada. Falta a revisão do grupo, até 23/10.
 **M7: Relatório e exportação.** Visão agregada por tópico e por questão (por exemplo, as questões com mais pontos cegos), gerada fora do app, e CSV por script com Admin SDK, com um código no lugar de nome e contato. O grupo exporta e envia à cliente; não há painel nem papel de administrador no app.
 Prova: dado real e consultável para o paper e para a cliente.
 Depende de: M4.
+Atualizado em 08/10: o script existe (`npm run exportar`) e gera os CSVs de eventos, participantes e questões, o resumo em texto e a chave do grupo. Falta rodar com os dados de verdade e incluir o SUS.
 
 **M8: Piloto e análise.** Sessão 1 (cerca de 30 min): consentimento, pré-teste sem feedback, estudo com cartão e prática, pós-teste sem feedback e relatório. Sessão 2, de 7 a 9 dias após o pós (cerca de 10 min): reteste com as mesmas questões do pós, alternativas reembaralhadas, e SUS. Formas A e B contrabalanceadas; respostas de prática marcadas e fora do ganho.
 Prova: resultados reais, com as limitações de amostra declaradas.
@@ -173,7 +178,6 @@ Abertos (ainda travam o piloto):
 - [ ] Quem escreve e quem revisa cada tópico (proposta: revisor diferente do autor, revisão até 23/10, incluindo a trilha diária).
 - [ ] Número e perfil dos participantes (proposta: pelo menos 15 colegas da UNDB, voluntários e sem nota).
 - [ ] Versão em português do SUS e se haverá pergunta aberta.
-- [ ] XP total: se pode ficar negativo (proposta: o saldo pode cair, mas o total exibido tem piso em 0).
 - [ ] Data exata do Incubators.
 
 Decididos em 04/10 e 05/10:
@@ -182,6 +186,7 @@ Decididos em 04/10 e 05/10:
 - [x] Continuidade entre dispositivos saiu do projeto; o Firebase fica; o DRDA entregue não será alterado.
 - [x] Domínio por acerto simples; confiança baixa são Palpite e Dúvida.
 - [x] XP pela pontuação por certeza de Gardner-Medwin (1/2/3 e 0/−1/−4), exibido só no fim dos blocos medidos.
+- [x] XP negativo (06/10): o saldo do bloco aparece como é; o piso em 0 vale só para o total acumulado.
 - [x] Pergunta: alternativa e confiança em qualquer ordem, Confirmar só com as duas, sem pular.
 - [x] Perfil completo obrigatório; código anônimo só na exportação.
 - [x] Home: formato de trilha livre, botão "Continuar estudos", demais trilhas travadas em cinza claro.

@@ -1,5 +1,14 @@
-import AppTabs from '@/components/app-tabs';
+import { Stack } from 'expo-router';
 
 export default function AppLayout() {
-  return <AppTabs />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      {/* Sem gesto de voltar: sair do bloco é só pelo X, para ninguém fechar a questão sem querer. */}
+      <Stack.Screen name="bloco/[fase]" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="consentimento" />
+      <Stack.Screen name="cartao/[topicId]" />
+      <Stack.Screen name="dia-1" />
+    </Stack>
+  );
 }

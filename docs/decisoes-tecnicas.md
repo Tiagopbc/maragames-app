@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 05/10/2026, noite (itens 6, 8, 12, 13, 14, 16, 19, 20, 23 e 24 revistos, item 25 novo).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -13,6 +13,15 @@ A plataforma atual da Beast Maragames registra só o resultado final da lição 
 ## 3. Repository pattern na camada de dados
 
 Interface `ProgressRepository` abstrai o acesso ao backend. Hoje implementada sobre Firebase (`FirebaseProgressRepository`); no dia em que a Beast Maragames liberar acesso à API deles, troca-se a implementação sem reescrever telas. Regra do time: nenhum componente de tela importa Firebase diretamente.
+
+Revisto em 06/10. O repositório passou a ter leitura, além da escrita: `getLicoes`, `getTopicos`, `getQuestoes`, `getQuestoesDoTopico` e `getRespostas`. Quatro escolhas:
+
+- **O tópico não tem coleção própria.** O seed grava uma lição por tópico (item 21), então `getTopicos` monta o tipo `Topico` (id, título, módulo e ordem) a partir de `lessons`, sem mexer no seed nem nas regras. Uma coleção `topics` só compensa se um tópico passar a ter mais de uma lição.
+- **A conversão do documento é função pura**, em `src/data/mapeadores.ts`, com testes em `src/data/__tests__/` (item 26). Copia campo a campo, deixa de fora os carimbos do seed e transforma o `respondidaEm` (Timestamp do Firestore) em milissegundos, que é o que as funções de `src/lib` recebem. Outra implementação do repositório reaproveita a mesma conversão.
+- **A ordenação é feita no aparelho**, não com `orderBy`: filtro e ordenação em campos diferentes pediriam índice composto no Firestore, e as listas são pequenas (cerca de 40 questões). Lições saem pela ordem, questões agrupadas por tópico e pela ordem dentro dele, respostas da mais antiga para a mais recente. `getRespostas` filtra por `uid`, que é o que a regra de `answers` exige de uma consulta.
+- **Uma instância só**, exportada em `src/data/repositorio.ts` e tipada como a interface. Telas e hooks importam `repositorio` desse arquivo; trocar de backend é trocar uma linha. Sem cache nem leitura em tempo real por ora.
+
+Revisto em 06/10 (consentimento). A interface ganhou `registrarConsentimento(uid)`, a primeira operação que escreve em mais de um documento (item 22). `FirebaseProgressRepository` passou a receber o Firestore no construtor, em vez de importá-lo: o app passa o dele em `repositorio.ts`, e o teste das regras passa o do emulador, então a transação testada é a mesma que roda no aparelho (item 26).
 
 ## 4. Coleção separada para `questions`, não array embutido em `lessons`
 
@@ -28,15 +37,36 @@ Os atalhos da home (Continuar lição, Lições, Progresso, Perfil) são definid
 
 Revisto em 05/10. A home mantém o formato de trilha livre, mas no piloto o aluno é sempre puxado para o roteiro guiado (item 22): um botão principal, do tipo "Continuar estudos", leva à próxima etapa, calculada a partir de `answers`. Os atalhos das demais trilhas aparecem travados, em cinza claro. Como os atalhos são dados, destravar uma trilha depois do piloto é mudar um campo do array, sem mexer no layout.
 
+Revisto em 06/10. Implementado: "Continuar lição" saiu do array e virou o botão principal; cada atalho tem o campo `travado`, e os três que ficaram (Lições, Progresso, Perfil) aparecem em cinza claro, com o ícone da própria trilha e um cadeado pequeno no canto. As abas viraram o grupo `(app)/(tabs)`, dentro de um `Stack`, para a tela da pergunta abrir por cima delas, em tela cheia.
+
+"Continuar estudos" segue `etapaDoRoteiro`. A home fica em três camadas, como a tela da pergunta (item 25): `src/lib/passo.ts` diz para qual bloco cada etapa leva, `src/hooks/use-roteiro.ts` lê tópicos, questões e respostas pelo repositório e calcula a etapa, e a tela só desenha. Quatro escolhas:
+
+- **A etapa é recalculada toda vez que a home ganha foco**, e não guardada. Quem sai de um bloco já vê o passo seguinte, e não há estado da home para ficar diferente de `answers`.
+- **Etapa sem bloco deixa o botão apagado, com uma linha dizendo por quê.** `consentimento` abre o termo, `pre`, `pos` e `reteste` abrem o bloco medido, e `estudo` abre o cartão ou a prática do tópico; em `espera` a home mostra quantos dias faltam para o reteste, e `sus` e `concluido` ainda não têm para onde ir. (Texto ajustado nas revisões abaixo, quando o termo e o cartão ganharam tela.)
+- **Só os tópicos medidos entram no roteiro** (`topicosMedidos`, em `src/lib/bloco.ts`): os que têm questão das formas A ou B, na ordem das lições. Os da trilha diária só têm prática e, sem esse filtro, o roteiro mandaria estudá-los antes do pós-teste.
+- **Aceite simulado em desenvolvimento.** Sem tela de consentimento, ninguém tem `consentiuEm` nem `formaPre`, e a etapa seria `consentimento` para todos. Em `__DEV__`, `src/lib/participante.ts` entrega o participante como se tivesse aceitado, com forma A; nada é gravado no perfil. Fora de desenvolvimento, o botão fica apagado com o aviso de que falta o termo. A rota do bloco usa a mesma função, então a regra mora num lugar só.
+
+Revisto em 06/10 (consentimento). O aceite simulado saiu: a tela de consentimento existe (item 22), e `participante.ts` passou a ler `formaPre` e `consentiuEm` do perfil, em desenvolvimento ou não. Na etapa `consentimento`, "Continuar estudos" abre o termo. Só o SUS e o roteiro concluído ainda deixam o botão apagado.
+
+Revisto em 06/10 (cartão). Na etapa `estudo`, o botão abre o cartão de conceito enquanto o tópico não tem resposta de prática, e a prática depois disso (item 22). A linha da home acompanha: "Cartão de Framework MDA" e, com a prática começada, "Prática de Framework MDA · 1 de 4".
+
+Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/app/(app)/index.tsx`, direto no `Stack` de `(app)`; bloco, cartão e termo continuam abrindo por cima dela. As abas eram as do template do Expo: na web, uma barra flutuante com "Expo Starter", a aba Explore e o link Docs, que cobria a saudação; no celular, uma aba "Expo" que abria a tela de exemplo. Tirada a Explore, sobraria uma aba só, e barra de uma aba não navega: no piloto, quem navega é o "Continuar estudos" e os atalhos. Saíram junto os componentes e as imagens que só o template usava, e `BottomTabInset` do tema. Se depois do piloto os atalhos virarem abas, o grupo volta. Coberto por teste de navegação (item 26).
+
+Revisto em 08/10 (rolagem). A home passou a rolar. Com a contagem do reteste, o cartão da trilha diária e os atalhos, ela passa da altura de um celular pequeno: em 375×667 o conteúdo tem 818 px. O "Sair" fica no pé da tela quando o conteúdo é curto e desce com ele quando é longo.
+
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
 O layout raiz (`src/app/_layout.tsx`) usa `Stack.Protected` com três guards mutuamente exclusivos: deslogado (sign-in/sign-up), logado sem perfil (complete-profile) e logado com perfil completo (grupo `(app)`). Nenhuma tela chama `router.push` depois de login ou de salvar o perfil: a tela muda porque o estado do `SessionProvider` mudou. Rota com guard falso deixa de existir, então nem pela URL na web dá pra abrir a área logada sem sessão. O `isLoading` segura a renderização até o Firebase restaurar a sessão e o perfil ser lido, evitando que o login ou o complete-profile "pisquem".
+
+Revisto em 08/10 (endereço que não existe). Entrou `src/app/+not-found.tsx`: "Essa página não existe." e "Voltar ao início", no lugar da tela padrão do Expo Router, que é em inglês. O botão escolhe o destino pelo estado da sessão (login, perfil ou home), pela mesma razão do resto deste item: a home é protegida, e mandar para ela quem não entrou não sai do lugar. Foi o teste que mostrou isso. O mapa de rotas do Expo Router (`/_sitemap`), que lista todos os endereços do app, foi desligado no `app.json`; no servidor de desenvolvimento ele pode continuar aparecendo até limpar o cache, mas o build web gerado não tem a página.
 
 ## 8. Perfil no Firestore, Auth só para credencial
 
 O Firebase Auth guarda só email/senha. Os dados do aluno (nome, apelido, telefone, instituição, curso, experiência) ficam em `users/{uid}` no Firestore, ligados pelo `uid`. Isso permite regras de validação, consultas e evolução do esquema, coisas que o Auth não oferece. O `displayName` do Auth é só um espelho do nome, e falhar em atualizá-lo não derruba o cadastro. Perfil completo é obrigatório antes de entrar no app.
 
 Confirmado em 05/10 para o piloto: nenhum campo é opcional, e o participante só entra no roteiro com todos preenchidos. O "código anônimo" previsto no item 19 deixa de ser o identificador do participante e passa a existir só na exportação: o CSV enviado à Mara Games (item 23) troca nome e contato por um código.
+
+Revisto em 06/10. O perfil passou a ser lido por um mapeador (`paraPerfil`, em `src/data/mapeadores.ts`), como as outras coleções, porque `consentiuEm` é horário do servidor e precisa virar milissegundos. Correção junto: salvar o perfil trocava o perfil em memória por um objeto sem `formaPre`; agora o estado local preserva forma e consentimento, como o `merge` já fazia no banco.
 
 ## 9. Validação dupla: cliente para UX, regras para garantia
 
@@ -77,6 +107,10 @@ O XP é calculado a partir de `answers`, não gravado, então trocar os valores 
 Limitações a registrar no paper: o XP vale pouco fora do app, então o incentivo é real mas fraco; e, como a confiança agora tem consequência em pontos, ela deixa de ser independente da regra, o que deve aparecer na discussão. A calibração (taxa de acerto em cada nível) continua no relatório como indicador, e o aluno também a vê.
 
 A taxa de acerto ajustada do paper é o percentual de acertos firmes (corretos com "Tenho certeza") sobre o total, comparado à taxa comum. Foi preferida à "acurácia com confiança" de 2019, cujo fator foi otimizado para provas de verdadeiro ou falso e não é garantido para múltipla escolha.
+
+Revisto em 06/10. No domínio por tópico, cada questão conta uma vez, pela resposta mais recente em qualquer fase (`dominioPorTopico`, em `src/lib/dominio.ts`). É a leitura "o que o aluno sabe agora": a questão respondida no pós e de novo no reteste entra só pelo reteste, em vez de pesar duas vezes. O XP (`src/lib/xp.ts`) devolve o saldo sem piso, que pode ser negativo; o piso do total exibido continua pendente (item 24).
+
+Revisto em 06/10 (XP negativo). Decidido: o XP de um bloco aparece como é, inclusive negativo ("−5 XP"). É coerente com o feedback da prática, que já mostra "−4 XP" na questão, e é o que dá sentido ao peso do erro com certeza; um piso no bloco deixaria o resumo diferente da soma do que a pessoa viu questão a questão. O piso em 0 vale só para o total acumulado do aluno, quando existir uma tela que o mostre. Fecha a pendência do item 24.
 
 ## 15. Corte do quadrante: confiança baixa são os níveis 1 e 2
 
@@ -124,6 +158,8 @@ Alternativas descartadas: cadastrar pelo console do Firebase (40 documentos com 
 
 Os cartões ficam no documento da lição (campo `cartao`, uma lista de slides), que já tem leitura liberada nas regras, então não foi preciso abrir uma coleção nova. O conteúdo é rascunho com apoio de IA, com revisão independente de gabaritos, fatos e pistas (por exemplo, a alternativa correta ser sempre a mais longa); ainda precisa da revisão do grupo.
 
+Revisto em 06/10. O seed foi rodado no projeto `maragames-mobile` pela primeira vez com este script: versão de conteúdo `5d59872c96b3`, 4 lições com cartão e 40 questões. Até então o banco tinha o seed antigo (3 questões sem o campo `bloco` e 5 lições sem tópico). O script reaproveitou as lições 1 a 4 pela ordem; as 3 questões antigas e a lição 5 ficaram, porque nada é apagado sem `--prune`. Por causa dessas sobras, `topicosMedidos` (`src/lib/bloco.ts`) passou a reconhecer tópico medido pela presença de questão das formas A ou B, e não por "questão que não é de prática": uma questão sem bloco não pode fazer um tópico contar como medido.
+
 ## 22. Fluxo e estado do participante no piloto
 
 Decidido em 05/10. O caminho principal do app no piloto é um roteiro guiado (consentimento, pré-teste, cartão e prática de cada tópico, pós-teste, relatório, espera, reteste, SUS); a trilha livre de lições aparece na home, mas travada (item 6). Cinco escolhas sustentam esse roteiro:
@@ -133,6 +169,39 @@ Decidido em 05/10. O caminho principal do app no piloto é um roteiro guiado (co
 - **Etapa calculada a partir das respostas**, sem campo gravado, coerente com os itens 2 e 13. Não há como a etapa contradizer o dado, e o retorno no meio de um bloco sai de graça. Consentimento e SUS ficam em `users/{uid}` (`consentiuEm`, `susRespondidoEm` e as notas).
 - **Reteste do dia 7 ao dia 9**, em dias de calendário contados a partir do pós. Antes disso, a home mostra a contagem; depois, o participante ainda responde e a análise o marca como fora da janela, pela diferença entre as datas.
 - **Ordem fixa de tópicos e questões; alternativas embaralhadas por participante e por fase.** A ordem das alternativas sai de uma semente (uid + questão + fase), então é estável se o participante sair e voltar, mas muda entre o pós e o reteste, o que impede lembrar a letra marcada. A análise não é afetada porque a resposta grava o id da alternativa, não a posição; a ordem exibida também é gravada (`ordemExibida`) para checar efeito de posição. O cansaço no último tópico (Pixel Art) fica como limitação.
+
+Revisto em 06/10. Os tipos `Answer` e `Attempt` e o `firestore.rules` passaram a refletir o evento completo. Três escolhas de nome: o dono do documento é `uid` (antes `userId`) em `answers` e `attempts`; o horário é `respondidaEm`, preenchido com `serverTimestamp()` e conferido na regra contra `request.time`, então o relógio do aparelho não entra no dado; e `lessonId` saiu de `Answer`, porque os blocos pré, pós e reteste atravessam os quatro tópicos (em `Attempt` ele fica `null` nesses blocos). A tela entrega um `NovaResposta` (o `Answer` sem `id` e sem `respondidaEm`), e o repositório grava campo a campo.
+
+A regra de `answers` (`respostaValida()`) exige exatamente os onze campos do evento, nenhum a mais: `uid`, `questionId`, `topicId`, `attemptId`, `fase`, `escolha`, `ordemExibida`, `correta`, `confianca`, `tempoMs` e `respondidaEm`. Confere também que `confianca` é inteiro de 1 a 3, que `ordemExibida` tem 4 itens e contém a `escolha`, e que a tentativa citada existe, é do próprio aluno e é da mesma fase (uma leitura a mais por resposta gravada). Para essa última checagem valer, `attempts` só aceita alterar `respostas` e `concluida` depois de criada. Tipo e regra andam juntos, como no perfil (item 9): mudou um, muda o outro. Em `users/{uid}`, `formaPre` é opcional, só aceita A ou B e não pode ser trocada nem removida depois de gravada. A exigência de 4 itens em `ordemExibida` precisa ser revista se um segundo formato de questão entrar (item 18).
+
+Revisto em 06/10 (funções puras). A etapa e o embaralhamento viraram código em `src/lib/roteiro.ts` e `src/lib/embaralhar.ts`, com quatro escolhas que o texto acima não fixava:
+
+- **Cartão e relatório não são etapas calculadas.** Ver o cartão ou o relatório não gera evento em `answers`, então não há como derivá-los. `etapaDoRoteiro` devolve `consentimento`, `pre`, `estudo` (um por tópico), `pos`, `espera`, `reteste`, `sus` ou `concluido`. A tela mostra o cartão quando o estudo do tópico tem zero respostas de prática, e o relatório do dia 1 dentro da espera.
+- **Dia de calendário em fuso fixo, UTC−3 (São Luís).** A contagem do reteste não depende do fuso configurado no aparelho. Conta a partir da última resposta do pós: libera no dia do pós + 7, e depois do dia do pós + 9 o reteste segue aberto com `foraDaJanela` verdadeiro.
+- **No reteste, nenhuma alternativa repete a posição que teve no pós.** Só com a semente, uma alternativa cairia no mesmo lugar em 1 de cada 4 casos, o que enfraquece o "impede lembrar a letra marcada". A ordem do reteste é sorteada pela semente do reteste até nenhuma posição coincidir com a do pós, e continua determinística. O gerador é próprio (hash FNV-1a e mulberry32), sem `Math.random` nem `crypto`, para dar a mesma ordem em qualquer aparelho.
+- **A ordem dos tópicos é parâmetro da função**, e ela falha com erro se os blocos medidos chegarem sem questões, em vez de tratar o bloco vazio como concluído e pular a medição.
+
+Revisto em 06/10 (tela de consentimento). O aceite do termo virou código: tela em `src/components/consentimento/`, rota `(app)/consentimento`, texto em `src/constants/termo.ts` e gravação em `registrarConsentimento` (item 3). Seis escolhas:
+
+- **O consentimento é etapa do roteiro, não guard de navegação.** A tela abre pelo "Continuar estudos" da home. Um quarto `Stack.Protected` obrigaria aceitar o termo para ver a home, e quem não quisesse participar ficaria preso. Os três estados de sessão do item 7 não mudam. "Agora não" volta à home sem gravar nada.
+- **Uma transação escreve as duas pontas.** Ela lê `piloto/contador` e `users/{uid}`, soma 1 ao contador e grava no perfil `formaPre` (posição ímpar dá A, par dá B; `formaDoParticipante`, em `src/lib/participante.ts`) e `consentiuEm`, com o horário do servidor. O primeiro aceite cria o contador, então ninguém precisa prepará-lo. Quem já aceitou recebe de volta o que está gravado, sem gastar uma posição.
+- **As regras conferem a transação inteira, uma ponta olhando a outra.** Em `users/{uid}`, o aceite só passa se o perfil não tinha consentimento, se `consentiuEm` é o horário do servidor, se o contador subiu exatamente 1 naquela transação e se a forma é a que o novo total dá. Em `piloto/contador`, a escrita só passa se sobe de 1 em 1 e se, na mesma transação, quem escreve está ganhando `formaPre` pela primeira vez. Isso usa `get()` (o documento antes) e `getAfter()` (como fica depois). Fora do aceite, forma e data não mudam nem somem, e o perfil não pode ser criado já com elas. Fecha a pendência do item 24: o participante não escolhe a própria forma, nem gravando direto, nem pulando uma posição.
+- **Aceite simultâneo é refeito pelo app.** Quando dois aceitam ao mesmo tempo, o segundo escreve com o total antigo, e a regra o recusa com `permission-denied` antes de o Firestore refazer a transação sozinho. Como na sessão 1 a turma aceita junta, o repositório refaz o aceite até 6 vezes, relendo o contador, com espera crescente e variada. Achado pelo teste no emulador; uma recusa de verdade (regras não publicadas) falha depois das tentativas e a tela mostra o erro.
+- **A mesma conta em dois lugares**, como na validação do perfil (item 9): `formaDoParticipante` no app e `formaDoContador` nas regras. Mudou uma, muda a outra.
+- **O texto do termo é rascunho** e fica num arquivo próprio, separado dos rótulos de interface, porque mudar uma frase ali muda o que o participante aceitou. A versão do termo aceita não é gravada no perfil; quem a registra é o histórico do Git.
+
+Revisto em 06/10 (cartão de conceito). O cartão virou tela: `src/components/cartao/`, rota `(app)/cartao/[topicId]` e leitura em `src/hooks/use-cartao.ts`, que busca os slides na lição do tópico (item 21). Cinco escolhas:
+
+- **Quem decide entre cartão e prática é `destinoDaEtapa`** (`src/lib/passo.ts`): na etapa `estudo` com zero respostas de prática, o destino é o cartão; com uma ou mais, a prática. É o critério que este item já fixava, agora num lugar só e com teste. A etapa calculada continua sendo `estudo`; o cartão não entra em `etapaDoRoteiro`.
+- **Um slide por vez**, com "Voltar" e "Próximo" e uma barra de progresso. Só no último slide o botão vira "Começar a prática". Não há como pular o cartão, mas nada mede se a pessoa leu: ver o cartão não gera evento e o tempo nele não é gravado.
+- **Nada do cartão é guardado.** O slide em que a pessoa está só existe enquanto a tela está aberta. Quem sai pelo X e volta recomeça do primeiro, e a home continua mandando para o cartão até existir uma resposta de prática.
+- **Sem revisão durante a prática.** Depois da primeira resposta, a home leva direto à prática e não há link para reabrir o cartão: a prática com feedback é a intervenção, e o cartão vem antes dela.
+- **A prática toma o lugar do cartão na pilha de telas** (`replace`, e não `push`), então sair da prática volta à home, e não a um cartão que já não deveria abrir. Tópico sem cartão vai direto à prática, em vez de mostrar uma tela vazia.
+
+Revisto em 08/10 (relógio e volta ao app). Dois pontos levantados na revisão automática do pull request nº 5:
+
+- **A home refaz a conta quando o app volta a ficar ativo**, e não só quando a tela ganha foco. O app fica dias na memória do celular; quem voltava no dia do reteste via "O reteste abre amanhã", porque não tinha trocado de tela. `useAoVoltarAoApp` escuta o estado do app (no celular) e a visibilidade da aba (na web) e chama o mesmo `recarregar`. Não há relógio marcado para a meia-noite: só serviria a quem deixa a tela aberta na virada do dia.
+- **A liberação do reteste usa o relógio do aparelho** contra o horário do servidor gravado no pós. Com o relógio adiantado o reteste abre antes; atrasado, segura. Limitação aceita: saber a hora do servidor pediria uma escrita a cada abertura da home ou uma regra no servidor, que está fora do escopo (item 5). A medida não se perde, porque a resposta do reteste também leva horário do servidor: a exportação (M7) calcula os dias entre pós e reteste por esses horários e marca quem ficou fora de 7 a 9.
 
 ## 23. Trilha diária com limite por dia e indicadores para a Mara Games
 
@@ -147,14 +216,273 @@ Indicadores para a Mara Games, todos derivados de `answers`: aprendizagem (ganho
 
 Entrega à Mara Games (decidido em 05/10): o grupo exporta os dados e envia um CSV com um código no lugar de nome e contato, junto com os indicadores agregados (M7). Não há painel nem papel de administrador dentro do app, o que evita mexer em autenticação e regras para algo usado uma vez. Com cerca de 15 pessoas e sem grupo de controle, os números descrevem e não provam causa.
 
+Revisto em 07/10 (confirmado). O grupo reconsiderou espalhar os quatro tópicos medidos por quatro dias, um módulo de 10 questões por dia, e manteve o desenho acima. O que pesou: hoje os dias de engajamento estão separados da medição, e o dado fica completo com duas aberturas do app (dia 1 e reteste); com um módulo medido por dia seriam oito, e cada falta viraria dado perdido, o que pesa com cerca de 15 participantes. O custo aceito é escrever os cinco tópicos da trilha até 23/10; se isso não couber, a alternativa volta à mesa, porque não exige conteúdo novo.
+
+Revisto em 07/10 (trava). A trava dos tópicos medidos virou regra do roteiro inteiro: uma tela de estudo só abre se for a da etapa em que a pessoa está. A home já levava sempre à etapa certa; o que faltava era quem chega por outro caminho, como a URL digitada na web. Antes disso, com a home dizendo "o reteste abre em 6 dias", `/bloco/reteste` abria a questão 1 de 12, e nem o hook do bloco nem o `firestore.rules` olhavam a etapa ou a janela.
+
+- **A regra é função pura**, `podeAbrir(etapa, destino)`, em `src/lib/passo.ts`, ao lado de `destinoDaEtapa`: cartão e prática de um tópico abrem no estudo daquele tópico; pré, pós e reteste, na própria etapa; prática sem tópico na URL não abre, porque quem diz o tópico da vez é o roteiro. Na espera, nada abre.
+- **Vale para os blocos medidos também**, e não só para cartão e prática, como a pendência dizia. Abrir o reteste antes da hora mede um dia de memória, e não sete; abrir o pós antes de estudar transforma o "depois" num segundo "antes". Os dois estragam a medida mais do que uma revisão.
+- **Um portão só** (`src/components/roteiro/portao-do-roteiro.tsx`), usado pelas rotas `cartao/[topicId]` e `bloco/[fase]`. Ele calcula a etapa com o mesmo `useRoteiro` da home, mostra um indicador enquanto lê e, se a tela não é a da etapa, a rota redireciona para a home.
+- **Decide uma vez, ao abrir.** Terminar a prática muda a etapa; se o portão decidisse de novo, tiraria a pessoa da tela antes de ela ver o resultado do bloco.
+- **Falha de leitura fecha.** Sem saber a etapa, a tela não abre e a pessoa volta para a home, que tem "Tentar de novo".
+- **Custo aceito:** tópicos, questões e respostas são lidos duas vezes ao abrir um bloco, uma pelo portão e outra pelo bloco. Pôr a checagem dentro dos hooks do bloco e do cartão evitaria a segunda leitura, mas espalharia a regra em dois lugares.
+- **Exceção de desenvolvimento** (`travaVale`): em `__DEV__`, a trava não vale para pré, pós e reteste, para os links de teste da home continuarem abrindo o reteste sem esperar sete dias. No app do participante vale sempre. A exceção sai com os links, na limpeza antes do piloto.
+- **A trava é do app, não do servidor.** Quem gravar direto no Firestore, fora do app, não passa por ela; validação no servidor está fora do escopo (item 5).
+
+Os tópicos da trilha diária ainda não existem em `etapaDoRoteiro`, então a prática deles fica fechada por esta regra. Quando o limite diário entrar, ele acrescenta a sua parte a `podeAbrir`.
+
+Revisto em 07/10 (espera do reteste). A espera ganhou tela, em duas partes, sem decidir os pontos do protótipo que seguem em aberto (item 28):
+
+- **Na home**, o cartão "Próxima etapa" vira a contagem: "Seu reteste abre em", o número de dias em destaque e as datas ("Abre na terça, 13/10, e fica disponível até quinta, 15/10."). O botão principal, que ficava apagado, passa a ser "Ver meu resultado do dia 1". Os atalhos travados continuam.
+- **Na rota `/dia-1`**, o resultado do pós-teste, com o mesmo componente do fim do bloco (item 27), e a lista "Travados até o reteste" com os quatro tópicos e o motivo. Nada por questão: o hook nem entrega os enunciados à tela.
+- **O resultado do dia 1 é o do pós-teste**, sem comparar com o pré. A comparação por tópico do protótipo continua em aberto.
+- **Entra na mesma trava**: `destinoDaEtapa` leva a espera a `{ tipo: 'dia1' }`, e `podeAbrir` só deixa abrir da espera em diante, quando o pós já terminou. Com a trava, reabrir `/bloco/pos` deixou de mostrar o resultado; é por aqui que ele volta a ser visto.
+- **Datas no fuso fixo de São Luís**, como o resto do roteiro: a etapa de espera passou a trazer `ultimoDiaEm`, e `dataEmSaoLuis` dá dia da semana, dia e mês sem depender do fuso do aparelho.
+
+Ficou de fora o "Tópico de hoje" da trilha diária, que depende do conteúdo. Um ponto para o grupo ver: o resultado traz a seção "O que revisar primeiro" logo acima de "Travados até o reteste", o que pede revisão de tópicos que estão travados.
+
+Revisto em 08/10 (retenção). O cálculo ficou em `src/lib/retencao.ts`, função pura: `retencao(respostas, questoes)` compara o pós com o reteste, questão a questão, e devolve a razão entre os acertos do reteste e os do pós, no geral e por tópico, e o indicador central deste item: dos acertos do pós, quantos continuam certos no reteste, separando os que eram Firmes dos Frágeis. Quatro escolhas:
+
+- **Só entram as questões respondidas nas duas fases.** Quem parou o reteste no meio é comparado no que respondeu; as que faltam não contam como esquecidas.
+- **Pós sem acerto dá razão indefinida (`null`), e não zero.** Não havia o que reter.
+- **A razão pode passar de 1**, quando a pessoa acerta no reteste o que errou no pós. O número fica como é; quem interpreta é a análise.
+- **O quadrante que vale é o do pós.** A confiança declarada no reteste não entra na separação entre Firme e Frágil.
+
+Não aparece em tela nenhuma: serve ao script de exportação (M7) e à análise.
+
+Revisto em 08/10 (ordem no app). O conteúdo passou a trazer, em cada lição, a ordem de apresentação (`ordem`) e a trilha (`medido` ou `diaria`), e o app passou a ler as duas. `ordenarLicoes` ordena por `ordem`; `order` continua sendo só o número da lição no curso. Lição sem `ordem`, sobra de um seed antigo, vai para o fim, pelo número da lição, para não furar a fila. Como a ordem do roteiro sai da ordem das lições, o dia 1 passa a seguir MDA, Pixel Art, Engine, Lógica assim que o seed novo rodar; até lá, o banco não tem o campo e nada muda. Quem já passou do estudo não é afetado.
+
+Revisto em 08/10 (trilha no app). A trilha diária foi implementada, em função pura (`src/lib/trilha.ts`), sem gravar nada a mais: a fila e a sequência saem de `answers`.
+
+- **Uma regra só decide a fila:** o próximo tópico abre no dia de calendário seguinte ao da conclusão do anterior, e o primeiro, no dia seguinte ao do pós-teste. Cobre os três casos sem regra à parte: quem faz um por dia, quem pula dias (encontra o mesmo tópico esperando) e quem começa um tópico num dia e termina no outro (o que vale é o dia do fim).
+- **Tópico começado continua aberto** até terminar, em qualquer dia.
+- **Quais são os tópicos da trilha** sai das questões, como os medidos: são os que têm prática e nenhuma questão das formas A ou B (`topicosDaTrilha`). O campo `trilha` do conteúdo confere com isso, mas a regra não depende dele.
+- **Sequência:** dias seguidos com pelo menos uma resposta confirmada, de qualquer fase; o dia 1 conta. Antes de responder hoje, a sequência que vinha até ontem continua valendo; um dia inteiro sem resposta zera. Abrir o app sem responder não conta, porque isso não gera evento.
+- **A trilha corre ao lado do roteiro**, e não dentro dele: não é uma `Etapa`. `useRoteiro` entrega as duas coisas, e a home mostra o cartão "Tópico de hoje" abaixo do cartão do roteiro. Na espera do reteste, com tópico para hoje, a ação principal da tela é o tópico, e "Ver meu resultado do dia 1" vira botão de contorno; no dia do reteste, o reteste continua na frente.
+- **No fim do tópico, a tela da sequência entra no lugar do resultado detalhado:** mascote, dias seguidos, acerto do tópico, os sete dias do piloto e o próximo tópico com "Libera amanhã". O feedback já foi dado questão a questão; o que traz a pessoa de volta é a sequência.
+- **Trava:** `podeAbrir` deixa abrir o cartão e a prática do tópico de hoje em qualquer etapa. O de amanhã, o já feito e qualquer outro voltam para a home.
+- **Relógio:** a liberação do tópico usa o relógio do aparelho contra horários do servidor, a mesma limitação do reteste (item 22).
+
+Ficaram de fora: lembrete por notificação, protetor de sequência e a fila "Revisar hoje".
+
+Revisto em 08/10 (exportação). O script de exportação está em `scripts/exportar-piloto.ts`, e as contas, em `src/lib/exportacao.ts`, função pura. O script só lê o Firestore, com a chave de serviço, e escreve em `exportacao/AAAA-MM-DD/`, que está fora do git.
+
+- **Cinco arquivos.** `eventos.csv` (uma linha por resposta), `participantes.csv` (uma por pessoa), `questoes.csv` (uma por questão) e `resumo.md` podem ser enviados. `chave.csv` liga cada código ao nome e fica só com o grupo.
+- **Código pela ordem do aceite do termo** (P01, P02...), para ser o mesmo a cada rodada com o mesmo filtro.
+- **Do perfil, só a experiência com games sai.** Nome, apelido, e-mail, telefone, curso e instituição ficam de fora: com cerca de 15 colegas, curso e instituição já identificam. Um teste confere que nome, contato e `uid` não aparecem em nenhum arquivo que é enviado.
+- **`--desde AAAA-MM-DD`** deixa de fora quem aceitou o termo antes da data, que é como as contas de teste ficam de fora sem depender da limpeza.
+- **As contas são as do app.** Quadrante, XP, resultado do bloco, retenção e trilha vêm das funções de `src/lib`. Para o script rodar TypeScript entrou o `tsx` como dependência de desenvolvimento; reescrever as regras em JavaScript abriria espaço para o número do CSV divergir do que o aluno vê.
+- **Por participante:** acertos no pré, no pós e no reteste; ganho normalizado de Hake (indefinido se o pré já foi 100%); retenção; acertos Firmes e Frágeis do pós mantidos no reteste; pontos cegos no pós; tópicos da trilha; dias ativos e maior sequência. Sem reteste, os campos dele ficam vazios, e não com zero.
+- **Dias entre o pós e o reteste pelos horários do servidor**, com a marca de quem ficou fora de 7 a 9. É a resposta à limitação do relógio do aparelho (item 22).
+- **Por questão:** acerto, ponto cego e distrator mais escolhido, com a dificuldade prevista ao lado. O reteste não entra, porque repete as questões do pós.
+- **Formato:** ponto e vírgula, decimal com vírgula e UTF-8 com marca, para abrir direto no Excel em português.
+
+O script não faz teste estatístico nem gráfico, e ainda não tem o SUS.
+
 ## 24. Pendências que travam o piloto
 
-- Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
+Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
+
+**Antes de qualquer coisa**
+
+- Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
+
+**Para a sessão 1 (app até 23/10, sessão até 30/10)**
+
+- Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
+- Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
+- Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
+- Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
+- Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
+- Sobras do seed antigo no banco (item 21): restam 3 questões fora do JSON, sem versão de conteúdo. A lição 5, que estava solta, foi reaproveitada pelo seed de 08/10 como "Efeitos sonoros". Decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
+
+**Para a sessão 2 (reteste entre 06/11 e 10/11)**
+
+- Tela do SUS (M8). `susRespondidoEm` ainda não existe no tipo `Perfil` nem no `firestore.rules`; entra com ela. Sem a tela, o roteiro para em "Falta o questionário final".
+
+**Trilha diária, dias 2 a 6 (M5, item 23)**
+
+- Lembrar o participante de voltar: hoje é por mensagem no grupo da turma (item 19); notificação está fora do escopo.
+
+**
+
+
+**Restante do M4 (item 27)**
+
+- Telas "Meu domínio" e "Detalhe do tópico".
+
+**Exportação (M7)**
+
+- Rodar a exportação com os dados de verdade, depois do reteste (`npm run exportar -- --desde 2026-10-30`), e conferir os arquivos antes de enviar. O script está pronto (item 23); o SUS entra nele quando a tela existir.
+
+**Qualidade**
+
+- Regras do Firestore: as do consentimento (`users` e `piloto/contador`) estão testadas no emulador (`npm run test:regras`); as de `answers` e `attempts` continuam sem teste de emulador.
+- O projeto não tem ESLint configurado, então `npm run lint` não roda.
+- Dependências que ficaram sem uso no código depois da retirada das abas e da animação do template: `expo-symbols`, `react-native-reanimated` e `react-native-worklets`. Conferir se o Expo Router ainda precisa das duas últimas antes de tirar do `package.json`.
+- Os atalhos Lições, Progresso e Perfil seguem travados e sem destino; é para depois do piloto.
+
+**Decisões do grupo**
+
+- Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
+- Resultado do dia 1 (item 23): a seção "O que revisar primeiro" aparece junto de "Travados até o reteste". Decidir se ela some nessa tela ou se o texto muda para "revisar depois do reteste".
+- Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
+- Nome do app: no carregamento do Expo Go aparece "maragames-app", que é o `name` do `app.json`. Decidir se vira "Beast Maragames" ou outro nome de exibição.
+- Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
+- Texto das explicações (M6): a explicação da alternativa certa começa com "Correto.". Quando a pessoa erra, ela aparece sob "Resposta certa" e fica "Resposta certa: Correto. Expressão é...". Rever a redação na revisão do conteúdo.
 - Conteúdo (M6): quem escreve e quem revisa cada tópico (proposta: autor diferente do revisor, rascunhos com apoio de IA revisados pelo grupo). Prazo de 23/10 inclui a trilha diária.
 - Piloto (M8): número e perfil dos participantes (proposta: colegas da UNDB, voluntários e sem nota, meta de pelo menos 15), versão em português do SUS e se haverá pergunta aberta. Comitê de ética e LGPD ficam de lado por ora, por decisão do grupo em 05/10 (público controlado de colegas adultos).
-- XP total: se pode ficar negativo com erros em "Tenho certeza" (proposta: o saldo pode cair, que é o que dá sentido ao −4, mas o total exibido tem piso em 0).
+
+**Dependem de fora**
+
+- Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
+
+**Resolvidas em 08/10**
+
+- Script de exportação (M7, item 23): `npm run exportar` gera `eventos.csv`, `participantes.csv`, `questoes.csv`, `resumo.md` e a chave do grupo. Rodado contra o banco, só lendo, com as duas contas de teste: 2 participantes, 86 eventos e 70 questões; os acertos e os pontos cegos batem com o que o app mostra para cada conta.
+- Tópico da trilha percorrido no app, na web, em tamanho de celular, com a conta do Tiago: cartão do GDD (4 slides), as 6 questões de prática com feedback (visto também no tema claro: rodapé fixo e confiança travada), e a tela da sequência, com "1 dia seguido", "Sequência iniciada!", "Você acertou 5 de 6", as bolinhas de terça (dia do pós) e de quinta cheias e a de quarta vazia, e o próximo tópico com "Libera amanhã". De volta à home: "Feito por hoje. Próximo: UX/UI em jogos. Libera amanhã." e o selo "Sequência: 1 dia". A conta do Tiago ficou com 6 respostas de prática a mais e o GDD concluído em 08/10.
+- Seed com o conteúdo novo rodado pelo Tiago (versão `f870c2d83e2b`): 9 lições, com `ordem` e `trilha`, e 70 questões. Conferido no banco.
+- Trilha diária vista no app, na web, com a conta do Tiago (pós em 06/10): a home mostra "Tópico de hoje" com "GDD: o documento do jogo" e "Começar", e "Ver meu resultado do dia 1" como botão de contorno; o cartão do GDD abre, com 4 slides; `/cartao/ux_ui_jogos` e `/bloco/pratica?topicId=publicando_steam` voltam para a home.
+- Trilha diária no app (item 23): fila de um tópico por dia, sequência de dias, cartão "Tópico de hoje" na home, tela da sequência no fim do tópico e a trava estendida aos tópicos da trilha.
+- Home refaz a conta do roteiro quando o app volta do segundo plano (item 22), apontado na revisão automática do pull request nº 5.
+- Login num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): a logo em SVG aparece, sobre o círculo branco, e a fonte está certa. Ao carregar, o Expo Go mostra o ícone novo, com a logo.
+- Tela da pergunta num iPhone, pelo Expo Go, em tema escuro (captura do Tiago, 08/10): fonte Lexend com os pesos certos, cabeçalho abaixo da ilha do aparelho, os três níveis de confiança numa linha só e o Confirmar acima da barra de gestos, sem rolar. O contador "1/12" ficou atrás do botão flutuante de ferramentas do Expo Go, que não existe fora do Expo Go.
+- Pull request nº 5 aberto, com o `main` já trazido para a branch. O único conflito foi `assets/images/logo-beast.svg`, criado nos dois lados com o mesmo desenho; ficou a versão com a cor escrita em cada caminho.
+- Conteúdo da trilha diária no repositório (veio do `main`): GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração e Publicando na Steam, com cartão de 4 slides e 6 questões de prática cada.
+- Ordem dos tópicos no dia 1 decidida pelo grupo, gravada no conteúdo no campo `ordem` e usada pelo app (item 23). Passa a valer no app quando o seed novo rodar.
+- Tela própria para endereço que não existe, em português, e mapa de rotas do Expo Router desligado (item 7).
+- Cálculo de retenção, do pós para o reteste, em função pura (item 23).
+- Abertura e ícone do app (item 28): saiu a animação do template, com a logo do Expo; o ícone, o favicon e a tela de abertura passaram a ser a logo da Beast Maragames. Conferido na web (o app abre sem a animação e o favicon novo é servido); ícone e tela de abertura no celular só aparecem num build próprio, que ainda não foi feito.
+- Roteiro do dia 1 percorrido com uma conta nova (apelido Tiagopbc), depois da identidade visual e da trava, na web, no Chrome do Tiago, em tema escuro e largura de computador: termo com o mascote, pré-teste (12 questões sem nenhum feedback, com saída no meio pelo X e retomada na questão 6), cartão e prática dos quatro tópicos (feedback de acerto com "+3 XP" e selo Firme; feedback de erro com a escolhida em vermelho, a certa em verde, "−4 XP", selo Ponto cego e as duas explicações; confiança travada no rodapé), pós-teste e espera ("7 dias", de quinta, 15/10, a sábado, 17/10). No estudo do MDA, `/cartao/pixel_art_basico` voltou para a home. No banco: 40 respostas com os onze campos, `correta` igual ao gabarito em todas, pré na forma B e pós na forma A, seis tentativas concluídas, contador em 2.
+- Validação de 08/10: `npm test` (394), `npx tsc --noEmit` e `npm run test:regras` (25) passando. Na web, no Chrome do Tiago, em tema escuro e com a conta dele na espera: home com a contagem, "Seu dia 1", saída pelo X, `/cartao/mda_framework`, `/bloco/pratica?topicId=mda_framework` e `/bloco/pratica` voltando para a home, e a tela da pergunta com o rodapé inteiro à vista em 440×956.
+- Estado de acessibilidade na web (item 25): alternativa e confiança marcadas, caixa do termo, botão ocupado, barra de progresso e avisos passaram para as props `aria-*`. As antigas não chegavam à página.
+- Cadastro e perfil com os botões do tema, que tinham ficado no estilo antigo; as opções de experiência ganharam borda, porque só o fundo quase não se distinguia no tema claro (item 28).
+- Protótipo do Figma corrigido (item 28): o Tiago aplicou à mão, no arquivo "MaraGames App - Protótipo do piloto", os ajustes adotados em 06/10, inclusive nos quadros do tema escuro. É o arquivo que vai para o professor em 09/10.
+
+**Resolvidas em 07/10**
+
+- Barra de abas do template: as abas saíram, na web e no celular, e a home ficou direto no `Stack` (item 6).
+- Tela de espera do reteste: contagem e datas na home, e o resultado do dia 1 com os tópicos travados em `/dia-1` (item 23). Conferido na web com a conta do Tiago.
+- Trava do roteiro: cartão, prática, pré, pós e reteste só abrem na etapa certa, também para quem digita a URL (item 23). Conferido na web com a conta do Tiago, que está na espera: o cartão e a prática do MDA voltaram para a home.
+- Aparência do protótipo no app: cores, fonte Lexend, estilo dos componentes, logo no login e mascote no consentimento (item 28).
+- Conferência visual na web, com a conta do Tiago: em 375×812 a saudação da home começa a 24 px do topo, sem nada por cima; na pergunta, os três níveis de confiança e o Confirmar ficam à vista no rodapé, e em 320×568 continuam fixos enquanto as alternativas rolam (item 25). Nenhuma resposta foi gravada; abrir o reteste pelo link de desenvolvimento criou uma tentativa de reteste na conta de teste, que entra na limpeza.
+- Rodapé fixo, correção de `topicosMedidos` e documentos de 06/10 em commit, na mesma branch (seis commits, sem push).
+
+**Resolvidas em 06/10**
+
+- Mascote: ficam os dois estilos, a logo no login e o lobo em cartum no consentimento e na sequência (item 28).
+- Níveis de confiança abaixo da dobra: seletor em linha, fixo no rodapé (item 25).
+- Roteiro do dia 1 percorrido com uma conta real, na web em tamanho de celular: termo, pré-teste, cartão e prática dos quatro tópicos, pós-teste e espera do reteste. Ficaram gravados 40 eventos (12 de pré na forma A, 16 de prática, 12 de pós na forma B), todos com os onze campos, horário do servidor e `correta` batendo com o gabarito; seis tentativas concluídas; contador em 1 e forma A no perfil. Sair no meio do pós e voltar retomou na questão certa, na mesma tentativa. Uma resposta ficou com `tempoMs` de 5 minutos porque a questão ficou aberta parada: é a limitação do relógio corrido registrada no item 25.
+- Regras do Firestore publicadas no projeto `maragames-mobile`.
+- Conteúdo dos quatro tópicos medidos gravado no projeto pelo seed (item 21).
+- Trabalho da sessão em commit, na branch `feat/roteiro-do-piloto`.
+- XP negativo no bloco (item 14), contador do piloto sem regra e participante escolhendo a própria forma (item 22), cartão de conceito e tela de fim de bloco (itens 22 e 27).
 
 ## 25. Interação da questão: alternativa e confiança, em qualquer ordem
 
 Decidido em 05/10. Alternativa e nível de confiança são duas seleções independentes na mesma tela, e o aluno pode marcá-las em qualquer ordem. O botão Confirmar só ativa com as duas marcadas, seguindo Gardner-Medwin, em que cada resposta vem acompanhada do grau de certeza. Não há opção de pular: com "Palpite" valendo 1 no acerto e 0 no erro (item 14), responder sempre compensa, e o tipo `Answer` não precisa de um estado "em branco". Só a confirmação vira evento em `answers`; trocas de seleção antes de confirmar não são gravadas.
+
+Revisto em 06/10 (implementação). A tela ficou em três camadas: regra em função pura (`src/lib/pergunta.ts` e `src/lib/bloco.ts`), dados no hook `src/hooks/use-bloco.ts` e apresentação em `src/components/pergunta/`. A rota é `bloco/[fase]`, com `topicId` opcional na prática. Escolhas que o texto acima não fixava:
+
+- **Feedback na mesma tela, e só depois de gravar.** Na prática, a confirmação grava o evento e então a própria tela mostra certo ou errado, a explicação da alternativa escolhida (e a da correta, se errou), o XP da questão e o selo do quadrante. Uma rota separada para o feedback permitiria voltar e responder de novo. Nos blocos medidos a tela passa direto à questão seguinte, e uma linha fixa avisa que o resultado só aparece no fim.
+- **Tempo de resposta em relógio corrido**, de quando a questão aparece até o primeiro toque em Confirmar. Tempo com o app em segundo plano entra na conta (limitação a registrar no paper). Se a gravação falha e a pessoa confirma de novo, vale o tempo da primeira confirmação.
+- **Falha de gravação não duplica o evento.** O repositório grava a resposta e depois atualiza a tentativa; se a segunda parte cai, a resposta já existe. Por isso, depois de uma falha, a tela relê as respostas antes de gravar de novo e, se a questão já tem resposta na fase, segue com ela.
+- **Sair não é pular.** Um X fecha o bloco, e o gesto de voltar fica desligado nessa tela. Como o progresso sai de `answers`, quem volta retoma na primeira questão sem resposta naquela fase.
+- **Strings em `src/constants/textos.ts`**: rótulos de confiança (item 12), rótulos e descrições do quadrante, títulos dos blocos e textos da tela. Os componentes recebem o valor (1, 2, 3; `firme`, `fragil`...) e buscam o texto ali.
+- **Estado dito por ícone e por cor.** Alternativa certa, errada e selo do quadrante têm ícone próprio, além das cores novas do tema (`sucesso`, `aviso`, `primaria`), para não depender de distinguir verde de vermelho. Trechos de código entre crases no conteúdo saem em fonte monoespaçada.
+- **Quais questões entram em cada fase é uma regra só**, em `src/lib/bloco.ts`, usada pela tela e por `etapaDoRoteiro`.
+
+Revisto em 06/10 (fim do bloco). A tela provisória "Bloco concluído" deu lugar ao resultado do bloco (item 27).
+
+Revisto em 06/10 (rodapé fixo). Os três níveis de confiança passaram a ficar numa linha só, dentro de um rodapé fixo, junto do Confirmar; só o enunciado, as alternativas e o feedback rolam. Antes o seletor era uma lista vertical dentro da área de rolagem. Ao rodar o roteiro numa tela de 375×812, "Tenho certeza" só aparecia rolando, e em enunciado longo "Tenho dúvida" também sumia: um nível que o participante não vê enviesa a própria medida. A linha horizontal veio do protótipo do grupo (item 28); o rodapé fixo é o que garante que ela não desça com uma questão longa. No feedback da prática, a confiança declarada continua à vista no rodapé, travada. O nível marcado muda de borda, de fundo e de peso do texto, para não depender só de cor. Coberto por teste de componente. Visto na web em 07/10, em 375×812 e 320×568; falta um aparelho de verdade (item 24).
+
+Revisto em 08/10 (acessibilidade na web). O estado e o valor que a tela informa ao leitor de tela passaram para as props `aria-*`: `aria-checked` na alternativa, no nível de confiança, na caixa do termo e nas opções de experiência do perfil; `aria-busy` no botão; `aria-valuemin`, `aria-valuemax` e `aria-valuenow` na barra de progresso; `aria-live` nos avisos. O React Native entende essas props no celular, e o react-native-web as entrega ao navegador. As antigas (`accessibilityState`, `accessibilityValue`, `accessibilityLiveRegion`) não chegavam à página: no Chrome, a alternativa marcada saía sem `aria-checked` e a barra, sem `aria-valuenow`, embora o desenho estivesse certo. Papel e rótulo (`accessibilityRole`, `accessibilityLabel`) chegam e continuam como estão. Os testes de tela não pegaram porque rodam no ambiente do iOS; quem pegou foi a conferência no navegador.
+
+## 26. Regras de negócio em funções puras, com testes unitários
+
+Decidido em 06/10. Tudo o que é derivado de `answers` (itens 2 e 13) fica em funções puras em `src/lib`, sem React nem Firebase, uma regra por arquivo: `quadrante.ts` (item 15), `xp.ts` e `dominio.ts` (item 14), `embaralhar.ts` e `roteiro.ts` (item 22). Recebem dados simples e devolvem dados simples, e o horário atual entra como parâmetro. Telas, hooks e os scripts de exportação (M7) usam as mesmas funções, então o número que o aluno vê e o que vai para o paper saem do mesmo código.
+
+O framework de testes é o jest-expo (`npm test`; `npm run test:watch` para ficar observando), com os testes em `src/lib/__tests__/`. É o caminho da documentação do Expo, entende o alias `@/` e serve depois para testar hooks e telas sem trocar de ferramenta. Alternativas descartadas: Vitest, mais rápido, mas fora do ecossistema Expo, o que pediria uma segunda configuração para componentes; e o `node --test`, que não instala nada, mas exige Node 22.18 ou mais novo em todas as máquinas do grupo.
+
+Os testes foram escritos antes do código e cobrem as bordas que mudam a medida: o nível 2 como confiança baixa, os limiares de 50% e 75% do XP, a questão repetida no reteste contando uma vez no domínio, a virada do dia no fuso de São Luís e a janela do reteste.
+
+Revisto em 06/10. A tela da pergunta ganhou teste de componente (`src/components/pergunta/__tests__/`), com `@testing-library/react-native`, que é o caminho da documentação do Expo. O teste monta a tela inteira sobre um repositório em memória (`src/test/repositorio-falso.ts`), que implementa a mesma interface `ProgressRepository`, então exercita hook e componentes sem emulador do Firestore. Cobre o que muda a medida: Confirmar só com as duas seleções, em qualquer ordem; nenhum feedback em pré, pós e reteste; o tempo de resposta; a retomada; e a falha de gravação sem evento duplicado. O relógio entra na tela como parâmetro, como nas funções puras. Na configuração do Jest, imports de `.css` caem num módulo vazio.
+
+Revisto em 06/10 (regras). As regras do consentimento ganharam teste no emulador do Firestore: `npm run test:regras`, com `firebase-tools` e `@firebase/rules-unit-testing` como dependências de desenvolvimento. Fica separado de `npm test` (pasta `regras/`, configuração própria em `jest.regras.config.js`) porque precisa de Java e sobe o emulador; o projeto usado é `demo-maragames`, e o prefixo `demo-` garante que nada chega ao Firebase de verdade. O teste roda a transação real do repositório contra as regras reais e depois tenta cada atalho na mão: escolher a forma, pular posição, mexer no contador sem aceitar, usar data do aparelho, trocar ou apagar depois. Cada condição da regra foi conferida tirando-a e vendo um teste falhar; foi assim que apareceram uma brecha sem teste e a recusa no aceite simultâneo (item 22).
+
+Revisto em 07/10 (navegação). As rotas ganharam teste, em `src/__tests__/navegacao.test.tsx`, com o `renderRouter` do Expo Router sobre a pasta `src/app` de verdade, sessão simulada e o repositório em memória. Cobre o que a retirada das abas mudou (item 6): a home abre direto em `(app)`, nenhum texto do template aparece e `/explore` não leva a tela nenhuma. O teste fica fora de `src/app` porque lá todo arquivo vira rota. Dois detalhes de ferramenta: no Testing Library 14 o render é assíncrono, então o teste espera a promessa devolvida pelo `renderRouter` antes de ler a rota; e o Jest passou a conhecer o alias `@/assets`, que o `tsconfig.json` já tinha. O teste não mede pixels: sobreposição e rolagem continuam sendo conferência visual.
+
+Revisto em 07/10 (aparência). Quatro testes novos guardam a identidade visual (item 28): o contraste de cada par de texto e fundo do tema; nenhuma cor escrita à mão fora de `src/constants/theme.ts`, nem o `Button` do React Native (esse teste é em JavaScript, porque lê arquivos com o Node e os tipos do Node não entram no `tsconfig`); a família de fonte que cada tipo de texto e cada peso recebem; e a tela de login, pelas rotas reais, com a sessão de quem não entrou. Teste não julga se a tela ficou boa: isso continua sendo conferência visual, nos dois temas. O Jest passou a ignorar `.claude/`, onde ficam os worktrees do assistente.
+
+Revisto em 07/10 (trava). A trava do roteiro (item 23) é testada em três alturas: a regra, etapa por etapa, em `passo.test.ts`; o portão, com o repositório em memória (abre, barra, espera a leitura, fecha na falha e não decide duas vezes); e as rotas reais, em `navegacao.test.tsx`, onde quem está na espera e abre `/cartao/mda` ou `/bloco/reteste` termina em `/`. O teste do "decide uma vez" foi conferido tirando a proteção e vendo-o falhar. Como o Jest roda em modo de desenvolvimento, os testes do app do participante desligam `__DEV__` enquanto rodam.
+
+Revisto em 07/10 (espera). A espera do reteste (item 23) tem teste nas mesmas três alturas: as funções puras de data e de texto, incluindo a virada do dia no fuso de São Luís e o "no sábado" e "no domingo"; a tela "Seu dia 1" sobre o repositório em memória (só o pós entra na conta, nenhum enunciado aparece, tópico da trilha não é travado, falha de leitura deixa tentar de novo); e as rotas reais, da home na espera até `/dia-1`, e `/dia-1` antes do pós voltando para a home.
+
+Revisto em 08/10. Mais um teste de varredura, `src/__tests__/acessibilidade-na-web.test.js`: nenhuma tela usa as props de acessibilidade que não chegam à web (item 25). E o Jest das regras passou a ignorar `.claude/`, como o `npm test` já fazia.
+
+Revisto em 08/10 (embaralhamento). `embaralhar.test.ts` ganhou um teste de uniformidade: em 4.000 sorteios por fase, cada alternativa cai em cada posição entre 22% e 28% das vezes. Veio de uma dúvida da validação: uma conta de teste teve a alternativa certa 7 vezes em 12 na posição D, no pós. Era acaso, e agora há teste que diz isso.
+
+Revisto em 08/10 (abertura). O teste de cores ficou sem exceção nenhuma, e entrou `src/__tests__/identidade-do-app.test.js`, que lê o `app.json`: as imagens do ícone, do favicon e da tela de abertura existem, nenhuma é a do template, nenhuma cor é o azul do Expo, e o fundo da tela de abertura é o do tema, no claro e no escuro. O teste de navegação passou a conferir que a tela de abertura só é escondida quando a fonte está pronta.
+
+Revisto em 08/10 (retenção e rotas). `retencao.test.ts` cobre as bordas que mudam o número: pós com zero acertos, reteste pela metade, resposta repetida na mesma fase, questão de fora do bloco e a confiança do reteste não contaminando o quadrante. O teste de navegação ganhou o endereço que não existe, logado e deslogado; o do `app.json` confere que o mapa de rotas está desligado.
+
+Revisto em 08/10 (trilha). A trilha diária (item 23) tem teste nas três alturas de sempre: `trilha.test.ts`, com a fila, a virada do dia em São Luís, o tópico pela metade, a sequência com e sem dia pulado e a semana do piloto; o cartão da home, em cada estado; e as rotas reais, do "Começar" na home à tela da sequência e de volta, mais o tópico de amanhã barrado pela URL. O repositório em memória ganhou `acertarRelogio`, para o teste gravar respostas "hoje": antes ele carimbava tudo em 1970, o que bastava enquanto nada dependia do dia.
+
+Revisto em 08/10 (exportação). `exportacao.test.ts` monta um piloto pequeno, com duas participantes, uma conta de teste e alguém sem termo, e cobre quem entra, o anonimato dos arquivos enviados, cada coluna que muda uma conclusão (ganho normalizado nas bordas, dias até o reteste, fora da janela, reteste ausente) e o formato do CSV. O script em si não tem teste: ele só lê o banco, chama a função e escreve os arquivos; foi conferido rodando contra as contas de teste.
+
+## 27. Resultado do bloco: agrupado nos blocos medidos, por questão só na prática
+
+Decidido em 06/10. No fim de cada bloco, a própria tela do bloco mostra o resultado (M4): XP do bloco, acertos, a contagem dos quatro quadrantes e o que revisar primeiro. Quatro escolhas:
+
+- **Nos blocos medidos, nada aparece por questão.** Pré, pós e reteste mostram, além do XP e dos quadrantes, o acerto por tópico e por nível de confiança (o relatório do item 19), e a revisão vem por tópico ("Escolhendo a Engine Certa: 2 pontos cegos · 1 frágil"). Nenhum enunciado, alternativa ou explicação. O motivo é a medida: o reteste repete as questões do pós, e dizer quais a pessoa errou ensinaria exatamente o que vai ser medido de novo; no pré as questões não se repetem, mas detalhe por questão é feedback, que o item 19 proíbe antes do estudo. Na prática, o feedback já foi dado questão a questão, então a revisão lista as questões, com enunciado e selo.
+- **Ordem de revisão: ponto cego, lacuna, frágil.** Segue a leitura do quadrante: o erro com certeza é o equívoco a corrigir primeiro. O que está firme não entra. Os tópicos saem ordenados pelo número de pontos cegos, depois de lacunas, depois de frágeis.
+- **A agregação é função pura** (`resultadoDoBloco`, em `src/lib/resultado.ts`), com testes (item 26). Cada questão conta uma vez, pela resposta mais recente da fase, e tudo sai na ordem do bloco. O resultado não é gravado: reabrir um bloco já concluído recalcula e mostra de novo.
+- **O resultado é o estado final da tela do bloco, não uma rota.** O hook já tem em mãos as respostas lidas ao abrir e as gravadas na sessão, então o fim do bloco não lê o banco de novo. A apresentação fica num componente separado (`src/components/resultado/`), para o relatório do dia 1 da espera do reteste (M5) reaproveitar.
+
+O XP aparece com o saldo real, inclusive negativo (item 14). O resultado não compara pré com pós: o ganho é da análise (M8), não da tela do aluno.
+
+## 28. Protótipo visual do piloto: ajustes adotados e pontos em aberto
+
+Decidido em 06/10. O grupo tem um protótipo de 12 telas (login, consentimento, home com roteiro, pergunta, cartão, feedback da prática, relatório do dia 1, sequência da trilha, espera do reteste e versões em tema escuro). Ele é a direção visual do app. Antes de virar código, oito ajustes foram adotados:
+
+1. **O XP volta a aparecer**: "+3 XP" no feedback da prática e o saldo no relatório. Sem ponto em jogo à vista, nada incentiva declarar a confiança com sinceridade (item 14). O app já mostra os dois; falta no protótipo.
+2. **Um X no cabeçalho** da pergunta, do cartão e do feedback. Sair não é pular (item 25). O app já tem; falta no protótipo.
+3. **Confiança e Confirmar fixos no rodapé**: só enunciado, alternativas e feedback rolam. Feito no app em 06/10 (item 25); o protótipo precisa mostrar o rodapé fixo.
+4. **Contagens no lugar de percentuais**: "1 de 3 → 3 de 3", "6 de 7". Com 3 questões por tópico e poucas respostas por nível, percentual sugere uma precisão que não existe. O app já usa contagens; falta no protótipo.
+5. **Uma descrição só para cada quadrante**, igual no claro e no escuro, com "sem certeza" no lugar de "com dúvida": Frágil e Lacuna incluem o Palpite (item 15). O app já tem um texto único, em `src/constants/textos.ts`; falta no protótipo.
+6. **Senha com mínimo de 8 caracteres**, como a validação do app (`src/lib/validacao.ts`). Falta no protótipo, que diz 6.
+7. **Desenhar os estados que faltam**, ao menos o feedback de resposta errada, que é o mais visto. O app já tem erro, carregando e falha de rede; faltam o desenho no protótipo e a tela do SUS nos dois.
+8. **Os dois estilos de lobo ficam, cada um no seu lugar.** A sugestão era usar um só; revisto em 06/10, por decisão do grupo: a logo da Beast Maragames aparece no login, e o mascote em cartum, nas telas de consentimento e de sequência da trilha. A logo identifica a marca; o mascote acompanha os momentos de conversa com o participante. Não há troca a fazer no protótipo.
+
+Sete pontos do protótipo contradizem decisões desta lista e continuam em aberto, para o grupo fechar (item 24):
+
+- **Resultado do pré-teste só no fim do dia 1.** O protótipo tem um relatório único, depois do pós; o app mostra um resultado logo depois do pré (item 27). O protótipo está mais perto do item 19 e é melhor para a medida: dizer "Pixel Art 0 de 3" antes do estudo é feedback antes da intervenção e pode inflar o ganho.
+- **Relatório comparando pré e pós por tópico.** O item 27 diz que o resultado não compara os dois.
+- **Consentimento logo depois do login, sem "Agora não".** O item 22 o trata como etapa do roteiro, que a pessoa pode recusar e ainda ver a home.
+- **Home sem os atalhos travados**, com a lista "Seu roteiro" no lugar. O item 6 pede os atalhos.
+- **Ordem dos tópicos** MDA, Pixel Art, Engine, Lógica, a do item 23; o app segue o JSON.
+- **Reteste nos "dias 7 a 9"** com o dia 1 sendo o do pós, o que dá pós + 6; o app implementa pós + 7.
+- **Termo mais curto**, sem os dados do perfil nem quem é o grupo.
+
+Se o visual for adotado, o que muda no código tem três tamanhos: só aparência (tema e estilo dos componentes, que já estão separados); comportamento (relatório único do dia 1, lista do roteiro na home, tela de espera); e conteúdo (os cartões do protótipo têm diagrama e frase de destaque, e hoje um slide só tem título e texto, então `content/topicos.json` precisa de campos novos).
+
+Revisto em 07/10 (aparência aplicada). A primeira das três partes entrou no app, em quatro passos, cada um com teste antes do código:
+
+- **Cores.** A paleta do protótipo foi para `src/constants/theme.ts`, nos dois temas, com tokens novos: `borda`, `bordaSelecionada`, `botao`, `textoDoBotao`, `fundoDaLogo` e `lacuna` (a Lacuna era cinza e passou ao azul do protótipo). Uma diferença deliberada: no tema escuro, as cores de estado e de quadrante entram clareadas. No protótipo elas são fundos com texto branco; no app são texto, ícone e borda sobre fundo escuro, e ali o azul da Lacuna dava contraste de 1,9 para 1 e o vermelho do Ponto cego, 3 para 1. Um teste calcula o contraste de cada par de texto e fundo usado nas telas e exige 4,5 para 1; outro barra cor escrita à mão fora do tema e o `Button` do React Native, que traz o azul do sistema.
+- **Fonte.** Lexend nos pesos 400, 500, 600 e 700, pelo pacote `@expo-google-fonts/lexend`, carregada no layout raiz com `useFonts`, que funciona no Expo Go e na web (o config plugin do `expo-font` exigiria build próprio). A tela de abertura segura até a fonte chegar; se a carga falhar, o app abre com a fonte do aparelho. Com fonte própria cada peso é um arquivo, e no Android `fontWeight` sozinho não troca de arquivo: `ThemedText` transforma o peso pedido na família daquele peso, então nenhuma tela precisa saber o nome das famílias.
+- **Componentes.** Botão principal, alternativa (a letra num quadrado, cheio quando selecionada e na cor do estado quando certa ou errada, que continuam com ícone), seletor de confiança, campo de texto, selo e cartões no tratamento do protótipo. Entrou a barra de progresso no cabeçalho da pergunta, contando as questões respondidas.
+- **Logo e mascote.** A logo em SVG no login, sobre círculo branco (no escuro é o que a faz aparecer), com a chamada "Pronto pra soltar a fera?"; o mascote em cartum no consentimento, marcado como enfeite para o leitor de tela. O login passou a usar os mesmos campo e botão das outras telas.
+
+Ficou igual ao que já estava decidido, mesmo diferente do PDF de 06/10: o X e o rodapé fixo da pergunta, a senha de 8 caracteres, o botão "Continuar com Google", os atalhos travados da home e o texto do termo. As outras duas partes (comportamento e conteúdo) continuam esperando os pontos em aberto acima.
+
+Conferido na web, em 375×812, nos dois temas: home, pergunta e login. O consentimento com o mascote só foi conferido por teste, porque a conta usada já aceitou o termo. Nada foi visto num aparelho.
+
+Revisto em 08/10. Os ajustes foram aplicados à mão no Figma, pelo Tiago, porque a integração do assistente com o Figma ficou barrada pelo limite de chamadas do plano gratuito. O arquivo usa layout automático com camadas nomeadas, então o "✕" entrou no "Topo" de cada quadro e o rodapé virou um quadro "Rodapé fixo" com traço só em cima. Os pontos em que o protótipo contradiz decisões continuam valendo como estão descritos acima.
+
+Conferido em 08/10 a partir do arquivo `.fig` exportado, lendo a árvore de camadas dos 13 quadros: os textos, o "Rodapé fixo" com traço só em cima nos quadros 04, 06, 06b e no 04 escuro, o selo de XP no feedback e no relatório, as contagens, as descrições dos quadrantes e a senha de 8 caracteres estão como combinado, e não sobrou percentual. As duas sobras cosméticas que havia foram corrigidas no mesmo dia, pela IA do Figma: o "X" de sair virou "✕" em todos os quadros, e o 06b voltou a 390 × 844, com a linha "Resposta certa: alternativa B." e 7 px entre os itens do cartão. A troca do "✕" e a altura foram conferidas num segundo `.fig`; o último ajuste de texto e de espaço vale pelo relato da IA.
+
+Revisto em 08/10 (cadastro e perfil). As duas telas tinham ficado com o botão no estilo antigo, cinza. Passaram a usar o botão principal do tema, e "Continuar com Google" virou um botão secundário, só de contorno (`src/components/botao-secundario.tsx`), o mesmo do login. No perfil, as opções de experiência ganharam borda e peso na marcada, como os níveis de confiança: com a paleta nova, o fundo da marcada (`#F1EDF8`) e o da não marcada (`#F6F4FA`) quase não se distinguiam no tema claro. O cadastro foi conferido na web; o perfil, só por tipos e testes, porque exige uma conta sem perfil.
+
+Revisto em 08/10 (abertura e ícone). A animação de abertura do template saiu inteira (`animated-icon` e as imagens dela): o app passa da tela de abertura do aparelho direto para o conteúdo, e é o layout raiz que manda escondê-la, com `SplashScreen.hide()`, quando a fonte termina de carregar. No `app.json`, o ícone do app, o ícone do Android, o favicon e a tela de abertura passaram a ser a logo da Beast Maragames, em PNGs gerados do SVG do repositório com o `sips` do macOS; a tela de abertura é branca no tema claro e, no escuro, usa o fundo do tema com a logo sobre círculo branco, como no login. O ícone em camadas do iOS (`assets/expo.icon`) e a versão monocromática do Android eram do template e saíram; o iOS usa o ícone comum, e o Android fica sem ícone temático. Limite: no Expo Go, quem aparece ao abrir é o ícone do app, e não a tela de abertura, e a configuração completa só vale num build próprio.
+
