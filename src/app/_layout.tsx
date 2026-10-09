@@ -6,10 +6,11 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SessionProvider, useSession } from '@/lib/session';
 
 SplashScreen.preventAutoHideAsync();
