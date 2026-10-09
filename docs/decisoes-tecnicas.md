@@ -300,7 +300,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
-- Conferir num aparelho de verdade (Expo Go) o que falta: o XP à vista (selo na home, tela da sequência e "Seu dia 1", feitos em 09/10 e ainda só testados por código), o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
+- Conferir num aparelho de verdade (Expo Go) o que falta: o XP à vista (o selo na home e o "Seu dia 1" já foram vistos na web em 09/10; a tela da sequência, com o XP do tópico, só aparece ao terminar o próximo tópico da trilha), o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
@@ -351,7 +351,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 09/10**
 
-- XP à vista (item 14): a tela da sequência mostra o XP do tópico ao lado dos acertos, "Seu dia 1" diz "XP do pós-teste" e a home ganhou o selo com o total, que só conta bloco medido depois de concluído e tem piso em 0. Coberto por testes (`npm test` com 549); falta ver no app, na web e no iPhone.
+- XP à vista (item 14): a tela da sequência mostra o XP do tópico ao lado dos acertos, "Seu dia 1" diz "XP do pós-teste" e a home ganhou o selo com o total, que só conta bloco medido depois de concluído e tem piso em 0. Coberto por testes (`npm test` com 549). Conferido na web, no Chrome do Tiago, com a conta dele, em tema escuro, em largura de computador e de celular: a home mostra "XP: +10" ao lado da saudação, e "Seu dia 1" mostra "XP do pós-teste" com −18 XP. Os dois números batem com a exportação de 09/10 somada ao UX/UI (−8 + 18 = +10; pós em −18). A tela da sequência não reabre depois do tópico do dia, então fica para o próximo tópico, junto com o iPhone.
 - Pull request nº 5 integrado ao `main` pelo Tiago. O trabalho novo parte do `main`, em branch própria.
 - Exportação: a pasta leva a data do filtro no nome, e um filtro que não pega ninguém avisa e não grava nada (item 23). Antes, duas rodadas no mesmo dia escreviam uma por cima da outra, e a segunda, vazia, apagou os arquivos da primeira.
 

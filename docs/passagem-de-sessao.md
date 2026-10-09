@@ -17,7 +17,7 @@ Combinados com o Tiago, que valem para toda sessão:
 
 ## O que está esperando resposta do Tiago
 
-1. **Conferir o XP à vista no app.** As três mudanças foram aprovadas e feitas em 09/10, com teste antes do código (item 14 de `docs/decisoes-tecnicas.md`): XP do tópico na tela da sequência, "XP do pós-teste" no "Seu dia 1" e o selo com o total na home. Está em commit, na branch local, mas sem conferência visual: o painel do navegador desta conversa não tinha sessão logada, então falta ver na web, com o Tiago logado no painel, e no iPhone.
+1. **Ver o XP na tela da sequência e no iPhone.** As três mudanças do XP à vista foram feitas em 09/10 e estão em commit, na branch local (item 14 de `docs/decisoes-tecnicas.md`). Na web, no Chrome do Tiago, a home mostra "XP: +10" e o "Seu dia 1" mostra "XP do pós-teste", e os números batem com a exportação. Falta a tela da sequência, que só aparece ao terminar um tópico da trilha (o próximo é Efeitos sonoros), e ver as três no iPhone.
 2. **Push e pull request da branch `fix/exportacao-pasta-e-aviso`.** Ela tem commits só locais. O XP à vista entra no mesmo pull request.
 3. **Testes no emulador das regras de `answers` e `attempts`**, no molde de `regras/consentimento.test.ts`. É o item de código que não depende do grupo.
 
@@ -52,7 +52,7 @@ Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num 
 ## Limites do assistente nesta máquina
 
 - Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um.
-- **Sessão logada no painel do navegador.** A sessão do painel do navegador não passa de uma conversa para outra: em 09/10, numa conversa nova, `http://localhost:8081` abriu no login. A conta Tiagopbc estava logada no Chrome do Tiago em `http://127.0.0.1:8081`. Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
+- **Sessão logada no painel do navegador.** A sessão do painel do navegador não passa de uma conversa para outra: em 09/10, numa conversa nova, `http://localhost:8081` abriu no login. A saída foi o Chrome do Tiago, pela extensão, onde a conta dele está logada em `http://localhost:8081` (a conta Tiagopbc estava em `http://127.0.0.1:8081`). Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
 - Para ver o login sem deslogar ninguém, abrir `http://127.0.0.1:8081` no painel: é outro endereço para o navegador, então não enxerga a sessão de `localhost`.
 - Não apaga dados em definitivo. Para a limpeza, escreve um script que primeiro lista, e o Tiago roda.
 - O protótipo do Figma foi corrigido à mão pelo Tiago em 08/10; a integração do assistente com o Figma estava barrada pelo limite do plano.
