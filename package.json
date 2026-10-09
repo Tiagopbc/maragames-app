@@ -58,15 +58,48 @@
     "test:regras": "firebase emulators:exec --only firestore --project demo-maragames \"jest --config jest.regras.config.js\""
   },
   "jest": {
-    "preset": "jest-expo",
-    "moduleNameMapper": {
-      "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
-      "^@/assets/(.*)$": "<rootDir>/assets/$1"
-    },
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/regras/",
-      "<rootDir>/.claude/"
+    "projects": [
+      {
+        "displayName": "nativo",
+        "preset": "jest-expo",
+        "moduleNameMapper": {
+          "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
+          "^@/assets/(.*)$": "<rootDir>/assets/$1"
+        },
+        "testPathIgnorePatterns": [
+          "/node_modules/",
+          "<rootDir>/regras/",
+          "<rootDir>/.claude/",
+          "\\.test\\.web\\.[jt]sx?$"
+        ]
+      },
+      {
+        "displayName": "web",
+        "preset": "jest-expo/web",
+        "transform": {
+          "\\.[jt]sx?$": [
+            "babel-jest",
+            {
+              "presets": [
+                "babel-preset-expo"
+              ],
+              "caller": {
+                "name": "metro",
+                "bundler": "metro",
+                "platform": "web"
+              }
+            }
+          ]
+        },
+        "moduleNameMapper": {
+          "^react-native$": "react-native-web",
+          "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
+          "^@/assets/(.*)$": "<rootDir>/assets/$1"
+        },
+        "testMatch": [
+          "<rootDir>/src/**/*.test.web.[jt]s?(x)"
+        ]
+      }
     ]
   },
   "private": true,

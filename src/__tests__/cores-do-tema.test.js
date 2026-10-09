@@ -40,3 +40,17 @@ it('nenhuma tela usa o Button do React Native', () => {
 
     expect(comButton).toEqual([]);
 });
+
+// Na web, o `useColorScheme` do react-native perde a troca de tema do sistema em parte dos
+// componentes (item 29). Quem precisa do esquema usa `@/hooks/use-color-scheme` ou `useTheme`.
+const HOOK_DO_ESQUEMA = ['hooks/use-color-scheme.ts', 'hooks/use-color-scheme.web.ts'];
+const ESQUEMA_DIRETO = /import\s*\{[^}]*\buseColorScheme\b[^}]*\}\s*from\s*['"]react-native['"]/;
+
+it('só o hook do projeto lê o esquema de cores direto do react-native', () => {
+    const comLeituraDireta = arquivos(RAIZ)
+        .map((caminho) => relative(RAIZ, caminho))
+        .filter((caminho) => !HOOK_DO_ESQUEMA.includes(caminho))
+        .filter((caminho) => ESQUEMA_DIRETO.test(readFileSync(join(RAIZ, caminho), 'utf8')));
+
+    expect(comLeituraDireta).toEqual([]);
+});

@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 08/10/2026 (itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (item 29 novo e item 24 revisto: troca de tema do sistema na web; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -291,7 +291,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
-- Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
+- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a causa foi achada e corrigida, e a correção foi vista na web, na tela de login, em 07/10. Faltam a home, o bloco e o cartão com a correção aplicada, e o Expo Go, onde o defeito não deve existir.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
 - Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
 - Sobras do seed antigo no banco (item 21): restam 3 questões fora do JSON, sem versão de conteúdo. A lição 5, que estava solta, foi reaproveitada pelo seed de 08/10 como "Efeitos sonoros". Decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
@@ -337,6 +337,10 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 - Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
 - Data exata do Incubators.
+
+**Resolvidas em 09/10**
+
+- Cartões na cor antiga ao trocar de tema com o app aberto, na web: a causa era o `useColorScheme` do react-native-web, e não o React Compiler. Corrigido no hook da web, com teste (item 29). Fica a conferência com o app logado, acima.
 
 **Resolvidas em 08/10**
 
@@ -486,3 +490,16 @@ Revisto em 08/10 (cadastro e perfil). As duas telas tinham ficado com o botão n
 
 Revisto em 08/10 (abertura e ícone). A animação de abertura do template saiu inteira (`animated-icon` e as imagens dela): o app passa da tela de abertura do aparelho direto para o conteúdo, e é o layout raiz que manda escondê-la, com `SplashScreen.hide()`, quando a fonte termina de carregar. No `app.json`, o ícone do app, o ícone do Android, o favicon e a tela de abertura passaram a ser a logo da Beast Maragames, em PNGs gerados do SVG do repositório com o `sips` do macOS; a tela de abertura é branca no tema claro e, no escuro, usa o fundo do tema com a logo sobre círculo branco, como no login. O ícone em camadas do iOS (`assets/expo.icon`) e a versão monocromática do Android eram do template e saíram; o iOS usa o ícone comum, e o Android fica sem ícone temático. Limite: no Expo Go, quem aparece ao abrir é o ícone do app, e não a tela de abertura, e a configuração completa só vale num build próprio.
 
+## 29. Esquema de cores na web lido do sistema a cada render
+
+Decidido em 07/10, a partir de um defeito: na web, trocar o tema do sistema com o app aberto deixava parte da tela com as cores do tema anterior (na home, cartão claro com texto claro, ilegível até recarregar).
+
+A causa está no `useColorScheme` do react-native-web 0.21. Ele guarda o esquema em estado e, por ter um efeito sem lista de dependências, remove e registra de novo o ouvinte do `matchMedia` a cada render. O React trata o evento `change` como discreto e redesenha entre um ouvinte e o seguinte. Um componente redesenhado por quem está em volta antes de chegar a vez do ouvinte dele tem esse ouvinte removido no meio do disparo, e o navegador não chama ouvinte removido: o componente perde o aviso e fica com o esquema antigo. Quem fica para trás depende da ordem em que os componentes redesenharam por último, por isso o sintoma variava (ora a tela, ora os filhos). O expo-router põe em volta de cada tela um componente que também lê o esquema, e isso basta para o defeito aparecer. Medido na home: de 20 ouvintes registrados, 16 foram chamados e 4 foram removidos sem serem chamados.
+
+Duas hipóteses foram descartadas com evidência. O React Compiler não é a causa: o código compilado da home depende de `theme.backgroundElement` e recalcula quando o tema muda; ele só decide quais filhos redesenham junto com a tela, isto é, quem fica para trás. O Stack também não: a tela redesenha normalmente.
+
+A decisão: `src/hooks/use-color-scheme.web.ts` deixa de usar o hook do react-native-web e passa a usar `useSyncExternalStore` sobre `Appearance`, com uma assinatura só por componente e o esquema lido do sistema a cada render. É o que o React Native já faz no nativo, onde o defeito não existe (conferido no código do React Native 0.86, não em aparelho). A página estática continua saindo em claro, agora pelo terceiro argumento do `useSyncExternalStore`, no lugar do estado `hasHydrated`. O `_layout.tsx` raiz passou a ler o esquema pelo hook do projeto, e um teste impede novo import direto de `useColorScheme` do `react-native`. É o padrão do item 10: a diferença de plataforma fica no arquivo `.web.ts`.
+
+Para cobrir o defeito, o `npm test` ganhou um segundo projeto do jest, "web" (`jest-expo/web`, com jsdom e react-native-web), que roda os arquivos `*.test.web.tsx`; o projeto "nativo" é o de antes. O teste novo reproduz a ordem de ouvintes que causa o defeito e falha com o hook antigo.
+
+Conferido na web em 07/10, em 375×812, na tela de login, com o hook antigo e com o novo. Visto de novo em 09/10, com a correção reaplicada sobre o `main`: em três trocas seguidas, nenhum componente ficou para trás. Falta ver a home logada com a correção e o Expo Go (item 24).
