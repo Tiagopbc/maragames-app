@@ -1,6 +1,6 @@
 # Plano do app completo
 
-09/10/2026 · Tiago Cavalcanti. **Aprovado pelo Tiago em 09/10**, com a medição por tópico, a sugestão do dia e as decisões D1 e D2 fechadas; D3 a D8 seguem como recomendação até serem respondidas, e falta o grupo confirmar a virada. Este arquivo guia o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md` (a virada é o item 30), e o andamento de cada fase fica no item 24.
+09/10/2026 · Tiago Cavalcanti. **Aprovado pelo Tiago em 09/10**, com a medição por tópico, a sugestão do dia e as decisões D1, D2, D3 e D5 fechadas; D4, D6, D7 e D8 seguem como recomendação até serem respondidas, e falta o grupo confirmar a virada. Este arquivo guia o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md` (a virada é o item 30), e o andamento de cada fase fica no item 24.
 
 ## 1. O que muda
 
@@ -162,12 +162,13 @@ Sem datas. Cada fase tem uma prova; só começa a seguinte quando a prova passa.
 **Fase 0 — Virar os documentos e fechar o que está aberto.**
 Atualizar `AGENTS.md` (escopo, regras da home, fora de escopo), rever nas decisões os itens 6, 19, 20, 22, 23 e 27, e reescrever o item 24 na ordem destas fases. Decidir push e pull request da branch `fix/exportacao-pasta-e-aviso`. Conferir se a branch `fix/tema-na-web` resolve o tema preso e trazê-la.
 Prova: quem ler `AGENTS.md` e o item 24 entende o projeto novo sem ler este arquivo.
-Andamento em 09/10: documentos revistos e a correção do tema trazida (ela já estava no `main` remoto, pelo pull request nº 6). Falta o push e o pull request da branch.
+Andamento em 09/10: concluída, com o pull request nº 7 integrado. Falta só o grupo confirmar a virada.
 
 **Fase 1 — Motor do ciclo da lição.**
 Funções puras, sem tela: `estadoDaLicao`, `sugestaoDoDia`, o recorte de questões por tópico e fase, e o `xpAcumulado` por tópico.
 Prova: os testes cobrem os sete estados, a ordem da sugestão e uma conta de teste antiga lida pelo modelo novo.
 Depende de: Fase 0.
+Andamento em 09/10: concluída. O total novo ficou com o nome `xpDasLicoes`, e o `xpAcumulado` segue servindo à home até a Fase 4.
 
 **Fase 2 — Página da lição e blocos por tópico.**
 Rota `/licoes/[topicId]`, com os passos e o estado; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição com antes e depois; a trava por lição; regras do Firestore conferidas e testadas no emulador.
@@ -234,15 +235,15 @@ Prova: uma pessoa de fora instala, cria conta e conclui uma lição sem ajuda.
 
 ## 10. Decisões em aberto
 
-A D1 e a D2, que entram no `estadoDaLicao`, foram decididas em 09/10, conforme a recomendação. As outras têm uma recomendação e podem esperar a fase em que aparecem.
+A D1, a D2, a D3 e a D5 foram decididas pelo Tiago em 09/10, conforme a recomendação. As outras têm uma recomendação e podem esperar a fase em que aparecem.
 
 | | Pergunta | Recomendação |
 |---|---|---|
 | D1 | O diagnóstico é obrigatório ou dá para pular? | **Decidido: obrigatório.** São 3 questões, e sem ele não há antes e depois. |
 | D2 | Entre a verificação e a revisão, a lição fica travada? | **Decidido: a prática fica travada e o cartão fica livre.** Refazer a prática na véspera mudaria o que a revisão mede; reler o cartão não gera evento. É a mesma razão do "travados até o reteste" de hoje, agora só para a lição em espera. |
-| D3 | Onde fica o termo de consentimento? | Uma vez, antes do primeiro diagnóstico. É ele que cria a `formaPre`. Se o app deixar de ser pesquisa, vira aviso de privacidade e a forma nasce no perfil. |
+| D3 | Onde fica o termo de consentimento? | **Decidido: uma vez, antes do primeiro diagnóstico.** É ele que cria a `formaPre`. Se o app deixar de ser pesquisa, vira aviso de privacidade e a forma nasce no perfil. |
 | D4 | O SUS continua? | Sai do fluxo. Era o fecho do piloto; sem piloto, não tem momento natural. Pode voltar como "Avaliar o app" no Perfil. |
-| D5 | Mostrar antes e depois no fim da lição? | Sim, em contagem. Revê o item 27. |
+| D5 | Mostrar antes e depois no fim da lição? | **Decidido: sim, em contagem.** Revê o item 27. |
 | D6 | Navegação por atalhos na home ou barra de abas? | Atalhos na home, como pedido. A barra de abas volta à discussão quando as quatro áreas existirem. |
 | D7 | Uma revisão aos 7 dias ou intervalos crescentes? | Uma, por ora. Os intervalos são a Fase 7. |
 | D8 | As duas contas de teste: apagar ou manter? | Manter até a Fase 2, porque servem de prova de que os dados antigos são lidos pelo modelo novo. |

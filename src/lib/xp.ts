@@ -2,6 +2,7 @@
 // Função pura: sem React, sem Firebase, sem estado. O XP nunca é gravado, é calculado de `answers`.
 
 import type { Answer, Confianca, Fase } from '../types/domain';
+import type { Licao } from './licao';
 import type { Etapa } from './roteiro';
 
 // Dúvida compensa a partir de 50% de chance de acerto e certeza a partir de 75%;
@@ -39,6 +40,38 @@ export function xpAcumulado(
     const ultimaPorQuestao = new Map<string, Pick<Answer, 'correta' | 'confianca'>>();
     for (const r of respostas) {
         if (r.fase !== 'pratica' && !CONCLUIDO_EM[r.fase].includes(etapa)) continue;
+        ultimaPorQuestao.set(`${r.fase}|${r.questionId}`, r);
+    }
+    if (ultimaPorQuestao.size === 0) return null;
+
+    return Math.max(0, somarXp([...ultimaPorQuestao.values()]));
+}
+
+// Em que estados da lição cada bloco sem feedback do tópico já está concluído (item 30).
+const CONCLUIDO_NA_LICAO: Record<Exclude<Fase, 'pratica'>, readonly Licao['estado']['tipo'][]> = {
+    pre: ['estudo', 'verificacao', 'aguardando_revisao', 'revisao', 'concluida'],
+    pos: ['aguardando_revisao', 'revisao', 'concluida'],
+    reteste: ['concluida'],
+};
+
+/**
+ * O total pelo ciclo da lição: a mesma conta de `xpAcumulado`, com cada tópico fechando os seus
+ * blocos por conta própria. Diagnóstico, verificação e revisão só entram quando a lição do
+ * tópico passou deles; a prática entra sempre. Bloco sem feedback de tópico que não é lição
+ * fica de fora. Substitui `xpAcumulado` quando a home deixar o roteiro geral (Fase 4 do plano).
+ */
+export function xpDasLicoes(
+    respostas: readonly Pick<Answer, 'fase' | 'questionId' | 'topicId' | 'correta' | 'confianca'>[],
+    licoes: readonly { topicId: string; estado: Pick<Licao['estado'], 'tipo'> }[]
+): number | null {
+    const estadoDe = new Map(licoes.map((l) => [l.topicId, l.estado.tipo]));
+    const ultimaPorQuestao = new Map<string, Pick<Answer, 'correta' | 'confianca'>>();
+
+    for (const r of respostas) {
+        if (r.fase !== 'pratica') {
+            const estado = estadoDe.get(r.topicId);
+            if (estado === undefined || !CONCLUIDO_NA_LICAO[r.fase].includes(estado)) continue;
+        }
         ultimaPorQuestao.set(`${r.fase}|${r.questionId}`, r);
     }
     if (ultimaPorQuestao.size === 0) return null;

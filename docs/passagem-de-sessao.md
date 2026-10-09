@@ -17,17 +17,16 @@ Combinados com o Tiago, que valem para toda sessão:
 
 ## O que está esperando resposta do Tiago
 
-1. **Push e pull request da branch `fix/exportacao-pasta-e-aviso`.** É o que falta para fechar a Fase 0 do plano. A branch tem os ajustes da exportação, o XP à vista, o plano do app completo e os documentos revistos, já com o `main` do pull request nº 6.
-2. **Começar a Fase 1** (motor do ciclo da lição, só funções puras): antes do código, apresentar o desenho de `estadoDaLicao` e `sugestaoDoDia`.
-3. **Decisões D3 a D8** do plano (seção 10). Nenhuma trava a Fase 1; D3 (lugar do termo) e D5 (antes e depois na tela do aluno) precisam de resposta na Fase 2.
-4. **O grupo confirmar a virada.** Ela foi fechada só com o Tiago.
+1. **Aprovar o desenho da Fase 2** (página da lição e blocos por tópico), apresentado em 09/10. D3 e D5 já estão decididas. A Fase 1 está em commit, na branch `feat/ciclo-da-licao`, só local.
+2. **O grupo confirmar a virada.** Ela foi fechada só com o Tiago.
+3. **Decisões D4, D6, D7 e D8** do plano (seção 10). Nenhuma trava a Fase 2.
 
 ## Estado do repositório
 
-- **`main` remoto:** tem os pull requests nº 5 (roteiro do piloto) e nº 6 (correção do tema na web), os dois integrados em 09/10. O `main` local ainda está no nº 5.
-- **Branch atual, só local:** `fix/exportacao-pasta-e-aviso`. Traz os ajustes da exportação, o XP à vista, o plano e os documentos da virada, e já recebeu o `main` remoto por junção. Sem push e sem pull request.
+- **`main`:** tem os pull requests nº 5 (roteiro do piloto), nº 6 (correção do tema na web) e nº 7 (XP à vista, exportação, plano e documentos da virada), todos integrados em 09/10.
+- **Branch atual, só local:** `feat/ciclo-da-licao`, saída do `main`, com a Fase 1 do plano: `src/lib/licao.ts`, `src/lib/sugestao.ts` e `xpDasLicoes`, sem mudança em tela.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 553 testes (549 no projeto "nativo" e 4 no "web"); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 603 testes (599 no projeto "nativo" e 4 no "web"); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)

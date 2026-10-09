@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -309,19 +309,14 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Fase 0 — Documentos e o que está aberto**
 
-- Push e pull request da branch `fix/exportacao-pasta-e-aviso`, que traz os ajustes da exportação, o XP à vista, o plano e os documentos revistos, já com o `main` do pull request nº 6. Aguardando o Tiago.
 - O grupo confirmar a virada (item 30): ela foi fechada só com o Tiago.
-
-**Fase 1 — Motor do ciclo da lição**
-
-- Funções puras, sem tela: `estadoDaLicao` (os sete estados), `sugestaoDoDia`, o recorte de questões por tópico e fase, e o `xpAcumulado` decidindo "bloco concluído" por tópico.
 
 **Fase 2 — Página da lição e blocos por tópico**
 
-- Rota `/licoes/[topicId]`; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição; trava por lição.
+- Rota `/licoes/[topicId]`; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição; trava por lição, com a prática fechada entre a verificação e a revisão (D2).
 - Regras do Firestore: conferir a tentativa por lição nos blocos sem feedback e testar `answers` e `attempts` no emulador. As do consentimento já estão testadas (`npm run test:regras`).
 - XP do tópico na tela da sequência (item 14): feito em 09/10 e coberto por teste, mas ainda não visto no app. A tela passa a ser o fim da lição.
-- Decisões D3 (lugar do termo) e D5 (antes e depois na tela do aluno) precisam de resposta aqui. O texto do termo, em `src/constants/termo.ts`, continua rascunho.
+- O termo aparece uma vez, antes do primeiro diagnóstico (D3), e o fim da verificação mostra o antes e o depois em contagem (D5): as duas decididas em 09/10. O texto do termo, em `src/constants/termo.ts`, continua rascunho.
 
 **Fase 3 — Lista de lições**
 
@@ -366,7 +361,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Decisões em aberto**
 
-- D3 a D8, na seção 10 do plano, cada uma com recomendação. D1 e D2 foram decididas em 09/10.
+- D4, D6, D7 e D8, na seção 10 do plano, cada uma com recomendação. D1, D2, D3 e D5 foram decididas em 09/10.
 
 **Deixaram de valer com a virada (item 30)**
 
@@ -380,6 +375,8 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 09/10**
 
+- Fase 1 do plano, o motor do ciclo da lição (item 30): `estadoDaLicao`, `cicloDaLicao` e `licoesDoAluno` em `src/lib/licao.ts`, `sugestaoDoDia` em `src/lib/sugestao.ts` e `xpDasLicoes` em `src/lib/xp.ts`, com 50 testes novos, entre eles a conta do roteiro antigo lida pelo modelo novo. `npm test` passa com 603 e `npx tsc --noEmit` sem erros. Nenhuma tela mudou.
+- Pull request nº 7 integrado ao `main` pelo Tiago (ajustes da exportação, XP à vista, plano e documentos da virada). Fecha a parte de código e de documentos da Fase 0; a Fase 1 parte do `main`, na branch `feat/ciclo-da-licao`.
 - Plano do app completo aprovado pelo Tiago (item 30), com D1 e D2 decididas. `AGENTS.md`, os itens 6, 19, 20, 22, 23 e 27 e esta lista foram revistos para a virada.
 - Correção do tema na web (item 29) trazida para a branch: ela já estava no `main` remoto, pelo pull request nº 6, e entrou por junção. `npm test` passa com 553 (os 549 de antes e os 4 do projeto "web") e `npx tsc --noEmit` sem erros.
 - XP à vista (item 14): a tela da sequência mostra o XP do tópico ao lado dos acertos, "Seu dia 1" diz "XP do pós-teste" e a home ganhou o selo com o total, que só conta bloco medido depois de concluído e tem piso em 0. Coberto por testes (`npm test` com 549). Conferido na web, no Chrome do Tiago, com a conta dele, em tema escuro, em largura de computador e de celular: a home mostra "XP: +10" ao lado da saudação, e "Seu dia 1" mostra "XP do pós-teste" com −18 XP. Os dois números batem com a exportação de 09/10 somada ao UX/UI (−8 + 18 = +10; pós em −18). A tela da sequência não reabre depois do tópico do dia, então fica para o próximo tópico, junto com o iPhone.
@@ -491,7 +488,7 @@ Decidido em 06/10. No fim de cada bloco, a própria tela do bloco mostra o resul
 
 O XP aparece com o saldo real, inclusive negativo (item 14). O resultado não compara pré com pós: o ganho é da análise (M8), não da tela do aluno.
 
-Revisto em 09/10 (virada, item 30). Com o pré e o pós dentro de cada lição, o plano propõe mostrar o antes e o depois ao aluno no fim da verificação, em contagem ("Antes 1 de 3 → Depois 3 de 3"), o que contraria o último parágrafo acima. É a decisão D5 do plano, recomendada e ainda não confirmada. O resto do item não muda: nada por questão nos blocos sem feedback, a ordem de revisão e a agregação em função pura.
+Revisto em 09/10 (virada, item 30). Com o pré e o pós dentro de cada lição, o plano propõe mostrar o antes e o depois ao aluno no fim da verificação, em contagem ("Antes 1 de 3 → Depois 3 de 3"), o que contraria o último parágrafo acima. É a decisão D5 do plano, confirmada pelo Tiago em 09/10. O resto do item não muda: nada por questão nos blocos sem feedback, a ordem de revisão e a agregação em função pura.
 
 ## 28. Protótipo visual do piloto: ajustes adotados e pontos em aberto
 
@@ -563,3 +560,18 @@ Decidido pelo Tiago em 09/10; falta o grupo confirmar. O app deixa de ser o rote
 - **Entre a verificação e a revisão, a prática da lição fica travada e o cartão fica livre.** Refazer a prática na véspera mudaria o que a revisão mede; reler o cartão não gera evento. É a razão do "travados até o reteste" (item 23), agora valendo só para a lição em espera.
 
 Plano aprovado pelo Tiago em 09/10. Na Fase 0 dele foram revistos os itens 6 (atalhos travados), 19 e 22 (roteiro do piloto), 23 (trava pelo roteiro e trilha com limite), 24 (pendências, agora na ordem das fases) e 27 (antes e depois na tela do aluno), e o `AGENTS.md`. O código ainda é o do roteiro do piloto: cada item diz até que fase a regra antiga vale.
+
+Revisto em 09/10 (Fase 1 do plano: motor do ciclo da lição). As regras viraram funções puras, com teste antes do código, sem mexer em tela nenhuma: a home e os blocos seguem no roteiro antigo até as Fases 2 e 4. Escolhas que o texto acima não fixava:
+
+- **O estado da lição é o primeiro passo incompleto** (`estadoDaLicao`, em `src/lib/licao.ts`): `nova`, `diagnostico`, `estudo`, `verificacao`, `aguardando_revisao`, `revisao` ou `concluida`. Como a ordem dos passos é fixa, o diagnóstico obrigatório sai de graça: prática respondida não adianta a lição com o pré pela metade.
+- **Ciclo completo ou curto pelo conteúdo** (`cicloDaLicao`): completo quando o tópico tem questões das formas A e B; curto, só com prática, quando falta uma delas. Tópico sem questão não é lição, e conteúdo sem lição nenhuma é erro, para banco vazio não parecer "tudo concluído".
+- **As questões de cada passo saem de `questoesDoBlocoMedido`**, a mesma função do roteiro, chamada com um tópico só. A regra de quem faz A no pré e B no pós continua num lugar.
+- **7 dias de calendário, sem fim de janela** (`DIAS_ATE_A_REVISAO`), contados da última resposta da verificação, no fuso fixo de São Luís. Resposta de revisão dada antes da hora não abre a revisão.
+- **Sem `formaPre`, a lição de ciclo completo fica em `nova`.** Mandar a pessoa ao termo é decisão da tela (D3 do plano, Fase 2).
+- **A sugestão do dia** (`sugestaoDoDia`, em `src/lib/sugestao.ts`) recebe os estados na ordem sugerida do conteúdo e devolve um passo: a revisão liberada há mais tempo; senão, a lição pela metade com a resposta mais recente; senão, a primeira lição nova; senão, "em dia", com a revisão que abre primeiro, ou "tudo concluído". Nos empates vale a ordem das lições.
+- **O total de XP pelo modelo novo** é `xpDasLicoes` (`src/lib/xp.ts`): cada tópico fecha os seus blocos sem feedback pelo estado da própria lição. O `xpAcumulado`, que decide pela etapa do roteiro geral, continua servindo à home até a Fase 4; trocá-lo antes faria o selo mudar no meio do pré-teste de 12 questões, a cada tópico fechado.
+- **A trava da prática entre a verificação e a revisão** não está aqui: é regra de "o que pode abrir em cada estado" e entra com a trava por lição, na Fase 2.
+
+A prova da fase é um teste que monta uma conta do roteiro antigo (pré, prática e pós gerais, mais dois tópicos da trilha) e a lê pelo modelo novo: os quatro tópicos medidos saem em `aguardando_revisao` e os dois da trilha, em `concluida`, sem migração.
+
+Revisto em 09/10 (D3 e D5). Mais duas decisões do Tiago, as duas conforme a recomendação do plano: o termo de consentimento aparece uma vez, antes do primeiro diagnóstico, porque é o aceite que define a forma A ou B da pessoa; e o fim da verificação mostra o antes e o depois da lição, em contagem. Entram no código na Fase 2.
