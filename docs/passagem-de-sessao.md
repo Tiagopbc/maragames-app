@@ -4,7 +4,7 @@ Resumo para continuar o trabalho em outra conversa, sem depender do histórico d
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo e o item 24 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24 e 29 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
@@ -59,7 +59,4 @@ Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num 
 
 ## Prazos
 
-- 16/10: relatório de evolução com prints do app.
-- 23/10: app completo e conteúdo revisado.
-- 30/10: sessão 1 do piloto. Reteste entre 06/11 e 10/11.
-- 14/11: apresentação ao cliente, com análise.
+Cancelados em 09/10, por decisão do Tiago. O projeto passou a seguir `docs/plano-do-app-completo.md`: app completo, com lições livres e medição por tópico, em fases sem data. O plano está em revisão; enquanto não for aprovado, nada de código novo sai dele.
