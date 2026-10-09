@@ -54,7 +54,9 @@ Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num 
 
 ## Limites do assistente nesta máquina
 
-- Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um. O painel do navegador do app guarda a sessão do Tiago em `http://localhost:8081`; a conta Tiagopbc está logada no Chrome dele em `http://127.0.0.1:8081`.
+- Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um.
+- **Sessão logada no painel do navegador.** Até 09/10, o painel do navegador do app guardava a sessão do Tiago em `http://localhost:8081`, e a conta Tiagopbc estava logada no Chrome dele em `http://127.0.0.1:8081`. Não se sabe se a sessão do painel passa para uma conversa nova. Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
+- Para ver o login sem deslogar ninguém, abrir `http://127.0.0.1:8081` no painel: é outro endereço para o navegador, então não enxerga a sessão de `localhost`.
 - Não apaga dados em definitivo. Para a limpeza, escreve um script que primeiro lista, e o Tiago roda.
 - O protótipo do Figma foi corrigido à mão pelo Tiago em 08/10; a integração do assistente com o Figma estava barrada pelo limite do plano.
 
