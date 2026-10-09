@@ -290,6 +290,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
+- XP à vista (item 28, ajuste 1): o XP ganho num tópico da trilha não aparece na tela da sequência, "Seu dia 1" diz "XP do bloco" sem dizer que é o do pós-teste, e não há total em lugar nenhum. Achado pelo Tiago em 09/10, no iPhone: acertou 6 de 6 no UX/UI (+18 XP no banco) e não viu o número mudar. Proposta de três mudanças em `docs/passagem-de-sessao.md`, aguardando aprovação.
 - Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.

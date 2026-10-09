@@ -1,126 +1,66 @@
-# Passagem de sessão — 06/10/2026
+# Passagem de sessão — 09/10/2026
 
-Resumo para continuar o trabalho em outra conversa, sem depender do histórico desta. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24, e o protótipo, no item 28).
+Resumo para continuar o trabalho em outra conversa, sem depender do histórico da anterior. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24).
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, o item 24 de `docs/decisoes-tecnicas.md` e este arquivo. Combinado com o Tiago: atacar as pendências na ordem do item 24 e, a cada item resolvido, atualizar a lista e mostrá-la na resposta.
+Leia nesta ordem: `AGENTS.md`, este arquivo e o item 24 de `docs/decisoes-tecnicas.md`.
+
+Combinados com o Tiago, que valem para toda sessão:
+
+- Atacar as pendências na ordem do item 24 e, a cada item resolvido, atualizar a lista e mostrá-la na resposta.
+- Antes de codar qualquer tela ou mudança de comportamento, apresentar o desenho e esperar a aprovação.
+- Escrever o teste antes do código e vê-lo falhar.
+- Nada que vai para o GitHub leva assinatura ou crédito do assistente: nem em commit, nem em pull request, nem em comentário.
+- Perguntar antes de dar push e antes de abrir pull request. A liberação de "pode enviar sempre" valia só para o pull request nº 5, já integrado.
+- Não rodar `npm run lint`: ele instala o ESLint e altera `package.json` e o lockfile.
+
+## O que está esperando resposta do Tiago
+
+1. **XP à vista (achado de 09/10, ainda sem código).** O Tiago acertou as 6 questões do tópico UX/UI e não viu o XP mudar. O dado está certo no banco (+18 XP); o que falta é mostrar. Proposta apresentada, aguardando aprovação:
+   - Tela da sequência (`src/components/trilha/fim-do-topico.tsx`): mostrar o XP do tópico ao lado dos acertos, por exemplo "Você acertou 6 de 6 questões de UX/UI em jogos · +18 XP".
+   - Tela "Seu dia 1": trocar "XP do bloco" por "XP do pós-teste" nessa tela, porque ela é o retrato do pós e não muda com a trilha.
+   - Home: um selo com o total acumulado ("XP: +10") ao lado da saudação. A soma já existe em `src/lib/xp.ts` (`somarXp`); falta mostrar. Cuidado: se o grupo decidir esconder o resultado do pré-teste, o selo só aparece depois do pós.
+2. **Push e pull request da branch `fix/exportacao-pasta-e-aviso`.** Ela tem commits só locais. Se o XP for aprovado, entra no mesmo pull request.
+3. **Testes no emulador das regras de `answers` e `attempts`**, no molde de `regras/consentimento.test.ts`. É o item de código que não depende do grupo.
 
 ## Estado do repositório
 
-- **Branch:** `feat/roteiro-do-piloto`, com seis commits, sem push e sem pull request. O último, `2706dec`, traz o rodapé fixo da pergunta e a correção de `topicosMedidos`.
-- **Sem commit:** só as anotações de 07/10 neste arquivo. Falta o Tiago dizer se pode dar push e abrir o pull request.
-- **Verificação:** `npm test` passa com 253 testes; `npm run test:regras` passa com 25 (precisa de Java; sobe o emulador do Firestore sozinho); `npx tsc --noEmit` sem erros. Não há ESLint configurado.
-- **Para rodar na web:** `npm run web` (porta 8081).
-
-## O que já funciona
-
-O dia 1 do roteiro, de ponta a ponta: login, perfil, home com "Continuar estudos" seguindo `etapaDoRoteiro`, termo de consentimento (forma A/B por contador em transação), pré-teste, cartão de conceito e prática de cada tópico, pós-teste, resultado de cada bloco e a linha de espera do reteste.
-
-Foi percorrido em 06/10 com a conta do Tiago, na web em tamanho de celular: 40 eventos gravados (12 de pré na forma A, 16 de prática, 12 de pós na forma B), todos com os onze campos e `correta` batendo com o gabarito.
+- **`main`:** tem o pull request nº 5 integrado em 09/10 (roteiro do dia 1, trava, espera do reteste, identidade visual, trilha diária, exportação).
+- **Branch atual, só local:** `fix/exportacao-pasta-e-aviso`, saída do `main`. Traz os dois ajustes do script de exportação e a atualização dos docs. Sem push e sem pull request.
+- **Outra sessão:** a correção das cores presas ao trocar de tema com o app aberto está na branch `claude/pensive-williamson-7d726f` (cópia em `.claude/worktrees/`), que saiu de um commit antigo e ainda não entrou no `main`.
+- **Verificação:** `npm test` passa com 532 testes; `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10).
+- **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
-- **Regras:** publicadas em 06/10.
-- **Conteúdo:** seed rodado em 06/10, versão `5d59872c96b3`: 4 lições com cartão e 40 questões.
-- **Sobras do seed antigo:** 3 questões sem o campo `bloco` e a lição 5, sem tópico. Não atrapalham.
-- **Dados de teste, a apagar antes do piloto:** na conta do Tiago, 40 respostas, 6 tentativas, `formaPre: A` e `consentiuEm`; e `piloto/contador` com `total: 1`. Se não forem apagados, o primeiro participante de verdade recebe a forma B.
-- **Acesso:** a CLI do Firebase está logada na conta do Tiago, e `serviceAccountKey.json` (fora do git) permite ler e gravar pelo Admin SDK.
+- **Conteúdo:** seed rodado em 08/10, versão `f870c2d83e2b`: 9 lições (4 medidas e 5 da trilha diária) e 70 questões. Restam 3 questões antigas, sem versão, que só saem com `npm run seed:conteudo -- --prune`.
+- **Dados de teste, a apagar antes do piloto:** duas contas. A do Tiago (pós em 06/10) tem 52 respostas, incluindo os tópicos GDD (08/10) e UX/UI (09/10) da trilha, e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
+- **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
+
+## O que já funciona
+
+O caminho inteiro do participante: cadastro, perfil, termo, pré-teste, cartão e prática dos quatro tópicos, pós-teste, resultado, espera do reteste com contagem e datas, tela "Seu dia 1", trilha diária (um tópico por dia, sequência de dias, tela da sequência) e a trava que só deixa abrir a tela da etapa. O app tem a identidade da Beast Maragames, e `npm run exportar` gera as planilhas do piloto.
+
+Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num iPhone, pelo Expo Go, em tema escuro (login, home, pergunta, cartão, "Seu dia 1").
+
+## O que falta, por quem
+
+- **Grupo:** as cinco decisões de tela (resultado do pré só no fim, relatório comparando pré e pós, termo logo após o login, lista "Seu roteiro" na home, seção "O que revisar primeiro" na tela do dia 1); texto final do termo; versão em português do SUS; participantes; nome de exibição do app; forma de distribuição, com o professor.
+- **Tiago:** testar num Android; ver o mascote no consentimento e o tema claro num aparelho; abrir um CSV exportado no Excel.
+- **Código, depois das decisões:** ajustar as telas conforme as cinco respostas; tela do SUS.
+- **Véspera do piloto:** tirar os links de desenvolvimento da home e a exceção da trava (`travaVale`); apagar os dados de teste.
+- **Depois do piloto:** `npm run exportar -- --desde 2026-10-30`, análise e apresentação.
 
 ## Limites do assistente nesta máquina
 
-- Não digita senha em serviço externo. Para ver o app logado no painel do navegador, o Tiago precisa entrar ele mesmo, e a sessão do painel não sobrevive entre uma rodada e outra.
-- Tem acesso ao Figma pela conta do Tiago, mas em 06/10 a conexão recusou a leitura do arquivo: o plano Starter do Figma atingiu o limite de chamadas da integração. Enquanto isso valer, o assistente não lê nem edita o arquivo.
-
-## Protótipo do Figma: onde corrigir e o quê
-
-O protótipo é o arquivo do Figma "MaraGames App - Protótipo do piloto" (o PDF em `~/Downloads` foi exportado dele). São 12 telas: 1 login, 2 consentimento, 3 home do dia 1, 4 pergunta do pré-teste, 5 cartão, 6 feedback da prática, 7 relatório "Seu dia 1", 8 sequência da trilha, 9 espera do reteste, 10 login escuro, 11 pergunta escura, 12 relatório escuro.
-
-Link do arquivo: https://www.figma.com/design/OPPSR056vzLH6vNTVBOxSi
-
-O assistente tentou abrir o arquivo em 06/10 e foi barrado pelo limite de chamadas do plano Starter. **Os ajustes foram aplicados à mão pelo Tiago e o protótipo está pronto desde 08/10.** A tabela abaixo fica como registro do que mudou:
-
-| # | Ajuste | Telas | O que mudar |
-|---|---|---|---|
-| 1 | XP à vista | 6, 7, 12 | No feedback, "+3 XP" ao lado do selo. No relatório, o saldo real do pós-teste, que pode ser negativo: com os números da tela, "+18 XP". O jeito mais simples é um selo ao lado do título "Seu dia 1", copiado do selo "Sequência: 1 dia" da tela 3 |
-| 2 | X para sair | 4, 5, 6, 11 | Um "✕" à esquerda do cabeçalho |
-| 3 | Rodapé fixo | 4, 6, 11 | "Quanto você confia?", os três níveis em linha e o botão ficam presos embaixo, separados por uma linha fina; só enunciado, alternativas e feedback rolam. No feedback, o nível marcado fica travado no rodapé, com "Próxima questão" |
-| 4 | Contagens | 7, 12 | Por tópico: MDA "1 de 3 → 3 de 3", Pixel Art "1 de 3 → 2 de 3", Engine "0 de 3 → 2 de 3", Lógica "1 de 3 → 2 de 3". Por confiança: Tenho certeza "6 de 7", Tenho dúvida "2 de 3", Palpite "1 de 2". Esses números fecham com os quadrantes da tela (6, 3, 2, 1) |
-| 5 | Descrições do quadrante | 7, 12 | Iguais nos dois temas: Firme "Acertou com certeza", Frágil "Acertou sem certeza", Lacuna "Errou sem certeza", Ponto cego "Errou com certeza" |
-| 6 | Senha | 1, 10 | "Mínimo 8 caracteres" |
-| 7 | Estado de erro | tela nova | Feedback de resposta errada na prática: a escolhida em vermelho com "✕", a certa em verde, cartão "Você errou" com o selo "Ponto cego", "−4 XP", a explicação da escolha e "Resposta certa: …". Dá para duplicar a tela 6 e marcar a alternativa A como a escolhida errada: "Essa é a ordem do designer. Ele parte das regras; quem joga parte do que sente." |
-| 8 | Logo e mascote | nenhuma | Nada a trocar. Decidido em 06/10: ficam os dois estilos, a logo no login (telas 1 e 10) e o lobo em cartum no consentimento e na sequência (telas 2 e 8) |
-
-Anotações de 07/10: o arquivo usa layout automático, com camadas nomeadas ("Topo", "Alternativas", "Seletor de confiança", "Espaço", "Botão Confirmar"), então os ajustes são feitos arrastando na lista de camadas. Os quadros 10, 11 e 12 são, provavelmente, os três primeiros quadros do tema escuro. O ajuste do quadro escuro da questão (o "✕" no "Topo" e o "Rodapé fixo", com as cores do tema escuro) foi feito pelo Tiago em 08/10.
-
-A logo em SVG está no artefato "Protótipo Maragames Mobile" do claude.ai (constante `LOGO`), nas cores `#3c2782`, `#b9201f` e `#beb1d7`. O mascote em cartum está em `~/Downloads/mascote-beast.png`. Quando o visual for para o app, entram os dois.
-
-## Pendências, na ordem
-
-### Antes de qualquer coisa
-
-1. ~~Aplicar à mão os ajustes no Figma.~~ Feito em 08/10.
-2. **[Tiago]** Decidir sobre push e pull request da branch.
-3. **[Tiago]** Entrar no painel do navegador para a conferência visual do rodapé fixo.
-
-### Para a sessão 1 (app até 23/10, sessão até 30/10)
-
-4. **[grupo]** Fechar os quatro pontos em que o protótipo contradiz decisões registradas:
-   - Resultado do pré-teste só no fim do dia 1. O app mostra um resultado logo depois do pré (item 27). Recomendação: seguir o protótipo, porque feedback antes do estudo pode inflar o ganho. Se aprovado: o pré termina numa tela "Pré-teste concluído", sem números, e o relatório do dia 1 aparece depois do pós.
-   - Relatório comparando pré e pós por tópico. O item 27 diz que não compara.
-   - Consentimento logo depois do login, sem "Agora não". O item 22 o trata como etapa do roteiro, que a pessoa pode recusar.
-   - Home sem os atalhos travados, com a lista "Seu roteiro" no lugar. O item 6 e o `AGENTS.md` pedem os atalhos.
-5. **[código]** Aplicar no app o visual do protótipo, depois dos itens 1 e 4. Três tamanhos:
-   - Aparência: paleta roxa e fonte Lexend em `src/constants/theme.ts`; estilo de `botao-principal.tsx`, `alternativa-item.tsx`, `seletor-confianca.tsx`, `selo-quadrante.tsx`; logo nas telas de login e de consentimento.
-   - Comportamento: lista "Seu roteiro" na home, relatório único do dia 1, tela de espera.
-   - Conteúdo: os cartões do protótipo têm diagrama e frase de destaque; hoje `SlideConceito` só tem `titulo` e `texto`, então `content/topicos.json`, o tipo e o seed precisam de campos novos.
-6. **[código]** Barra de abas do template na web: flutua sobre o topo da home e cobre a saudação; ainda traz "Expo Starter", a aba "Explore" e o link "Docs". Está em `src/components/app-tabs.web.tsx`. Só afeta a web.
-7. **[código]** Trava dos tópicos medidos entre o pós e o reteste (item 23). As rotas `cartao/[topicId]` e `bloco/pratica` abrem para quem digitar a URL, e também fora da ordem do roteiro. Sugestão: as duas rotas consultarem `etapaDoRoteiro` e só abrirem na etapa `estudo` daquele tópico.
-8. **[código]** Tela de espera do reteste: relatório do dia 1, reaproveitando `src/components/resultado/resultado-do-bloco.tsx`, contagem dos dias e a lista de tópicos travados com o motivo, como na tela 9 do protótipo. Hoje a home só mostra "O reteste abre em N dias".
-9. **[código]** Limpeza antes do piloto: tirar os links de desenvolvimento da home (`BLOCOS_MEDIDOS` em `src/app/(app)/(tabs)/index.tsx`) e apagar os dados de teste listados acima.
-10. **[grupo]** Sobras do seed antigo: rodar ou não `npm run seed:conteudo -- --prune`.
-
-### Para a sessão 2 (reteste entre 06/11 e 10/11)
-
-11. **[código]** Tela do SUS. `susRespondidoEm` e as notas entram no tipo `Perfil`, em `participanteDoRoteiro` e nas regras; `destinoDaEtapa` ganha o destino da etapa `sus`. Depende de o grupo escolher a versão em português e decidir se há pergunta aberta.
-12. **[código]** Cálculo de retenção, acerto no reteste dividido pelo acerto no pós, em função pura com teste.
-
-### Trilha diária, dias 2 a 6 (M5, item 23)
-
-13. **[conteúdo]** Os cinco tópicos (GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração, Publicando na Steam), com cartão curto e 5 a 6 questões de prática cada. `content/` só tem os quatro medidos.
-14. **[código]** Limite de um tópico por dia de calendário, sequência de dias que zera se pular um dia e tela "volte amanhã", como na tela 8 do protótipo.
-
-### Restante do M4
-
-15. **[código]** Telas "Meu domínio" e "Detalhe do tópico". `dominioPorTopico` já existe em `src/lib/dominio.ts`.
-
-### Exportação (M7)
-
-16. **[código]** Script com Admin SDK que gera o CSV de eventos com um código no lugar de nome e contato, e os indicadores agregados do item 23.
-
-### Qualidade
-
-17. **[código]** Testes de emulador para as regras de `answers` e `attempts`, no molde de `regras/consentimento.test.ts`.
-18. **[código]** Configurar o ESLint (`npm run lint` hoje não roda).
-19. **[código]** Destino dos atalhos Lições, Progresso e Perfil, para depois do piloto.
-
-### Decisões do grupo
-
-20. Ordem dos tópicos no dia 1: o protótipo e o item 23 dizem MDA, Pixel Art, Engine, Lógica; o app segue o `lessonOrder` de `content/topicos.json` (MDA, Engine, Lógica, Pixel Art). Mudar é editar o JSON e rodar o seed.
-21. Dias do reteste: o app implementa 7 a 9 dias depois do dia do pós; o protótipo sugere um dia antes. São duas constantes em `src/lib/roteiro.ts`.
-22. Texto do termo (`src/constants/termo.ts` é rascunho; o do protótipo é mais curto) e se ele promete apagar os dados de quem sair.
-23. Quem escreve e quem revisa o conteúdo, até 23/10.
-24. Participantes (meta de 15), SUS em português e pergunta aberta.
-
-### Dependem de fora
-
-25. Distribuição do app (Expo Go, build web ou EAS): consultar o professor.
-26. Data do Incubators.
+- Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um. O painel do navegador do app guarda a sessão do Tiago em `http://localhost:8081`; a conta Tiagopbc está logada no Chrome dele em `http://127.0.0.1:8081`.
+- Não apaga dados em definitivo. Para a limpeza, escreve um script que primeiro lista, e o Tiago roda.
+- O protótipo do Figma foi corrigido à mão pelo Tiago em 08/10; a integração do assistente com o Figma estava barrada pelo limite do plano.
 
 ## Prazos
 
-- 09/10: protótipo no Figma.
 - 16/10: relatório de evolução com prints do app.
-- 23/10: app com M2 a M5 e conteúdo revisado.
+- 23/10: app completo e conteúdo revisado.
 - 30/10: sessão 1 do piloto. Reteste entre 06/11 e 10/11.
 - 14/11: apresentação ao cliente, com análise.
