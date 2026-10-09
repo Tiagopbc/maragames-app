@@ -531,6 +531,7 @@ describe('o resultado no fim do bloco', () => {
     it('mostra o saldo de XP do bloco, mesmo negativo, e os acertos', async () => {
         await terminarPratica();
 
+        expect(screen.getByText('XP do bloco')).toBeOnTheScreen();
         expect(screen.getByText('−1 XP')).toBeOnTheScreen();
         expect(screen.getByText('Acertou 1 de 2')).toBeOnTheScreen();
     });

@@ -27,10 +27,12 @@ type ResultadoDoBlocoProps = {
     // Blocos medidos (pré, pós e reteste) mostram tudo agrupado. Nada por questão: o reteste
     // repete as questões do pós, e dizer quais a pessoa errou ensinaria o que vai ser medido de novo.
     medido: boolean;
+    // De que é o XP mostrado. A tela do dia 1 diz que é o do pós-teste, porque a trilha não entra nela.
+    rotuloDoXp?: string;
 };
 
 // Só apresentação: os números chegam prontos de `resultadoDoBloco` (src/lib/resultado.ts).
-export function ResultadoDoBloco({ relatorio, medido }: ResultadoDoBlocoProps) {
+export function ResultadoDoBloco({ relatorio, medido, rotuloDoXp = TEXTOS.xpDoBloco }: ResultadoDoBlocoProps) {
     const theme = useTheme();
     const { resultado, enunciados, nomesDosTopicos } = relatorio;
     const cartao = { backgroundColor: theme.backgroundElement };
@@ -42,7 +44,7 @@ export function ResultadoDoBloco({ relatorio, medido }: ResultadoDoBlocoProps) {
 
             <View style={[styles.cartao, styles.xp, cartao]}>
                 <ThemedText type="small" themeColor="textSecondary">
-                    {TEXTOS.xpDoBloco}
+                    {rotuloDoXp}
                 </ThemedText>
                 {/* O saldo aparece como é, inclusive negativo: é o peso do erro com certeza (item 14). */}
                 <ThemedText style={styles.numero}>{formatarXp(resultado.xp)}</ThemedText>

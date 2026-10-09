@@ -29,7 +29,7 @@ import { SeletorConfianca } from './seletor-confianca';
 const LETRAS = 'ABCD';
 
 // O que a tela do fim de um tópico da trilha precisa saber do bloco que terminou.
-export type FimDaTrilha = { topicId: string; acertos: number; total: number };
+export type FimDaTrilha = { topicId: string; acertos: number; total: number; xp: number };
 
 type TelaDoBlocoProps = EntradaDoBloco & {
     aoSair: () => void; // fecha a tela; quem navega é a rota
@@ -104,6 +104,7 @@ export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProp
                         topicId: estado.relatorio.topicoDaTrilha,
                         acertos: estado.relatorio.resultado.acertos,
                         total: estado.relatorio.resultado.total,
+                        xp: estado.relatorio.resultado.xp,
                     })}
 
                 {estado.tipo === 'concluido' && estado.relatorio && !(estado.relatorio.topicoDaTrilha !== null && fimDaTrilha) && (

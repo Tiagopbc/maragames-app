@@ -55,7 +55,7 @@ export function TelaDoDia1({ uid, formaPre, aoSair }: TelaDoDia1Props) {
 
                 {estado.tipo === 'pronto' && (
                     <ScrollView contentContainerStyle={styles.conteudo}>
-                        <ResultadoDoBloco relatorio={estado.relatorio} medido />
+                        <ResultadoDoBloco relatorio={estado.relatorio} medido rotuloDoXp={TEXTOS.xpDoPosTeste} />
 
                         <View style={styles.secao}>
                             <ThemedText type="smallBold">{TEXTOS.travadosAteOReteste}</ThemedText>

@@ -1,9 +1,11 @@
 import {
+    acertosDoTopico,
     contagemDoReteste,
     descreverEtapa,
     formatarAcertos,
     formatarTaxa,
     formatarXp,
+    formatarXpTotal,
     janelaDoReteste,
     resumirQuadrantes,
 } from '../textos';
@@ -19,6 +21,28 @@ describe('formatarXp', () => {
 
     it('zero aparece sem sinal', () => {
         expect(formatarXp(0)).toBe('0 XP');
+    });
+});
+
+describe('formatarXpTotal', () => {
+    it('o total da home leva o rótulo na frente', () => {
+        expect(formatarXpTotal(18)).toBe('XP: +18');
+    });
+
+    it('zero aparece sem sinal', () => {
+        expect(formatarXpTotal(0)).toBe('XP: 0');
+    });
+});
+
+describe('acertosDoTopico', () => {
+    it('diz os acertos do tópico e o XP que ele rendeu', () => {
+        expect(acertosDoTopico(6, 6, 'UX/UI em jogos', 18)).toBe(
+            'Você acertou 6 de 6 questões de UX/UI em jogos · +18 XP'
+        );
+    });
+
+    it('saldo negativo aparece como é', () => {
+        expect(acertosDoTopico(1, 6, 'GDD', -5)).toBe('Você acertou 1 de 6 questões de GDD · −5 XP');
     });
 });
 

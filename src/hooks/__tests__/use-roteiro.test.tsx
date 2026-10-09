@@ -93,6 +93,7 @@ describe('useRoteiro', () => {
             sequencia: 0,
             semana: [],
             nomes: { mda: 'Framework MDA', gdd: 'GDD' },
+            xp: null,
         });
     });
 
@@ -162,6 +163,25 @@ describe('useRoteiro', () => {
         const { result } = await abrir(ACEITOU, 1_000);
 
         expect(result.current.estado).toMatchObject({ tipo: 'pronto', etapa: { tipo: 'espera', diasRestantes: 7 } });
+    });
+
+    it('o total de XP conta o pré concluído e a prática', async () => {
+        // Cada resposta do teste é um acerto em Palpite: +1.
+        responder('pre', ['mda_a1']);
+        responder('pratica', ['mda_p1']);
+
+        const { result } = await abrir();
+
+        expect(result.current.estado).toMatchObject({ tipo: 'pronto', etapa: { tipo: 'pos' }, xp: 2 });
+    });
+
+    it('o total de XP deixa de fora o bloco medido que está pela metade', async () => {
+        repo.questoes.push(questao('mda_a2', 'mda', 'forma_a', 2));
+        responder('pre', ['mda_a1']);
+
+        const { result } = await abrir();
+
+        expect(result.current.estado).toMatchObject({ tipo: 'pronto', etapa: { tipo: 'pre', respondidas: 1 }, xp: null });
     });
 
     it('recarregar recalcula a etapa com as respostas novas', async () => {

@@ -1,5 +1,7 @@
 # Rota recalculada: app de confiança declarada e aprendizagem
 
+**Substituído em 09/10 por `docs/plano-do-app-completo.md`** (item 30 das decisões): o piloto e as datas abaixo foram cancelados. Fica como registro do plano anterior; a seção "Como medir aprendizagem" continua valendo.
+
 05/10/2026 · Tiago Cavalcanti. Convertido do PDF e atualizado com as decisões da noite de 05/10 (XP, interação da questão, perfil, exportação). Em caso de conflito, vale `docs/decisoes-tecnicas.md`.
 
 O app mede se o aluno aprendeu e se vai lembrar, a partir de cada resposta gravada como evento. O piloto com colegas da UNDB roda entre 30/10 e 10/11 e gera os dados da apresentação de 14/11 e do paper.

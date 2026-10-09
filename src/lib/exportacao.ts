@@ -312,3 +312,32 @@ export function paraCsv(linhas: readonly Linha[]): string {
     const texto = [colunas.join(';'), ...linhas.map((linha) => colunas.map((c) => campo(linha[c] ?? null)).join(';'))];
     return MARCA + texto.map((l) => `${l}\r\n`).join('');
 }
+
+/**
+ * Nome da pasta de uma rodada. Com filtro, a data dele entra no nome: duas rodadas no mesmo
+ * dia, uma com as contas de teste e outra sem, não escrevem uma por cima da outra.
+ */
+export function pastaDaExportacao(hoje: string, desde?: string): string {
+    return desde ? `${hoje}-desde-${desde}` : hoje;
+}
+
+export interface ArquivoDaExportacao {
+    nome: string;
+    conteudo: string;
+}
+
+/**
+ * O que o script grava. Sem participantes não há arquivo nenhum: um filtro que não pega
+ * ninguém gravaria tabelas vazias, sem avisar.
+ */
+export function arquivosDaExportacao(exportado: Exportacao): ArquivoDaExportacao[] {
+    if (exportado.participantes.length === 0) return [];
+    return [
+        { nome: 'eventos.csv', conteudo: paraCsv(exportado.eventos) },
+        { nome: 'participantes.csv', conteudo: paraCsv(exportado.participantes) },
+        { nome: 'questoes.csv', conteudo: paraCsv(exportado.questoes) },
+        { nome: 'resumo.md', conteudo: exportado.resumo },
+        // Liga cada código ao nome: fica só com o grupo, nunca é enviada.
+        { nome: 'chave.csv', conteudo: paraCsv(exportado.chave) },
+    ];
+}

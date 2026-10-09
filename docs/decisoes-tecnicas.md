@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (item 29 novo e item 24 revisto: troca de tema do sistema na web; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -53,6 +53,8 @@ Revisto em 06/10 (cartão). Na etapa `estudo`, o botão abre o cartão de concei
 Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/app/(app)/index.tsx`, direto no `Stack` de `(app)`; bloco, cartão e termo continuam abrindo por cima dela. As abas eram as do template do Expo: na web, uma barra flutuante com "Expo Starter", a aba Explore e o link Docs, que cobria a saudação; no celular, uma aba "Expo" que abria a tela de exemplo. Tirada a Explore, sobraria uma aba só, e barra de uma aba não navega: no piloto, quem navega é o "Continuar estudos" e os atalhos. Saíram junto os componentes e as imagens que só o template usava, e `BottomTabInset` do tema. Se depois do piloto os atalhos virarem abas, o grupo volta. Coberto por teste de navegação (item 26).
 
 Revisto em 08/10 (rolagem). A home passou a rolar. Com a contagem do reteste, o cartão da trilha diária e os atalhos, ela passa da altura de um celular pequeno: em 375×667 o conteúdo tem 818 px. O "Sair" fica no pé da tela quando o conteúdo é curto e desce com ele quando é longo.
+
+Revisto em 09/10 (virada, item 30). Os três atalhos deixam de ser cadeados: Lições, Progresso e Perfil viram telas. O "Continuar estudos", que seguia o roteiro, dá lugar ao cartão "Para hoje", que aponta um passo só entre todas as lições, e o "Sair" vai para o Perfil. O array `ATALHOS` continua sendo a fonte dos atalhos; o campo `travado` sai quando o último deles tiver destino. O desenho está na seção 4 de `docs/plano-do-app-completo.md`. No código, a home ainda é a de 08/10 até a Fase 4 do plano.
 
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
@@ -112,6 +114,16 @@ Revisto em 06/10. No domínio por tópico, cada questão conta uma vez, pela res
 
 Revisto em 06/10 (XP negativo). Decidido: o XP de um bloco aparece como é, inclusive negativo ("−5 XP"). É coerente com o feedback da prática, que já mostra "−4 XP" na questão, e é o que dá sentido ao peso do erro com certeza; um piso no bloco deixaria o resumo diferente da soma do que a pessoa viu questão a questão. O piso em 0 vale só para o total acumulado do aluno, quando existir uma tela que o mostre. Fecha a pendência do item 24.
 
+Revisto em 09/10 (XP à vista). O XP estava certo no banco, mas quase não aparecia: o Tiago acertou as 6 questões de um tópico da trilha e não viu número nenhum mudar. Três mudanças, sem gravar nada novo:
+
+- **Tela da sequência**: a linha dos acertos traz o XP do tópico ("Você acertou 6 de 6 questões de UX/UI em jogos · +18 XP"), com o saldo real, inclusive negativo.
+- **"Seu dia 1"**: o rótulo passa a ser "XP do pós-teste". A tela é o retrato do pós e não muda com a trilha; "XP do bloco" dava a entender que era o total.
+- **Home**: um selo com o total ("XP: +10") ao lado da saudação, calculado por `xpAcumulado` (`src/lib/xp.ts`) e entregue pelo `useRoteiro`, que já lê as respostas.
+
+O total segue quatro regras. A prática entra sempre, porque o feedback dela já saiu questão a questão. Bloco medido só entra depois de concluído: quem sai do pré no meio veria o selo mudar e descobriria se acertou, o que quebraria a ausência de feedback (item 19). Cada questão conta uma vez por fase, pela resposta mais recente, como no resultado do bloco; pós e reteste são fases diferentes, então a mesma questão rende nas duas. E o piso em 0, reservado acima para o acumulado, passa a valer aqui. Antes do primeiro bloco concluído, o selo não aparece.
+
+Se o grupo decidir mostrar o resultado do pré-teste só no fim do dia 1 (item 24), o pré deixa de contar até o pós terminar: é uma linha na tabela `CONCLUIDO_EM`, na mesma função.
+
 ## 15. Corte do quadrante: confiança baixa são os níveis 1 e 2
 
 Decidido em 04/10. Para o quadrante acerto × confiança, confiança baixa são "Palpite" e "Tenho dúvida" (níveis 1 e 2), e confiança alta é só "Tenho certeza" (nível 3). Acerto frágil passa a incluir acerto com dúvida, e ponto cego é erro com certeza. Os três níveis continuam gravados e alimentam a calibração. Como o quadrante é calculado a partir do evento, o corte pode mudar depois sem migrar dados.
@@ -142,11 +154,15 @@ Sessão 2, no dia 7, cerca de 10 minutos: reteste com as mesmas 12 questões do 
 
 Por trás: metade faz A no pré e B no pós, a outra metade o contrário (contrabalanceamento, para uma forma mais fácil não inflar o ganho); respostas da prática ficam marcadas e fora do cálculo. Do pré para o pós sai o ganho normalizado de Hake; do pós para o reteste, a retenção; e a confiança nos três momentos mostra transições como Frágil para Firme ou Ponto cego persistente.
 
+Revisto em 09/10 (virada, item 30). O piloto em duas sessões está suspenso, junto com as datas. Do desenho ficam o pré e o pós sem feedback, as formas A e B contrabalanceadas entre pessoas, a prática como intervenção e o reteste com as questões do pós. Muda a unidade: cada tópico passa a ter o seu pré (na tela, "diagnóstico"), o seu pós ("verificação") e o seu reteste ("revisão"), no lugar de três blocos de 12 questões. Ganho e retenção passam a ser calculados por tópico e por pessoa. Limitação a registrar: com 3 questões, o ganho de um tópico sozinho é grosseiro; a leitura com sinal continua sendo a soma dos tópicos de cada pessoa. O SUS, que fechava a sessão 2, fica sem lugar no fluxo (decisão D4 do plano).
+
 ## 20. Cronograma da disciplina e janela do piloto
 
 Prazos: 02/10 paper, 1º check (entregue); 09/10 protótipo no Figma; 16/10 relatório de evolução com prints da arquitetura, repositório e sistema; primeira quinzena de outubro, Incubators (data a confirmar); 14/11 apresentação final ao cliente, com simulações e análise estatística; 27/11 paper final; 11/12 substitutiva; 16/12 avaliação final.
 
 Como a apresentação de 14/11 já exige análise, o piloto termina antes dela: sessão 1 até 30/10 (no máximo 03/11), reteste entre 06/11 e 10/11, análise até 13/11. Para isso, app com M2 a M5 e todo o conteúdo revisado até 23/10, incluindo a trilha diária dos dias 2 a 6 (item 23; confirmado em 05/10), e o fluxo de questão com confiança rodando até 16/10 para os prints do relatório. Prioridade de conteúdo: Lógica de Programação e Framework MDA primeiro, Engine e Pixel Art na semana seguinte, trilha diária em paralelo. Escada adaptativa, offline e segundo formato ficam para depois do piloto.
+
+Revisto em 09/10. Todos os prazos acima estão cancelados, por decisão do Tiago: o projeto deixa de correr atrás da janela do piloto e passa a seguir as fases de `docs/plano-do-app-completo.md`, sem datas (item 30).
 
 ## 21. Conteúdo versionado em JSON, com um único script de seed
 
@@ -202,6 +218,8 @@ Revisto em 08/10 (relógio e volta ao app). Dois pontos levantados na revisão a
 
 - **A home refaz a conta quando o app volta a ficar ativo**, e não só quando a tela ganha foco. O app fica dias na memória do celular; quem voltava no dia do reteste via "O reteste abre amanhã", porque não tinha trocado de tela. `useAoVoltarAoApp` escuta o estado do app (no celular) e a visibilidade da aba (na web) e chama o mesmo `recarregar`. Não há relógio marcado para a meia-noite: só serviria a quem deixa a tela aberta na virada do dia.
 - **A liberação do reteste usa o relógio do aparelho** contra o horário do servidor gravado no pós. Com o relógio adiantado o reteste abre antes; atrasado, segura. Limitação aceita: saber a hora do servidor pediria uma escrita a cada abertura da home ou uma regra no servidor, que está fora do escopo (item 5). A medida não se perde, porque a resposta do reteste também leva horário do servidor: a exportação (M7) calcula os dias entre pós e reteste por esses horários e marca quem ficou fora de 7 a 9.
+
+Revisto em 09/10 (virada, item 30). O roteiro guiado deixa de ser o caminho do app. Continuam valendo a fase gravada em cada resposta, a forma por participante, o estado calculado das respostas, as alternativas embaralhadas por semente e nenhuma posição repetida entre o pós e o reteste. Mudam três coisas: a etapa única do participante dá lugar a um estado por lição (`estadoDaLicao`, Fase 1 do plano); os 7 dias passam a correr por lição, a partir da verificação dela, e a marca de "fora da janela" fica só na análise; e o consentimento deixa de ser a primeira etapa de um roteiro, com o lugar dele ainda por decidir (D3 do plano). No código, `etapaDoRoteiro` vale até as Fases 1 e 2.
 
 ## 23. Trilha diária com limite por dia e indicadores para a Mara Games
 
@@ -279,67 +297,94 @@ Revisto em 08/10 (exportação). O script de exportação está em `scripts/expo
 
 O script não faz teste estatístico nem gráfico, e ainda não tem o SUS.
 
-## 24. Pendências que travam o piloto
+Revisto em 09/10. Dois ajustes depois de rodar o script com o filtro: a pasta passou a ser `exportacao/AAAA-MM-DD-desde-AAAA-MM-DD` quando há `--desde`, para a rodada filtrada não escrever por cima da completa; e, se ninguém entra no filtro, o script avisa e não grava arquivo nenhum. O que gravar e com que nome saiu do script para duas funções puras (`pastaDaExportacao` e `arquivosDaExportacao`), com teste.
+
+Revisto em 09/10 (virada, item 30). Saem a fila de um tópico novo por dia e a trava pelo roteiro geral. A trilha diária passa a ser a sugestão do dia: um cartão "Para hoje" que aponta a revisão vencida, depois a lição pela metade, depois a próxima lição nova, sem limite por dia. A sequência continua contando dias de calendário com resposta. A trava passa a valer só dentro de uma lição: os passos não se pulam, o diagnóstico é obrigatório e, entre a verificação e a revisão, a prática daquela lição fica fechada e o cartão, livre; entre lições não há trava. O portão único e a regra em função pura continuam sendo o desenho. Os indicadores para a Mara Games e a exportação pelo grupo ficam, com ganho e retenção por tópico (Fase 9 do plano). No código, a fila e a trava antigas valem até as Fases 2 e 4.
+
+## 24. Pendências, na ordem das fases do plano
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
 
-**Antes de qualquer coisa**
+Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do piloto e passam a ser as fases de `docs/plano-do-app-completo.md`, que não têm data. Uma fase só começa quando a prova da anterior passa.
 
-- Revisar e integrar o pull request nº 5 (`feat/roteiro-do-piloto` para `main`), aberto em 08/10. O repositório não tem verificação automática configurada: os testes rodam na máquina de quem revisa.
+**Fase 0 — Documentos e o que está aberto**
 
-**Para a sessão 1 (app até 23/10, sessão até 30/10)**
+- Push e pull request da branch `fix/exportacao-pasta-e-aviso`, que traz os ajustes da exportação, o XP à vista, o plano e os documentos revistos, já com o `main` do pull request nº 6. Aguardando o Tiago.
+- O grupo confirmar a virada (item 30): ela foi fechada só com o Tiago.
 
-- Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
-- Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
-- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a causa foi achada e corrigida, e a correção foi vista na web, na tela de login, em 07/10. Faltam a home, o bloco e o cartão com a correção aplicada, e o Expo Go, onde o defeito não deve existir.
-- Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
-- Limpeza antes do piloto (itens 6 e 25): em `__DEV__`, a home mostra links diretos para pré, pós e reteste, que só abrem com o termo aceito. As respostas e os aceites feitos em teste são reais e gastam posições do contador. Apagar as respostas de teste, apagar `piloto/contador` e os campos `formaPre` e `consentiuEm` das contas de teste (pelo console ou Admin SDK), tirar os links e, com eles, a exceção de desenvolvimento da trava (`travaVale`, item 23), e confirmar que o build distribuído não é de desenvolvimento.
-- Sobras do seed antigo no banco (item 21): restam 3 questões fora do JSON, sem versão de conteúdo. A lição 5, que estava solta, foi reaproveitada pelo seed de 08/10 como "Efeitos sonoros". Decidir se rodam `npm run seed:conteudo -- --prune` antes do piloto.
+**Fase 1 — Motor do ciclo da lição**
 
-**Para a sessão 2 (reteste entre 06/11 e 10/11)**
+- Funções puras, sem tela: `estadoDaLicao` (os sete estados), `sugestaoDoDia`, o recorte de questões por tópico e fase, e o `xpAcumulado` decidindo "bloco concluído" por tópico.
 
-- Tela do SUS (M8). `susRespondidoEm` ainda não existe no tipo `Perfil` nem no `firestore.rules`; entra com ela. Sem a tela, o roteiro para em "Falta o questionário final".
+**Fase 2 — Página da lição e blocos por tópico**
 
-**Trilha diária, dias 2 a 6 (M5, item 23)**
+- Rota `/licoes/[topicId]`; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição; trava por lição.
+- Regras do Firestore: conferir a tentativa por lição nos blocos sem feedback e testar `answers` e `attempts` no emulador. As do consentimento já estão testadas (`npm run test:regras`).
+- XP do tópico na tela da sequência (item 14): feito em 09/10 e coberto por teste, mas ainda não visto no app. A tela passa a ser o fim da lição.
+- Decisões D3 (lugar do termo) e D5 (antes e depois na tela do aluno) precisam de resposta aqui. O texto do termo, em `src/constants/termo.ts`, continua rascunho.
 
-- Lembrar o participante de voltar: hoje é por mensagem no grupo da turma (item 19); notificação está fora do escopo.
+**Fase 3 — Lista de lições**
 
-**
+- Rota `/licoes`, por módulo, com o estado e o domínio de cada lição.
 
+**Fase 4 — Home nova**
 
-**Restante do M4 (item 27)**
+- A home da seção 4 do plano: "Para hoje", revisões agendadas e os três atalhos liberados.
+- Tirar o que era do roteiro: a tela "Seu dia 1", a espera geral, os links de desenvolvimento para pré, pós e reteste e, com eles, a exceção `travaVale`.
 
-- Telas "Meu domínio" e "Detalhe do tópico".
+**Fase 5 — Progresso**
 
-**Exportação (M7)**
+- Telas "Meu domínio" e "Detalhe do tópico" (o restante do M4).
 
-- Rodar a exportação com os dados de verdade, depois do reteste (`npm run exportar -- --desde 2026-10-30`), e conferir os arquivos antes de enviar. O script está pronto (item 23); o SUS entra nele quando a tela existir.
+**Fase 6 — Perfil**
 
-**Qualidade**
+- Ver e editar os dados, ver o termo aceito e sair.
 
-- Regras do Firestore: as do consentimento (`users` e `piloto/contador`) estão testadas no emulador (`npm run test:regras`); as de `answers` e `attempts` continuam sem teste de emulador.
+**Fase 7 — Revisão em intervalos crescentes**
+
+- Só entra se a decisão D7 pedir.
+
+**Fase 8 — Conteúdo**
+
+- Questões das formas A e B para os cinco tópicos que só têm prática (GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração, Publicando na Steam). Quem escreve e quem revisa ainda está por definir.
+- Texto das explicações: a da alternativa certa começa com "Correto." e, quando a pessoa erra, aparece como "Resposta certa: Correto. ...".
+- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON, sem versão de conteúdo. Decidir se roda `npm run seed:conteudo -- --prune`.
+
+**Fase 9 — Exportação**
+
+- `npm run exportar` com ganho e retenção por tópico e por pessoa.
+
+**Fase 10 — Acabamento**
+
+- Conferir num aparelho de verdade (Expo Go): o XP à vista, o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar).
+- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a correção já está no `main` e nesta branch, e foi vista na tela de login. Faltam a home, o bloco e o cartão, e o Expo Go, onde o defeito não deve existir.
+- Nome do app: no Expo Go aparece "maragames-app", o `name` do `app.json`.
+- Dependências sem uso: `expo-symbols`, `react-native-reanimated` e `react-native-worklets`. Conferir se o Expo Router ainda precisa das duas últimas.
 - O projeto não tem ESLint configurado, então `npm run lint` não roda.
-- Dependências que ficaram sem uso no código depois da retirada das abas e da animação do template: `expo-symbols`, `react-native-reanimated` e `react-native-worklets`. Conferir se o Expo Router ainda precisa das duas últimas antes de tirar do `package.json`.
-- Os atalhos Lições, Progresso e Perfil seguem travados e sem destino; é para depois do piloto.
+- Dados de teste: duas contas (a do Tiago e a de apelido Tiagopbc) e o contador em 2. Ficam até a Fase 2, como prova de que os dados antigos são lidos pelo modelo novo (D8).
+- Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight).
 
-**Decisões do grupo**
+**Decisões em aberto**
 
-- Pontos em que o protótipo contradiz decisões registradas (item 28): resultado do pré-teste só no fim do dia 1; relatório comparando pré e pós; consentimento logo depois do login, sem "Agora não"; home sem os atalhos travados. Os outros três (ordem dos tópicos, dias do reteste e texto do termo) já estão nesta lista, abaixo.
-- Resultado do dia 1 (item 23): a seção "O que revisar primeiro" aparece junto de "Travados até o reteste". Decidir se ela some nessa tela ou se o texto muda para "revisar depois do reteste".
-- Numeração dos dias: "reteste do dia 7 ao dia 9" foi implementado como 7 a 9 dias depois do dia do pós (pós em 30/10, reteste de 06/11 a 08/11), que bate com o cronograma do item 20. Se o dia 1 for o próprio dia do pós, como na trilha dos "dias 2 a 6", o reteste começaria um dia antes. Confirmar; são duas constantes em `src/lib/roteiro.ts`.
-- Nome do app: no carregamento do Expo Go aparece "maragames-app", que é o `name` do `app.json`. Decidir se vira "Beast Maragames" ou outro nome de exibição.
-- Termo de consentimento (item 22): o texto em `src/constants/termo.ts` é rascunho e precisa da revisão do grupo antes da sessão 1. Ponto a decidir: se o termo promete apagar os dados de quem pedir para sair (hoje ele só diz para falar com o grupo).
-- Texto das explicações (M6): a explicação da alternativa certa começa com "Correto.". Quando a pessoa erra, ela aparece sob "Resposta certa" e fica "Resposta certa: Correto. Expressão é...". Rever a redação na revisão do conteúdo.
-- Conteúdo (M6): quem escreve e quem revisa cada tópico (proposta: autor diferente do revisor, rascunhos com apoio de IA revisados pelo grupo). Prazo de 23/10 inclui a trilha diária.
-- Piloto (M8): número e perfil dos participantes (proposta: colegas da UNDB, voluntários e sem nota, meta de pelo menos 15), versão em português do SUS e se haverá pergunta aberta. Comitê de ética e LGPD ficam de lado por ora, por decisão do grupo em 05/10 (público controlado de colegas adultos).
+- D3 a D8, na seção 10 do plano, cada uma com recomendação. D1 e D2 foram decididas em 09/10.
 
-**Dependem de fora**
+**Deixaram de valer com a virada (item 30)**
 
-- Distribuição do app para os participantes (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): consultar o professor.
-- Data exata do Incubators.
+- Tela do SUS como etapa do roteiro (vira a decisão D4).
+- Lembrar o participante de voltar por mensagem no grupo da turma.
+- Exportação com `--desde 2026-10-30`, depois do reteste do piloto.
+- Aplicar o resto do visual do protótipo (item 28) e os pontos em que ele contradizia as decisões: o desenho das telas passa a ser o do plano.
+- A seção "O que revisar primeiro" na tela do dia 1 e a numeração dos dias do reteste: a tela sai, e os 7 dias passam a contar por lição.
+- Número e perfil dos participantes do piloto, versão em português do SUS e data do Incubators.
+- Limpeza da véspera do piloto: os links de desenvolvimento saem na Fase 4 e os dados de teste, na Fase 10.
 
 **Resolvidas em 09/10**
 
+- Plano do app completo aprovado pelo Tiago (item 30), com D1 e D2 decididas. `AGENTS.md`, os itens 6, 19, 20, 22, 23 e 27 e esta lista foram revistos para a virada.
+- Correção do tema na web (item 29) trazida para a branch: ela já estava no `main` remoto, pelo pull request nº 6, e entrou por junção. `npm test` passa com 553 (os 549 de antes e os 4 do projeto "web") e `npx tsc --noEmit` sem erros.
+- XP à vista (item 14): a tela da sequência mostra o XP do tópico ao lado dos acertos, "Seu dia 1" diz "XP do pós-teste" e a home ganhou o selo com o total, que só conta bloco medido depois de concluído e tem piso em 0. Coberto por testes (`npm test` com 549). Conferido na web, no Chrome do Tiago, com a conta dele, em tema escuro, em largura de computador e de celular: a home mostra "XP: +10" ao lado da saudação, e "Seu dia 1" mostra "XP do pós-teste" com −18 XP. Os dois números batem com a exportação de 09/10 somada ao UX/UI (−8 + 18 = +10; pós em −18). A tela da sequência não reabre depois do tópico do dia, então fica para o próximo tópico, junto com o iPhone.
+- Pull request nº 5 integrado ao `main` pelo Tiago. O trabalho novo parte do `main`, em branch própria.
+- Exportação: a pasta leva a data do filtro no nome, e um filtro que não pega ninguém avisa e não grava nada (item 23). Antes, duas rodadas no mesmo dia escreviam uma por cima da outra, e a segunda, vazia, apagou os arquivos da primeira.
 - Cartões na cor antiga ao trocar de tema com o app aberto, na web: a causa era o `useColorScheme` do react-native-web, e não o React Compiler. Corrigido no hook da web, com teste (item 29). Fica a conferência com o app logado, acima.
 
 **Resolvidas em 08/10**
@@ -446,6 +491,8 @@ Decidido em 06/10. No fim de cada bloco, a própria tela do bloco mostra o resul
 
 O XP aparece com o saldo real, inclusive negativo (item 14). O resultado não compara pré com pós: o ganho é da análise (M8), não da tela do aluno.
 
+Revisto em 09/10 (virada, item 30). Com o pré e o pós dentro de cada lição, o plano propõe mostrar o antes e o depois ao aluno no fim da verificação, em contagem ("Antes 1 de 3 → Depois 3 de 3"), o que contraria o último parágrafo acima. É a decisão D5 do plano, recomendada e ainda não confirmada. O resto do item não muda: nada por questão nos blocos sem feedback, a ordem de revisão e a agregação em função pura.
+
 ## 28. Protótipo visual do piloto: ajustes adotados e pontos em aberto
 
 Decidido em 06/10. O grupo tem um protótipo de 12 telas (login, consentimento, home com roteiro, pergunta, cartão, feedback da prática, relatório do dia 1, sequência da trilha, espera do reteste e versões em tema escuro). Ele é a direção visual do app. Antes de virar código, oito ajustes foram adotados:
@@ -503,3 +550,16 @@ A decisão: `src/hooks/use-color-scheme.web.ts` deixa de usar o hook do react-na
 Para cobrir o defeito, o `npm test` ganhou um segundo projeto do jest, "web" (`jest-expo/web`, com jsdom e react-native-web), que roda os arquivos `*.test.web.tsx`; o projeto "nativo" é o de antes. O teste novo reproduz a ordem de ouvintes que causa o defeito e falha com o hook antigo.
 
 Conferido na web em 07/10, em 375×812, na tela de login, com o hook antigo e com o novo. Visto de novo em 09/10, com a correção reaplicada sobre o `main`: em três trocas seguidas, nenhum componente ficou para trás. Falta ver a home logada com a correção e o Expo Go (item 24).
+
+## 30. Virada para o app completo: lições livres e medição por tópico
+
+Decidido pelo Tiago em 09/10; falta o grupo confirmar. O app deixa de ser o roteiro guiado do piloto e passa a ser o produto completo: o aluno escolhe a lição e a ordem, e Lições, Progresso e Perfil viram telas. O plano, com as fases e as decisões em aberto, está em `docs/plano-do-app-completo.md`, que substitui `docs/rota-recalculada.md` como guia do que construir. Cinco decisões já tomadas:
+
+- **Sem datas.** O cronograma do item 20 está cancelado. Uma fase termina quando a prova dela passa.
+- **Medição por tópico.** Pré-teste, pós-teste e reteste deixam de ser três blocos gerais de 12 questões e passam a ser passos de cada lição: 3 questões de diagnóstico ao abrir, cartão e prática, 3 de verificação, e uma revisão 7 dias depois. Foi preferida a manter os blocos gerais como atividade opcional, em que estudar antes do pré contaminaria a medida, e a tirar os blocos sem feedback, que perderia o ganho. O evento não muda: a fase continua `pre`, `pratica`, `pos` ou `reteste`, e as respostas já gravadas são lidas pelo modelo novo sem migração.
+- **Trilha diária como sugestão do dia.** Sai a fila de um tópico novo por dia. A home ganha um cartão "Para hoje" que aponta um passo só (revisão vencida, depois lição pela metade, depois a próxima lição nova), sem limite por dia. A sequência continua contando dias com resposta.
+
+- **Diagnóstico obrigatório.** Não dá para pular as 3 questões de abertura de uma lição: sem elas não existe o antes e depois.
+- **Entre a verificação e a revisão, a prática da lição fica travada e o cartão fica livre.** Refazer a prática na véspera mudaria o que a revisão mede; reler o cartão não gera evento. É a razão do "travados até o reteste" (item 23), agora valendo só para a lição em espera.
+
+Plano aprovado pelo Tiago em 09/10. Na Fase 0 dele foram revistos os itens 6 (atalhos travados), 19 e 22 (roteiro do piloto), 23 (trava pelo roteiro e trilha com limite), 24 (pendências, agora na ordem das fases) e 27 (antes e depois na tela do aluno), e o `AGENTS.md`. O código ainda é o do roteiro do piloto: cada item diz até que fase a regra antiga vale.

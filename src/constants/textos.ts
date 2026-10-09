@@ -108,6 +108,7 @@ export const TEXTOS = {
     erroAoCarregarCartao: 'Não foi possível carregar o cartão. Confira a conexão e tente de novo.',
     resultado: 'Resultado',
     xpDoBloco: 'XP do bloco',
+    xpDoPosTeste: 'XP do pós-teste',
     comoVoceRespondeu: 'Como você respondeu',
     acertoPorTopico: 'Acerto por tópico',
     acertoPorConfianca: 'Acerto por confiança',
@@ -192,9 +193,9 @@ export function progressoDoTopico(respondidas: number, total: number): string {
     return `Prática · ${respondidas} de ${total}`;
 }
 
-/** "Você acertou 5 de 6 questões de UX/UI em jogos." */
-export function acertosDoTopico(acertos: number, total: number, topico: string): string {
-    return `Você acertou ${acertos} de ${total} questões de ${topico}.`;
+/** "Você acertou 5 de 6 questões de UX/UI em jogos · +13 XP": o fim de um tópico da trilha. */
+export function acertosDoTopico(acertos: number, total: number, topico: string, xp: number): string {
+    return `Você acertou ${acertos} de ${total} questões de ${topico} · ${formatarXp(xp)}`;
 }
 
 // Abreviações para as bolinhas da semana, na tela da sequência (0 = domingo).
@@ -219,6 +220,11 @@ export function formatarXp(xp: number): string {
     if (xp > 0) return `+${xp} XP`;
     if (xp < 0) return `−${Math.abs(xp)} XP`;
     return '0 XP';
+}
+
+/** "XP: +18", para o selo da home. O total tem piso em 0 (item 14), então nunca sai negativo. */
+export function formatarXpTotal(xp: number): string {
+    return xp > 0 ? `XP: +${xp}` : 'XP: 0';
 }
 
 // Tela de login: a chamada da marca e os campos (item 28).
