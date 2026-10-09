@@ -8,15 +8,15 @@ App de Programação Mobile (UNDB) para a Beast Maragames. Grupo: Tiago Cavalcan
 
 ## Escopo
 
-App independente do maragames.app. Não há continuidade de lição entre dispositivos nem integração com o Supabase da cliente. O eixo do produto é medir aprendizagem com confiança declarada, validado num piloto antes de 14/11. Decisões de produto e interface são do grupo.
+App independente do maragames.app. Não há continuidade de lição entre dispositivos nem integração com o Supabase da cliente. O eixo do produto é medir aprendizagem com confiança declarada. Desde 09/10 o objetivo é o app completo, com lições livres, e não mais o roteiro de um piloto; os prazos foram cancelados e o trabalho segue fases sem data. Decisões de produto e interface são do grupo.
 
 ## Fonte da verdade das decisões
 
-`docs/decisoes-tecnicas.md` tem todas as decisões numeradas, com o raciocínio, o cronograma e as pendências. Leia antes de propor arquitetura, modelo de dados, regra de pontuação ou fluxo de telas, e não contradiga um item sem apontar qual e por quê.
+`docs/decisoes-tecnicas.md` tem todas as decisões numeradas, com o raciocínio e as pendências. Leia antes de propor arquitetura, modelo de dados, regra de pontuação ou fluxo de telas, e não contradiga um item sem apontar qual e por quê.
 
-`docs/rota-recalculada.md` tem a visão de produto: métricas, marcos M1 a M8 com o estado atual do código, telas e relatórios. Use para saber o que construir e em que ordem.
+`docs/plano-do-app-completo.md` tem a visão de produto: a home, o ciclo de cada lição, a sugestão do dia, as fases com a prova de cada uma e as decisões em aberto. Use para saber o que construir e em que ordem. `docs/rota-recalculada.md` é o plano anterior, do piloto, e fica só como registro.
 
-Quando uma decisão técnica relevante for tomada na sessão, atualize esse arquivo (item novo ou "Revisto em dd/mm" no item existente, e a linha de última atualização no topo) e avise que a lista foi atualizada. Pendências ficam no item 24.
+Quando uma decisão técnica relevante for tomada na sessão, atualize esse arquivo (item novo ou "Revisto em dd/mm" no item existente, e a linha de última atualização no topo) e avise que a lista foi atualizada. Pendências ficam no item 24, na ordem das fases do plano.
 
 ## Stack
 
@@ -35,17 +35,23 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 - `answers` é evento imutável: uma resposta confirmada = um documento, nunca atualizado. Campos: `uid`, `questionId`, `topicId`, `attemptId`, `fase` (`pre`, `pratica`, `pos`, `reteste`), id da alternativa escolhida, `ordemExibida`, `correta`, `confianca` (1, 2 ou 3), tempo de resposta e horário do servidor.
 - Nada derivado é gravado: domínio, quadrante, XP, etapa do roteiro, nível da escada e sequência são calculados a partir de `answers`.
 - `questions` é coleção própria, consultável por `topicId`. Conteúdo vem de `content/*.json` e vai ao Firestore só pelo script de seed (ids fixos, `versaoConteudo`). Não editar questões pelo console.
-- `users/{uid}`: perfil, `formaPre` (A ou B, imutável depois de gravada), `consentiuEm`, dados do SUS.
+- `users/{uid}`: perfil, `formaPre` (A ou B, imutável depois de gravada) e `consentiuEm`.
 
 ## Regras de negócio
 
 - Confiança: valor 1, 2, 3 no dado; rótulos "Palpite", "Tenho dúvida", "Tenho certeza" só na tela, num único arquivo de strings.
 - Questão: alternativa e confiança são seleções independentes, em qualquer ordem; Confirmar só ativa com as duas. Sem opção de pular.
 - Quadrante: confiança alta = nível 3; níveis 1 e 2 = baixa. Firme, Frágil, Lacuna, Ponto cego.
-- XP (Gardner-Medwin): acerto 1/2/3, erro 0/−1/−4 por nível de confiança. Nos blocos pré, pós e reteste, nenhum feedback nem XP por questão; tudo aparece só no fim do bloco.
+- XP (Gardner-Medwin): acerto 1/2/3, erro 0/−1/−4 por nível de confiança. Nos blocos pré, pós e reteste, nenhum feedback nem XP por questão; tudo aparece só no fim do bloco, e o total da home só conta o bloco depois de concluído.
 - Domínio por tópico = acerto simples, sem peso de confiança.
 - Blocos medidos: só múltipla escolha, 4 alternativas, uma correta. Alternativas embaralhadas por semente (uid + questão + fase).
-- Home: atalhos em array tipado (`ATALHOS`), formato de trilha livre, com botão principal "Continuar estudos" para a próxima etapa do roteiro; demais trilhas travadas em cinza claro durante o piloto.
+- Ciclo da lição (item 30): cada tópico tem o seu pré, pós e reteste, de 3 questões cada. Na tela chamam-se diagnóstico, verificação e revisão; no dado, a fase continua `pre`, `pos` e `reteste`. A ordem é diagnóstico (obrigatório), cartão, prática, verificação e, 7 dias depois, revisão. Tópico sem questões das formas A e B faz só cartão e prática.
+- Lições livres: qualquer lição abre, em qualquer ordem. A trava vale só dentro da lição: os passos não se pulam e, entre a verificação e a revisão, a prática daquela lição fica fechada e o cartão, livre.
+- Home: saudação, um cartão "Para hoje" com um passo só (revisão vencida, depois lição pela metade, depois a próxima lição nova, sem limite por dia), as revisões agendadas e os atalhos Lições, Progresso e Perfil, em array tipado (`ATALHOS`).
+
+## Estado do código
+
+O código ainda implementa o roteiro do piloto: blocos gerais de 12 questões, home com "Continuar estudos" e atalhos travados, trilha de um tópico por dia. As regras do ciclo da lição e da home acima entram pelas fases do plano; antes de mexer numa tela, confira no item 24 em que fase ela está.
 
 ## Fora de escopo por ora
 

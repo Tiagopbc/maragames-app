@@ -1,6 +1,6 @@
 # Plano do app completo
 
-09/10/2026 · Tiago Cavalcanti. **Proposta em revisão**: a medição por tópico, a sugestão do dia e as decisões D1 e D2 foram fechadas pelo Tiago em 09/10; o resto é recomendação até ser aprovado. Este arquivo passa a guiar o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md`; em caso de conflito sobre uma regra já implementada, vale o que está lá até o item ser revisto.
+09/10/2026 · Tiago Cavalcanti. **Aprovado pelo Tiago em 09/10**, com a medição por tópico, a sugestão do dia e as decisões D1 e D2 fechadas; D3 a D8 seguem como recomendação até serem respondidas, e falta o grupo confirmar a virada. Este arquivo guia o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md` (a virada é o item 30), e o andamento de cada fase fica no item 24.
 
 ## 1. O que muda
 
@@ -162,6 +162,7 @@ Sem datas. Cada fase tem uma prova; só começa a seguinte quando a prova passa.
 **Fase 0 — Virar os documentos e fechar o que está aberto.**
 Atualizar `AGENTS.md` (escopo, regras da home, fora de escopo), rever nas decisões os itens 6, 19, 20, 22, 23 e 27, e reescrever o item 24 na ordem destas fases. Decidir push e pull request da branch `fix/exportacao-pasta-e-aviso`. Conferir se a branch `fix/tema-na-web` resolve o tema preso e trazê-la.
 Prova: quem ler `AGENTS.md` e o item 24 entende o projeto novo sem ler este arquivo.
+Andamento em 09/10: documentos revistos e a correção do tema trazida (ela já estava no `main` remoto, pelo pull request nº 6). Falta o push e o pull request da branch.
 
 **Fase 1 — Motor do ciclo da lição.**
 Funções puras, sem tela: `estadoDaLicao`, `sugestaoDoDia`, o recorte de questões por tópico e fase, e o `xpAcumulado` por tópico.
@@ -219,7 +220,7 @@ Prova: uma pessoa de fora instala, cria conta e conclui uma lição sem ajuda.
 | XP na tela da sequência e no iPhone | Fase 2 (a tela da sequência passa a ser o fim da lição) e Fase 10 |
 | Conferir num aparelho de verdade | Fase 10 |
 | Resto do visual do protótipo | Substituído pelas seções 4 e 5 deste plano |
-| Tema preso ao trocar com o app aberto | Fase 0 |
+| Tema preso ao trocar com o app aberto | Corrigido (Fase 0); a conferência com o app logado fica na Fase 10 |
 | Dados de teste e limpeza da véspera | Fase 10 (os links de desenvolvimento saem na Fase 4) |
 | Sobras do seed antigo | Fase 8 |
 | Tela do SUS | Decisão D4 |
