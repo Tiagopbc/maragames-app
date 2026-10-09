@@ -10,7 +10,14 @@ import { CartaoDaTrilha } from '@/components/trilha/cartao-da-trilha';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { TEXTOS, TITULO_DA_FASE, contagemDoReteste, descreverEtapa, janelaDoReteste } from '@/constants/textos';
+import {
+  TEXTOS,
+  TITULO_DA_FASE,
+  contagemDoReteste,
+  descreverEtapa,
+  formatarXpTotal,
+  janelaDoReteste,
+} from '@/constants/textos';
 import { useAoVoltarAoApp } from '@/hooks/use-ao-voltar-ao-app';
 import { useRoteiro } from '@/hooks/use-roteiro';
 import { useTheme } from '@/hooks/use-theme';
@@ -87,6 +94,8 @@ export default function HomeScreen() {
   // Na espera, com tópico para hoje, a ação do dia é o tópico: o resultado do dia 1 vira o botão
   // de contorno. Fora da espera, a ação do roteiro (o reteste, por exemplo) continua na frente.
   const topicoNaFrente = espera !== null && destinoDoTopico !== null;
+  // O total de XP, do primeiro bloco concluído em diante (item 14).
+  const xp = estado.tipo === 'pronto' ? estado.xp : null;
 
   return (
     <ThemedView style={styles.container}>
@@ -94,7 +103,18 @@ export default function HomeScreen() {
         {/* Com a contagem do reteste e a trilha diária, a home passa da altura de um celular. */}
         <ScrollView contentContainerStyle={styles.conteudo} showsVerticalScrollIndicator={false}>
         <View style={styles.saudacao}>
-          <ThemedText type="title">Olá, {perfil?.apelido}</ThemedText>
+          <View style={styles.topo}>
+            <ThemedText type="title" style={styles.ola}>
+              Olá, {perfil?.apelido}
+            </ThemedText>
+            {xp !== null && (
+              <View style={[styles.selo, { backgroundColor: theme.backgroundSelected }]}>
+                <ThemedText type="smallBold" themeColor="primaria">
+                  {formatarXpTotal(xp)}
+                </ThemedText>
+              </View>
+            )}
+          </View>
           <ThemedText themeColor="textSecondary">
             O que vamos estudar hoje?
           </ThemedText>
@@ -249,6 +269,21 @@ const styles = StyleSheet.create({
   },
   saudacao: {
     gap: Spacing.one,
+  },
+  topo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+  },
+  // Apelido comprido quebra a linha em vez de empurrar o selo para fora da tela.
+  ola: {
+    flexShrink: 1,
+  },
+  selo: {
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    borderRadius: 999,
   },
   proximaEtapa: {
     gap: Spacing.two,

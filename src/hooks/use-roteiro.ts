@@ -8,6 +8,7 @@ import { topicosDaTrilha, topicosMedidos } from '@/lib/bloco';
 import type { Participante } from '@/lib/participante';
 import { etapaDoRoteiro, terminoDoPos, type Etapa } from '@/lib/roteiro';
 import { estadoDaTrilha, semanaDoPiloto, sequenciaDeDias, type DiaDaSemana, type Trilha } from '@/lib/trilha';
+import { xpAcumulado } from '@/lib/xp';
 
 export interface EntradaDoRoteiroDoAluno {
     uid: string;
@@ -26,6 +27,7 @@ export type EstadoDoRoteiro =
           sequencia: number; // dias seguidos com resposta
           semana: DiaDaSemana[]; // os sete dias da tela da sequência; vazia antes do fim do pós
           nomes: Record<string, string>; // título de cada tópico, por id
+          xp: number | null; // total à vista na home; null enquanto nenhum bloco conta (item 14)
       };
 
 export function useRoteiro({ uid, participante, relogio = Date.now }: EntradaDoRoteiroDoAluno) {
@@ -80,6 +82,7 @@ export function useRoteiro({ uid, participante, relogio = Date.now }: EntradaDoR
                 sequencia: sequenciaDeDias(respostas, agora),
                 semana: fimDoPos === null ? [] : semanaDoPiloto(respostas, fimDoPos, agora),
                 nomes: Object.fromEntries(topicos.map((t) => [t.id, t.titulo])),
+                xp: xpAcumulado(respostas, etapa.tipo),
             };
         } catch (e) {
             console.warn('Não foi possível calcular a etapa do roteiro.', e);

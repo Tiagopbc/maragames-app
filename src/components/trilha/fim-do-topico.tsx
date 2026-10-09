@@ -16,14 +16,15 @@ type FimDoTopicoProps = {
     topicId: string; // o tópico da trilha que acabou de ser praticado
     acertos: number;
     total: number;
+    xp: number; // saldo do tópico; aparece como é, inclusive negativo (item 14)
     aoSair: () => void; // volta para a home; quem navega é a rota
     relogio?: () => number; // ms; trocável em teste
 };
 
-// O fim de um tópico da trilha diária (item 23): a sequência de dias, o acerto do tópico e
-// quando vem o próximo. Entra no lugar do resultado detalhado: o feedback já foi dado questão
+// O fim de um tópico da trilha diária (item 23): a sequência de dias, o acerto e o XP do tópico
+// e quando vem o próximo. Entra no lugar do resultado detalhado: o feedback já foi dado questão
 // a questão, e o que traz a pessoa de volta amanhã é a sequência.
-export function FimDoTopico({ uid, participante, topicId, acertos, total, aoSair, relogio }: FimDoTopicoProps) {
+export function FimDoTopico({ uid, participante, topicId, acertos, total, xp, aoSair, relogio }: FimDoTopicoProps) {
     const theme = useTheme();
     // A mesma conta da home, refeita agora que o tópico terminou.
     const { estado, recarregar } = useRoteiro({ uid, participante, relogio });
@@ -73,7 +74,7 @@ export function FimDoTopico({ uid, participante, topicId, acertos, total, aoSair
                     {sequencia > 1 ? TEXTOS.sequenciaMantida : TEXTOS.sequenciaIniciada}
                 </ThemedText>
                 <ThemedText themeColor="textSecondary" style={styles.textoCentral}>
-                    {acertosDoTopico(acertos, total, nomeDe(topicId))}
+                    {acertosDoTopico(acertos, total, nomeDe(topicId), xp)}
                 </ThemedText>
 
                 <View style={styles.semana}>

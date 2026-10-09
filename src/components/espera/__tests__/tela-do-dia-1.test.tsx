@@ -86,6 +86,9 @@ describe('a tela Seu dia 1', () => {
         expect(await screen.findByText('Seu dia 1')).toBeOnTheScreen();
         // Acerto com certeza vale +3 e erro com certeza vale −4: saldo de −1.
         expect(screen.getByText('−1 XP')).toBeOnTheScreen();
+        // Esta tela é o retrato do pós: o XP da trilha não entra aqui, e o rótulo diz isso.
+        expect(screen.getByText('XP do pós-teste')).toBeOnTheScreen();
+        expect(screen.queryByText('XP do bloco')).toBeNull();
         expect(screen.getByText('Acertou 1 de 2')).toBeOnTheScreen();
         expect(screen.getByLabelText('Firme: 1')).toBeOnTheScreen();
         expect(screen.getByLabelText('Ponto cego: 1')).toBeOnTheScreen();

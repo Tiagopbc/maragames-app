@@ -1,4 +1,5 @@
-import { somarXp, xpDaResposta } from '../xp';
+import type { Confianca, Fase } from '../../types/domain';
+import { somarXp, xpAcumulado, xpDaResposta } from '../xp';
 
 describe('xpDaResposta', () => {
     it.each([
@@ -44,6 +45,63 @@ describe('somarXp', () => {
         ] as const;
 
         expect(somarXp(respostas)).toBe(-3);
+    });
+});
+
+// O total que a home mostra (item 14): só entra o que a pessoa já viu virar ponto.
+describe('xpAcumulado', () => {
+    const r = (fase: Fase, questionId: string, correta: boolean, confianca: Confianca) => ({
+        fase,
+        questionId,
+        correta,
+        confianca,
+    });
+
+    it('sem resposta nenhuma, não há total para mostrar', () => {
+        expect(xpAcumulado([], 'pre')).toBeNull();
+    });
+
+    it('pré em andamento não entra: o total mudando revelaria o acerto', () => {
+        expect(xpAcumulado([r('pre', 'q1', true, 3)], 'pre')).toBeNull();
+    });
+
+    it('pré concluído entra, junto com a prática', () => {
+        const respostas = [r('pre', 'q1', true, 3), r('pratica', 'p1', true, 2)];
+
+        expect(xpAcumulado(respostas, 'estudo')).toBe(5);
+    });
+
+    it('prática entra sempre, mesmo com um bloco medido em andamento', () => {
+        const respostas = [r('pre', 'q1', true, 1), r('pratica', 'p1', true, 3), r('pos', 'q2', true, 3)];
+
+        // Pré (+1) e prática (+3); o pós, pela metade, fica de fora.
+        expect(xpAcumulado(respostas, 'pos')).toBe(4);
+    });
+
+    it('pós entra quando a pessoa chega na espera, e continua contando durante o reteste', () => {
+        const respostas = [r('pre', 'q1', true, 1), r('pos', 'q2', true, 3), r('reteste', 'q2', true, 3)];
+
+        expect(xpAcumulado(respostas, 'espera')).toBe(4);
+        expect(xpAcumulado(respostas, 'reteste')).toBe(4);
+    });
+
+    it('reteste entra depois de concluído, somado ao pós das mesmas questões', () => {
+        const respostas = [r('pos', 'q2', true, 3), r('reteste', 'q2', true, 2)];
+
+        expect(xpAcumulado(respostas, 'sus')).toBe(5);
+        expect(xpAcumulado(respostas, 'concluido')).toBe(5);
+    });
+
+    it('questão respondida duas vezes na mesma fase conta uma vez, pela mais recente', () => {
+        const respostas = [r('pratica', 'p1', false, 3), r('pratica', 'p1', true, 3)];
+
+        expect(xpAcumulado(respostas, 'estudo')).toBe(3);
+    });
+
+    it('o total não fica abaixo de zero', () => {
+        const respostas = [r('pratica', 'p1', false, 3), r('pratica', 'p2', true, 1)];
+
+        expect(xpAcumulado(respostas, 'estudo')).toBe(0);
     });
 });
 

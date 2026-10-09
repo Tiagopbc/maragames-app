@@ -120,6 +120,30 @@ describe('a navegação de quem está logado', () => {
         expect(screen.getByRole('button', { name: 'Continuar estudos' })).toBeOnTheScreen();
     });
 
+    it('antes do primeiro bloco concluído, a home não mostra total de XP', async () => {
+        await abrirEm('/');
+        await screen.findByText('Pré-teste · 0 de 1');
+
+        expect(screen.queryByText(/^XP:/)).toBeNull();
+    });
+
+    it('com o pré pela metade, o total continua escondido: ele revelaria o acerto', async () => {
+        repo.questoes.push(questao('mda_a2', 'forma_a', 2));
+        responder('pre', 'mda_a1');
+        await abrirEm('/');
+        await screen.findByText('Pré-teste · 1 de 2');
+
+        expect(screen.queryByText(/^XP:/)).toBeNull();
+    });
+
+    it('com o pré concluído, a home mostra o total de XP ao lado da saudação', async () => {
+        // A resposta do teste é um acerto em Palpite: +1.
+        responder('pre', 'mda_a1');
+        await abrirEm('/');
+
+        expect(await screen.findByText('XP: +1')).toBeOnTheScreen();
+    });
+
     it('a home fica direto no grupo (app), sem grupo de abas em volta', async () => {
         const rotas = await abrirEm('/');
 
@@ -350,6 +374,9 @@ describe('a trilha diária', () => {
         // A resposta de agora é gravada com o horário de hoje, como o servidor faria.
         repo.acertarRelogio(Date.now());
 
+        // Pré, prática e pós do dia 1, um acerto em Palpite cada: +3.
+        expect(await screen.findByText('XP: +3')).toBeOnTheScreen();
+
         await user.press(await screen.findByRole('button', { name: 'Começar' }));
         // O tópico de teste não tem cartão, então a prática abre direto.
         expect(await screen.findByText('Enunciado de gdd_p1')).toBeOnTheScreen();
@@ -362,7 +389,8 @@ describe('a trilha diária', () => {
         // Ontem (o dia 1) e hoje: dois dias seguidos.
         expect(await screen.findByText('Sequência mantida!')).toBeOnTheScreen();
         expect(screen.getByLabelText('2 dias seguidos')).toBeOnTheScreen();
-        expect(screen.getByText('Você acertou 1 de 1 questões de GDD.')).toBeOnTheScreen();
+        // Um acerto com certeza: +3.
+        expect(screen.getByText('Você acertou 1 de 1 questões de GDD · +3 XP')).toBeOnTheScreen();
         expect(screen.getByText('UX/UI em jogos')).toBeOnTheScreen();
         expect(screen.getByText('Libera amanhã. Volte para manter a sequência.')).toBeOnTheScreen();
 
@@ -370,6 +398,8 @@ describe('a trilha diária', () => {
 
         expect(await screen.findByText('Feito por hoje.')).toBeOnTheScreen();
         expect(screen.getByText('Próximo: UX/UI em jogos. Libera amanhã.')).toBeOnTheScreen();
+        // O tópico de hoje já entrou no total.
+        expect(screen.getByText('XP: +6')).toBeOnTheScreen();
         expect(rotas.caminho()).toBe('/');
     });
 
