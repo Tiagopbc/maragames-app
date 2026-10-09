@@ -17,19 +17,16 @@ Combinados com o Tiago, que valem para toda sessão:
 
 ## O que está esperando resposta do Tiago
 
-1. **XP à vista (achado de 09/10, ainda sem código).** O Tiago acertou as 6 questões do tópico UX/UI e não viu o XP mudar. O dado está certo no banco (+18 XP); o que falta é mostrar. Proposta apresentada, aguardando aprovação:
-   - Tela da sequência (`src/components/trilha/fim-do-topico.tsx`): mostrar o XP do tópico ao lado dos acertos, por exemplo "Você acertou 6 de 6 questões de UX/UI em jogos · +18 XP".
-   - Tela "Seu dia 1": trocar "XP do bloco" por "XP do pós-teste" nessa tela, porque ela é o retrato do pós e não muda com a trilha.
-   - Home: um selo com o total acumulado ("XP: +10") ao lado da saudação. A soma já existe em `src/lib/xp.ts` (`somarXp`); falta mostrar. Cuidado: se o grupo decidir esconder o resultado do pré-teste, o selo só aparece depois do pós.
-2. **Push e pull request da branch `fix/exportacao-pasta-e-aviso`.** Ela tem commits só locais. Se o XP for aprovado, entra no mesmo pull request.
+1. **Conferir o XP à vista no app.** As três mudanças foram aprovadas e feitas em 09/10, com teste antes do código (item 14 de `docs/decisoes-tecnicas.md`): XP do tópico na tela da sequência, "XP do pós-teste" no "Seu dia 1" e o selo com o total na home. Está em commit, na branch local, mas sem conferência visual: o painel do navegador desta conversa não tinha sessão logada, então falta ver na web, com o Tiago logado no painel, e no iPhone.
+2. **Push e pull request da branch `fix/exportacao-pasta-e-aviso`.** Ela tem commits só locais. O XP à vista entra no mesmo pull request.
 3. **Testes no emulador das regras de `answers` e `attempts`**, no molde de `regras/consentimento.test.ts`. É o item de código que não depende do grupo.
 
 ## Estado do repositório
 
 - **`main`:** tem o pull request nº 5 integrado em 09/10 (roteiro do dia 1, trava, espera do reteste, identidade visual, trilha diária, exportação).
-- **Branch atual, só local:** `fix/exportacao-pasta-e-aviso`, saída do `main`. Traz os dois ajustes do script de exportação e a atualização dos docs. Sem push e sem pull request.
+- **Branch atual, só local:** `fix/exportacao-pasta-e-aviso`, saída do `main`. Traz os dois ajustes do script de exportação, a atualização dos docs e o XP à vista. Sem push e sem pull request.
 - **Outra sessão:** a correção das cores presas ao trocar de tema com o app aberto está na branch `claude/pensive-williamson-7d726f` (cópia em `.claude/worktrees/`), que saiu de um commit antigo e ainda não entrou no `main`.
-- **Verificação:** `npm test` passa com 532 testes; `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10).
+- **Verificação:** `npm test` passa com 549 testes; `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10).
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
@@ -55,7 +52,7 @@ Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num 
 ## Limites do assistente nesta máquina
 
 - Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um.
-- **Sessão logada no painel do navegador.** Até 09/10, o painel do navegador do app guardava a sessão do Tiago em `http://localhost:8081`, e a conta Tiagopbc estava logada no Chrome dele em `http://127.0.0.1:8081`. Não se sabe se a sessão do painel passa para uma conversa nova. Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
+- **Sessão logada no painel do navegador.** A sessão do painel do navegador não passa de uma conversa para outra: em 09/10, numa conversa nova, `http://localhost:8081` abriu no login. A conta Tiagopbc estava logada no Chrome do Tiago em `http://127.0.0.1:8081`. Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
 - Para ver o login sem deslogar ninguém, abrir `http://127.0.0.1:8081` no painel: é outro endereço para o navegador, então não enxerga a sessão de `localhost`.
 - Não apaga dados em definitivo. Para a limpeza, escreve um script que primeiro lista, e o Tiago roda.
 - O protótipo do Figma foi corrigido à mão pelo Tiago em 08/10; a integração do assistente com o Figma estava barrada pelo limite do plano.

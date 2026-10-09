@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -111,6 +111,16 @@ A taxa de acerto ajustada do paper é o percentual de acertos firmes (corretos c
 Revisto em 06/10. No domínio por tópico, cada questão conta uma vez, pela resposta mais recente em qualquer fase (`dominioPorTopico`, em `src/lib/dominio.ts`). É a leitura "o que o aluno sabe agora": a questão respondida no pós e de novo no reteste entra só pelo reteste, em vez de pesar duas vezes. O XP (`src/lib/xp.ts`) devolve o saldo sem piso, que pode ser negativo; o piso do total exibido continua pendente (item 24).
 
 Revisto em 06/10 (XP negativo). Decidido: o XP de um bloco aparece como é, inclusive negativo ("−5 XP"). É coerente com o feedback da prática, que já mostra "−4 XP" na questão, e é o que dá sentido ao peso do erro com certeza; um piso no bloco deixaria o resumo diferente da soma do que a pessoa viu questão a questão. O piso em 0 vale só para o total acumulado do aluno, quando existir uma tela que o mostre. Fecha a pendência do item 24.
+
+Revisto em 09/10 (XP à vista). O XP estava certo no banco, mas quase não aparecia: o Tiago acertou as 6 questões de um tópico da trilha e não viu número nenhum mudar. Três mudanças, sem gravar nada novo:
+
+- **Tela da sequência**: a linha dos acertos traz o XP do tópico ("Você acertou 6 de 6 questões de UX/UI em jogos · +18 XP"), com o saldo real, inclusive negativo.
+- **"Seu dia 1"**: o rótulo passa a ser "XP do pós-teste". A tela é o retrato do pós e não muda com a trilha; "XP do bloco" dava a entender que era o total.
+- **Home**: um selo com o total ("XP: +10") ao lado da saudação, calculado por `xpAcumulado` (`src/lib/xp.ts`) e entregue pelo `useRoteiro`, que já lê as respostas.
+
+O total segue quatro regras. A prática entra sempre, porque o feedback dela já saiu questão a questão. Bloco medido só entra depois de concluído: quem sai do pré no meio veria o selo mudar e descobriria se acertou, o que quebraria a ausência de feedback (item 19). Cada questão conta uma vez por fase, pela resposta mais recente, como no resultado do bloco; pós e reteste são fases diferentes, então a mesma questão rende nas duas. E o piso em 0, reservado acima para o acumulado, passa a valer aqui. Antes do primeiro bloco concluído, o selo não aparece.
+
+Se o grupo decidir mostrar o resultado do pré-teste só no fim do dia 1 (item 24), o pré deixa de contar até o pós terminar: é uma linha na tabela `CONCLUIDO_EM`, na mesma função.
 
 ## 15. Corte do quadrante: confiança baixa são os níveis 1 e 2
 
@@ -290,8 +300,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Para a sessão 1 (app até 23/10, sessão até 30/10)**
 
-- XP à vista (item 28, ajuste 1): o XP ganho num tópico da trilha não aparece na tela da sequência, "Seu dia 1" diz "XP do bloco" sem dizer que é o do pós-teste, e não há total em lugar nenhum. Achado pelo Tiago em 09/10, no iPhone: acertou 6 de 6 no UX/UI (+18 XP no banco) e não viu o número mudar. Proposta de três mudanças em `docs/passagem-de-sessao.md`, aguardando aprovação.
-- Conferir num aparelho de verdade (Expo Go) o que falta: o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
+- Conferir num aparelho de verdade (Expo Go) o que falta: o XP à vista (selo na home, tela da sequência e "Seu dia 1", feitos em 09/10 e ainda só testados por código), o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar). O login, o ícone ao abrir e a tela da pergunta já foram vistos num iPhone, em tema escuro, em 08/10 (ver resolvidas).
 - Aplicar no app o resto do visual do protótipo (item 28). A aparência entrou em 07/10; faltam o comportamento (lista "Seu roteiro" na home, relatório único "Seu dia 1", tela de espera) e o conteúdo (cartão com diagrama e frase de destaque), que dependem de o grupo fechar os pontos em aberto do item 28.
 - Trocar de tema com o app aberto deixa cartões na cor antiga até recarregar (visto na home, na web, em 07/10). Pode ser a memoização do React Compiler; falta investigar e ver se acontece no celular.
 - Dados de teste a apagar antes do piloto: são duas contas (a do Tiago e a de apelido Tiagopbc, criada em 08/10), com 40 respostas e 6 tentativas cada uma; a do Tiago tem ainda uma tentativa de reteste aberta e as 6 respostas da prática do GDD, de 08/10, e o contador em 2. Se ficarem, o primeiro participante de verdade recebe a forma A como terceiro da fila, e não como primeiro.
@@ -342,6 +351,7 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 **Resolvidas em 09/10**
 
+- XP à vista (item 14): a tela da sequência mostra o XP do tópico ao lado dos acertos, "Seu dia 1" diz "XP do pós-teste" e a home ganhou o selo com o total, que só conta bloco medido depois de concluído e tem piso em 0. Coberto por testes (`npm test` com 549); falta ver no app, na web e no iPhone.
 - Pull request nº 5 integrado ao `main` pelo Tiago. O trabalho novo parte do `main`, em branch própria.
 - Exportação: a pasta leva a data do filtro no nome, e um filtro que não pega ninguém avisa e não grava nada (item 23). Antes, duas rodadas no mesmo dia escreviam uma por cima da outra, e a segunda, vazia, apagou os arquivos da primeira.
 
