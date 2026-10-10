@@ -1,12 +1,22 @@
 import {
     acertosDoTopico,
-    contagemDoReteste,
-    descreverEtapa,
+    antesEDepois,
+    detalheDaEtapa,
+    quandoARevisaoAbre,
+    detalheDaSugestao,
+    contarDias,
+    licoesFeitas,
+    passoFeitoEm,
+    termoAceitoEm,
+    proximaRevisao,
+    rotuloDoBotaoDaLicao,
+    tituloDaSugestao,
+    situacaoDaLicao,
+    verificacaoEHoje,
     formatarAcertos,
     formatarTaxa,
     formatarXp,
     formatarXpTotal,
-    janelaDoReteste,
     resumirQuadrantes,
 } from '../textos';
 
@@ -46,54 +56,84 @@ describe('acertosDoTopico', () => {
     });
 });
 
-describe('descreverEtapa', () => {
-    const progresso = { respondidas: 3, total: 12, proximaQuestaoId: 'q4' };
+describe('os textos da lição', () => {
+    const progresso = (respondidas: number) => ({ respondidas, total: 3, proximaQuestaoId: 'q' });
 
-    it('nos blocos medidos, diz o bloco e quantas questões já foram', () => {
-        expect(descreverEtapa({ tipo: 'pre', ...progresso }, null)).toBe('Pré-teste · 3 de 12');
-        expect(descreverEtapa({ tipo: 'pos', ...progresso }, null)).toBe('Pós-teste · 3 de 12');
-        expect(descreverEtapa({ tipo: 'reteste', foraDaJanela: false, ...progresso }, null)).toBe(
-            'Reteste · 3 de 12'
-        );
+    it('o botão diz o passo da vez', () => {
+        expect(rotuloDoBotaoDaLicao({ tipo: 'nova' })).toBe('Começar');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'diagnostico', ...progresso(1) })).toBe('Continuar o diagnóstico');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'estudo', ...progresso(0) })).toBe('Abrir o cartão');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'estudo', ...progresso(2) })).toBe('Continuar a prática');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'verificacao', ...progresso(0) })).toBe('Fazer a verificação');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'verificacao', ...progresso(1) })).toBe('Continuar a verificação');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'revisao', liberadaEm: 0, ...progresso(0) })).toBe('Fazer a revisão');
+        expect(rotuloDoBotaoDaLicao({ tipo: 'revisao', liberadaEm: 0, ...progresso(1) })).toBe('Continuar a revisão');
     });
 
-    it('no estudo ainda sem prática, anuncia o cartão do tópico', () => {
-        const etapa = { tipo: 'estudo', topicId: 'mda', respondidas: 0, total: 4, proximaQuestaoId: 'p1' } as const;
+    it('a etapa parada no meio diz onde a pessoa parou; as outras, o tamanho', () => {
+        const noEstudo = { tipo: 'estudo', ...progresso(2) } as const;
 
-        expect(descreverEtapa(etapa, 'Framework MDA')).toBe('Cartão de Framework MDA');
-        expect(descreverEtapa(etapa, null)).toBe('Cartão de conceito');
+        expect(detalheDaEtapa('estudo', 3, noEstudo)).toBe('2 de 3');
+        expect(detalheDaEtapa('diagnostico', 3, noEstudo)).toBe('3 questões');
+        expect(detalheDaEtapa('verificacao', 1, noEstudo)).toBe('1 questão');
     });
 
-    it('no estudo com a prática começada, diz o nome do tópico e o progresso', () => {
-        const etapa = { tipo: 'estudo', topicId: 'mda', respondidas: 1, total: 4, proximaQuestaoId: 'p2' } as const;
-
-        expect(descreverEtapa(etapa, 'Framework MDA')).toBe('Prática de Framework MDA · 1 de 4');
+    it('a revisão diz quando abre, até abrir', () => {
+        expect(detalheDaEtapa('revisao', 3, { tipo: 'nova' })).toBe('7 dias depois da verificação');
+        expect(detalheDaEtapa('revisao', 3, { tipo: 'aguardando_revisao', liberaEm: 0, diasRestantes: 5 })).toBe('Abre em 5 dias');
+        expect(detalheDaEtapa('revisao', 3, { tipo: 'aguardando_revisao', liberaEm: 0, diasRestantes: 1 })).toBe('Abre amanhã');
+        expect(detalheDaEtapa('revisao', 3, { tipo: 'revisao', liberadaEm: 0, ...progresso(0) })).toBe('3 questões');
     });
 
-    it('no estudo sem nome de tópico, não deixa um buraco na frase', () => {
-        const etapa = { tipo: 'estudo', topicId: 'mda', respondidas: 1, total: 4, proximaQuestaoId: 'p2' } as const;
-
-        expect(descreverEtapa(etapa, null)).toBe('Prática · 1 de 4');
+    it('a situação da lição, para a lista', () => {
+        expect(situacaoDaLicao({ tipo: 'nova' })).toBe('Nova');
+        expect(situacaoDaLicao({ tipo: 'diagnostico', ...progresso(1) })).toBe('Em andamento');
+        expect(situacaoDaLicao({ tipo: 'estudo', ...progresso(0) })).toBe('Em andamento');
+        expect(situacaoDaLicao({ tipo: 'verificacao', ...progresso(0) })).toBe('Em andamento');
+        expect(situacaoDaLicao({ tipo: 'aguardando_revisao', liberaEm: 0, diasRestantes: 5 })).toBe('Revisão em 5 dias');
+        expect(situacaoDaLicao({ tipo: 'aguardando_revisao', liberaEm: 0, diasRestantes: 1 })).toBe('Revisão amanhã');
+        expect(situacaoDaLicao({ tipo: 'revisao', liberadaEm: 0, ...progresso(0) })).toBe('Revisão disponível');
+        expect(situacaoDaLicao({ tipo: 'concluida', concluidaEm: 0 })).toBe('Concluída');
     });
 
-    it('na espera, conta os dias até o reteste', () => {
-        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 5 }, null)).toBe(
-            'O reteste abre em 5 dias.'
-        );
+    it('o Para hoje: título, detalhe e a próxima revisão', () => {
+        expect(tituloDaSugestao('Framework MDA', { tipo: 'nova' })).toBe('Framework MDA');
+        expect(tituloDaSugestao('Framework MDA', { tipo: 'revisao', liberadaEm: 0, ...progresso(0) })).toBe('Revisão de Framework MDA');
+        expect(detalheDaSugestao({ tipo: 'nova' })).toBe('Lição nova');
+        expect(detalheDaSugestao({ tipo: 'estudo', ...progresso(0) })).toBe('Cartão e prática');
+        expect(detalheDaSugestao({ tipo: 'diagnostico', ...progresso(2) })).toBe('Diagnóstico · 2 de 3');
+        expect(detalheDaSugestao({ tipo: 'revisao', liberadaEm: 0, ...progresso(0) })).toBe('3 questões');
+        expect(proximaRevisao('Framework MDA', 5)).toBe('Próxima revisão: Framework MDA, em 5 dias.');
+        expect(proximaRevisao('Framework MDA', 1)).toBe('Próxima revisão: Framework MDA, amanhã.');
     });
 
-    it('na véspera do reteste, diz "amanhã"', () => {
-        expect(descreverEtapa({ tipo: 'espera', liberaEm: 0, ultimoDiaEm: 0, diasRestantes: 1 }, null)).toBe(
-            'O reteste abre amanhã.'
-        );
+    it('o atalho Lições conta as feitas, no singular e no plural', () => {
+        expect(licoesFeitas(0, 9)).toBe('0 de 9 feitas');
+        expect(licoesFeitas(1, 9)).toBe('1 de 9 feita');
+        expect(licoesFeitas(3, 9)).toBe('3 de 9 feitas');
     });
 
-    it.each([
-        ['consentimento', 'Falta aceitar o termo de consentimento.'],
-        ['sus', 'Falta o questionário final.'],
-        ['concluido', 'Você concluiu o roteiro.'],
-    ] as const)('em %s: %s', (tipo, texto) => {
-        expect(descreverEtapa({ tipo }, null)).toBe(texto);
+    it('o histórico e o termo dizem a data no fuso de São Luís', () => {
+        // 02:00 UTC de 09/10 ainda é 08/10 em São Luís.
+        expect(passoFeitoEm('pre', Date.UTC(2026, 9, 9, 2))).toBe('Diagnóstico · 08/10');
+        expect(passoFeitoEm('reteste', Date.UTC(2026, 9, 15, 15))).toBe('Revisão · 15/10');
+        expect(termoAceitoEm(Date.UTC(2026, 9, 6, 15))).toBe('Termo de participação aceito em 06/10/2026.');
+    });
+
+    it('a sequência, no singular e no plural', () => {
+        expect(contarDias(1)).toBe('1 dia');
+        expect(contarDias(3)).toBe('3 dias');
+    });
+
+    it('o antes e o depois saem em contagem, e não em percentual', () => {
+        expect(antesEDepois({ acertos: 1, total: 3 }, { acertos: 3, total: 3 })).toBe('Antes 1 de 3 → Depois 3 de 3');
+        expect(verificacaoEHoje({ acertos: 3, total: 3 }, { acertos: 2, total: 3 })).toBe('Na verificação 3 de 3 → Hoje 2 de 3');
+    });
+
+    it('a data da revisão sai no fuso de São Luís, com o artigo do dia', () => {
+        // 16/10/2026 é sexta; 17/10, sábado.
+        expect(quandoARevisaoAbre(Date.UTC(2026, 9, 16, 3))).toBe('A revisão abre na sexta, 16/10.');
+        expect(quandoARevisaoAbre(Date.UTC(2026, 9, 17, 3))).toBe('A revisão abre no sábado, 17/10.');
     });
 });
 
@@ -128,33 +168,3 @@ describe('formatarTaxa e formatarAcertos', () => {
     });
 });
 
-describe('contagemDoReteste', () => {
-    it('com vários dias, destaca a contagem', () => {
-        expect(contagemDoReteste(6)).toEqual({ rotulo: 'Seu reteste abre em', destaque: '6 dias' });
-    });
-
-    it('faltando um dia, diz amanhã', () => {
-        expect(contagemDoReteste(1)).toEqual({ rotulo: 'Seu reteste abre', destaque: 'amanhã' });
-    });
-});
-
-describe('janelaDoReteste', () => {
-    const DIA = 24 * 60 * 60 * 1000;
-    // Meia-noite de sexta, 06/11/2026, em São Luís (UTC−3).
-    const SEXTA = Date.parse('2026-11-06T00:00:00-03:00');
-
-    it('diz o dia da semana e a data em que abre e até quando fica', () => {
-        expect(janelaDoReteste(SEXTA, SEXTA + 2 * DIA)).toBe(
-            'Abre na sexta, 06/11, e fica disponível até domingo, 08/11.'
-        );
-    });
-
-    it('sábado e domingo levam "no"', () => {
-        expect(janelaDoReteste(SEXTA + DIA, SEXTA + 3 * DIA)).toBe(
-            'Abre no sábado, 07/11, e fica disponível até segunda, 09/11.'
-        );
-        expect(janelaDoReteste(SEXTA + 2 * DIA, SEXTA + 4 * DIA)).toBe(
-            'Abre no domingo, 08/11, e fica disponível até terça, 10/11.'
-        );
-    });
-});

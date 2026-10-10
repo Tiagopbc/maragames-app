@@ -4,14 +4,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { TEXTOS, TITULO_DA_FASE } from '@/constants/textos';
+import { TEXTOS, TITULO_DA_FASE, TITULO_DA_FASE_NA_LICAO } from '@/constants/textos';
 import { repositorio } from '@/data/repositorio';
 import {
     pendentes,
     proximoTopicoDaPratica,
     questoesDaPratica,
     questoesDoBlocoMedido,
-    topicosDaTrilha,
 } from '@/lib/bloco';
 import { ordemDasAlternativas } from '@/lib/embaralhar';
 import {
@@ -27,7 +26,9 @@ import type { Alternativa, Fase, FormaPre, Question } from '@/types/domain';
 export interface EntradaDoBloco {
     uid: string;
     fase: Fase;
-    topicId: string | null; // só na prática; null abre o primeiro tópico com questão pendente
+    // Na prática, null abre o primeiro tópico com questão pendente. Nos blocos sem feedback, o
+    // tópico faz deles um passo da lição (item 30); null é o bloco geral do roteiro antigo.
+    topicId: string | null;
     formaPre: FormaPre | null; // só nos blocos medidos; null enquanto não há consentimento
     relogio?: () => number; // ms; trocável em teste. Precisa ser sempre a mesma função.
 }
@@ -45,9 +46,6 @@ export interface Relatorio {
     resultado: ResultadoDoBloco;
     enunciados: Record<string, string>; // por id de questão
     nomesDosTopicos: Record<string, string>; // por id de tópico
-    // O tópico, quando o bloco é a prática de um tópico da trilha diária: o fim dele é a tela
-    // da sequência, e não o resultado detalhado (item 23).
-    topicoDaTrilha: string | null;
 }
 
 export type EstadoDoBloco =
@@ -67,7 +65,6 @@ interface Sessao {
     bloco: Question[]; // o bloco inteiro, para o resultado do fim
     respostas: RespostaDoResultado[]; // as desta fase: as já gravadas antes mais as desta sessão
     nomesDosTopicos: Record<string, string>;
-    topicoDaTrilha: string | null;
 }
 
 interface Controle {
@@ -95,12 +92,11 @@ function perguntaDe(s: Sessao, uid: string, fase: Fase): PerguntaAtual {
 }
 
 // O resultado sai das respostas que a tela já tem em mãos, sem ler o banco de novo.
-function relatorioDe(s: Pick<Sessao, 'bloco' | 'respostas' | 'nomesDosTopicos' | 'topicoDaTrilha'>): Relatorio {
+function relatorioDe(s: Pick<Sessao, 'bloco' | 'respostas' | 'nomesDosTopicos'>): Relatorio {
     return {
         resultado: resultadoDoBloco(s.respostas, s.bloco),
         enunciados: Object.fromEntries(s.bloco.map((q) => [q.id, q.enunciado])),
         nomesDosTopicos: s.nomesDosTopicos,
-        topicoDaTrilha: s.topicoDaTrilha,
     };
 }
 
@@ -123,7 +119,6 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
 
             let doBloco: Question[];
             let nome: string;
-            let topicoDaTrilha: string | null = null;
             if (fase === 'pratica') {
                 const alvo =
                     topicId ??
@@ -137,22 +132,13 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 }
                 doBloco = questoesDaPratica(questoes, alvo);
                 nome = topicos.find((t) => t.id === alvo)?.titulo ?? '';
-                const daTrilha = topicosDaTrilha(
-                    questoes,
-                    topicos.map((t) => t.id)
-                );
-                if (daTrilha.includes(alvo)) topicoDaTrilha = alvo;
             } else {
                 if (formaPre === null) {
                     return { tipo: 'erro', mensagem: TEXTOS.semConsentimento, podeTentarDeNovo: false } as const;
                 }
-                doBloco = questoesDoBlocoMedido(
-                    questoes,
-                    fase,
-                    topicos.map((t) => t.id),
-                    formaPre
-                );
-                nome = TITULO_DA_FASE[fase];
+                doBloco = questoesDoBlocoMedido(questoes, fase, topicId ? [topicId] : topicos.map((t) => t.id), formaPre);
+                const topico = topicos.find((t) => t.id === topicId)?.titulo;
+                nome = topico ? `${TITULO_DA_FASE_NA_LICAO[fase]} · ${topico}` : TITULO_DA_FASE[fase];
             }
             // Bloco vazio não é bloco concluído: seria pular a medição sem ninguém perceber.
             if (doBloco.length === 0) {
@@ -163,7 +149,6 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 bloco: doBloco,
                 respostas: respostas.filter((r) => r.fase === fase) as RespostaDoResultado[],
                 nomesDosTopicos: Object.fromEntries(topicos.map((t) => [t.id, t.titulo])),
-                topicoDaTrilha,
             };
 
             // Bloco já concluído: reabrir mostra o resultado, recalculado das respostas.
@@ -176,8 +161,9 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 } as const;
             }
 
-            // A prática pertence à lição do tópico; os blocos medidos atravessam os tópicos.
-            const lessonId = fase === 'pratica' ? doBloco[0].lessonId : null;
+            // A prática e os passos de uma lição pertencem à lição do tópico; os blocos gerais
+            // do roteiro antigo atravessam os tópicos.
+            const lessonId = fase === 'pratica' || topicId ? doBloco[0].lessonId : null;
             const tentativa =
                 (await repositorio.getAttemptEmAndamento(uid, fase, lessonId)) ??
                 (await repositorio.criarAttempt(uid, fase, lessonId));

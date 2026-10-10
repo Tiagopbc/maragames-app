@@ -1,5 +1,6 @@
 import type { Confianca, Fase } from '../../types/domain';
-import { somarXp, xpAcumulado, xpDaResposta } from '../xp';
+import type { EstadoDaLicao } from '../licao';
+import { somarXp, xpDaResposta, xpDasLicoes } from '../xp';
 
 describe('xpDaResposta', () => {
     it.each([
@@ -48,60 +49,69 @@ describe('somarXp', () => {
     });
 });
 
-// O total que a home mostra (item 14): só entra o que a pessoa já viu virar ponto.
-describe('xpAcumulado', () => {
+// O total pelo ciclo da lição (item 30): cada tópico fecha os seus blocos sem feedback por conta própria.
+describe('xpDasLicoes', () => {
     const r = (fase: Fase, questionId: string, correta: boolean, confianca: Confianca) => ({
         fase,
         questionId,
+        topicId: questionId.split('_')[0],
         correta,
         confianca,
     });
+    const licao = (topicId: string, tipo: EstadoDaLicao['tipo']) => ({ topicId, estado: { tipo } });
 
     it('sem resposta nenhuma, não há total para mostrar', () => {
-        expect(xpAcumulado([], 'pre')).toBeNull();
+        expect(xpDasLicoes([], [licao('mda', 'nova')])).toBeNull();
     });
 
-    it('pré em andamento não entra: o total mudando revelaria o acerto', () => {
-        expect(xpAcumulado([r('pre', 'q1', true, 3)], 'pre')).toBeNull();
+    it('diagnóstico pela metade não entra: o total mudando revelaria o acerto', () => {
+        expect(xpDasLicoes([r('pre', 'mda_a1', true, 3)], [licao('mda', 'diagnostico')])).toBeNull();
     });
 
-    it('pré concluído entra, junto com a prática', () => {
-        const respostas = [r('pre', 'q1', true, 3), r('pratica', 'p1', true, 2)];
+    it('diagnóstico concluído ainda não entra: o resultado dele só aparece no fim da lição', () => {
+        const respostas = [r('pre', 'mda_a1', true, 3), r('pratica', 'mda_p1', true, 2)];
 
-        expect(xpAcumulado(respostas, 'estudo')).toBe(5);
+        // Só a prática (+2), que já teve feedback.
+        expect(xpDasLicoes(respostas, [licao('mda', 'estudo')])).toBe(2);
+        expect(xpDasLicoes(respostas, [licao('mda', 'verificacao')])).toBe(2);
     });
 
-    it('prática entra sempre, mesmo com um bloco medido em andamento', () => {
-        const respostas = [r('pre', 'q1', true, 1), r('pratica', 'p1', true, 3), r('pos', 'q2', true, 3)];
+    it('cada lição fecha os seus blocos: a que chegou à espera entra, a que está pela metade não', () => {
+        const respostas = [r('pre', 'mda_a1', true, 3), r('pre', 'pixel_a1', true, 3), r('pratica', 'gdd_p1', true, 1)];
+        const licoes = [licao('mda', 'aguardando_revisao'), licao('pixel', 'estudo'), licao('gdd', 'estudo')];
 
-        // Pré (+1) e prática (+3); o pós, pela metade, fica de fora.
-        expect(xpAcumulado(respostas, 'pos')).toBe(4);
+        // O diagnóstico do MDA (+3) e a prática do GDD (+1); o do Pixel Art fica de fora.
+        expect(xpDasLicoes(respostas, licoes)).toBe(4);
     });
 
-    it('pós entra quando a pessoa chega na espera, e continua contando durante o reteste', () => {
-        const respostas = [r('pre', 'q1', true, 1), r('pos', 'q2', true, 3), r('reteste', 'q2', true, 3)];
+    it('diagnóstico e verificação entram juntos, quando a lição passa a aguardar a revisão', () => {
+        const respostas = [r('pre', 'mda_a1', true, 1), r('pos', 'mda_b1', true, 3)];
 
-        expect(xpAcumulado(respostas, 'espera')).toBe(4);
-        expect(xpAcumulado(respostas, 'reteste')).toBe(4);
+        expect(xpDasLicoes(respostas, [licao('mda', 'verificacao')])).toBeNull();
+        expect(xpDasLicoes(respostas, [licao('mda', 'aguardando_revisao')])).toBe(4);
     });
 
-    it('reteste entra depois de concluído, somado ao pós das mesmas questões', () => {
-        const respostas = [r('pos', 'q2', true, 3), r('reteste', 'q2', true, 2)];
+    it('revisão só entra com a lição concluída, somada à verificação das mesmas questões', () => {
+        const respostas = [r('pos', 'mda_b1', true, 3), r('reteste', 'mda_b1', true, 2)];
 
-        expect(xpAcumulado(respostas, 'sus')).toBe(5);
-        expect(xpAcumulado(respostas, 'concluido')).toBe(5);
+        expect(xpDasLicoes(respostas, [licao('mda', 'revisao')])).toBe(3);
+        expect(xpDasLicoes(respostas, [licao('mda', 'concluida')])).toBe(5);
+    });
+
+    it('bloco sem feedback de tópico que não é lição fica de fora; a prática dele entra', () => {
+        const respostas = [r('pre', 'antigo_a1', true, 3), r('pratica', 'antigo_p1', true, 2)];
+
+        expect(xpDasLicoes(respostas, [licao('mda', 'nova')])).toBe(2);
     });
 
     it('questão respondida duas vezes na mesma fase conta uma vez, pela mais recente', () => {
-        const respostas = [r('pratica', 'p1', false, 3), r('pratica', 'p1', true, 3)];
+        const respostas = [r('pratica', 'mda_p1', false, 3), r('pratica', 'mda_p1', true, 3)];
 
-        expect(xpAcumulado(respostas, 'estudo')).toBe(3);
+        expect(xpDasLicoes(respostas, [licao('mda', 'estudo')])).toBe(3);
     });
 
     it('o total não fica abaixo de zero', () => {
-        const respostas = [r('pratica', 'p1', false, 3), r('pratica', 'p2', true, 1)];
-
-        expect(xpAcumulado(respostas, 'estudo')).toBe(0);
+        expect(xpDasLicoes([r('pratica', 'mda_p1', false, 3)], [licao('mda', 'estudo')])).toBe(0);
     });
 });
 

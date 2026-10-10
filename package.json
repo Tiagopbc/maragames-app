@@ -64,7 +64,8 @@
         "preset": "jest-expo",
         "moduleNameMapper": {
           "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
-          "^@/assets/(.*)$": "<rootDir>/assets/$1"
+          "^@/assets/(.*)$": "<rootDir>/assets/$1",
+          "^@react-native-async-storage/async-storage$": "@react-native-async-storage/async-storage/jest/async-storage-mock"
         },
         "testPathIgnorePatterns": [
           "/node_modules/",
@@ -94,7 +95,8 @@
         "moduleNameMapper": {
           "^react-native$": "react-native-web",
           "\\.css$": "<rootDir>/src/test/estilo-vazio.js",
-          "^@/assets/(.*)$": "<rootDir>/assets/$1"
+          "^@/assets/(.*)$": "<rootDir>/assets/$1",
+          "^@react-native-async-storage/async-storage$": "@react-native-async-storage/async-storage/jest/async-storage-mock"
         },
         "testMatch": [
           "<rootDir>/src/**/*.test.web.[jt]s?(x)"

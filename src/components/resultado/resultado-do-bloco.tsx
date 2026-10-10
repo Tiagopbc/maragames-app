@@ -1,14 +1,13 @@
 import { StyleSheet, View } from 'react-native';
 
+import { GradeDeQuadrantes } from '@/components/resultado/grade-de-quadrantes';
 import { SeloQuadrante } from '@/components/selo-quadrante';
 import { TextoComCodigo } from '@/components/texto-com-codigo';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import {
-    DESCRICAO_QUADRANTE,
     NIVEIS_DE_CONFIANCA,
     ROTULO_CONFIANCA,
-    ROTULO_QUADRANTE,
     TEXTOS,
     formatarAcertos,
     formatarTaxa,
@@ -17,10 +16,6 @@ import {
 } from '@/constants/textos';
 import type { Relatorio } from '@/hooks/use-bloco';
 import { useTheme } from '@/hooks/use-theme';
-import type { Quadrante } from '@/lib/quadrante';
-
-// Ordem de leitura da grade: a linha de cima são os acertos, a de baixo os erros.
-const QUADRANTES: readonly Quadrante[] = ['firme', 'fragil', 'ponto_cego', 'lacuna'];
 
 type ResultadoDoBlocoProps = {
     relatorio: Relatorio;
@@ -54,21 +49,7 @@ export function ResultadoDoBloco({ relatorio, medido, rotuloDoXp = TEXTOS.xpDoBl
             </View>
 
             <Secao titulo={TEXTOS.comoVoceRespondeu}>
-                <View style={styles.grade}>
-                    {QUADRANTES.map((quadrante) => (
-                        <View
-                            key={quadrante}
-                            accessible
-                            accessibilityLabel={`${ROTULO_QUADRANTE[quadrante]}: ${resultado.quadrantes[quadrante]}`}
-                            style={[styles.cartao, styles.quadrante, cartao]}>
-                            <ThemedText style={styles.contagem}>{resultado.quadrantes[quadrante]}</ThemedText>
-                            <SeloQuadrante quadrante={quadrante} />
-                            <ThemedText type="small" themeColor="textSecondary">
-                                {DESCRICAO_QUADRANTE[quadrante]}
-                            </ThemedText>
-                        </View>
-                    ))}
-                </View>
+                <GradeDeQuadrantes quadrantes={resultado.quadrantes} />
             </Secao>
 
             {medido && (
@@ -152,10 +133,6 @@ const styles = StyleSheet.create({
     cartao: { gap: Spacing.one, padding: Spacing.three, borderRadius: Spacing.three },
     xp: { alignItems: 'center' },
     numero: { fontSize: 40, lineHeight: 48, fontWeight: 700 },
-    grade: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
-    // Duas colunas: metade da largura menos a folga entre elas.
-    quadrante: { flexBasis: '47%', flexGrow: 1 },
-    contagem: { fontSize: 28, lineHeight: 34, fontWeight: 700 },
     linha: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, minHeight: 32 },
     rotuloDaLinha: { flex: 1 },
 });
