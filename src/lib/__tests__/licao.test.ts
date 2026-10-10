@@ -2,6 +2,7 @@ import type { BlocoQuestao, Fase } from '../../types/domain';
 import type { Confianca } from '../../types/domain';
 import {
     cicloDaLicao,
+    cicloDoAluno,
     destinoDaLicao,
     estadoDaLicao,
     etapasDaLicao,
@@ -116,10 +117,8 @@ describe('estadoDaLicao, no ciclo completo', () => {
         });
     });
 
-    it('o diagnóstico não se pula: prática feita não adianta a lição com ele pela metade', () => {
-        const respostas = [r('pre', 'mda_a1'), ...varias('pratica', PRATICA)];
-
-        expect(estado(respostas)).toMatchObject({ tipo: 'diagnostico', respondidas: 1 });
+    it('o diagnóstico vem antes: sem ele completo, a lição não sai do diagnóstico', () => {
+        expect(estado([r('pre', 'mda_a1'), r('pre', 'mda_a2')])).toMatchObject({ tipo: 'diagnostico', respondidas: 2 });
     });
 
     it('a mesma questão respondida em outra fase não conta para o passo', () => {
@@ -214,6 +213,61 @@ describe('estadoDaLicao, no ciclo completo', () => {
     });
 });
 
+// O ciclo de cada pessoa (item 30, revisto): o conteúdo pode ganhar diagnóstico depois de alguém
+// já ter praticado o tópico. Para essa pessoa, o "antes" não mede mais nada.
+describe('cicloDoAluno', () => {
+    const ciclo = (respostas: RespostaDaLicao[], formaPre: 'A' | null = 'A', topicId = 'mda') =>
+        cicloDoAluno({ topicId, respostas, questoes: QUESTOES, formaPre });
+
+    it('sem resposta de prática, vale o ciclo do conteúdo', () => {
+        expect(ciclo([])).toBe('completo');
+        expect(ciclo(varias('pre', FORMA_A))).toBe('completo');
+        expect(ciclo([], 'A', 'gdd')).toBe('curto');
+    });
+
+    it('prática depois do diagnóstico completo: ciclo completo', () => {
+        const respostas = [...varias('pre', FORMA_A, DIA_1), ...varias('pratica', PRATICA, DIA_1 + HORA)];
+
+        expect(ciclo(respostas)).toBe('completo');
+    });
+
+    it('quem praticou quando o diagnóstico ainda não existia fica no ciclo curto', () => {
+        expect(ciclo(varias('pratica', PRATICA))).toBe('curto');
+        expect(ciclo([r('pratica', 'mda_p1')])).toBe('curto');
+    });
+
+    it('diagnóstico terminado depois da primeira resposta de prática não vale como antes', () => {
+        const respostas = [r('pratica', 'mda_p1', DIA_1), ...varias('pre', FORMA_A, DIA_1 + DIA)];
+
+        expect(ciclo(respostas)).toBe('curto');
+    });
+
+    it('diagnóstico pela metade com prática já respondida também não vale', () => {
+        expect(ciclo([r('pre', 'mda_a1', DIA_1), r('pratica', 'mda_p1', DIA_1 + HORA)])).toBe('curto');
+    });
+
+    it('sem a forma do participante, quem já praticou fica no ciclo curto', () => {
+        expect(ciclo([r('pratica', 'mda_p1')], null)).toBe('curto');
+        expect(ciclo([], null)).toBe('completo');
+    });
+
+    it('tópico sem questão não é lição', () => {
+        expect(ciclo([], 'A', 'engine')).toBeNull();
+    });
+});
+
+describe('estadoDaLicao, de quem praticou antes de o diagnóstico existir', () => {
+    it('prática concluída: a lição continua concluída, e não volta para o diagnóstico', () => {
+        const fim = DIA_1 + HORA;
+
+        expect(estado([r('pratica', 'mda_p1'), r('pratica', 'mda_p2', fim)])).toEqual({ tipo: 'concluida', concluidaEm: fim });
+    });
+
+    it('prática pela metade: continua no estudo', () => {
+        expect(estado([r('pratica', 'mda_p1')])).toMatchObject({ tipo: 'estudo', respondidas: 1 });
+    });
+});
+
 describe('estadoDaLicao, no ciclo curto', () => {
     const gdd = (respostas: RespostaDaLicao[], formaPre: 'A' | null = 'A') => estado(respostas, { topicId: 'gdd', formaPre });
 
@@ -258,6 +312,12 @@ describe('licoesDoAluno', () => {
         ]);
     });
 
+    it('o ciclo de cada lição é o da pessoa: quem já praticou sem diagnóstico fica no curto', () => {
+        const [mda] = licoes(varias('pratica', PRATICA), ['mda']);
+
+        expect(mda).toMatchObject({ ciclo: 'curto', estado: { tipo: 'concluida' } });
+    });
+
     it('guarda o horário da resposta mais recente de cada lição, de qualquer fase', () => {
         const respostas = [r('pre', 'mda_a1', DIA_1), r('pre', 'mda_a2', DIA_1 + HORA), r('pratica', 'gdd_p1', DIA_1 + 2 * HORA)];
 
@@ -284,7 +344,12 @@ describe('conta do roteiro antigo, lida pelo modelo novo', () => {
             ...[1, 2, 3].map((n) => q(`${t}_b${n}`, 'forma_b')),
             ...[1, 2, 3, 4].map((n) => q(`${t}_p${n}`, 'pratica')),
         ]),
-        ...TRILHA.flatMap((t) => [1, 2].map((n) => q(`${t}_p${n}`, 'pratica'))),
+        // Os tópicos da antiga trilha ganharam diagnóstico e verificação depois (Fase 8 do plano).
+        ...TRILHA.flatMap((t) => [
+            q(`${t}_a1`, 'forma_a'),
+            q(`${t}_b1`, 'forma_b'),
+            ...[1, 2].map((n) => q(`${t}_p${n}`, 'pratica')),
+        ]),
     ];
     const ids = (bloco: BlocoQuestao, topicos: string[]) =>
         questoes.filter((x) => x.bloco === bloco && topicos.includes(x.topicId)).map((x) => x.id);
@@ -298,7 +363,7 @@ describe('conta do roteiro antigo, lida pelo modelo novo', () => {
         ...varias('pratica', ids('pratica', ['ux']), DIA_1 + 3 * DIA),
     ];
 
-    it('os quatro tópicos medidos aguardam a revisão, e os da trilha feitos estão concluídos', () => {
+    it('os quatro tópicos medidos aguardam a revisão, e os da trilha feitos continuam concluídos', () => {
         const licoes = licoesDoAluno({
             topicos: [...MEDIDOS, ...TRILHA],
             respostas,
@@ -317,6 +382,8 @@ describe('conta do roteiro antigo, lida pelo modelo novo', () => {
             ['som', 'nova'],
         ]);
         expect(licoes[0].estado).toMatchObject({ diasRestantes: 4 });
+        // Quem já tinha praticado fica no ciclo curto; o tópico intocado ganha o ciclo completo.
+        expect(licoes.map((l) => l.ciclo)).toEqual(['completo', 'completo', 'completo', 'completo', 'curto', 'curto', 'completo']);
     });
 });
 
@@ -525,8 +592,8 @@ describe('resultadoDaLicao', () => {
 describe('respostasAVista', () => {
     const rv = (fase: Fase, questionId: string) => ({ fase, questionId, topicId: questionId.split('_')[0] });
     const TODAS = [rv('pre', 'mda_a1'), rv('pratica', 'mda_p1'), rv('pos', 'mda_b1'), rv('reteste', 'mda_b1')];
-    const fases = (tipo: EstadoDaLicao['tipo']) =>
-        respostasAVista(TODAS, [{ topicId: 'mda', estado: { tipo } }]).map((x) => x.fase);
+    const fases = (tipo: EstadoDaLicao['tipo'], ciclo: Ciclo = 'completo') =>
+        respostasAVista(TODAS, [{ topicId: 'mda', ciclo, estado: { tipo } }]).map((x) => x.fase);
 
     it('a prática aparece sempre, porque o feedback dela já saiu', () => {
         expect(fases('diagnostico')).toEqual(['pratica']);
@@ -541,6 +608,10 @@ describe('respostasAVista', () => {
 
     it('a revisão aparece com a lição concluída', () => {
         expect(fases('concluida')).toEqual(['pre', 'pratica', 'pos', 'reteste']);
+    });
+
+    it('na lição de ciclo curto, só a prática aparece: um diagnóstico feito depois da prática não conta', () => {
+        expect(fases('concluida', 'curto')).toEqual(['pratica']);
     });
 
     it('bloco sem feedback de tópico que não é lição não aparece', () => {

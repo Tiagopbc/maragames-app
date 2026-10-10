@@ -34,7 +34,7 @@ export type EstadoDaLicao =
 
 export interface Licao {
     topicId: string;
-    ciclo: Ciclo;
+    ciclo: Ciclo; // o da pessoa (`cicloDoAluno`), que pode ser curto num tópico de conteúdo completo
     estado: EstadoDaLicao;
     ultimaRespostaEm: number | null; // a resposta mais recente da lição, de qualquer fase
 }
@@ -51,6 +51,38 @@ export function cicloDaLicao(questoes: readonly QuestaoDaLicao[], topicId: strin
     return tem('pratica') ? 'curto' : null;
 }
 
+/**
+ * O ciclo que vale para esta pessoa. É o do conteúdo, com uma exceção: quem respondeu prática do
+ * tópico antes de terminar o diagnóstico dele fica no ciclo curto. Isso acontece quando o
+ * conteúdo ganha diagnóstico depois de a pessoa já ter praticado; para ela, um "antes" feito
+ * depois do estudo não mede nada, e a lição concluída não pode voltar a pedir o diagnóstico.
+ * No fluxo normal não acontece: a trava só abre a prática com o diagnóstico completo.
+ * Sai das respostas, como tudo: nada é gravado nem migrado.
+ */
+export function cicloDoAluno(entrada: Pick<EntradaDaLicao, 'topicId' | 'respostas' | 'questoes' | 'formaPre'>): Ciclo | null {
+    const { topicId, respostas, questoes, formaPre } = entrada;
+    const doConteudo = cicloDaLicao(questoes, topicId);
+    if (doConteudo !== 'completo') return doConteudo;
+
+    const horarios = (fase: Fase, ids: readonly string[]) =>
+        respostas.filter((r) => r.fase === fase && ids.includes(r.questionId)).map((r) => r.respondidaEm);
+
+    const daPratica = horarios(
+        'pratica',
+        questoesDaPratica(questoes, topicId).map((q) => q.id)
+    );
+    if (daPratica.length === 0) return 'completo';
+    // Sem a forma, não há diagnóstico feito: a prática veio antes.
+    if (formaPre === null) return 'curto';
+
+    const idsDoPre = questoesDoBlocoMedido(questoes, 'pre', [topicId], formaPre).map((q) => q.id);
+    const respondidasNoPre = new Set(respostas.filter((r) => r.fase === 'pre' && idsDoPre.includes(r.questionId)).map((r) => r.questionId));
+    if (respondidasNoPre.size < idsDoPre.length) return 'curto';
+
+    // O diagnóstico só vale como "antes" se terminou antes da primeira resposta de prática.
+    return Math.min(...daPratica) < Math.max(...horarios('pre', idsDoPre)) ? 'curto' : 'completo';
+}
+
 export interface EntradaDaLicao {
     topicId: string;
     respostas: readonly RespostaDaLicao[]; // todas as do aluno; as de outros tópicos são ignoradas
@@ -60,12 +92,12 @@ export interface EntradaDaLicao {
 }
 
 /**
- * Em que passo a lição está: o primeiro, na ordem do ciclo, que ainda tem questão sem resposta.
- * Não há como pular passo: a prática respondida não adianta a lição com o diagnóstico pela metade.
+ * Em que passo a lição está: o primeiro, na ordem do ciclo da pessoa (`cicloDoAluno`), que ainda
+ * tem questão sem resposta.
  */
 export function estadoDaLicao(entrada: EntradaDaLicao): EstadoDaLicao {
     const { topicId, respostas, questoes, formaPre, agora } = entrada;
-    const ciclo = cicloDaLicao(questoes, topicId);
+    const ciclo = cicloDoAluno(entrada);
     if (ciclo === null) throw new Error(`O tópico ${topicId} não tem questões: o conteúdo não foi carregado.`);
 
     const doTopico = new Set(questoes.filter((q) => q.topicId === topicId).map((q) => q.id));
@@ -137,7 +169,7 @@ export function licoesDoAluno(entrada: EntradaDasLicoes): Licao[] {
     const { topicos, respostas, questoes } = entrada;
 
     const licoes = topicos.flatMap((topicId): Licao[] => {
-        const ciclo = cicloDaLicao(questoes, topicId);
+        const ciclo = cicloDoAluno({ ...entrada, topicId });
         if (ciclo === null) return [];
 
         const doTopico = new Set(questoes.filter((q) => q.topicId === topicId).map((q) => q.id));
@@ -325,17 +357,18 @@ const A_VISTA_NA_LICAO: Record<Exclude<Fase, 'pratica'>, readonly EstadoDaLicao[
  * As respostas que já podem virar número na tela: XP total, domínio, Progresso. A prática
  * entra sempre, porque o feedback dela sai questão a questão. Um bloco sem feedback só entra
  * quando a lição do tópico passou dele; pela metade, qualquer total revelaria o acerto (itens 14
- * e 19). Bloco sem feedback de tópico que não é lição fica de fora.
+ * e 19). Bloco sem feedback de tópico que não é lição fica de fora, e o de lição que a pessoa faz
+ * no ciclo curto também: ali ele não faz parte da lição.
  */
 export function respostasAVista<R extends Pick<Answer, 'fase' | 'topicId'>>(
     respostas: readonly R[],
-    licoes: readonly { topicId: string; estado: Pick<EstadoDaLicao, 'tipo'> }[]
+    licoes: readonly { topicId: string; ciclo: Ciclo; estado: Pick<EstadoDaLicao, 'tipo'> }[]
 ): R[] {
-    const estadoDe = new Map(licoes.map((l) => [l.topicId, l.estado.tipo]));
+    const licaoDe = new Map(licoes.map((l) => [l.topicId, l]));
 
     return respostas.filter((r) => {
         if (r.fase === 'pratica') return true;
-        const estado = estadoDe.get(r.topicId);
-        return estado !== undefined && A_VISTA_NA_LICAO[r.fase].includes(estado);
+        const licao = licaoDe.get(r.topicId);
+        return licao !== undefined && licao.ciclo === 'completo' && A_VISTA_NA_LICAO[r.fase].includes(licao.estado.tipo);
     });
 }
