@@ -1,5 +1,4 @@
-import type { BlocoQuestao, Fase } from '../../types/domain';
-import type { Confianca } from '../../types/domain';
+import type { BlocoQuestao, Confianca, Fase } from '../../types/domain';
 import {
     cicloDaLicao,
     cicloDoAluno,

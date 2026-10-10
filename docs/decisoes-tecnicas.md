@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (itens 23 e 24: exportação por lição, fim do roteiro antigo e acabamento, com nome do app, dependências, ESLint e script de limpeza; item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -315,6 +315,15 @@ Revisto em 09/10 (virada, item 30). Saem a fila de um tópico novo por dia e a t
 
 Revisto em 10/10 (Fase 4 do plano). A fila de um tópico por dia, a trava pelo roteiro geral e as telas delas saíram do código: `src/lib/trilha.ts` (ficou só a sequência de dias, em `src/lib/sequencia.ts`), `src/lib/passo.ts`, o portão do roteiro, o cartão da trilha, a tela "Seu dia 1" e as rotas `/bloco/[fase]`, `/cartao/[topicId]` e `/dia-1`. A trava que vale é a da lição (`podeAbrirNaLicao`, item 30). `src/lib/roteiro.ts` continua no repositório porque a exportação ainda usa as contas dele (Fase 9), e `useBloco` ainda aceita o bloco geral, sem tópico, que nenhuma rota abre mais.
 
+Revisto em 10/10 (Fase 9 do plano: exportação por lição). O script passou a medir como o app, por tópico:
+
+- **Arquivo novo, `licoes.csv`:** uma linha por pessoa e por lição começada, com o ciclo da pessoa (`cicloDoAluno`), o estado, os acertos da prática, o antes, o depois, a revisão, o ganho normalizado, a retenção, os Firmes e Frágeis mantidos, os dias entre a verificação e a revisão e a marca de revisão feita antes dos 7 dias. É onde ficam o ganho e a retenção.
+- **`participantes.csv`** soma as lições de cada pessoa em que o diagnóstico e a verificação estão completos, porque só aí o antes e o depois são um par; ganha as contagens de lições começadas, verificadas, revisadas e concluídas. Saíram os campos do piloto (dias até o reteste, fora da janela, tópicos da trilha).
+- **`resumo.md`** ganha o antes e o depois de cada tópico e perde a seção da trilha diária e a janela de 7 a 9 dias.
+- **As contas continuam sendo as do app**: a exportação chama `licoesDoAluno`, então uma lição que a pessoa faz no ciclo curto sai como curta também aqui.
+
+Rodado contra o banco em 10/10, só lendo: 2 participantes, 110 eventos, 12 lições e 100 questões; a linha de Playtest e iteração (antes 0 de 3, depois 2 de 3) bate com o que o app mostra. Com isso saiu o que sobrava do roteiro do piloto: `src/lib/roteiro.ts` (as contas de calendário foram para `src/lib/calendario.ts`), o bloco geral de `useBloco` e três funções de `src/lib/bloco.ts`. Todo bloco é agora um passo da lição de um tópico.
+
 ## 24. Pendências, na ordem das fases do plano
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -323,40 +332,29 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Esperando o Tiago**
 
-- A correção do ciclo de quem já praticou (item 30) está em commit na branch `fix/ciclo-de-quem-ja-praticou`, só local, à espera do push e do pull request.
+- Integrar o pull request nº 9 (a correção do ciclo de quem já praticou) e decidir o push e o pull request da branch `feat/exportacao-e-acabamento`, que traz a Fase 9 e a parte da Fase 10 feita em 10/10.
+- Rodar `npm run seed:conteudo -- --prune`, para apagar do banco as 3 questões antigas que estão fora do JSON. Conferido em 10/10: nenhuma resposta aponta para elas.
+- Decidir a forma de distribuição (ver abaixo).
 
 **Fase 0 — Documentos e o que está aberto**
 
 - O grupo confirmar a virada (item 30): ela foi fechada só com o Tiago.
 
-**Fase 2 — Página da lição e blocos por tópico**
-
-- Percorrer no app uma lição de ciclo completo desde o diagnóstico e conferir os eventos no banco. Pede uma conta nova, que só o Tiago pode criar. A de ciclo curto foi feita em 10/10 (Efeitos sonoros).
-- O texto do termo, em `src/constants/termo.ts`, continua rascunho.
-
 **Fase 8 — Conteúdo**
 
 - O grupo revisar as 30 questões novas de diagnóstico e verificação (ids `_07` a `_12` de GDD, UX/UI, Efeitos sonoros, Playtest e Publicando na Steam), escritas pelo assistente.
-- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON, sem versão de conteúdo. Decidir se roda com `--prune`.
+- O texto do termo, em `src/constants/termo.ts`, continua rascunho.
 
 **Fase 7 — Revisão em intervalos crescentes**
 
 - Fora por ora (D7): fica uma revisão só, aos 7 dias.
 
-**Fase 9 — Exportação**
-
-- `npm run exportar` com ganho e retenção por tópico e por pessoa. Hoje o script ainda monta o pré e o pós gerais; com as formas novas, os nove tópicos entram nesses blocos.
-- Com a exportação refeita, apagar `src/lib/roteiro.ts` (ficam as contas de calendário) e o bloco geral de `useBloco`.
-
 **Fase 10 — Acabamento**
 
-- Conferir num aparelho de verdade (Expo Go) e em largura de celular: a home nova, a lista, a página da lição, o fim de cada passo, o Progresso e o Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status nos dois temas, e um aparelho Android (fonte em negrito e botão de voltar).
-- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a correção já está no `main`. Faltam as telas logadas e o Expo Go.
-- Nome do app: no Expo Go aparece "maragames-app", o `name` do `app.json`.
-- Dependências sem uso: `expo-symbols`, `react-native-reanimated` e `react-native-worklets`. Conferir se o Expo Router ainda precisa das duas últimas.
-- O projeto não tem ESLint configurado, então `npm run lint` não roda.
-- Dados de teste: duas contas (a do Tiago e a de apelido Tiagopbc) e o contador em 2 (D8).
-- Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight).
+- Conferir num aparelho de verdade, iPhone e Android, nos dois temas: home, lista, lição, fim de cada passo, Progresso e Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status. No iPhone, em tema escuro, o Tiago já viu a home, a lista e o Progresso em 10/10.
+- Conferir a troca de tema do sistema com o app aberto e logado (item 29).
+- Dados de teste: limpar as contas de teste quando for a hora, com `npm run limpar:teste`, que só lista até receber `--email` e `--apagar`. O banco tem 6 contas; só duas têm respostas.
+- Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): decisão do Tiago.
 
 **Decisões em aberto**
 
@@ -373,6 +371,12 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 10/10**
 
+- Prova da Fase 2 concluída: a lição Playtest e iteração foi percorrida no app desde o diagnóstico, no Chrome do Tiago, com a conta de teste dele (o assistente não cria conta). Diagnóstico sem número, cartão de 4 slides, prática com feedback e sem "Correto.", verificação sem resultado por questão e, no fim, "Antes 0 de 3 → Depois 2 de 3", "+5 XP" e a revisão para 17/10; a prática ficou fechada pela URL e a home passou a "XP: +16" e "8 de 9 feitas". No banco: 12 respostas com os onze campos, `correta` batendo com o gabarito, e as três tentativas concluídas e ligadas à lição.
+- Fase 9 do plano: exportação por lição e por pessoa, e o resto do roteiro do piloto apagado (item 23).
+- Nome de exibição do app: "Beast Maragames", o mesmo da tela de login (`name`, no `app.json`); o `slug` e o `scheme` não mudaram.
+- Dependências: `expo-device` e `expo-web-browser` saíram, por não terem uso nem serem pedidas por outro pacote. `expo-symbols`, `react-native-reanimated` e `react-native-worklets`, que estavam sob suspeita, ficam: o Expo Router e o Expo ainda as pedem. `expo-system-ui` fica, porque o tema automático no Android depende dela.
+- ESLint configurado (`eslint.config.js`, com o `eslint-config-expo`): `npm run lint` roda e sai sem erro nem aviso. A configuração ignora as cópias de trabalho em `.claude/` e a saída da exportação, e libera o `require` nos testes, onde o `jest.mock` precisa dele. O único erro de verdade era um `setState` dentro de efeito no portão da lição, trocado por estado derivado durante o desenho.
+- Script de limpeza dos dados de teste (`npm run limpar:teste`): lista as contas e o que cada uma tem; só apaga com `--email` e `--apagar`.
 - Pull request nº 8 integrado ao `main` pelo Tiago (Fases 1 a 6 e 8, com o tema). A revisão automática deixou um apontamento, tratado em seguida: quem já praticou um tópico antes de ele ter diagnóstico fica no ciclo curto (item 30).
 - Progresso: seção "O que revisar primeiro", com as três lições mais fracas, pedida pelo Tiago depois de ver a tela no iPhone (item 30).
 - Tema claro, escuro ou do sistema, escolhido no Perfil e guardado no aparelho (item 31).

@@ -13,7 +13,7 @@ Combinados com o Tiago, que valem para toda sessão:
 - Escrever o teste antes do código e vê-lo falhar.
 - Nada que vai para o GitHub leva assinatura ou crédito do assistente: nem em commit, nem em pull request, nem em comentário.
 - Perguntar antes de dar push e antes de abrir pull request. A liberação de "pode enviar sempre" valia só para o pull request nº 5, já integrado.
-- Não rodar `npm run lint`: ele instala o ESLint e altera `package.json` e o lockfile.
+- `npm run lint` pode rodar à vontade: o ESLint foi configurado em 10/10.
 
 ## Combinado da rodada de 10/10 (Tiago fora, assistente trabalhando sozinho)
 
@@ -63,19 +63,30 @@ Depois da revisão do Tiago no iPhone, em 10/10: o Progresso ganhou a seção "O
 - **O campo `trilha` do conteúdo não mudou** (`medido` ou `diaria`): virou rótulo de origem, sem efeito no app.
 - **A lição Efeitos sonoros foi respondida em Palpite**, escolhendo sempre a primeira alternativa da tela: 1 acerto em 6.
 
+## Feito na tarde de 10/10, a pedido do Tiago
+
+- Pull request nº 9 aberto, com a correção do ciclo de quem já praticou (apontamento do Codex no nº 8).
+- Lição de ciclo completo percorrida no app desde o diagnóstico (Playtest e iteração, conta de teste do Tiago, pelo Chrome dele) e conferida no banco. A prova da Fase 2 está fechada.
+- Fase 9: exportação por lição e por pessoa (`licoes.csv`), e o resto do roteiro do piloto apagado.
+- Fase 10, o que dava para fazer no código: nome de exibição "Beast Maragames", duas dependências sem uso removidas, ESLint configurado e sem erro, script `npm run limpar:teste`.
+- Tudo isso está em commit na branch `feat/exportacao-e-acabamento`, só local, saída da branch da correção.
+
+Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. O `--prune` e a limpeza das contas de teste são comandos para o Tiago rodar; aparelho de verdade e forma de distribuição também são dele.
+
 ## O que está esperando resposta do Tiago
 
-1. **Push e pull request da branch `fix/ciclo-de-quem-ja-praticou`**: a correção do apontamento que a revisão automática deixou no pull request nº 8 (item 30).
-2. **Criar uma conta nova** para percorrer uma lição de ciclo completo desde o diagnóstico: é a parte da prova da Fase 2 que falta.
-3. **Decidir sobre o `--prune`**: o seed de 10/10 gravou as 100 questões e manteve as 3 antigas que estão fora do JSON.
-4. **O grupo:** confirmar a virada e revisar as 30 questões novas.
+1. **Integrar o pull request nº 9** e autorizar o push e o pull request da branch `feat/exportacao-e-acabamento`.
+2. **Rodar `npm run seed:conteudo -- --prune`**: apaga as 3 questões antigas, que não têm nenhuma resposta.
+3. **Forma de distribuição**: Expo Go, web na Vercel ou build com APK/TestFlight.
+4. **Conferir no iPhone e num Android**, nos dois temas.
+5. **O grupo:** confirmar a virada e revisar as 30 questões novas.
 
 ## Estado do repositório
 
 - **`main`:** tem os pull requests nº 5 a nº 8 integrados. O nº 8, de 10/10, trouxe o app do ciclo da lição (Fases 1 a 6 e 8) e o tema.
-- **Branch atual, só local:** `fix/ciclo-de-quem-ja-praticou`, saída do `main`, com a correção do ciclo de quem já praticou.
+- **Branch atual, só local:** `feat/exportacao-e-acabamento`, saída de `fix/ciclo-de-quem-ja-praticou` (pull request nº 9, aberto).
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 629 testes (625 no projeto "nativo" e 4 no "web"; são menos que os 658 de antes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 598 testes (594 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)

@@ -14,7 +14,7 @@
 // Gera eventos.csv, participantes.csv, questoes.csv e resumo.md, que podem ser enviados, e
 // chave.csv, que liga cada código ao nome e NÃO sai do grupo.
 
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { cert, initializeApp } from 'firebase-admin/app';
@@ -42,7 +42,7 @@ async function main() {
     if (desdeTexto && Number.isNaN(desde)) throw new Error(`Data inválida em --desde: ${desdeTexto} (use AAAA-MM-DD).`);
 
     const raiz = join(__dirname, '..');
-    initializeApp({ credential: cert(require(join(raiz, 'serviceAccountKey.json'))) });
+    initializeApp({ credential: cert(JSON.parse(readFileSync(join(raiz, 'serviceAccountKey.json'), 'utf8'))) });
     const db = getFirestore();
 
     const [usuarios, respostas, questoes, licoes] = await Promise.all([

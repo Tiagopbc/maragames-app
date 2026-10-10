@@ -30,13 +30,14 @@ export function PortaoDaLicao({ uid, topicId, formaPre, passo, barrado, relogio,
         recarregar();
     }, [recarregar]);
 
-    useEffect(() => {
-        if (decisao !== null || estado.tipo === 'carregando') return;
+    // Guardada durante o desenho, e não num efeito: é estado derivado do primeiro resultado da
+    // leitura, e o React refaz o desenho na hora, sem pintar a tela no meio.
+    if (decisao === null && estado.tipo !== 'carregando') {
         // Sem conseguir ler a lição, não abre: na dúvida, a medida fica protegida.
         const liberada =
             estado.tipo === 'pronto' && podeAbrirNaLicao(estado.licao, passo, formaPre !== null) ? estado.licao : null;
         setDecisao({ licao: liberada });
-    }, [decisao, estado, passo, formaPre]);
+    }
 
     if (decisao === null) {
         return (

@@ -174,7 +174,7 @@ Andamento em 09/10: concluída. O total novo ficou com o nome `xpDasLicoes`, e o
 Rota `/licoes/[topicId]`, com os passos e o estado; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição com antes e depois; a trava por lição; regras do Firestore conferidas e testadas no emulador.
 Prova: uma conta nova percorre uma lição inteira de um tópico medido e uma de um tópico só com prática, e o banco fica com os eventos certos.
 Depende de: Fase 1.
-Andamento em 10/10: código e testes prontos. O resultado do diagnóstico só aparece no fim da lição, por decisão do Tiago. A lição de ciclo curto foi percorrida no app (Efeitos sonoros). Falta a de ciclo completo desde o diagnóstico, que pede uma conta nova.
+Andamento em 10/10: concluída. O resultado do diagnóstico só aparece no fim da lição, por decisão do Tiago. Foram percorridas no app uma lição de ciclo curto (Efeitos sonoros) e uma de ciclo completo desde o diagnóstico (Playtest e iteração), com os eventos conferidos no banco.
 
 **Fase 3 — Lista de lições.**
 Rota `/licoes`: lições agrupadas por módulo, cada uma com o estado e o domínio; qualquer uma abre.
@@ -216,10 +216,12 @@ Andamento em 10/10: as 30 questões e os ajustes estão no repositório e no ban
 `npm run exportar` com ganho e retenção por tópico e por pessoa.
 Prova: os CSVs de uma conta de teste batem com a tela de Progresso.
 Depende de: Fase 5.
+Andamento em 10/10: feita. Entrou `licoes.csv`, e o que sobrava do roteiro do piloto foi apagado. Conferido contra o banco: a lição Playtest e iteração sai com o mesmo antes e depois que o app mostra.
 
 **Fase 10 — Acabamento.**
 Conferência em iPhone e Android, nome de exibição do app, dependências sem uso, ESLint, limpeza dos dados de teste e forma de distribuição.
 Prova: uma pessoa de fora instala, cria conta e conclui uma lição sem ajuda.
+Andamento em 10/10: nome de exibição, dependências sem uso, ESLint e script de limpeza feitos. Faltam a conferência em aparelho de verdade, a limpeza das contas de teste (comando do Tiago) e a forma de distribuição.
 
 ## 9. Para onde vão as pendências do item 24
 
