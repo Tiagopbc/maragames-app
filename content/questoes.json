@@ -11,7 +11,7 @@
         "id": "a",
         "texto": "A regra que dá 10 pontos por moeda coletada",
         "correta": true,
-        "explicacao": "Correto. Mecânicas são as regras e os dados do jogo, definidos antes da partida."
+        "explicacao": "Mecânicas são as regras e os dados do jogo, definidos antes da partida."
       },
       {
         "id": "b",
@@ -52,7 +52,7 @@
         "id": "b",
         "texto": "O sentimento de desafio ao vencer uma fase difícil",
         "correta": true,
-        "explicacao": "Correto. Estética é a resposta emocional que o jogo provoca no jogador."
+        "explicacao": "Estética é a resposta emocional que o jogo provoca no jogador."
       },
       {
         "id": "c",
@@ -93,7 +93,7 @@
         "id": "c",
         "texto": "Uma dinâmica",
         "correta": true,
-        "explicacao": "Correto. É comportamento que emerge das regras ao longo da partida. O artigo do MDA usa esse exemplo."
+        "explicacao": "É comportamento que emerge das regras ao longo da partida. O artigo do MDA usa esse exemplo."
       },
       {
         "id": "d",
@@ -134,7 +134,7 @@
         "id": "d",
         "texto": "Pressão de tempo nas decisões, gerando desafio",
         "correta": true,
-        "explicacao": "Correto. O artigo do MDA cita a pressão de tempo como dinâmica típica para produzir desafio."
+        "explicacao": "O artigo do MDA cita a pressão de tempo como dinâmica típica para produzir desafio."
       }
     ],
     "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
@@ -157,7 +157,7 @@
         "id": "b",
         "texto": "Ajustar as mecânicas que geram as dinâmicas de tensão",
         "correta": true,
-        "explicacao": "Correto. O designer só controla as mecânicas diretamente; muda a estética passando pelas dinâmicas."
+        "explicacao": "O designer só controla as mecânicas diretamente; muda a estética passando pelas dinâmicas."
       },
       {
         "id": "c",
@@ -198,7 +198,7 @@
         "id": "c",
         "texto": "Só um aliado pode reviver quem caiu",
         "correta": true,
-        "explicacao": "Correto. A regra cria a dinâmica de depender do outro, e é essa dinâmica que gera companheirismo."
+        "explicacao": "A regra cria a dinâmica de depender do outro, e é essa dinâmica que gera companheirismo."
       },
       {
         "id": "d",
@@ -239,7 +239,7 @@
         "id": "d",
         "texto": "O comportamento que surge das regras durante a partida",
         "correta": true,
-        "explicacao": "Correto. É a definição do artigo: comportamento em tempo de execução das mecânicas."
+        "explicacao": "É a definição do artigo: comportamento em tempo de execução das mecânicas."
       }
     ],
     "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
@@ -256,7 +256,7 @@
         "id": "a",
         "texto": "Expressão",
         "correta": true,
-        "explicacao": "Correto. Expressão é o jogo como forma de se expressar, e personalização é o exemplo típico."
+        "explicacao": "Expressão é o jogo como forma de se expressar, e personalização é o exemplo típico."
       },
       {
         "id": "b",
@@ -303,7 +303,7 @@
         "id": "c",
         "texto": "Estética → Dinâmica → Mecânica",
         "correta": true,
-        "explicacao": "Correto. O jogador sente primeiro a emoção, depois percebe os padrões de jogo que a causam e só então entende as regras."
+        "explicacao": "O jogador sente primeiro a emoção, depois percebe os padrões de jogo que a causam e só então entende as regras."
       },
       {
         "id": "d",
@@ -344,7 +344,7 @@
         "id": "d",
         "texto": "Dar itens melhores a quem está atrás",
         "correta": true,
-        "explicacao": "Correto. Cria uma realimentação que equilibra a disputa e devolve a tensão, como o artigo sugere para o Banco Imobiliário."
+        "explicacao": "Cria uma realimentação que equilibra a disputa e devolve a tensão, como o artigo sugere para o Banco Imobiliário."
       }
     ],
     "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
@@ -361,7 +361,7 @@
         "id": "a",
         "texto": "Cada pixel é colocado de propósito",
         "correta": true,
-        "explicacao": "Correto. A diferença está no controle sobre cada pixel, não só no tamanho da imagem."
+        "explicacao": "A diferença está no controle sobre cada pixel, não só no tamanho da imagem."
       },
       {
         "id": "b",
@@ -402,7 +402,7 @@
         "id": "b",
         "texto": "Nearest neighbor",
         "correta": true,
-        "explicacao": "Correto. É o método do vizinho mais próximo: cada pixel vira um bloco da mesma cor, sem misturar com os vizinhos."
+        "explicacao": "É o método do vizinho mais próximo: cada pixel vira um bloco da mesma cor, sem misturar com os vizinhos."
       },
       {
         "id": "c",
@@ -443,7 +443,7 @@
         "id": "c",
         "texto": "Para o conjunto ter harmonia visual",
         "correta": true,
-        "explicacao": "Correto. Poucas cores bem escolhidas dão unidade ao conjunto e facilitam a leitura do sprite."
+        "explicacao": "Poucas cores bem escolhidas dão unidade ao conjunto e facilitam a leitura do sprite."
       },
       {
         "id": "d",
@@ -484,7 +484,7 @@
         "id": "d",
         "texto": "Um padrão de duas cores que cria um terceiro tom",
         "correta": true,
-        "explicacao": "Correto. Visto de longe, o padrão se mistura e parece uma cor nova."
+        "explicacao": "Visto de longe, o padrão se mistura e parece uma cor nova."
       }
     ],
     "fonte": "Guias de fundamentos de pixel art"
@@ -507,7 +507,7 @@
         "id": "b",
         "texto": "Pillow shading: a sombra não segue a luz",
         "correta": true,
-        "explicacao": "Correto. A sombra deveria ficar no lado oposto à luz (inferior direito), não em volta de toda a forma."
+        "explicacao": "A sombra deveria ficar no lado oposto à luz (inferior direito), não em volta de toda a forma."
       },
       {
         "id": "c",
@@ -548,7 +548,7 @@
         "id": "c",
         "texto": "Banding; variar a largura dos tons",
         "correta": true,
-        "explicacao": "Correto. Tons enfileirados com a mesma largura se leem como linhas a mais; variar a largura ou tirar um tom devolve a definição."
+        "explicacao": "Tons enfileirados com a mesma largura se leem como linhas a mais; variar a largura ou tirar um tom devolve a definição."
       },
       {
         "id": "d",
@@ -589,7 +589,7 @@
         "id": "d",
         "texto": "Degraus regulares, como 2-2-2-2",
         "correta": true,
-        "explicacao": "Correto. Padrões regulares (1:1, 2:1) formam degraus uniformes."
+        "explicacao": "Padrões regulares (1:1, 2:1) formam degraus uniformes."
       }
     ],
     "fonte": "Guias de fundamentos de pixel art"
@@ -606,7 +606,7 @@
         "id": "a",
         "texto": "Para todos os pixels terem o mesmo tamanho",
         "correta": true,
-        "explicacao": "Correto. Em 1,5x um pixel teria 1,5 pixel de tela, que não existe; o arredondamento deixa pixels de tamanhos diferentes."
+        "explicacao": "Em 1,5x um pixel teria 1,5 pixel de tela, que não existe; o arredondamento deixa pixels de tamanhos diferentes."
       },
       {
         "id": "b",
@@ -653,7 +653,7 @@
         "id": "c",
         "texto": "Anti-aliasing",
         "correta": true,
-        "explicacao": "Correto. Os pixels intermediários suavizam o degrau da curva."
+        "explicacao": "Os pixels intermediários suavizam o degrau da curva."
       },
       {
         "id": "d",
@@ -694,7 +694,7 @@
         "id": "d",
         "texto": "Cores mais vivas e naturais",
         "correta": true,
-        "explicacao": "Correto. É o hue shifting, que imita como a luz e a sombra mudam a cor de verdade."
+        "explicacao": "É o hue shifting, que imita como a luz e a sombra mudam a cor de verdade."
       }
     ],
     "fonte": "Guias de fundamentos de pixel art"
@@ -711,7 +711,7 @@
         "id": "a",
         "texto": "C#",
         "correta": true,
-        "explicacao": "Correto. Os scripts de jogo na Unity são escritos em C#."
+        "explicacao": "Os scripts de jogo na Unity são escritos em C#."
       },
       {
         "id": "b",
@@ -752,7 +752,7 @@
         "id": "b",
         "texto": "GDScript",
         "correta": true,
-        "explicacao": "Correto. É a linguagem própria da Godot, pensada para integrar com nós e cenas."
+        "explicacao": "É a linguagem própria da Godot, pensada para integrar com nós e cenas."
       },
       {
         "id": "c",
@@ -793,7 +793,7 @@
         "id": "c",
         "texto": "Um sistema visual para criar lógica sem C++",
         "correta": true,
-        "explicacao": "Correto. Blueprints permitem que quem não programa em C++ monte comportamento de jogo."
+        "explicacao": "Blueprints permitem que quem não programa em C++ monte comportamento de jogo."
       },
       {
         "id": "d",
@@ -834,7 +834,7 @@
         "id": "d",
         "texto": "Em nós agrupados em cenas",
         "correta": true,
-        "explicacao": "Correto. Nós são os blocos básicos e cenas são composições de nós."
+        "explicacao": "Nós são os blocos básicos e cenas são composições de nós."
       }
     ],
     "fonte": "Documentação oficial da Godot"
@@ -857,7 +857,7 @@
         "id": "b",
         "texto": "Unreal Engine",
         "correta": true,
-        "explicacao": "Correto. É a referência em 3D de alta fidelidade, e os Blueprints deixam a artista criar lógica sem C++."
+        "explicacao": "É a referência em 3D de alta fidelidade, e os Blueprints deixam a artista criar lógica sem C++."
       },
       {
         "id": "c",
@@ -898,7 +898,7 @@
         "id": "c",
         "texto": "Godot",
         "correta": true,
-        "explicacao": "Correto. É open source sob licença MIT, que libera mudar o código do motor e repassar essa versão."
+        "explicacao": "É open source sob licença MIT, que libera mudar o código do motor e repassar essa versão."
       },
       {
         "id": "d",
@@ -939,7 +939,7 @@
         "id": "d",
         "texto": "Sistemas prontos, como física e renderização",
         "correta": true,
-        "explicacao": "Correto. A engine evita reescrever do zero o que todo jogo precisa."
+        "explicacao": "A engine evita reescrever do zero o que todo jogo precisa."
       }
     ],
     "fonte": "Conceito básico de engine"
@@ -956,7 +956,7 @@
         "id": "a",
         "texto": "Anexando componentes, como scripts em C#",
         "correta": true,
-        "explicacao": "Correto. A Unity usa um modelo de componentes: cada um acrescenta uma capacidade ao objeto."
+        "explicacao": "A Unity usa um modelo de componentes: cada um acrescenta uma capacidade ao objeto."
       },
       {
         "id": "b",
@@ -1003,7 +1003,7 @@
         "id": "c",
         "texto": "O sistema de exportação (build)",
         "correta": true,
-        "explicacao": "Correto. A engine gera um build diferente para cada plataforma a partir da mesma base."
+        "explicacao": "A engine gera um build diferente para cada plataforma a partir da mesma base."
       },
       {
         "id": "d",
@@ -1044,7 +1044,7 @@
         "id": "d",
         "texto": "Phaser",
         "correta": true,
-        "explicacao": "Correto. É um framework de jogos programado em JavaScript que roda direto no navegador."
+        "explicacao": "É um framework de jogos programado em JavaScript que roda direto no navegador."
       }
     ],
     "fonte": "Documentação oficial do Phaser e das engines citadas"
@@ -1061,7 +1061,7 @@
         "id": "a",
         "texto": "2",
         "correta": true,
-        "explicacao": "Correto. 3 - 1 - 1 + 1 = 2. Cada atribuição usa o valor que a variável tem naquele momento."
+        "explicacao": "3 - 1 - 1 + 1 = 2. Cada atribuição usa o valor que a variável tem naquele momento."
       },
       {
         "id": "b",
@@ -1102,7 +1102,7 @@
         "id": "b",
         "texto": "16",
         "correta": true,
-        "explicacao": "Correto. 5 + 3 = 8, e 8 × 2 = 16. A multiplicação usa o valor já atualizado."
+        "explicacao": "5 + 3 = 8, e 8 × 2 = 16. A multiplicação usa o valor já atualizado."
       },
       {
         "id": "c",
@@ -1143,7 +1143,7 @@
         "id": "c",
         "texto": "Não pula, porque `energia > 0` é falso",
         "correta": true,
-        "explicacao": "Correto. NÃO pulando vale verdadeiro, mas `energia > 0` vale falso, e falso E verdadeiro dá falso."
+        "explicacao": "NÃO pulando vale verdadeiro, mas `energia > 0` vale falso, e falso E verdadeiro dá falso."
       },
       {
         "id": "d",
@@ -1184,7 +1184,7 @@
         "id": "d",
         "texto": "Abre",
         "correta": true,
-        "explicacao": "Correto. falso OU verdadeiro = verdadeiro; NÃO falso = verdadeiro; verdadeiro E verdadeiro = verdadeiro."
+        "explicacao": "Falso OU verdadeiro = verdadeiro; NÃO falso = verdadeiro; verdadeiro E verdadeiro = verdadeiro."
       }
     ],
     "fonte": "Conceito básico de operadores lógicos (E, OU, NÃO)"
@@ -1207,7 +1207,7 @@
         "id": "b",
         "texto": "100",
         "correta": true,
-        "explicacao": "Correto. O laço soma 10, 20, 30 e 40, e 10 + 20 + 30 + 40 = 100."
+        "explicacao": "O laço soma 10, 20, 30 e 40, e 10 + 20 + 30 + 40 = 100."
       },
       {
         "id": "c",
@@ -1248,7 +1248,7 @@
         "id": "c",
         "texto": "4",
         "correta": true,
-        "explicacao": "Correto. inimigos passa por 10, 7, 4, 1 e -2. Na quarta volta fica -2, que não é > 0, e o laço para."
+        "explicacao": "Inimigos passa por 10, 7, 4, 1 e -2. Na quarta volta fica -2, que não é > 0, e o laço para."
       },
       {
         "id": "d",
@@ -1289,7 +1289,7 @@
         "id": "d",
         "texto": "Booleano",
         "correta": true,
-        "explicacao": "Correto. A informação só tem dois estados possíveis."
+        "explicacao": "A informação só tem dois estados possíveis."
       }
     ],
     "fonte": "Conceito básico de tipos de dados"
@@ -1306,7 +1306,7 @@
         "id": "a",
         "texto": "normal",
         "correta": true,
-        "explicacao": "Correto. 30 <= 0 é falso e 30 < 30 também é falso, então cai no último senão."
+        "explicacao": "30 <= 0 é falso e 30 < 30 também é falso, então cai no último senão."
       },
       {
         "id": "b",
@@ -1353,7 +1353,7 @@
         "id": "c",
         "texto": "a = 8 e b = 8",
         "correta": true,
-        "explicacao": "Correto. A primeira linha copia 8 para a. A segunda copia o novo valor de a (8) para b. O 5 se perdeu."
+        "explicacao": "A primeira linha copia 8 para a. A segunda copia o novo valor de a (8) para b. O 5 se perdeu."
       },
       {
         "id": "d",
@@ -1394,7 +1394,7 @@
         "id": "d",
         "texto": "12",
         "correta": true,
-        "explicacao": "Correto. Para cada uma das 3 linhas, o laço interno roda 4 vezes: 3 × 4 = 12."
+        "explicacao": "Para cada uma das 3 linhas, o laço interno roda 4 vezes: 3 × 4 = 12."
       }
     ],
     "fonte": "Conceito básico de laços aninhados"
@@ -1417,7 +1417,7 @@
         "id": "b",
         "texto": "Para alinhar a equipe sobre o que é o jogo",
         "correta": true,
-        "explicacao": "Correto. O GDD alinha quem faz arte, código, som e design em torno do mesmo jogo."
+        "explicacao": "O GDD alinha quem faz arte, código, som e design em torno do mesmo jogo."
       },
       {
         "id": "c",
@@ -1464,7 +1464,7 @@
         "id": "d",
         "texto": "Roguelike de cozinha: cada pedido muda as regras",
         "correta": true,
-        "explicacao": "Correto. Diz o gênero, o tema e o que torna o jogo diferente, em poucas palavras."
+        "explicacao": "Diz o gênero, o tema e o que torna o jogo diferente, em poucas palavras."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -1481,7 +1481,7 @@
         "id": "a",
         "texto": "Atualizar o GDD com a mudança e o motivo dela",
         "correta": true,
-        "explicacao": "Correto. O GDD acompanha o jogo; registrar o motivo evita repetir o erro depois."
+        "explicacao": "O GDD acompanha o jogo; registrar o motivo evita repetir o erro depois."
       },
       {
         "id": "b",
@@ -1528,7 +1528,7 @@
         "id": "c",
         "texto": "Feature creep",
         "correta": true,
-        "explicacao": "Correto. O escopo cresce sem que nada saia, e o prazo escorrega."
+        "explicacao": "O escopo cresce sem que nada saia, e o prazo escorrega."
       },
       {
         "id": "d",
@@ -1551,7 +1551,7 @@
         "id": "a",
         "texto": "O essencial e o que fica para depois",
         "correta": true,
-        "explicacao": "Correto. Com pouco tempo, separar o essencial do desejável é o que garante um jogo terminado."
+        "explicacao": "Com pouco tempo, separar o essencial do desejável é o que garante um jogo terminado."
       },
       {
         "id": "b",
@@ -1604,7 +1604,7 @@
         "id": "d",
         "texto": "Porque um texto curto é lido e mantido em dia",
         "correta": true,
-        "explicacao": "Correto. Um documento enxuto continua sendo lido e atualizado, e o detalhe nasce do que o protótipo mostra."
+        "explicacao": "Um documento enxuto continua sendo lido e atualizado, e o detalhe nasce do que o protótipo mostra."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -1633,7 +1633,7 @@
         "id": "c",
         "texto": "Menus, botões e HUD na tela",
         "correta": true,
-        "explicacao": "Correto. UI é a interface visível com que o jogador interage."
+        "explicacao": "UI é a interface visível com que o jogador interage."
       },
       {
         "id": "d",
@@ -1656,7 +1656,7 @@
         "id": "a",
         "texto": "O HUD",
         "correta": true,
-        "explicacao": "Correto. HUD é a informação sobreposta à tela durante o jogo."
+        "explicacao": "HUD é a informação sobreposta à tela durante o jogo."
       },
       {
         "id": "b",
@@ -1709,7 +1709,7 @@
         "id": "d",
         "texto": "Diegética",
         "correta": true,
-        "explicacao": "Correto. A informação faz parte do mundo, o que preserva a imersão."
+        "explicacao": "A informação faz parte do mundo, o que preserva a imersão."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -1732,7 +1732,7 @@
         "id": "b",
         "texto": "Feedback visual e sonoro do golpe",
         "correta": true,
-        "explicacao": "Correto. A resposta visível e sonora confirma que o golpe acertou."
+        "explicacao": "A resposta visível e sonora confirma que o golpe acertou."
       },
       {
         "id": "c",
@@ -1779,7 +1779,7 @@
         "id": "d",
         "texto": "Usar o comando logo, num trecho seguro",
         "correta": true,
-        "explicacao": "Correto. Aprender e usar logo em seguida fixa o comando sem punição."
+        "explicacao": "Aprender e usar logo em seguida fixa o comando sem punição."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -1802,7 +1802,7 @@
         "id": "b",
         "texto": "Informação demais disputando a atenção",
         "correta": true,
-        "explicacao": "Correto. Cada item a mais compete com a pista; o HUD deve mostrar só o que importa naquele momento."
+        "explicacao": "Cada item a mais compete com a pista; o HUD deve mostrar só o que importa naquele momento."
       },
       {
         "id": "c",
@@ -1831,7 +1831,7 @@
         "id": "a",
         "texto": "Para confirmar que a ação aconteceu",
         "correta": true,
-        "explicacao": "Correto. É feedback: o som diz que o comando funcionou."
+        "explicacao": "É feedback: o som diz que o comando funcionou."
       },
       {
         "id": "b",
@@ -1878,7 +1878,7 @@
         "id": "c",
         "texto": "Foley",
         "correta": true,
-        "explicacao": "Correto. Foley é gravar sons do dia a dia, muitas vezes com objetos inesperados, sincronizados com a ação."
+        "explicacao": "Foley é gravar sons do dia a dia, muitas vezes com objetos inesperados, sincronizados com a ação."
       },
       {
         "id": "d",
@@ -1907,7 +1907,7 @@
         "id": "b",
         "texto": "Variar versões, tom e volume",
         "correta": true,
-        "explicacao": "Correto. A variação faz cada passo soar um pouco diferente, como na vida real."
+        "explicacao": "A variação faz cada passo soar um pouco diferente, como na vida real."
       },
       {
         "id": "c",
@@ -1954,7 +1954,7 @@
         "id": "d",
         "texto": "Os termos da licença do som",
         "correta": true,
-        "explicacao": "Correto. Estar disponível na internet não significa ser livre para uso comercial."
+        "explicacao": "Estar disponível na internet não significa ser livre para uso comercial."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -1983,7 +1983,7 @@
         "id": "c",
         "texto": "A mixagem, priorizando o aviso",
         "correta": true,
-        "explicacao": "Correto. O som que importa para jogar vem primeiro."
+        "explicacao": "O som que importa para jogar vem primeiro."
       },
       {
         "id": "d",
@@ -2006,7 +2006,7 @@
         "id": "a",
         "texto": "Em camadas: estalo, corpo grave e roupa",
         "correta": true,
-        "explicacao": "Correto. Cada camada cobre uma parte do som, e juntas soam mais cheias do que qualquer gravação sozinha."
+        "explicacao": "Cada camada cobre uma parte do som, e juntas soam mais cheias do que qualquer gravação sozinha."
       },
       {
         "id": "b",
@@ -2059,7 +2059,7 @@
         "id": "d",
         "texto": "Achar onde o jogo não funciona",
         "correta": true,
-        "explicacao": "Correto. O teste revela a distância entre o jogo imaginado e o jogado."
+        "explicacao": "O teste revela a distância entre o jogo imaginado e o jogado."
       }
     ],
     "fonte": "Conceito básico de desenvolvimento de jogos"
@@ -2082,7 +2082,7 @@
         "id": "b",
         "texto": "Desde cedo, com protótipos",
         "correta": true,
-        "explicacao": "Correto. Quanto antes um problema aparece, mais barato é corrigir."
+        "explicacao": "Quanto antes um problema aparece, mais barato é corrigir."
       },
       {
         "id": "c",
@@ -2123,7 +2123,7 @@
         "id": "c",
         "texto": "Observar e anotar, sem explicar",
         "correta": true,
-        "explicacao": "Correto. Explicar esconde o problema que o teste existe para revelar."
+        "explicacao": "Explicar esconde o problema que o teste existe para revelar."
       },
       {
         "id": "d",
@@ -2146,7 +2146,7 @@
         "id": "a",
         "texto": "Ela já sabe como o jogo funciona",
         "correta": true,
-        "explicacao": "Correto. Quem fez o jogo preenche as lacunas sem perceber."
+        "explicacao": "Quem fez o jogo preenche as lacunas sem perceber."
       },
       {
         "id": "b",
@@ -2187,7 +2187,7 @@
         "id": "b",
         "texto": "No que ele fez, e investigar aquele ponto",
         "correta": true,
-        "explicacao": "Correto. O comportamento observado costuma dizer mais do que a opinião."
+        "explicacao": "O comportamento observado costuma dizer mais do que a opinião."
       },
       {
         "id": "c",
@@ -2228,7 +2228,7 @@
         "id": "c",
         "texto": "Por impacto e frequência, e testar de novo",
         "correta": true,
-        "explicacao": "Correto. Impacto e frequência guiam a prioridade, e o novo teste confirma a correção."
+        "explicacao": "Impacto e frequência guiam a prioridade, e o novo teste confirma a correção."
       },
       {
         "id": "d",
@@ -2257,7 +2257,7 @@
         "id": "b",
         "texto": "US$ 100 por jogo",
         "correta": true,
-        "explicacao": "Correto. A taxa é cobrada por jogo e volta ao desenvolvedor quando o jogo atinge US$ 1.000 de receita bruta ajustada."
+        "explicacao": "A taxa é cobrada por jogo e volta ao desenvolvedor quando o jogo atinge US$ 1.000 de receita bruta ajustada."
       },
       {
         "id": "c",
@@ -2286,7 +2286,7 @@
         "id": "a",
         "texto": "Recebe um aviso",
         "correta": true,
-        "explicacao": "Correto. A lista de desejos vira um aviso direto no dia do lançamento."
+        "explicacao": "A lista de desejos vira um aviso direto no dia do lançamento."
       },
       {
         "id": "b",
@@ -2339,7 +2339,7 @@
         "id": "d",
         "texto": "Duas semanas",
         "correta": true,
-        "explicacao": "Correto. É a exigência mínima da Steam para produtos novos."
+        "explicacao": "É a exigência mínima da Steam para produtos novos."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
@@ -2368,7 +2368,7 @@
         "id": "c",
         "texto": "Para que mais gente seja avisada no lançamento",
         "correta": true,
-        "explicacao": "Correto. Cada lista de desejos acumulada vira um aviso no dia do lançamento."
+        "explicacao": "Cada lista de desejos acumulada vira um aviso no dia do lançamento."
       },
       {
         "id": "d",
@@ -2391,7 +2391,7 @@
         "id": "a",
         "texto": "Ainda não foi recuperada",
         "correta": true,
-        "explicacao": "Correto. A taxa só volta quando a receita bruta ajustada atinge US$ 1.000."
+        "explicacao": "A taxa só volta quando a receita bruta ajustada atinge US$ 1.000."
       },
       {
         "id": "b",
@@ -2444,9 +2444,1059 @@
         "id": "d",
         "texto": "Uma versão de teste num festival da loja",
         "correta": true,
-        "explicacao": "Correto. Demos em eventos como o Steam Next Fest atraem jogadores para a página e geram listas de desejos."
+        "explicacao": "Demos em eventos como o Steam Next Fest atraem jogadores para a página e geram listas de desejos."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
+  },
+  {
+    "id": "gdd_documento_07",
+    "topicId": "gdd_documento",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que quer dizer chamar o GDD de \"documento vivo\"?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Que ele muda junto com o projeto",
+        "correta": true,
+        "explicacao": "O GDD é atualizado sempre que o jogo muda, para continuar valendo como referência da equipe."
+      },
+      {
+        "id": "b",
+        "texto": "Que todos escrevem nele ao mesmo tempo",
+        "correta": false,
+        "explicacao": "Quem edita não é o ponto. \"Vivo\" quer dizer que o conteúdo acompanha as mudanças do projeto."
+      },
+      {
+        "id": "c",
+        "texto": "Que ele tem vídeos e animações",
+        "correta": false,
+        "explicacao": "O formato não importa. O que o torna vivo é ser mantido em dia."
+      },
+      {
+        "id": "d",
+        "texto": "Que ele só vale depois de aprovado pelo cliente",
+        "correta": false,
+        "explicacao": "Aprovação não é o que define o documento. Ele serve à equipe desde o primeiro rascunho."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "gdd_documento_08",
+    "topicId": "gdd_documento",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destes trechos de um GDD descreve o ciclo principal de jogo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Jogo de ação em 2D para computador e celular",
+        "correta": false,
+        "explicacao": "Isso é gênero e plataforma, que também entram no GDD, mas não descrevem o que se repete."
+      },
+      {
+        "id": "b",
+        "texto": "Entrar na sala, vencer os inimigos, pegar a recompensa e seguir para a próxima",
+        "correta": true,
+        "explicacao": "O ciclo principal é o que o jogador faz repetidamente, do começo ao fim da partida."
+      },
+      {
+        "id": "c",
+        "texto": "Arte em pixel art, com paleta fria e trilha eletrônica",
+        "correta": false,
+        "explicacao": "Isso é referência de arte e som."
+      },
+      {
+        "id": "d",
+        "texto": "Dez fases no lançamento, sem modo online",
+        "correta": false,
+        "explicacao": "Isso é escopo: o que entra e o que fica de fora."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "gdd_documento_09",
+    "topicId": "gdd_documento",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "A equipe tem dois meses e uma lista de quinze funcionalidades. Qual atitude mantém o escopo sob controle?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Fazer um pouco de cada uma, para nenhuma ficar de fora",
+        "correta": false,
+        "explicacao": "Quinze funcionalidades pela metade não fazem um jogo. Falta decidir o que é essencial."
+      },
+      {
+        "id": "b",
+        "texto": "Começar pelas mais fáceis, para a lista diminuir rápido",
+        "correta": false,
+        "explicacao": "Fácil não é o mesmo que essencial. O tempo pode acabar antes do que o jogo precisa para existir."
+      },
+      {
+        "id": "c",
+        "texto": "Marcar as que são essenciais e deixar as outras para depois do lançamento",
+        "correta": true,
+        "explicacao": "Separar o essencial do desejável é o que impede o projeto de crescer além do prazo."
+      },
+      {
+        "id": "d",
+        "texto": "Adiar o lançamento até caberem as quinze",
+        "correta": false,
+        "explicacao": "É assim que o lançamento escorrega: o escopo manda no prazo, e não o contrário."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "gdd_documento_10",
+    "topicId": "gdd_documento",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destes itens costuma fazer parte de um GDD?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O código-fonte do jogo",
+        "correta": false,
+        "explicacao": "O GDD descreve o jogo. O código é outra coisa, feita a partir dele."
+      },
+      {
+        "id": "b",
+        "texto": "O contrato de trabalho da equipe",
+        "correta": false,
+        "explicacao": "Isso é documento administrativo, e não de design."
+      },
+      {
+        "id": "c",
+        "texto": "As avaliações dos jogadores na loja",
+        "correta": false,
+        "explicacao": "Elas só existem depois do lançamento. O GDD orienta a produção."
+      },
+      {
+        "id": "d",
+        "texto": "O que entra no jogo e o que fica de fora",
+        "correta": true,
+        "explicacao": "O escopo é uma das partes do GDD, ao lado da visão, das mecânicas e da progressão."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "gdd_documento_11",
+    "topicId": "gdd_documento",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Num jogo de fazenda, o jogador planta, rega, colhe, vende e compra sementes melhores, e recomeça. No GDD, isso é:",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O ciclo principal de jogo",
+        "correta": true,
+        "explicacao": "É a sequência de ações que o jogador repete durante todo o jogo."
+      },
+      {
+        "id": "b",
+        "texto": "O escopo",
+        "correta": false,
+        "explicacao": "Escopo é a lista do que entra e do que não entra no projeto."
+      },
+      {
+        "id": "c",
+        "texto": "A visão em uma frase",
+        "correta": false,
+        "explicacao": "A visão resume a ideia do jogo. Aqui estão descritas as ações que se repetem."
+      },
+      {
+        "id": "d",
+        "texto": "As referências de arte",
+        "correta": false,
+        "explicacao": "Referências dizem com o que o jogo se parece, e não o que o jogador faz."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "gdd_documento_12",
+    "topicId": "gdd_documento",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Faltam três semanas para o lançamento e alguém propõe um modo cooperativo que não estava previsto. Qual resposta mantém o escopo sob controle?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Aceitar, porque ideia boa não se desperdiça",
+        "correta": false,
+        "explicacao": "Aceitar cada ideia nova perto do prazo é o aumento descontrolado de escopo."
+      },
+      {
+        "id": "b",
+        "texto": "Anotar como desejável, para depois, e lançar com o essencial",
+        "correta": true,
+        "explicacao": "A ideia fica registrada, mas não entra agora: o essencial e o prazo vêm primeiro."
+      },
+      {
+        "id": "c",
+        "texto": "Aceitar e cortar os testes para caber no prazo",
+        "correta": false,
+        "explicacao": "Além de aumentar o escopo, o jogo sairia sem teste."
+      },
+      {
+        "id": "d",
+        "texto": "Recusar e apagar a ideia do documento",
+        "correta": false,
+        "explicacao": "Não precisa apagar. O GDD pode guardar a ideia entre as desejáveis."
+      }
+    ],
+    "fonte": "Librande (2010), One-Page Designs, GDC; Fullerton (2018), Game Design Workshop, 4. ed."
+  },
+  {
+    "id": "ux_ui_jogos_07",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que a UX de um jogo descreve?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O desenho dos menus e dos botões",
+        "correta": false,
+        "explicacao": "Isso é a UI: o que aparece na tela."
+      },
+      {
+        "id": "b",
+        "texto": "A quantidade de quadros por segundo",
+        "correta": false,
+        "explicacao": "Isso é desempenho. Pode atrapalhar a experiência, mas não é o que a UX nomeia."
+      },
+      {
+        "id": "c",
+        "texto": "A experiência de entender e usar o jogo",
+        "correta": true,
+        "explicacao": "UX é saber o que fazer, perceber o que aconteceu e não se perder."
+      },
+      {
+        "id": "d",
+        "texto": "A história e os personagens",
+        "correta": false,
+        "explicacao": "Isso é narrativa."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "ux_ui_jogos_08",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Qual destes elementos é uma interface diegética?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Uma barra de vida no canto da tela",
+        "correta": false,
+        "explicacao": "Ela está sobreposta à imagem. Só quem joga a vê, e não o personagem."
+      },
+      {
+        "id": "b",
+        "texto": "O menu de pausa",
+        "correta": false,
+        "explicacao": "O menu fica fora do mundo do jogo."
+      },
+      {
+        "id": "c",
+        "texto": "A pontuação no topo da tela",
+        "correta": false,
+        "explicacao": "É parte do HUD comum, desenhado por cima da cena."
+      },
+      {
+        "id": "d",
+        "texto": "Um mapa de papel que o personagem abre e segura nas mãos",
+        "correta": true,
+        "explicacao": "O mapa existe dentro do mundo do jogo: o personagem também o vê."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "ux_ui_jogos_09",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Uma fase tem uma parede que pode ser quebrada, mas no teste ninguém tenta quebrá-la. Qual ajuste segue a ideia de ensinar jogando?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Desenhar a parede rachada e pôr uma igual logo no começo, num ponto seguro",
+        "correta": true,
+        "explicacao": "A forma do objeto sugere o que fazer, e o jogador aprende usando, sem risco."
+      },
+      {
+        "id": "b",
+        "texto": "Abrir uma janela de texto explicando todas as paredes do jogo",
+        "correta": false,
+        "explicacao": "É despejar informação de uma vez, longe do momento em que ela é usada."
+      },
+      {
+        "id": "c",
+        "texto": "Aumentar o dano do jogador, para a parede quebrar sem querer",
+        "correta": false,
+        "explicacao": "O jogador não aprende o que fez. Na parede seguinte, ele continua sem saber."
+      },
+      {
+        "id": "d",
+        "texto": "Pôr a explicação no manual, no menu de opções",
+        "correta": false,
+        "explicacao": "Quase ninguém lê, e a explicação fica longe da situação."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "ux_ui_jogos_10",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogador diz: \"os menus são bonitos, mas eu nunca sei para onde ir\". Do que ele está reclamando?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Da UI: a aparência dos menus",
+        "correta": false,
+        "explicacao": "A aparência ele elogiou. O problema está em se orientar."
+      },
+      {
+        "id": "b",
+        "texto": "Da UX: a experiência de entender o jogo",
+        "correta": true,
+        "explicacao": "Ele se perde. Saber o que fazer é parte da experiência de uso."
+      },
+      {
+        "id": "c",
+        "texto": "Do desempenho do jogo",
+        "correta": false,
+        "explicacao": "Ele não falou de travamentos nem de lentidão."
+      },
+      {
+        "id": "d",
+        "texto": "Da história do jogo",
+        "correta": false,
+        "explicacao": "A reclamação é sobre se localizar, e não sobre o enredo."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "ux_ui_jogos_11",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Num jogo de corrida, a velocidade aparece no painel do carro, dentro da cabine. Por que essa interface é chamada de diegética?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Porque fica sempre visível",
+        "correta": false,
+        "explicacao": "Ficar visível não é o critério. Um contador fixo no canto da tela também fica, e não é diegético."
+      },
+      {
+        "id": "b",
+        "texto": "Porque usa números em vez de ícones",
+        "correta": false,
+        "explicacao": "O formato da informação não muda o tipo de interface."
+      },
+      {
+        "id": "c",
+        "texto": "Porque existe dentro do mundo do jogo",
+        "correta": true,
+        "explicacao": "O velocímetro faz parte do carro: o piloto, no jogo, também o vê."
+      },
+      {
+        "id": "d",
+        "texto": "Porque aparece só quando o jogo está pausado",
+        "correta": false,
+        "explicacao": "Ela aparece durante a corrida, e pausar não tem relação com o termo."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "ux_ui_jogos_12",
+    "topicId": "ux_ui_jogos",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogo abre com uma tela que lista doze comandos. No teste, os jogadores esquecem quase todos. Qual mudança segue a ideia de ensinar jogando?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Deixar a tela no ar por mais tempo antes de liberar o jogo",
+        "correta": false,
+        "explicacao": "Mais tempo olhando a lista não faz ninguém decorar doze comandos."
+      },
+      {
+        "id": "b",
+        "texto": "Dividir a lista em duas telas de seis comandos",
+        "correta": false,
+        "explicacao": "Continua sendo informação despejada antes de ser usada."
+      },
+      {
+        "id": "c",
+        "texto": "Repetir a tela inteira no começo de cada fase",
+        "correta": false,
+        "explicacao": "Repetir a lista não resolve: falta o jogador usar cada comando."
+      },
+      {
+        "id": "d",
+        "texto": "Apresentar um comando por vez, num trecho em que ele já é usado sem risco",
+        "correta": true,
+        "explicacao": "O jogador aprende fazendo, no momento em que precisa do comando."
+      }
+    ],
+    "fonte": "Fagerholt e Lorentzon (2009), Beyond the HUD; Norman (2013), The Design of Everyday Things"
+  },
+  {
+    "id": "efeitos_sonoros_07",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Além de confirmar as ações do jogador, o que mais os efeitos sonoros fazem num jogo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Dão informação e ambientam a cena",
+        "correta": true,
+        "explicacao": "Um alarme avisa, passos indicam alguém por perto, e o som de fundo cria o lugar."
+      },
+      {
+        "id": "b",
+        "texto": "Dispensam o jogo de ter gráficos",
+        "correta": false,
+        "explicacao": "Som e imagem trabalham juntos. Um não substitui o outro."
+      },
+      {
+        "id": "c",
+        "texto": "Deixam o jogo mais leve para o aparelho",
+        "correta": false,
+        "explicacao": "Som não melhora o desempenho."
+      },
+      {
+        "id": "d",
+        "texto": "Servem só para preencher o silêncio",
+        "correta": false,
+        "explicacao": "Eles têm função: confirmar, informar e ambientar."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "efeitos_sonoros_08",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "O disparo de uma arma usa sempre o mesmo arquivo de som, idêntico. Depois de alguns minutos, os testadores dizem que ele \"parece de máquina\". O que explica isso?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "O volume do disparo está baixo demais",
+        "correta": false,
+        "explicacao": "Volume baixo deixaria o som fraco, e não artificial."
+      },
+      {
+        "id": "b",
+        "texto": "O mesmo som repetido igual cansa e soa artificial",
+        "correta": true,
+        "explicacao": "No mundo real dois sons nunca saem idênticos. A repetição exata denuncia a gravação."
+      },
+      {
+        "id": "c",
+        "texto": "Falta música de fundo",
+        "correta": false,
+        "explicacao": "A música não muda o fato de o disparo ser sempre igual."
+      },
+      {
+        "id": "d",
+        "texto": "O som foi gravado por foley",
+        "correta": false,
+        "explicacao": "A origem do som não é o problema. O problema é tocar a mesma versão toda vez."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "efeitos_sonoros_09",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogo de corrida toca motor, música, torcida e o aviso de pneu furado. Na mixagem, o que precisa ser ouvido primeiro?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A música, porque dá o clima da corrida",
+        "correta": false,
+        "explicacao": "Clima é importante, mas não pode esconder uma informação de jogo."
+      },
+      {
+        "id": "b",
+        "texto": "A torcida, porque é o som mais constante",
+        "correta": false,
+        "explicacao": "Ser constante não a torna prioridade. Ela é ambiente."
+      },
+      {
+        "id": "c",
+        "texto": "O aviso do pneu, porque muda o que o jogador precisa fazer",
+        "correta": true,
+        "explicacao": "O que importa para jogar vem primeiro: nenhum outro som pode cobrir esse aviso."
+      },
+      {
+        "id": "d",
+        "texto": "Todos no mesmo volume, para nenhum sumir",
+        "correta": false,
+        "explicacao": "Com tudo igual, o aviso se perde no meio dos outros."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "efeitos_sonoros_10",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O jogador ouve passos atrás do personagem antes de ver o inimigo. Que papel esse som está cumprindo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Confirmar uma ação do próprio jogador",
+        "correta": false,
+        "explicacao": "Confirmação é o som do que o jogador fez, como um pulo. Aqui o som é de outro personagem."
+      },
+      {
+        "id": "b",
+        "texto": "Substituir a trilha musical",
+        "correta": false,
+        "explicacao": "Passos não são música, e não ocupam o lugar dela."
+      },
+      {
+        "id": "c",
+        "texto": "Enfeitar a cena",
+        "correta": false,
+        "explicacao": "Ele faz mais do que enfeitar: muda o que o jogador decide fazer."
+      },
+      {
+        "id": "d",
+        "texto": "Dar informação sobre o que está acontecendo",
+        "correta": true,
+        "explicacao": "Muitas vezes o jogador ouve antes de ver. O som avisa que há alguém por perto."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "efeitos_sonoros_11",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Num jogo de ação, o golpe de espada toca centenas de vezes por partida. O que a equipe costuma fazer para ele não soar repetitivo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Ter algumas versões do som e variar um pouco o tom e o volume a cada toque",
+        "correta": true,
+        "explicacao": "Pequenas diferenças a cada vez evitam a repetição exata, que cansa."
+      },
+      {
+        "id": "b",
+        "texto": "Aumentar o volume a cada golpe",
+        "correta": false,
+        "explicacao": "O som só ficaria mais alto, e continuaria igual."
+      },
+      {
+        "id": "c",
+        "texto": "Tocar o som só a cada três golpes",
+        "correta": false,
+        "explicacao": "Golpes sem som parecem não ter acertado. O jogador perde a confirmação da ação."
+      },
+      {
+        "id": "d",
+        "texto": "Trocar o som do golpe por música",
+        "correta": false,
+        "explicacao": "A música não confirma o golpe."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "efeitos_sonoros_12",
+    "topicId": "efeitos_sonoros",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Num jogo de terror, a trilha sobe tanto nas perseguições que o jogador não ouve de que lado vem o monstro. Qual correção segue a regra da mixagem?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Aumentar todos os volumes ao mesmo tempo",
+        "correta": false,
+        "explicacao": "A proporção continua a mesma, e a música segue cobrindo os passos."
+      },
+      {
+        "id": "b",
+        "texto": "Baixar a música nesses momentos, para os passos do monstro ficarem audíveis",
+        "correta": true,
+        "explicacao": "O som de que o jogador precisa para jogar vem antes da música."
+      },
+      {
+        "id": "c",
+        "texto": "Tirar os passos do monstro, já que ninguém os ouve",
+        "correta": false,
+        "explicacao": "O jogo perderia de vez a informação que estava faltando."
+      },
+      {
+        "id": "d",
+        "texto": "Trocar a trilha por outra mais rápida",
+        "correta": false,
+        "explicacao": "A velocidade da música não é o problema. O problema é o volume dela sobre os passos."
+      }
+    ],
+    "fonte": "Collins (2008), Game Sound; Marks (2017), The Complete Guide to Game Audio, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_07",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Num playtest, o que está sendo avaliado?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A habilidade do jogador",
+        "correta": false,
+        "explicacao": "Testa-se o jogo, e não o jogador."
+      },
+      {
+        "id": "b",
+        "texto": "A velocidade do computador",
+        "correta": false,
+        "explicacao": "Isso é teste de desempenho, que é outra coisa."
+      },
+      {
+        "id": "c",
+        "texto": "O jogo, e não a habilidade de quem joga",
+        "correta": true,
+        "explicacao": "Quando alguém trava, isso é informação sobre o jogo."
+      },
+      {
+        "id": "d",
+        "texto": "O trabalho de cada pessoa da equipe",
+        "correta": false,
+        "explicacao": "O playtest olha para a experiência de quem joga, e não para quem fez."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_08",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Por que se pede ao jogador que pense em voz alta durante o teste?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Para ele se distrair menos",
+        "correta": false,
+        "explicacao": "Não é esse o objetivo. Falar pode até dividir a atenção."
+      },
+      {
+        "id": "b",
+        "texto": "Para o teste terminar mais rápido",
+        "correta": false,
+        "explicacao": "Pensar em voz alta não encurta o teste."
+      },
+      {
+        "id": "c",
+        "texto": "Para gravar a voz dele e usar no jogo",
+        "correta": false,
+        "explicacao": "A gravação serve à análise do teste."
+      },
+      {
+        "id": "d",
+        "texto": "Para saber o que ele está tentando fazer e onde se confunde",
+        "correta": true,
+        "explicacao": "Só olhando a tela não dá para saber a intenção. A fala mostra o raciocínio."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_09",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "No primeiro teste, oito de dez pessoas não acharam a saída da primeira sala, e uma reclamou da cor do menu. Só dá tempo de um ajuste antes do próximo teste. Qual escolher?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A saída da sala, que trava a maioria logo no começo, e testar de novo",
+        "correta": true,
+        "explicacao": "Vem primeiro o problema que mais afeta a experiência e aparece com mais jogadores."
+      },
+      {
+        "id": "b",
+        "texto": "A cor do menu, que é mais rápida de mudar",
+        "correta": false,
+        "explicacao": "Rápido não é critério. Só uma pessoa notou, e isso não impede ninguém de jogar."
+      },
+      {
+        "id": "c",
+        "texto": "Nenhum: esperar mais testes para ter certeza",
+        "correta": false,
+        "explicacao": "Oito em dez já é sinal forte. Esperar é perder um ciclo de teste."
+      },
+      {
+        "id": "d",
+        "texto": "Os dois, cada um pela metade",
+        "correta": false,
+        "explicacao": "Meio ajuste não resolve a saída, e o próximo teste mostraria o mesmo problema."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_10",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Um jogador não consegue passar do tutorial. Pela ideia de playtest, o que isso mostra?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Que o jogador é ruim",
+        "correta": false,
+        "explicacao": "Testa-se o jogo, e não o jogador."
+      },
+      {
+        "id": "b",
+        "texto": "Que o tutorial tem um problema a corrigir",
+        "correta": true,
+        "explicacao": "O teste existe para achar onde o jogo não funciona como se queria."
+      },
+      {
+        "id": "c",
+        "texto": "Que o teste deve ser descartado",
+        "correta": false,
+        "explicacao": "É o contrário: esse é o tipo de resultado que o teste procura."
+      },
+      {
+        "id": "d",
+        "texto": "Que o jogo está difícil na medida certa",
+        "correta": false,
+        "explicacao": "Travar no tutorial não é desafio. É o jogo deixando de ensinar."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_11",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "No teste, a jogadora fica um minuto em silêncio, olhando para a tela. O que o observador pode pedir, sem atrapalhar o teste?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Que ela aperte o botão que falta",
+        "correta": false,
+        "explicacao": "Ajudar esconde o problema: o jogo deveria ter mostrado o caminho sozinho."
+      },
+      {
+        "id": "b",
+        "texto": "Que ela pare, porque travou",
+        "correta": false,
+        "explicacao": "O ponto em que ela trava é o que mais interessa observar."
+      },
+      {
+        "id": "c",
+        "texto": "Que ela diga em voz alta o que está pensando",
+        "correta": true,
+        "explicacao": "Assim se descobre o que ela está tentando fazer, sem dar a resposta."
+      },
+      {
+        "id": "d",
+        "texto": "Que ela jogue mais rápido",
+        "correta": false,
+        "explicacao": "A pressa muda o comportamento e não explica a dúvida."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "playtest_iteracao_12",
+    "topicId": "playtest_iteracao",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "A equipe corrigiu os três problemas mais graves do primeiro teste. O que o ciclo de iteração manda fazer em seguida?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Lançar o jogo, porque os problemas graves acabaram",
+        "correta": false,
+        "explicacao": "Ninguém conferiu ainda se as correções funcionam."
+      },
+      {
+        "id": "b",
+        "texto": "Corrigir todos os outros problemas antes de qualquer teste",
+        "correta": false,
+        "explicacao": "Sem testar, a equipe pode empilhar ajustes em cima de uma correção que não deu certo."
+      },
+      {
+        "id": "c",
+        "texto": "Voltar ao documento do jogo e recomeçar o projeto",
+        "correta": false,
+        "explicacao": "Iterar é ajustar e testar de novo, e não começar do zero."
+      },
+      {
+        "id": "d",
+        "texto": "Testar de novo, de preferência com pessoas novas, para ver se a correção funcionou",
+        "correta": true,
+        "explicacao": "O ciclo é prototipar, testar, analisar e ajustar. Depois do ajuste vem outro teste."
+      }
+    ],
+    "fonte": "Fullerton (2018), Game Design Workshop, 4. ed.; Schell (2019), The Art of Game Design, 3. ed."
+  },
+  {
+    "id": "publicando_steam_07",
+    "topicId": "publicando_steam",
+    "bloco": "forma_a",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "Onde o desenvolvedor se cadastra para publicar um jogo na Steam?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "No Steamworks",
+        "correta": true,
+        "explicacao": "É o sistema da Valve para desenvolvedores: cadastro, página da loja e envio do jogo."
+      },
+      {
+        "id": "b",
+        "texto": "No Steam Next Fest",
+        "correta": false,
+        "explicacao": "É um evento da loja com demos, e não o cadastro."
+      },
+      {
+        "id": "c",
+        "texto": "Na lista de desejos",
+        "correta": false,
+        "explicacao": "É onde os jogadores marcam interesse num jogo."
+      },
+      {
+        "id": "d",
+        "texto": "Na página \"em breve\"",
+        "correta": false,
+        "explicacao": "A página é criada depois do cadastro, dentro do Steamworks."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
+  },
+  {
+    "id": "publicando_steam_08",
+    "topicId": "publicando_steam",
+    "bloco": "forma_a",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um estúdio vai publicar dois jogos diferentes na Steam. Quanto ele paga de taxa Steam Direct?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "US$ 100, uma vez só por estúdio",
+        "correta": false,
+        "explicacao": "A taxa é por jogo, e não por estúdio."
+      },
+      {
+        "id": "b",
+        "texto": "US$ 200: a taxa é cobrada por jogo",
+        "correta": true,
+        "explicacao": "São US$ 100 para cada jogo publicado."
+      },
+      {
+        "id": "c",
+        "texto": "US$ 1.000",
+        "correta": false,
+        "explicacao": "Esse é o valor de receita bruta ajustada a partir do qual a taxa é recuperada."
+      },
+      {
+        "id": "d",
+        "texto": "Nada, se os jogos forem gratuitos",
+        "correta": false,
+        "explicacao": "A taxa é paga para publicar, seja qual for o preço do jogo."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
+  },
+  {
+    "id": "publicando_steam_09",
+    "topicId": "publicando_steam",
+    "bloco": "forma_a",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um estúdio quer lançar no dia 20 e pretende publicar a página \"em breve\" no dia 15 do mesmo mês. Qual é o problema desse plano?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Nenhum: cinco dias são suficientes",
+        "correta": false,
+        "explicacao": "O mínimo exigido são duas semanas."
+      },
+      {
+        "id": "b",
+        "texto": "A página só pode ser publicada depois do lançamento",
+        "correta": false,
+        "explicacao": "É o contrário: ela vem antes, marcada como \"em breve\"."
+      },
+      {
+        "id": "c",
+        "texto": "A página precisa ficar no ar pelo menos duas semanas antes do lançamento",
+        "correta": true,
+        "explicacao": "Com cinco dias não dá, e a Valve ainda revisa a página e o build antes de liberar."
+      },
+      {
+        "id": "d",
+        "texto": "A taxa de US$ 100 só é aceita no dia do lançamento",
+        "correta": false,
+        "explicacao": "A taxa é paga antes, para o jogo poder ser preparado no Steamworks."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
+  },
+  {
+    "id": "publicando_steam_10",
+    "topicId": "publicando_steam",
+    "bloco": "forma_b",
+    "dificuldade": "basico",
+    "formato": "multipla_escolha",
+    "enunciado": "O que é a página \"em breve\" de um jogo na Steam?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "A lista dos jogos mais vendidos",
+        "correta": false,
+        "explicacao": "Isso é um ranking da loja."
+      },
+      {
+        "id": "b",
+        "texto": "O painel onde se paga a taxa",
+        "correta": false,
+        "explicacao": "O pagamento é feito no Steamworks, e não na página da loja."
+      },
+      {
+        "id": "c",
+        "texto": "Uma versão de teste do jogo",
+        "correta": false,
+        "explicacao": "Versão de teste é a demo. A página é a vitrine do jogo."
+      },
+      {
+        "id": "d",
+        "texto": "A página da loja no ar antes do lançamento, com imagens, trailer e descrição",
+        "correta": true,
+        "explicacao": "É por ela que os jogadores conhecem o jogo e o põem na lista de desejos."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
+  },
+  {
+    "id": "publicando_steam_11",
+    "topicId": "publicando_steam",
+    "bloco": "forma_b",
+    "dificuldade": "intermediario",
+    "formato": "multipla_escolha",
+    "enunciado": "Um desenvolvedor pagou a taxa Steam Direct e desistiu de lançar o jogo. Ele recebe os US$ 100 de volta?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Não: a taxa não é reembolsável",
+        "correta": true,
+        "explicacao": "Ela só é recuperada quando o jogo chega a US$ 1.000 de receita bruta ajustada."
+      },
+      {
+        "id": "b",
+        "texto": "Sim, se pedir em até duas semanas",
+        "correta": false,
+        "explicacao": "Duas semanas é o tempo mínimo da página \"em breve\", e não um prazo de reembolso."
+      },
+      {
+        "id": "c",
+        "texto": "Sim, porque o jogo não vendeu nada",
+        "correta": false,
+        "explicacao": "Sem vendas, a taxa não é recuperada."
+      },
+      {
+        "id": "d",
+        "texto": "Recebe metade",
+        "correta": false,
+        "explicacao": "Não existe devolução parcial."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
+  },
+  {
+    "id": "publicando_steam_12",
+    "topicId": "publicando_steam",
+    "bloco": "forma_b",
+    "dificuldade": "avancado",
+    "formato": "multipla_escolha",
+    "enunciado": "Um estúdio pequeno vai lançar daqui a seis meses. Pensando em lista de desejos, qual plano aproveita melhor esse tempo?",
+    "alternativas": [
+      {
+        "id": "a",
+        "texto": "Publicar a página duas semanas antes, que é o mínimo exigido",
+        "correta": false,
+        "explicacao": "Cumpre a regra, mas desperdiça meses em que a lista poderia crescer."
+      },
+      {
+        "id": "b",
+        "texto": "Publicar a página \"em breve\" agora e levar uma demo a um evento da loja, como o Steam Next Fest",
+        "correta": true,
+        "explicacao": "Mais tempo no ar e mais visibilidade juntam mais gente para ser avisada no lançamento."
+      },
+      {
+        "id": "c",
+        "texto": "Criar a página no dia do lançamento",
+        "correta": false,
+        "explicacao": "Nem é permitido: a página precisa estar no ar pelo menos duas semanas antes."
+      },
+      {
+        "id": "d",
+        "texto": "Guardar tudo em segredo, para causar surpresa",
+        "correta": false,
+        "explicacao": "Sem página no ar, ninguém põe o jogo na lista de desejos."
+      }
+    ],
+    "fonte": "Documentação do Steamworks (Steam Direct, página Em breve, lista de desejos e Steam Next Fest), consultada em 10/10/2026"
   }
 ]

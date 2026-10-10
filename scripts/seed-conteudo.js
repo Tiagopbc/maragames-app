@@ -1,6 +1,6 @@
 // Espelha o conteúdo versionado em content/ no Firestore.
 //
-//   content/topicos.json   tópicos do piloto, a lição de cada um e o cartão de conceito
+//   content/topicos.json   tópicos, a lição de cada um e o cartão de conceito
 //   content/questoes.json  banco de questões (forma A, forma B e prática)
 //
 // O JSON é a fonte da verdade: para mudar uma questão, edite o JSON, faça commit e rode
@@ -22,7 +22,10 @@ const CONTENT_DIR = path.join(__dirname, '..', 'content');
 const BLOCOS = ['forma_a', 'forma_b', 'pratica'];
 const DIFICULDADES = ['basico', 'intermediario', 'avancado'];
 const ALTERNATIVAS = ['a', 'b', 'c', 'd'];
-const TRILHAS = ['medido', 'diaria']; // medido: pré, pós e reteste; diaria: um tópico por dia, só prática
+// Rótulo de origem do tópico, do tempo do piloto: `medido` eram os quatro do dia 1 e `diaria`, os
+// da trilha de um tópico por dia. O ciclo de cada lição já não sai daqui, e sim das questões que o
+// tópico tem (item 30): com as formas A e B, o ciclo é completo; só com prática, é curto.
+const TRILHAS = ['medido', 'diaria'];
 const MIN_PRATICA_DIARIA = 5;
 
 function lerJson(nome) {
@@ -71,9 +74,6 @@ function validar(topicos, questoes) {
         ids.add(q.id);
         if (!topicIds.has(q.topicId)) erros.push(`${tag}: topicId desconhecido (${q.topicId})`);
         if (!BLOCOS.includes(q.bloco)) erros.push(`${tag}: bloco inválido (${q.bloco})`);
-        if (trilhaDoTopico[q.topicId] === 'diaria' && q.bloco !== 'pratica') {
-            erros.push(`${tag}: tópico da trilha diária só tem questões de prática`);
-        }
         if (!DIFICULDADES.includes(q.dificuldade)) erros.push(`${tag}: dificuldade inválida (${q.dificuldade})`);
         if (q.formato !== 'multipla_escolha') erros.push(`${tag}: no piloto só há multipla_escolha`);
         if (!textoOk(q.enunciado)) erros.push(`${tag}: enunciado vazio`);
@@ -89,22 +89,25 @@ function validar(topicos, questoes) {
         });
     }
 
-    // Desenho do piloto: nos tópicos medidos, as formas A e B são paralelas, uma questão de
-    // cada dificuldade. Nos tópicos da trilha diária, só prática, com um mínimo por dia.
+    // Todo tópico precisa de prática. As formas A e B são o diagnóstico e a verificação da lição
+    // (item 30): quem tem uma precisa da outra, e cada uma com uma questão de cada dificuldade,
+    // para o antes e o depois serem paralelos. Tópico sem forma nenhuma é válido: faz o ciclo curto.
     for (const t of topicIds) {
         const doTopico = questoes.filter((q) => q.topicId === t);
-        if (trilhaDoTopico[t] === 'diaria') {
-            const n = doTopico.filter((q) => q.bloco === 'pratica').length;
-            if (n < MIN_PRATICA_DIARIA) erros.push(`${t}: trilha diária precisa de pelo menos ${MIN_PRATICA_DIARIA} questões (tem ${n})`);
-            continue;
+        const pratica = doTopico.filter((q) => q.bloco === 'pratica').length;
+        if (pratica === 0) erros.push(`${t}: sem questões de prática`);
+        if (trilhaDoTopico[t] === 'diaria' && pratica < MIN_PRATICA_DIARIA) {
+            erros.push(`${t}: precisa de pelo menos ${MIN_PRATICA_DIARIA} questões de prática (tem ${pratica})`);
         }
+
+        const temForma = doTopico.some((q) => q.bloco === 'forma_a' || q.bloco === 'forma_b');
+        if (!temForma && trilhaDoTopico[t] !== 'medido') continue;
         for (const bloco of ['forma_a', 'forma_b']) {
             const difs = doTopico.filter((q) => q.bloco === bloco).map((q) => q.dificuldade).sort().join(',');
             if (difs !== [...DIFICULDADES].sort().join(',')) {
                 erros.push(`${t}: ${bloco} deve ter uma questão básica, uma intermediária e uma avançada (tem: ${difs || 'nenhuma'})`);
             }
         }
-        if (!doTopico.some((q) => q.bloco === 'pratica')) erros.push(`${t}: sem questões de prática`);
     }
 
     return erros;
