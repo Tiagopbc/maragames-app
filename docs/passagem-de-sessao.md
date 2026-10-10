@@ -1,4 +1,4 @@
-# Passagem de sessão — 09/10/2026
+# Passagem de sessão — 10/10/2026
 
 Resumo para continuar o trabalho em outra conversa, sem depender do histórico da anterior. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24).
 
@@ -15,35 +15,85 @@ Combinados com o Tiago, que valem para toda sessão:
 - Perguntar antes de dar push e antes de abrir pull request. A liberação de "pode enviar sempre" valia só para o pull request nº 5, já integrado.
 - Não rodar `npm run lint`: ele instala o ESLint e altera `package.json` e o lockfile.
 
+## Combinado da rodada de 10/10 (Tiago fora, assistente trabalhando sozinho)
+
+- **Escopo:** da prova da Fase 2 até a Fase 8 do plano, na ordem; a Fase 7 fica de fora.
+- **Sem commit, sem push, nada no GitHub.** Tudo fica só no computador. À noite o Tiago recebe uma revisão resumida, testa, aprova, e só então se salva.
+- **Sem parar para aprovar desenho de tela:** vale o plano e as decisões abaixo. Cada escolha de tela feita no caminho fica anotada em "Escolhas feitas sem o Tiago", mais abaixo, para a revisão.
+- **Limite de uso:** conferir o uso do plano a cada fase. Se o limite de 5 horas ou o semanal chegar a 90%, parar, avisar e esperar o ok do Tiago.
+- **Decisões tomadas pelo Tiago antes de sair:**
+  - Conferência no app: pelo Chrome dele, na conta de teste dele; olhar as telas e fazer a lição Efeitos sonoros até o fim (grava 6 respostas de prática). O ciclo completo desde o começo fica para ele, à noite, com uma conta nova.
+  - Navegação (D6): atalhos na home, sem barra de abas.
+  - Perfil (Fase 6): edita tudo, menos o e-mail.
+  - SUS (D4): sai do app por ora.
+  - Fase 7 (D7): pulada por ora; fica uma revisão só, aos 7 dias.
+  - Conteúdo (Fase 8): o assistente escreve as 30 questões de diagnóstico e verificação dos cinco tópicos que só têm prática, pesquisando na internet e com o que sabe. Entram como rascunho para o grupo revisar.
+  - Explicações (Fase 8): tirar o "Correto." do começo das 70 explicações, no conteúdo.
+  - Seed: quem roda é o Tiago, à noite. O assistente deixa o JSON validado com `--dry-run`.
+
+## Resultado da rodada de 10/10
+
+Feito no código, com teste, e **sem commit** (o último commit é o da Fase 1):
+
+- **Fase 2:** página da lição, cartão e passos em `/licoes/[topicId]/...`, trava por lição, termo antes do primeiro diagnóstico, testes de emulador de `answers` e `attempts`.
+- **Fase 3:** lista de lições em `/licoes`, por módulo, com situação e domínio.
+- **Fase 4:** home nova (Para hoje, revisões agendadas, atalhos liberados). Saíram as rotas `/bloco/[fase]`, `/cartao/[topicId]` e `/dia-1`, o "Seu dia 1", a trilha de um tópico por dia, o portão do roteiro, `passo.ts`, `xpAcumulado` e os textos deles.
+- **Fase 5:** Progresso em `/progresso` e detalhe do tópico em `/progresso/[topicId]`.
+- **Fase 6:** Perfil em `/perfil`, com o formulário compartilhado com o primeiro preenchimento, e testes de regra da edição.
+- **Fase 8:** 30 questões novas de diagnóstico e verificação para os cinco tópicos que só tinham prática, "Correto." fora das 70 explicações, validação do seed ajustada. Seed rodado pelo Tiago em 10/10, sem `--prune` (versão `ebaeb429b051`, 100 questões).
+- **Fase 7:** fora, por decisão do Tiago.
+
+Conferido no Chrome do Tiago, com a conta de teste dele: as telas novas e a lição Efeitos sonoros feita até o fim pelo app (6 respostas de prática gravadas, todas em Palpite; XP de +10 para +11, sequência em 3 dias).
+
+Depois da revisão do Tiago no iPhone, em 10/10: o Progresso ganhou a seção "O que revisar primeiro", com as três lições mais fracas (item 30). Também a pedido dele, o Perfil ganhou a seção "Aparência" (do sistema, claro ou escuro), guardada no aparelho (item 31).
+
+### Escolhas feitas sem o Tiago, para a revisão
+
+- **Para hoje abre o passo direto**, mas empilha a página da lição por baixo: sair do passo volta para a lição, e não para a home. Sem termo aceito, abre só a página da lição.
+- **"Feita"**, no atalho Lições ("3 de 9 feitas"), é a lição que já passou da verificação (ou da prática, no ciclo curto).
+- **Os atalhos ficaram três lado a lado**, menores que os cartões antigos, e só Lições tem resumo.
+- **O domínio, o XP e o Progresso só contam o que já pode aparecer** (`respostasAVista`): com o diagnóstico feito e a lição pela metade, nada dele vira número em tela nenhuma.
+- **Lista de lições agrupada por módulo**, na ordem sugerida; módulo com uma lição só vira um grupo de uma linha.
+- **Progresso:** XP total e sequência no topo, quadrantes (uma vez por questão, pela resposta mais recente), acerto por confiança (cada declaração conta) e "Meu domínio" só com as lições que têm resposta à vista.
+- **Detalhe do tópico:** o histórico diz quais passos foram feitos e quando, sem acerto; só questões da prática são citadas pelo enunciado.
+- **Perfil:** o termo aparece só como data do aceite, sem tela para reler o texto. O "Sair" saiu da home e ficou só aqui.
+- **Depois do aceite do termo**, a pessoa volta para a página da lição e toca em "Começar" de novo.
+- **`useBloco` ainda aceita o bloco geral** (sem tópico), que nenhuma rota usa mais; ficou para uma limpeza à parte, porque os testes da tela da pergunta dependem dele.
+- **As 30 questões novas entraram direto em `content/questoes.json`**, com a fonte de cada uma, e não num arquivo de rascunho à parte: assim o seed já deixa os nove tópicos com o ciclo completo. A revisão do grupo fica como pendência no item 24.
+- **O campo `trilha` do conteúdo não mudou** (`medido` ou `diaria`): virou rótulo de origem, sem efeito no app.
+- **A lição Efeitos sonoros foi respondida em Palpite**, escolhendo sempre a primeira alternativa da tela: 1 acerto em 6.
+
 ## O que está esperando resposta do Tiago
 
-1. **Aprovar o desenho da Fase 2** (página da lição e blocos por tópico), apresentado em 09/10. D3 e D5 já estão decididas. A Fase 1 está em commit, na branch `feat/ciclo-da-licao`, só local.
-2. **O grupo confirmar a virada.** Ela foi fechada só com o Tiago.
-3. **Decisões D4, D6, D7 e D8** do plano (seção 10). Nenhuma trava a Fase 2.
+1. **Revisar e aprovar a rodada de 10/10**, com a lista de escolhas acima, e testar no app.
+2. **Commit, push e pull request** da branch `feat/ciclo-da-licao`: só depois da aprovação.
+3. **Decidir sobre o `--prune`**: o seed de 10/10 gravou as 100 questões e manteve as 3 antigas que estão fora do JSON.
+4. **Criar uma conta nova** para percorrer uma lição de ciclo completo desde o diagnóstico: é a parte da prova da Fase 2 que falta.
+5. **O grupo:** confirmar a virada e revisar as 30 questões novas.
 
 ## Estado do repositório
 
 - **`main`:** tem os pull requests nº 5 (roteiro do piloto), nº 6 (correção do tema na web) e nº 7 (XP à vista, exportação, plano e documentos da virada), todos integrados em 09/10.
-- **Branch atual, só local:** `feat/ciclo-da-licao`, saída do `main`, com a Fase 1 do plano: `src/lib/licao.ts`, `src/lib/sugestao.ts` e `xpDasLicoes`, sem mudança em tela.
+- **Branch atual, só local:** `feat/ciclo-da-licao`, saída do `main`. A Fase 1 está em commit; as Fases 2 a 6 e 8 estão prontas e fora de commit, à espera da revisão do Tiago.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 603 testes (599 no projeto "nativo" e 4 no "web"); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 25 (precisa de Java; rodado pela última vez em 08/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 613 testes (609 no projeto "nativo" e 4 no "web"; são menos que os 658 de antes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
-- **Conteúdo:** seed rodado em 08/10, versão `f870c2d83e2b`: 9 lições (4 medidas e 5 da trilha diária) e 70 questões. Restam 3 questões antigas, sem versão, que só saem com `npm run seed:conteudo -- --prune`.
-- **Dados de teste:** duas contas, que ficam até a Fase 2 do plano (decisão D8). A do Tiago (pós em 06/10) tem 52 respostas, incluindo os tópicos GDD (08/10) e UX/UI (09/10) da trilha, e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
+- **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. Restam 3 questões antigas, sem versão, que só saem com `npm run seed:conteudo -- --prune`.
+- **Dados de teste:** duas contas, que ficam até a Fase 2 do plano (decisão D8). A do Tiago (pós em 06/10) tem 58 respostas, incluindo GDD (08/10), UX/UI (09/10) e Efeitos sonoros (10/10, feita pelo assistente), e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
 
-O caminho do roteiro do piloto, que é o que o código ainda implementa: cadastro, perfil, termo, pré-teste, cartão e prática dos quatro tópicos, pós-teste, resultado, espera do reteste, tela "Seu dia 1", trilha de um tópico por dia e a trava do roteiro. O XP aparece na home, no "Seu dia 1" e na tela da sequência. O app tem a identidade da Beast Maragames, e `npm run exportar` gera as planilhas.
+Cadastro, perfil obrigatório, home com "Para hoje", lista de lições, página da lição com diagnóstico, cartão, prática, verificação e revisão, Progresso com o detalhe de cada tópico, Perfil com edição e "Sair", e `npm run exportar` (ainda pelo desenho do piloto). O app tem a identidade da Beast Maragames.
 
-Conferido no app de verdade: na web, em tamanho de celular, nos dois temas; num iPhone, pelo Expo Go, em tema escuro (login, home, pergunta, cartão, "Seu dia 1"). O selo de XP da home e o "XP do pós-teste" foram vistos na web em 09/10; a tela da sequência com o XP, só em teste.
+Conferido no app de verdade em 10/10: na web, em largura de computador e tema escuro, com a conta de teste do Tiago. Antes disso, num iPhone pelo Expo Go, só as telas que não mudaram (login, pergunta, cartão).
 
 ## O que falta
 
-Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo: a Fase 0 fecha com o push; as Fases 1 a 4 trocam o roteiro pelo ciclo da lição, a lista de lições e a home nova; as Fases 5 e 6 são Progresso e Perfil; a Fase 8, de conteúdo, pode andar em paralelo.
+Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo: revisão e commit da rodada de 10/10, seed do conteúdo, a lição de ciclo completo com uma conta nova, a exportação por tópico (Fase 9) e o acabamento (Fase 10).
 
 ## Limites do assistente nesta máquina
 

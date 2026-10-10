@@ -174,36 +174,43 @@ Andamento em 09/10: concluída. O total novo ficou com o nome `xpDasLicoes`, e o
 Rota `/licoes/[topicId]`, com os passos e o estado; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição com antes e depois; a trava por lição; regras do Firestore conferidas e testadas no emulador.
 Prova: uma conta nova percorre uma lição inteira de um tópico medido e uma de um tópico só com prática, e o banco fica com os eventos certos.
 Depende de: Fase 1.
+Andamento em 10/10: código e testes prontos. O resultado do diagnóstico só aparece no fim da lição, por decisão do Tiago. A lição de ciclo curto foi percorrida no app (Efeitos sonoros). Falta a de ciclo completo desde o diagnóstico, que pede uma conta nova.
 
 **Fase 3 — Lista de lições.**
 Rota `/licoes`: lições agrupadas por módulo, cada uma com o estado e o domínio; qualquer uma abre.
 Prova: o aluno começa por uma lição que não é a primeira da ordem sugerida, e nada o impede.
 Depende de: Fase 2.
+Andamento em 10/10: feita e vista no app.
 
 **Fase 4 — Home nova.**
 A home da seção 4, com "Para hoje", revisões agendadas e os atalhos liberados. Remoção do roteiro antigo, do "Seu dia 1" e dos links de desenvolvimento.
 Prova: na home não sobra nenhum texto de pré-teste, pós-teste ou reteste, e o botão do "Para hoje" leva ao passo certo em cada um dos quatro casos da seção 6.
 Depende de: Fase 3. O atalho de Progresso e o de Perfil abrem telas simples até as Fases 5 e 6.
+Andamento em 10/10: feita e vista no app; as rotas e as telas do roteiro antigo saíram.
 
 **Fase 5 — Progresso.**
 "Meu domínio": por tópico, domínio em contagem, antes e depois, retenção e pontos cegos; no topo, XP total, sequência e acerto por nível de confiança. Detalhe do tópico com o histórico.
 Prova: os números da tela batem com a exportação da mesma conta.
 Depende de: Fase 2.
+Andamento em 10/10: feita e vista no app. A comparação com a exportação fica para a Fase 9, quando o script falar por tópico.
 
 **Fase 6 — Perfil.**
 Ver e editar os dados do cadastro (e-mail só leitura), ver o termo aceito e sair. A validação continua em dobro: `validacao.ts` e `perfilValido()`.
 Prova: editar o apelido muda a saudação da home, e um campo vazio é recusado na tela e na regra.
 Depende de: nada além da Fase 0; pode andar em paralelo.
+Andamento em 10/10: feita, com a prova coberta por teste de tela e de regra. No app, a tela foi vista; a edição não foi exercitada com a conta de verdade.
 
 **Fase 7 — Revisão em intervalos crescentes.**
 Depois da primeira revisão, as questões frágeis e os pontos cegos voltam em intervalos maiores. É a fila "Revisar hoje" prevista para depois do piloto.
 Prova: uma questão errada com certeza na revisão reaparece no "Para hoje" no intervalo definido.
 Depende de: Fases 4 e 5. Entra só se a decisão D7 pedir.
+Andamento em 10/10: fora por ora, por decisão do Tiago.
 
 **Fase 8 — Conteúdo.**
 Questões de diagnóstico e verificação (formas A e B) para os cinco tópicos que só têm prática; revisão das explicações que começam com "Correto."; conferência dos módulos.
 Prova: os nove tópicos fazem o ciclo completo.
 Depende de: nada; anda em paralelo desde a Fase 1.
+Andamento em 10/10: as 30 questões e os ajustes estão no repositório e no banco (seed rodado pelo Tiago, versão `ebaeb429b051`). Falta o grupo revisar as questões.
 
 **Fase 9 — Exportação.**
 `npm run exportar` com ganho e retenção por tópico e por pessoa.
@@ -242,10 +249,10 @@ A D1, a D2, a D3 e a D5 foram decididas pelo Tiago em 09/10, conforme a recomend
 | D1 | O diagnóstico é obrigatório ou dá para pular? | **Decidido: obrigatório.** São 3 questões, e sem ele não há antes e depois. |
 | D2 | Entre a verificação e a revisão, a lição fica travada? | **Decidido: a prática fica travada e o cartão fica livre.** Refazer a prática na véspera mudaria o que a revisão mede; reler o cartão não gera evento. É a mesma razão do "travados até o reteste" de hoje, agora só para a lição em espera. |
 | D3 | Onde fica o termo de consentimento? | **Decidido: uma vez, antes do primeiro diagnóstico.** É ele que cria a `formaPre`. Se o app deixar de ser pesquisa, vira aviso de privacidade e a forma nasce no perfil. |
-| D4 | O SUS continua? | Sai do fluxo. Era o fecho do piloto; sem piloto, não tem momento natural. Pode voltar como "Avaliar o app" no Perfil. |
+| D4 | O SUS continua? | **Decidido em 10/10: sai do app por ora.** Era o fecho do piloto; sem piloto, não tem momento natural. Pode voltar como "Avaliar o app" no Perfil. |
 | D5 | Mostrar antes e depois no fim da lição? | **Decidido: sim, em contagem.** Revê o item 27. |
-| D6 | Navegação por atalhos na home ou barra de abas? | Atalhos na home, como pedido. A barra de abas volta à discussão quando as quatro áreas existirem. |
-| D7 | Uma revisão aos 7 dias ou intervalos crescentes? | Uma, por ora. Os intervalos são a Fase 7. |
+| D6 | Navegação por atalhos na home ou barra de abas? | **Decidido em 10/10: atalhos na home.** A barra de abas volta à discussão quando as quatro áreas existirem. |
+| D7 | Uma revisão aos 7 dias ou intervalos crescentes? | **Decidido em 10/10: uma, por ora; a Fase 7 fica de fora.** Os intervalos são a Fase 7. |
 | D8 | As duas contas de teste: apagar ou manter? | Manter até a Fase 2, porque servem de prova de que os dados antigos são lidos pelo modelo novo. |
 
 Falta também o grupo confirmar a virada: pelo `AGENTS.md`, decisão de produto é do grupo, e este plano foi fechado com o Tiago.

@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 09/10/2026 (itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -55,6 +55,8 @@ Revisto em 07/10 (sem abas). O grupo `(tabs)` saiu, e a home passou a ser `src/a
 Revisto em 08/10 (rolagem). A home passou a rolar. Com a contagem do reteste, o cartão da trilha diária e os atalhos, ela passa da altura de um celular pequeno: em 375×667 o conteúdo tem 818 px. O "Sair" fica no pé da tela quando o conteúdo é curto e desce com ele quando é longo.
 
 Revisto em 09/10 (virada, item 30). Os três atalhos deixam de ser cadeados: Lições, Progresso e Perfil viram telas. O "Continuar estudos", que seguia o roteiro, dá lugar ao cartão "Para hoje", que aponta um passo só entre todas as lições, e o "Sair" vai para o Perfil. O array `ATALHOS` continua sendo a fonte dos atalhos; o campo `travado` sai quando o último deles tiver destino. O desenho está na seção 4 de `docs/plano-do-app-completo.md`. No código, a home ainda é a de 08/10 até a Fase 4 do plano.
+
+Revisto em 10/10 (Fase 4 do plano). A home nova está no código (`src/app/(app)/index.tsx`): saudação com o selo de XP, o cartão "Para hoje" com o selo da sequência, a seção "Revisões agendadas" e os três atalhos, lado a lado. Cada item de `ATALHOS` tem agora a rota que abre e, quando há o que dizer, um resumo calculado das lições ("6 de 9 feitas"); o campo `travado` saiu. O botão do "Para hoje" abre o passo sugerido com a página da lição empilhada por baixo, para que sair do passo volte à lição, e não à home; sem termo aceito, abre só a página da lição, que explica o que falta. A home lê tudo de um hook, `useLicoes`, o mesmo da lista de lições e do Progresso. O "Sair" foi para o Perfil.
 
 ## 7. Navegação guiada pelo estado da sessão (rotas protegidas)
 
@@ -124,6 +126,8 @@ O total segue quatro regras. A prática entra sempre, porque o feedback dela já
 
 Se o grupo decidir mostrar o resultado do pré-teste só no fim do dia 1 (item 24), o pré deixa de contar até o pós terminar: é uma linha na tabela `CONCLUIDO_EM`, na mesma função.
 
+Revisto em 10/10 (Fase 4 do plano). O total que a home mostra passou a ser `xpDasLicoes`; `xpAcumulado`, que decidia pela etapa do roteiro geral, saiu junto com o roteiro. A regra é a mesma, por tópico: só entram as respostas que já podem aparecer (`respostasAVista`, em `src/lib/licao.ts`), a prática sempre e os blocos sem feedback quando a lição passa deles. O domínio da lista de lições e os números do Progresso usam o mesmo filtro, então nenhuma tela revela o acerto de um bloco pela metade nem o do diagnóstico antes do fim da lição.
+
 ## 15. Corte do quadrante: confiança baixa são os níveis 1 e 2
 
 Decidido em 04/10. Para o quadrante acerto × confiança, confiança baixa são "Palpite" e "Tenho dúvida" (níveis 1 e 2), e confiança alta é só "Tenho certeza" (nível 3). Acerto frágil passa a incluir acerto com dúvida, e ponto cego é erro com certeza. Os três níveis continuam gravados e alimentam a calibração. Como o quadrante é calculado a partir do evento, o corte pode mudar depois sem migrar dados.
@@ -175,6 +179,14 @@ Alternativas descartadas: cadastrar pelo console do Firebase (40 documentos com 
 Os cartões ficam no documento da lição (campo `cartao`, uma lista de slides), que já tem leitura liberada nas regras, então não foi preciso abrir uma coleção nova. O conteúdo é rascunho com apoio de IA, com revisão independente de gabaritos, fatos e pistas (por exemplo, a alternativa correta ser sempre a mais longa); ainda precisa da revisão do grupo.
 
 Revisto em 06/10. O seed foi rodado no projeto `maragames-mobile` pela primeira vez com este script: versão de conteúdo `5d59872c96b3`, 4 lições com cartão e 40 questões. Até então o banco tinha o seed antigo (3 questões sem o campo `bloco` e 5 lições sem tópico). O script reaproveitou as lições 1 a 4 pela ordem; as 3 questões antigas e a lição 5 ficaram, porque nada é apagado sem `--prune`. Por causa dessas sobras, `topicosMedidos` (`src/lib/bloco.ts`) passou a reconhecer tópico medido pela presença de questão das formas A ou B, e não por "questão que não é de prática": uma questão sem bloco não pode fazer um tópico contar como medido.
+
+Revisto em 10/10 (Fase 8 do plano). Três mudanças no conteúdo, ainda sem seed:
+
+- **Os cinco tópicos que só tinham prática ganharam diagnóstico e verificação**: 30 questões novas (formas A e B, uma de cada dificuldade por forma), escritas pelo assistente a pedido do Tiago, a partir do cartão de cada tópico e de pesquisa (documentação do Steamworks; Fagerholt e Lorentzon sobre interface diegética; Librande sobre o GDD de uma página; práticas de playtest e de áudio). Cada uma traz a fonte. São rascunho até o grupo revisar; os ids vão de `_07` a `_12` em cada tópico. O conteúdo passa a ter 100 questões, e os nove tópicos fazem o ciclo completo.
+- **O "Correto." saiu do começo das 70 explicações** de alternativa certa: quando a pessoa errava, a tela mostrava "Resposta certa: Correto. ...".
+- **A validação do seed acompanhou o ciclo da lição.** Saiu a regra "tópico da trilha diária só tem prática". Vale agora: todo tópico tem prática; quem tem questão de uma forma precisa das duas, cada uma com uma questão básica, uma intermediária e uma avançada; tópico sem forma nenhuma é válido e faz o ciclo curto. O campo `trilha` (`medido` ou `diaria`) fica como rótulo de origem, sem efeito no app.
+
+`npm test` passou a conferir o conteúdo com a validação do seed (`src/__tests__/conteudo.test.js`). O seed foi rodado pelo Tiago em 10/10, sem `--prune`: versão `ebaeb429b051`, 100 questões gravadas, e as 3 questões antigas fora do JSON continuam no banco. Consequência para as duas contas de teste: GDD, UX/UI e Efeitos sonoros, que estavam concluídas no ciclo curto, passam a aparecer com o diagnóstico por fazer, apesar da prática já feita.
 
 ## 22. Fluxo e estado do participante no piloto
 
@@ -301,11 +313,17 @@ Revisto em 09/10. Dois ajustes depois de rodar o script com o filtro: a pasta pa
 
 Revisto em 09/10 (virada, item 30). Saem a fila de um tópico novo por dia e a trava pelo roteiro geral. A trilha diária passa a ser a sugestão do dia: um cartão "Para hoje" que aponta a revisão vencida, depois a lição pela metade, depois a próxima lição nova, sem limite por dia. A sequência continua contando dias de calendário com resposta. A trava passa a valer só dentro de uma lição: os passos não se pulam, o diagnóstico é obrigatório e, entre a verificação e a revisão, a prática daquela lição fica fechada e o cartão, livre; entre lições não há trava. O portão único e a regra em função pura continuam sendo o desenho. Os indicadores para a Mara Games e a exportação pelo grupo ficam, com ganho e retenção por tópico (Fase 9 do plano). No código, a fila e a trava antigas valem até as Fases 2 e 4.
 
+Revisto em 10/10 (Fase 4 do plano). A fila de um tópico por dia, a trava pelo roteiro geral e as telas delas saíram do código: `src/lib/trilha.ts` (ficou só a sequência de dias, em `src/lib/sequencia.ts`), `src/lib/passo.ts`, o portão do roteiro, o cartão da trilha, a tela "Seu dia 1" e as rotas `/bloco/[fase]`, `/cartao/[topicId]` e `/dia-1`. A trava que vale é a da lição (`podeAbrirNaLicao`, item 30). `src/lib/roteiro.ts` continua no repositório porque a exportação ainda usa as contas dele (Fase 9), e `useBloco` ainda aceita o bloco geral, sem tópico, que nenhuma rota abre mais.
+
 ## 24. Pendências, na ordem das fases do plano
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
 
 Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do piloto e passam a ser as fases de `docs/plano-do-app-completo.md`, que não têm data. Uma fase só começa quando a prova da anterior passa.
+
+**Para o Tiago revisar, antes de qualquer commit**
+
+- Tudo o que foi feito em 10/10 está só no computador, na branch `feat/ciclo-da-licao`, sem commit depois do da Fase 1. As escolhas de tela tomadas sem ele estão no item 30 e em `docs/passagem-de-sessao.md`.
 
 **Fase 0 — Documentos e o que está aberto**
 
@@ -313,65 +331,60 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Fase 2 — Página da lição e blocos por tópico**
 
-- Rota `/licoes/[topicId]`; diagnóstico, verificação e revisão abrindo pelo tópico; resultado da lição; trava por lição, com a prática fechada entre a verificação e a revisão (D2).
-- Regras do Firestore: conferir a tentativa por lição nos blocos sem feedback e testar `answers` e `attempts` no emulador. As do consentimento já estão testadas (`npm run test:regras`).
-- XP do tópico na tela da sequência (item 14): feito em 09/10 e coberto por teste, mas ainda não visto no app. A tela passa a ser o fim da lição.
-- O termo aparece uma vez, antes do primeiro diagnóstico (D3), e o fim da verificação mostra o antes e o depois em contagem (D5): as duas decididas em 09/10. O texto do termo, em `src/constants/termo.ts`, continua rascunho.
-
-**Fase 3 — Lista de lições**
-
-- Rota `/licoes`, por módulo, com o estado e o domínio de cada lição.
-
-**Fase 4 — Home nova**
-
-- A home da seção 4 do plano: "Para hoje", revisões agendadas e os três atalhos liberados.
-- Tirar o que era do roteiro: a tela "Seu dia 1", a espera geral, os links de desenvolvimento para pré, pós e reteste e, com eles, a exceção `travaVale`.
-
-**Fase 5 — Progresso**
-
-- Telas "Meu domínio" e "Detalhe do tópico" (o restante do M4).
-
-**Fase 6 — Perfil**
-
-- Ver e editar os dados, ver o termo aceito e sair.
-
-**Fase 7 — Revisão em intervalos crescentes**
-
-- Só entra se a decisão D7 pedir.
+- Percorrer no app uma lição de ciclo completo desde o diagnóstico e conferir os eventos no banco. Pede uma conta nova, que só o Tiago pode criar. A de ciclo curto foi feita em 10/10 (Efeitos sonoros).
+- O texto do termo, em `src/constants/termo.ts`, continua rascunho.
 
 **Fase 8 — Conteúdo**
 
-- Questões das formas A e B para os cinco tópicos que só têm prática (GDD, UX/UI em jogos, Efeitos sonoros, Playtest e iteração, Publicando na Steam). Quem escreve e quem revisa ainda está por definir.
-- Texto das explicações: a da alternativa certa começa com "Correto." e, quando a pessoa erra, aparece como "Resposta certa: Correto. ...".
-- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON, sem versão de conteúdo. Decidir se roda `npm run seed:conteudo -- --prune`.
+- O grupo revisar as 30 questões novas de diagnóstico e verificação (ids `_07` a `_12` de GDD, UX/UI, Efeitos sonoros, Playtest e Publicando na Steam), escritas pelo assistente.
+- Sobras do seed antigo no banco (item 21): 3 questões fora do JSON, sem versão de conteúdo. Decidir se roda com `--prune`.
+- Com o seed de 10/10, GDD, UX/UI e Efeitos sonoros passaram a aparecer nas contas de teste com o diagnóstico por fazer e a prática já feita. Só afeta essas duas contas.
+
+**Fase 7 — Revisão em intervalos crescentes**
+
+- Fora por ora (D7): fica uma revisão só, aos 7 dias.
 
 **Fase 9 — Exportação**
 
-- `npm run exportar` com ganho e retenção por tópico e por pessoa.
+- `npm run exportar` com ganho e retenção por tópico e por pessoa. Hoje o script ainda monta o pré e o pós gerais; com as formas novas, os nove tópicos entram nesses blocos.
+- Com a exportação refeita, apagar `src/lib/roteiro.ts` (ficam as contas de calendário) e o bloco geral de `useBloco`.
 
 **Fase 10 — Acabamento**
 
-- Conferir num aparelho de verdade (Expo Go): o XP à vista, o mascote no consentimento, a home, o tema claro, o feedback da prática com o rodapé travado, e um aparelho Android (fonte em negrito e botão de voltar).
-- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a correção já está no `main` e nesta branch, e foi vista na tela de login. Faltam a home, o bloco e o cartão, e o Expo Go, onde o defeito não deve existir.
+- Conferir num aparelho de verdade (Expo Go) e em largura de celular: a home nova, a lista, a página da lição, o fim de cada passo, o Progresso e o Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status nos dois temas, e um aparelho Android (fonte em negrito e botão de voltar).
+- Conferir a troca de tema do sistema com o app aberto e logado (item 29): a correção já está no `main`. Faltam as telas logadas e o Expo Go.
 - Nome do app: no Expo Go aparece "maragames-app", o `name` do `app.json`.
 - Dependências sem uso: `expo-symbols`, `react-native-reanimated` e `react-native-worklets`. Conferir se o Expo Router ainda precisa das duas últimas.
 - O projeto não tem ESLint configurado, então `npm run lint` não roda.
-- Dados de teste: duas contas (a do Tiago e a de apelido Tiagopbc) e o contador em 2. Ficam até a Fase 2, como prova de que os dados antigos são lidos pelo modelo novo (D8).
+- Dados de teste: duas contas (a do Tiago e a de apelido Tiagopbc) e o contador em 2 (D8).
 - Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight).
 
 **Decisões em aberto**
 
-- D4, D6, D7 e D8, na seção 10 do plano, cada uma com recomendação. D1, D2, D3 e D5 foram decididas em 09/10.
+- D8 (as contas de teste), na seção 10 do plano. As outras foram decididas: D1, D2, D3 e D5 em 09/10; D4, D6 e D7 em 10/10.
 
 **Deixaram de valer com a virada (item 30)**
 
-- Tela do SUS como etapa do roteiro (vira a decisão D4).
+- Tela do SUS: saiu do app por ora (D4).
 - Lembrar o participante de voltar por mensagem no grupo da turma.
 - Exportação com `--desde 2026-10-30`, depois do reteste do piloto.
-- Aplicar o resto do visual do protótipo (item 28) e os pontos em que ele contradizia as decisões: o desenho das telas passa a ser o do plano.
-- A seção "O que revisar primeiro" na tela do dia 1 e a numeração dos dias do reteste: a tela sai, e os 7 dias passam a contar por lição.
+- Aplicar o resto do visual do protótipo (item 28) e os pontos em que ele contradizia as decisões: o desenho das telas passou a ser o do plano.
+- A seção "O que revisar primeiro" na tela do dia 1 e a numeração dos dias do reteste: a tela saiu, e os 7 dias contam por lição.
 - Número e perfil dos participantes do piloto, versão em português do SUS e data do Incubators.
-- Limpeza da véspera do piloto: os links de desenvolvimento saem na Fase 4 e os dados de teste, na Fase 10.
+
+**Resolvidas em 10/10**
+
+- Progresso: seção "O que revisar primeiro", com as três lições mais fracas, pedida pelo Tiago depois de ver a tela no iPhone (item 30).
+- Tema claro, escuro ou do sistema, escolhido no Perfil e guardado no aparelho (item 31).
+- Fase 3 do plano: lista de lições em `/licoes`, por módulo, com situação e domínio; qualquer lição abre.
+- Fase 4 do plano: home nova, com "Para hoje", revisões agendadas e os atalhos Lições, Progresso e Perfil liberados. Saíram as telas e as regras do roteiro do piloto (itens 6 e 23).
+- Fase 5 do plano: Progresso ("Meu domínio") e detalhe do tópico, o restante do M4.
+- Fase 6 do plano: Perfil, com edição de tudo menos o e-mail, data do termo e "Sair"; regras da edição testadas no emulador.
+- Fase 8 do plano: 30 questões novas, "Correto." fora das explicações e validação do seed ajustada (item 21). Seed rodado pelo Tiago em 10/10, versão `ebaeb429b051`: 100 questões gravadas. Falta a revisão do grupo.
+- Conferência no app, no Chrome do Tiago: as telas novas e a lição Efeitos sonoros feita até o fim (item 30).
+- Fase 2 do plano, no código (item 30): página da lição em `/licoes/[topicId]`, cartão e passos com questões em rotas próprias, blocos sem feedback por tópico, fim de cada passo (o diagnóstico sem número, o antes e depois no fim da verificação), trava por lição com a prática fechada entre a verificação e a revisão, e o termo antes do primeiro diagnóstico. `npm test` passa com 658 e `npx tsc --noEmit` sem erros. Falta ver no app com uma conta logada.
+- Regras do Firestore de `answers` e `attempts` testadas no emulador (`regras/respostas.test.ts`, 34 testes; `npm run test:regras` passa com 59). As regras não precisaram mudar.
+- Decisão do Tiago: o resultado do diagnóstico só aparece no fim da lição, e o XP dele entra no total junto com o da verificação.
 
 **Resolvidas em 09/10**
 
@@ -575,3 +588,46 @@ Revisto em 09/10 (Fase 1 do plano: motor do ciclo da lição). As regras viraram
 A prova da fase é um teste que monta uma conta do roteiro antigo (pré, prática e pós gerais, mais dois tópicos da trilha) e a lê pelo modelo novo: os quatro tópicos medidos saem em `aguardando_revisao` e os dois da trilha, em `concluida`, sem migração.
 
 Revisto em 09/10 (D3 e D5). Mais duas decisões do Tiago, as duas conforme a recomendação do plano: o termo de consentimento aparece uma vez, antes do primeiro diagnóstico, porque é o aceite que define a forma A ou B da pessoa; e o fim da verificação mostra o antes e o depois da lição, em contagem. Entram no código na Fase 2.
+
+Revisto em 10/10 (Fase 2 do plano: página da lição e blocos por tópico). A lição ganhou telas, ao lado das do roteiro antigo, que ficam intactas até a Fase 4. Escolhas:
+
+- **Rotas novas, sem mexer nas antigas.** `/licoes/[topicId]` é a página da lição, `/licoes/[topicId]/cartao` o cartão e `/licoes/[topicId]/[passo]` os passos com questões (`diagnostico`, `pratica`, `verificacao`, `revisao`). `/bloco/[fase]`, `/cartao/[topicId]` e `/dia-1` continuam servindo à home até ela mudar; assim o app funciona inteiro a cada fase. A lista de lições é a Fase 3, então por ora a página abre pela URL.
+- **O resultado do diagnóstico só aparece no fim da lição** (decisão do Tiago em 10/10). Dizer "acertou 1 de 3" antes do estudo é o feedback que a medida evita (item 19), e o número só ganha sentido ao lado do depois. O fim do diagnóstico mostra "Diagnóstico feito", sem número nenhum. Por coerência, o XP dele também só entra no total (`xpDasLicoes`) quando a verificação termina, junto com o dela.
+- **A trava por lição é `podeAbrirNaLicao`** (`src/lib/licao.ts`), usada por um portão só (`src/components/licao/portao-da-licao.tsx`) nas rotas do cartão e dos passos. Cada passo só abre quando é o da vez; o cartão abre do estudo em diante; da verificação até a revisão a prática fica fechada (D2), e volta a abrir com a lição concluída, para rever as questões. Quem digita a URL de um passo fechado volta para a página da lição. O portão decide uma vez, ao abrir, como o do roteiro (item 23).
+- **O termo é o primeiro passo de quem ainda não o aceitou** (D3): em lição de ciclo completo, sem `formaPre`, o botão "Começar" abre o termo e a pessoa volta para a lição depois do aceite. Lição de ciclo curto não pede termo.
+- **O bloco sem feedback com tópico é um passo de lição.** `useBloco` passa a recortar as questões pelo tópico quando recebe um, o título vira "Diagnóstico · Framework MDA", e a tentativa fica ligada à lição do tópico (`lessonId`), como já era na prática. Sem tópico, continua o bloco geral do roteiro antigo.
+- **As regras do Firestore não mudaram.** A de `attempts` já aceitava `lessonId` em qualquer fase, e a de `answers` só confere dono e fase da tentativa. O que entrou foram os testes de emulador das duas (`regras/respostas.test.ts`), pendentes desde o item 24.
+- **O fim de cada passo entra no lugar do resultado do bloco**, por uma função que a rota entrega à tela do bloco (`fim`). Diagnóstico: aviso sem número e "Ir para o cartão". Prática: o resultado de sempre e "Fazer a verificação". Verificação e revisão: a sequência de dias, o XP da lição, "Antes 1 de 3 → Depois 3 de 3" (ou "Na verificação 3 de 3 → Hoje 2 de 3"), os quadrantes e a data da revisão, sem nada por questão. No ciclo curto, o fim da prática é o fim da lição.
+- **O resultado da lição é função pura** (`resultadoDaLicao`), que devolve nada enquanto a verificação não termina. A página da lição e o fim do passo usam a mesma conta, e as de cada bloco continuam sendo as de `resultadoDoBloco`.
+- **Os testes de regras de cada arquivo usam um projeto próprio do emulador.** Os dois arquivos rodam ao mesmo tempo, e o `clearFirestore` de um apagava a tentativa do outro no meio do teste.
+
+Verificação: `npm test` com 658 testes, `npx tsc --noEmit` sem erros e `npm run test:regras` com 59. As telas ainda não foram vistas no app com uma conta logada.
+
+Revisto em 10/10 (decisões D4, D6 e D7, e o conteúdo). Decisões do Tiago antes da rodada das Fases 3 a 8: a navegação fica por atalhos na home, sem barra de abas (D6); o SUS sai do app por ora (D4); a revisão continua uma só, aos 7 dias, e a Fase 7 fica de fora (D7); o Perfil edita tudo, menos o e-mail; as questões de diagnóstico e verificação dos cinco tópicos que só têm prática são escritas pelo assistente, como rascunho para o grupo revisar; o "Correto." sai do começo das explicações; e o seed do conteúdo novo é rodado pelo Tiago.
+
+Revisto em 10/10 (Fases 3 a 6 do plano, feitas numa rodada só, com o Tiago fora). Escolhas de tela tomadas pelo assistente, a confirmar por ele:
+
+- **Um hook para as três telas que mostram todas as lições** (`useLicoes`): a lista, a home e o Progresso recebem as lições na ordem sugerida, a sugestão do dia, o XP, a sequência e as respostas que já podem aparecer.
+- **Lista de lições** (`/licoes`): agrupada por módulo, na ordem sugerida, cada linha com a situação ("Nova", "Em andamento", "Revisão em 3 dias", "Revisão disponível", "Concluída") e o domínio em contagem. Qualquer uma abre.
+- **Progresso** (`/progresso`): XP total e sequência; os quadrantes, uma vez por questão, pela resposta mais recente; o acerto por confiança, em que cada declaração conta; e "Meu domínio", só com as lições que têm resposta à vista. As contas são de `src/lib/progresso.ts`.
+- **Detalhe do tópico** (`/progresso/[topicId]`): domínio, antes e depois, quadrantes, acerto por confiança e o histórico dos passos feitos, com a data e sem o acerto. Só questões da prática são citadas pelo enunciado: as dos blocos sem feedback voltam na revisão (item 27).
+- **Perfil** (`/perfil`): edita tudo menos o e-mail, com o mesmo formulário do primeiro preenchimento (`FormularioDoPerfil`) e a mesma validação; mostra a data do aceite do termo e tem o "Sair". Não há tela para reler o texto do termo. As regras da edição ganharam teste de emulador (`regras/perfil.test.ts`).
+- **"Feita"**, no resumo do atalho Lições, é a lição que já passou da verificação (ou da prática, no ciclo curto).
+
+Conferido no app em 10/10, no Chrome do Tiago, com a conta de teste dele, em tema escuro e largura de computador: a home ("XP: +10", "Sequência: 2 dias", "Efeitos sonoros" no Para hoje, as quatro revisões agendadas para dali a 3 dias, "6 de 9 feitas"), a lista de lições, a página do Framework MDA aguardando a revisão, `/licoes/mda_framework/pratica` voltando para a lição, o Progresso, o detalhe do GDD e o Perfil, sem erro no console. A lição Efeitos sonoros foi feita até o fim pelo app (cartão de 4 slides e 6 questões, todas em Palpite): terminou em "Lição concluída", com "3 dias seguidos" e "+1 XP", e a home passou a "XP: +11", "7 de 9 feitas" e "Playtest e iteração" no Para hoje. Não foi visto: uma lição de ciclo completo desde o diagnóstico (pede uma conta nova), o tema claro, a largura de celular e um aparelho de verdade.
+
+Verificação: `npm test` com 587 testes, `npx tsc --noEmit` sem erros e `npm run test:regras` com 69.
+
+Revisto em 10/10 (Progresso: o que revisar primeiro). O Tiago viu a tela no iPhone e apontou que ela citava os quadrantes no geral, sem dizer em que assunto a pessoa está pior; a resposta estava em "Meu domínio", no fim da tela e na ordem das lições. Decidido com ele: uma seção "O que revisar primeiro" logo abaixo do XP e da sequência, com as três lições mais fracas, cada uma com o acerto e a contagem por quadrante ("3 pontos cegos · 5 lacunas"), abrindo o detalhe do tópico. A ordem é a do item 27: mais pontos cegos primeiro; no empate, mais lacunas; depois, mais frágeis (`revisaoPorTopico`, em `src/lib/progresso.ts`). Lição em que tudo está firme não entra. "Meu domínio" continua com todas as lições, agora nessa mesma ordem e com a contagem completa. Continua sendo contagem por tópico, sem citar questão dos blocos sem feedback. No cartão da sequência, "3 dias seguidos" virou "3 dias", que cabe numa linha no celular. `npm test` passa com 596.
+
+## 31. Tema escolhido pelo aluno, guardado no aparelho
+
+Decidido com o Tiago em 10/10. O Perfil ganhou a seção "Aparência", com três opções: "Do sistema" (o padrão, que é o comportamento de antes), "Claro" e "Escuro". Escolhas:
+
+- **A preferência fica no aparelho, e não no perfil do banco** (`src/lib/tema.ts`, com o AsyncStorage, que já estava instalado por causa do Firebase Auth; na web ele usa o `localStorage`). É preferência do aparelho, vale também na tela de login, não mexe nas regras do Firestore e não entra no "Salvar alterações". O custo aceito: a escolha não acompanha a conta, e em outro aparelho a pessoa escolhe de novo. Guardar no perfil foi a alternativa descartada.
+- **Um valor só para o app inteiro, fora do React.** Todo componente chega às cores por `useColorScheme` (`src/hooks/use-color-scheme.ts` e `.web.ts`) ou por `useTheme`; os dois hooks passaram a assinar a preferência com `useSyncExternalStore` e a devolver a escolha por cima do esquema do aparelho. Por isso a troca vale na hora, em todas as telas, sem recarregar. O teste que impede ler o esquema direto do `react-native` (item 29) garante que nenhuma tela escapa.
+- **A preferência é lida antes de a tela de abertura sumir**, junto com a fonte, para o app não abrir num tema e trocar à vista. A leitura não falha: sem conseguir ler, vale o tema do aparelho; sem conseguir guardar, a escolha vale até fechar o app.
+- **A barra de status acompanha o tema do app** (`StatusBar`, no layout raiz), e não o do sistema: com o escuro forçado num aparelho em claro, os ícones escuros sumiriam no fundo.
+- **Limitação registrada:** o teclado e os avisos nativos do aparelho continuam seguindo o tema do sistema.
+
+Nos testes, o AsyncStorage é trocado pela versão de teste da própria biblioteca, nos dois projetos do jest (`package.json`). Conferido na web, na tela de login, em 375×812: com "claro" guardado e o sistema em escuro, a tela abre clara; com "escuro" guardado e o sistema em claro, abre escura; sem erro no console. A seção no Perfil e a troca ao toque estão cobertas por teste e não foram vistas no app, porque o painel desta conversa não tem login. `npm test` passa com 613.

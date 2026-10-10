@@ -28,7 +28,7 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 - Navegação por estado da sessão: `src/app/_layout.tsx` usa `Stack.Protected` (deslogado, logado sem perfil, perfil completo). Não usar `router.push` depois de login ou de salvar perfil.
 - Perfil completo é obrigatório, todos os campos. Validação em dobro: `src/lib/validacao.ts` (funções puras, UX) e `perfilValido()` no `firestore.rules` (garantia). Mudou uma, muda a outra.
 - Comportamento diferente por plataforma vai em arquivo `.web.ts` (ex.: `firebase.ts` / `firebase.web.ts`), nunca `if (Platform.OS)` espalhado.
-- Cores sempre do tema (`useTheme`), ícones de `@expo/vector-icons` tipados por `keyof typeof Ionicons.glyphMap`.
+- Cores sempre do tema (`useTheme`), ícones de `@expo/vector-icons` tipados por `keyof typeof Ionicons.glyphMap`. O esquema de cores vem só de `@/hooks/use-color-scheme`, que aplica a escolha do Perfil (item 31) por cima do sistema; nunca ler `useColorScheme` direto do `react-native`.
 
 ## Modelo de dados
 
@@ -45,13 +45,13 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 - XP (Gardner-Medwin): acerto 1/2/3, erro 0/−1/−4 por nível de confiança. Nos blocos pré, pós e reteste, nenhum feedback nem XP por questão; tudo aparece só no fim do bloco, e o total da home só conta o bloco depois de concluído.
 - Domínio por tópico = acerto simples, sem peso de confiança.
 - Blocos medidos: só múltipla escolha, 4 alternativas, uma correta. Alternativas embaralhadas por semente (uid + questão + fase).
-- Ciclo da lição (item 30): cada tópico tem o seu pré, pós e reteste, de 3 questões cada. Na tela chamam-se diagnóstico, verificação e revisão; no dado, a fase continua `pre`, `pos` e `reteste`. A ordem é diagnóstico (obrigatório), cartão, prática, verificação e, 7 dias depois, revisão. Tópico sem questões das formas A e B faz só cartão e prática.
+- Ciclo da lição (item 30): cada tópico tem o seu pré, pós e reteste, de 3 questões cada. Na tela chamam-se diagnóstico, verificação e revisão; no dado, a fase continua `pre`, `pos` e `reteste`. A ordem é diagnóstico (obrigatório), cartão, prática, verificação e, 7 dias depois, revisão. Tópico sem questões das formas A e B faz só cartão e prática. O resultado do diagnóstico só aparece no fim da lição, ao lado do da verificação; o XP dele também.
 - Lições livres: qualquer lição abre, em qualquer ordem. A trava vale só dentro da lição: os passos não se pulam e, entre a verificação e a revisão, a prática daquela lição fica fechada e o cartão, livre.
 - Home: saudação, um cartão "Para hoje" com um passo só (revisão vencida, depois lição pela metade, depois a próxima lição nova, sem limite por dia), as revisões agendadas e os atalhos Lições, Progresso e Perfil, em array tipado (`ATALHOS`).
 
 ## Estado do código
 
-O código ainda implementa o roteiro do piloto: blocos gerais de 12 questões, home com "Continuar estudos" e atalhos travados, trilha de um tópico por dia. As regras do ciclo da lição e da home acima entram pelas fases do plano; antes de mexer numa tela, confira no item 24 em que fase ela está.
+O app já é o do ciclo da lição: home com "Para hoje", lista de lições, página da lição com os passos em `/licoes/[topicId]`, Progresso e Perfil. As regras ficam em `src/lib/licao.ts`, `src/lib/sugestao.ts` e `src/lib/progresso.ts`, e as três telas que mostram todas as lições leem de `useLicoes`. O roteiro do piloto saiu das telas. Sobraram dele `src/lib/roteiro.ts` e o bloco geral de `useBloco`, que só a exportação e os testes usam, até a exportação ser refeita por tópico (Fase 9 do plano). Antes de mexer numa tela, confira no item 24 o que está pendente.
 
 ## Fora de escopo por ora
 
