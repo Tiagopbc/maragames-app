@@ -58,13 +58,13 @@ beforeEach(() => {
 });
 
 
-async function abrir(fase: Fase, opcoes: { formaPre?: FormaPre | null; topicId?: string | null } = {}) {
+async function abrir(fase: Fase, opcoes: { formaPre?: FormaPre | null; topicId?: string } = {}) {
     agora = 50_000;
     await render(
         <TelaDoBloco
             uid={UID}
             fase={fase}
-            topicId={opcoes.topicId ?? null}
+            topicId={opcoes.topicId ?? 'mda'}
             formaPre={opcoes.formaPre === undefined ? 'A' : opcoes.formaPre}
             aoSair={aoSair}
             relogio={() => agora}
@@ -413,9 +413,9 @@ describe.each(['pre', 'pos', 'reteste'] as const)('o bloco medido %s', (fase) =>
     it('avisa que o resultado só aparece no fim', async () => {
         await abrir(fase);
 
-        expect(
-            await screen.findByText('Sem resultado por questão: tudo aparece no fim do bloco.')
-        ).toBeOnTheScreen();
+        // O do diagnóstico só aparece no fim da lição, ao lado do da verificação.
+        const onde = fase === 'pre' ? 'da lição' : 'do bloco';
+        expect(await screen.findByText(`Sem resultado por questão: tudo aparece no fim ${onde}.`)).toBeOnTheScreen();
     });
 });
 
@@ -424,7 +424,8 @@ describe('blocos medidos e a forma do participante', () => {
         await abrir('pre', { formaPre: 'B' });
 
         expect(await screen.findByText('Enunciado de mda_b1')).toBeOnTheScreen();
-        expect(screen.getByText('Pré-teste')).toBeOnTheScreen();
+        // Todo bloco é um passo da lição de um tópico: o título diz qual passo e de qual lição.
+        expect(screen.getByText('Diagnóstico · Framework MDA')).toBeOnTheScreen();
     });
 
     it('sem forma definida, o bloco medido não abre', async () => {

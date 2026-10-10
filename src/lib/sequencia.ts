@@ -3,7 +3,7 @@
 // horário atual entra como parâmetro.
 
 import type { Answer } from '../types/domain';
-import { diaDeCalendario } from './roteiro';
+import { diaDeCalendario } from './calendario';
 
 /**
  * Dias seguidos com pelo menos uma resposta confirmada, de qualquer fase. Antes de responder

@@ -1,16 +1,17 @@
-// Exportação do piloto (M7, item 23): transforma o que está no banco nas tabelas que o grupo
-// envia à Mara Games e usa no paper. Função pura: sem React, sem Firebase, sem estado. Quem lê
-// o Firestore e escreve os arquivos é o script em scripts/exportar-piloto.ts.
+// Exportação dos dados (M7, itens 23 e 30): transforma o que está no banco nas tabelas que o
+// grupo envia à Mara Games e usa na análise. Função pura: sem React, sem Firebase, sem estado.
+// Quem lê o Firestore e escreve os arquivos é o script em scripts/exportar-piloto.ts.
 //
-// As contas são as mesmas que o aluno vê no app: quadrante, XP, retenção e trilha vêm das
-// funções de src/lib, e não de uma segunda versão delas.
+// As contas são as mesmas que o aluno vê no app: o estado e o ciclo de cada lição, o quadrante,
+// o XP e a retenção vêm das funções de src/lib, e não de uma segunda versão delas.
 
 import type { Answer, FormaPre, Question, Topico } from '../types/domain';
-import { questoesDaPratica, questoesDoBlocoMedido, topicosDaTrilha, topicosMedidos } from './bloco';
+import { questoesDaPratica, questoesDoBlocoMedido } from './bloco';
+import { FUSO_MS, diaDeCalendario } from './calendario';
+import { DIAS_ATE_A_REVISAO, licoesDoAluno } from './licao';
 import { quadranteDe } from './quadrante';
 import { resultadoDoBloco, type Taxa } from './resultado';
 import { retencao } from './retencao';
-import { DIAS_ATE_RETESTE, FUSO_MS, ULTIMO_DIA_DA_JANELA, diaDeCalendario, terminoDoPos } from './roteiro';
 import { xpDaResposta } from './xp';
 
 // O que a exportação lê de `users/{uid}`. Nome e contato só vão para a chave do grupo.
@@ -25,15 +26,16 @@ export interface PerfilDoExport {
     consentiuEm: number | null;
 }
 
-export interface DadosDoPiloto {
+export interface DadosDaExportacao {
     perfis: readonly PerfilDoExport[];
     respostas: readonly Answer[];
     questoes: readonly Question[]; // dentro de cada tópico, na ordem de exibição
-    topicos: readonly Topico[]; // na ordem de apresentação
+    topicos: readonly Topico[]; // na ordem sugerida
 }
 
 export interface OpcoesDaExportacao {
     desde?: number; // ms; só entra quem aceitou o termo a partir daqui (deixa de fora as contas de teste)
+    agora?: number; // ms; diz se a revisão de uma lição já abriu. Por padrão, a hora da rodada.
 }
 
 export type Linha = Record<string, string | number | null>;
@@ -41,6 +43,7 @@ export type Linha = Record<string, string | number | null>;
 export interface Exportacao {
     eventos: Linha[]; // uma linha por resposta
     participantes: Linha[]; // uma linha por pessoa
+    licoes: Linha[]; // uma linha por pessoa e por lição começada: é onde ficam o ganho e a retenção
     questoes: Linha[]; // uma linha por questão
     resumo: string; // os números agregados, em texto
     chave: Linha[]; // código ↔ nome: fica só com o grupo, nunca é enviada
@@ -58,7 +61,7 @@ export function ganhoNormalizado(pre: Taxa, pos: Taxa): number | null {
     return (pos.acertos / pos.total - antes) / (1 - antes);
 }
 
-/** "2026-10-30 19:10:00", no fuso fixo do roteiro (São Luís). */
+/** "2026-10-30 19:10:00", no fuso fixo do app (São Luís). */
 function dataHora(ms: number): string {
     return new Date(ms + FUSO_MS).toISOString().slice(0, 19).replace('T', ' ');
 }
@@ -76,12 +79,22 @@ function maiorSequencia(dias: readonly number[]): number {
 
 const porcento = (taxa: Taxa) => (taxa.total === 0 ? 'sem respostas' : `${Math.round((taxa.acertos / taxa.total) * 100)}%`);
 const fracao = (taxa: Taxa) => `${taxa.acertos} de ${taxa.total}`;
+const zero = (): Taxa => ({ acertos: 0, total: 0 });
+const somar = (em: Taxa, taxa: Taxa) => {
+    em.acertos += taxa.acertos;
+    em.total += taxa.total;
+};
 
-export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao = {}): Exportacao {
+/**
+ * Monta as tabelas da exportação. A unidade da medida é a lição (item 30): cada tópico tem o seu
+ * pré, o seu pós e o seu reteste, então o ganho e a retenção saem por pessoa e por tópico, em
+ * `licoes`. A linha de cada pessoa soma as lições dela em que a verificação foi concluída: só aí
+ * o antes e o depois são um par.
+ */
+export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportacao = {}): Exportacao {
     const { questoes, topicos } = dados;
+    const agora = opcoes.agora ?? Date.now();
     const ids = topicos.map((t) => t.id);
-    const medidos = topicosMedidos(questoes, ids);
-    const daTrilha = topicosDaTrilha(questoes, ids);
     const questaoPorId = new Map(questoes.map((q) => [q.id, q]));
 
     // Só quem aceitou o termo, na ordem do aceite: o código é o mesmo a cada rodada.
@@ -96,19 +109,21 @@ export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao 
 
     const eventos: Linha[] = [];
     const linhasDeParticipante: Linha[] = [];
+    const linhasDeLicao: Linha[] = [];
     const total = {
-        pre: { acertos: 0, total: 0 },
-        pos: { acertos: 0, total: 0 },
-        reteste: { acertos: 0, total: 0 },
-        firmes: { acertos: 0, total: 0 },
-        frageis: { acertos: 0, total: 0 },
-        porConfianca: { 1: { acertos: 0, total: 0 }, 2: { acertos: 0, total: 0 }, 3: { acertos: 0, total: 0 } },
+        pre: zero(),
+        pos: zero(),
+        reteste: zero(),
+        firmes: zero(),
+        frageis: zero(),
+        porConfianca: { 1: zero(), 2: zero(), 3: zero() },
         pontosCegosNoPos: 0,
-        fizeramOReteste: 0,
-        foraDaJanela: 0,
-        topicosDaTrilha: 0,
+        verificadas: 0,
+        revisadas: 0,
+        antesDaHora: 0,
         ganhos: [] as number[],
     };
+    const porTopico = new Map<string, { pre: Taxa; pos: Taxa; pessoas: number }>();
 
     for (const { perfil, codigo } of participantes) {
         const respostas = respostasDe(perfil.uid);
@@ -135,77 +150,156 @@ export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao 
             });
         }
 
-        const blocoDoPre = questoesDoBlocoMedido(questoes, 'pre', medidos, perfil.formaPre);
-        const blocoDoPos = questoesDoBlocoMedido(questoes, 'pos', medidos, perfil.formaPre);
         const daFase = (fase: Answer['fase']) => respostas.filter((r) => r.fase === fase);
-        const pre = resultadoDoBloco(daFase('pre'), blocoDoPre);
-        const pos = resultadoDoBloco(daFase('pos'), blocoDoPos);
-        const reteste = resultadoDoBloco(daFase('reteste'), blocoDoPos);
-        const retido = retencao(respostas, blocoDoPos);
-        const ganho = ganhoNormalizado(pre, pos);
+        const daPessoa = {
+            pre: zero(),
+            pos: zero(),
+            reteste: zero(),
+            firmes: zero(),
+            frageis: zero(),
+            acertosNoPosComPar: 0,
+            acertosNoRetesteComPar: 0,
+            pontosCegosNoPos: 0,
+            comecadas: 0,
+            verificadas: 0,
+            revisadas: 0,
+            concluidas: 0,
+        };
 
-        // Dias entre o pós e o reteste, pelos horários do servidor: o porteiro do app usa o
-        // relógio do aparelho, então é aqui que se vê quem fez fora da janela (item 22).
-        const fimDoPos = terminoDoPos({ respostas, questoes, topicos: medidos, formaPre: perfil.formaPre });
-        const idsDoPos = new Set(blocoDoPos.map((q) => q.id));
-        const inicioDoReteste = daFase('reteste').find((r) => idsDoPos.has(r.questionId))?.respondidaEm;
-        const diasAteOReteste =
-            fimDoPos === null || inicioDoReteste === undefined
-                ? null
-                : diaDeCalendario(inicioDoReteste) - diaDeCalendario(fimDoPos);
-        const foraDaJanela =
-            diasAteOReteste === null ? null : diasAteOReteste < DIAS_ATE_RETESTE || diasAteOReteste > ULTIMO_DIA_DA_JANELA ? 1 : 0;
+        // As mesmas contas que o app faz para a pessoa, inclusive o ciclo de quem praticou antes de
+        // a lição ter diagnóstico (`cicloDoAluno`).
+        const licoes = licoesDoAluno({ topicos: ids, respostas, questoes, formaPre: perfil.formaPre, agora });
+        for (const licao of licoes) {
+            if (licao.ultimaRespostaEm === null) continue;
+            const { topicId } = licao;
+            daPessoa.comecadas += 1;
+            if (licao.estado.tipo === 'concluida') daPessoa.concluidas += 1;
 
-        const respondidasNaPratica = new Set(daFase('pratica').map((r) => r.questionId));
-        const topicosFeitos = daTrilha.filter((topicId) =>
-            questoesDaPratica(questoes, topicId).every((q) => respondidasNaPratica.has(q.id))
-        ).length;
+            const pratica = resultadoDoBloco(daFase('pratica'), questoesDaPratica(questoes, topicId));
+            const linha: Linha = {
+                codigo,
+                topico: topicId,
+                ciclo: licao.ciclo,
+                estado: licao.estado.tipo,
+                pratica_acertos: pratica.acertos,
+                pratica_total: pratica.total,
+                antes_acertos: null,
+                antes_total: null,
+                depois_acertos: null,
+                depois_total: null,
+                // Sem revisão, os campos dela ficam vazios: zero diria que a pessoa errou tudo.
+                revisao_acertos: null,
+                revisao_total: null,
+                ganho_normalizado: null,
+                retencao: null,
+                firmes_na_verificacao: null,
+                firmes_mantidos: null,
+                frageis_na_verificacao: null,
+                frageis_mantidos: null,
+                dias_ate_a_revisao: null,
+                revisao_antes_da_hora: null,
+                pontos_cegos_na_verificacao: null,
+            };
+            linhasDeLicao.push(linha);
+            if (licao.ciclo !== 'completo') continue;
+
+            const blocoDoPre = questoesDoBlocoMedido(questoes, 'pre', [topicId], perfil.formaPre);
+            const blocoDoPos = questoesDoBlocoMedido(questoes, 'pos', [topicId], perfil.formaPre);
+            const pre = resultadoDoBloco(daFase('pre'), blocoDoPre);
+            const pos = resultadoDoBloco(daFase('pos'), blocoDoPos);
+            // Só com o diagnóstico e a verificação completos o antes e o depois são um par.
+            if (pre.total < blocoDoPre.length || pos.total < blocoDoPos.length) continue;
+
+            const idsDoPos = new Set(blocoDoPos.map((q) => q.id));
+            const ganho = ganhoNormalizado(pre, pos);
+            Object.assign(linha, {
+                antes_acertos: pre.acertos,
+                antes_total: pre.total,
+                depois_acertos: pos.acertos,
+                depois_total: pos.total,
+                ganho_normalizado: ganho,
+                pontos_cegos_na_verificacao: pos.quadrantes.ponto_cego,
+            });
+            daPessoa.verificadas += 1;
+            somar(daPessoa.pre, pre);
+            somar(daPessoa.pos, pos);
+            daPessoa.pontosCegosNoPos += pos.quadrantes.ponto_cego;
+            for (const nivel of [1, 2, 3] as const) somar(total.porConfianca[nivel], pos.porConfianca[nivel]);
+            const doTopico = porTopico.get(topicId) ?? { pre: zero(), pos: zero(), pessoas: 0 };
+            somar(doTopico.pre, pre);
+            somar(doTopico.pos, pos);
+            doTopico.pessoas += 1;
+            porTopico.set(topicId, doTopico);
+
+            const reteste = resultadoDoBloco(daFase('reteste'), blocoDoPos);
+            if (reteste.total < blocoDoPos.length) continue;
+
+            // Dias entre a verificação e a revisão, pelos horários do servidor: o app libera a
+            // revisão pelo relógio do aparelho, então é aqui que se vê quem a fez antes da hora.
+            const fimDaVerificacao = Math.max(...daFase('pos').filter((r) => idsDoPos.has(r.questionId)).map((r) => r.respondidaEm));
+            const inicioDaRevisao = daFase('reteste').find((r) => idsDoPos.has(r.questionId))!.respondidaEm;
+            const dias = diaDeCalendario(inicioDaRevisao) - diaDeCalendario(fimDaVerificacao);
+            const retido = retencao(respostas, blocoDoPos);
+            Object.assign(linha, {
+                revisao_acertos: reteste.acertos,
+                revisao_total: reteste.total,
+                retencao: retido.razao,
+                firmes_na_verificacao: retido.mantidas.firme.total,
+                firmes_mantidos: retido.mantidas.firme.acertos,
+                frageis_na_verificacao: retido.mantidas.fragil.total,
+                frageis_mantidos: retido.mantidas.fragil.acertos,
+                dias_ate_a_revisao: dias,
+                revisao_antes_da_hora: dias < DIAS_ATE_A_REVISAO ? 1 : 0,
+            });
+            daPessoa.revisadas += 1;
+            somar(daPessoa.reteste, reteste);
+            somar(daPessoa.firmes, retido.mantidas.firme);
+            somar(daPessoa.frageis, retido.mantidas.fragil);
+            daPessoa.acertosNoPosComPar += retido.acertosNoPos;
+            daPessoa.acertosNoRetesteComPar += retido.acertosNoReteste;
+            if (dias < DIAS_ATE_A_REVISAO) total.antesDaHora += 1;
+        }
+
         const dias = respostas.map((r) => diaDeCalendario(r.respondidaEm));
-        const fezReteste = reteste.total > 0;
-        const temPares = retido.pares > 0;
+        const revisou = daPessoa.revisadas > 0;
+        const ganho = ganhoNormalizado(daPessoa.pre, daPessoa.pos);
 
         linhasDeParticipante.push({
             codigo,
             forma_pre: perfil.formaPre,
             experiencia: perfil.experiencia ?? null,
             aceitou_em: dataHora(perfil.consentiuEm).slice(0, 10),
-            pre_acertos: pre.acertos,
-            pre_total: pre.total,
-            pos_acertos: pos.acertos,
-            pos_total: pos.total,
-            // Sem reteste, os campos dele ficam vazios: zero diria que a pessoa errou tudo.
-            reteste_acertos: fezReteste ? reteste.acertos : null,
-            reteste_total: fezReteste ? reteste.total : null,
+            licoes_comecadas: daPessoa.comecadas,
+            licoes_verificadas: daPessoa.verificadas,
+            licoes_revisadas: daPessoa.revisadas,
+            licoes_concluidas: daPessoa.concluidas,
+            // A soma das lições com a verificação feita: o antes e o depois das mesmas lições.
+            pre_acertos: daPessoa.pre.acertos,
+            pre_total: daPessoa.pre.total,
+            pos_acertos: daPessoa.pos.acertos,
+            pos_total: daPessoa.pos.total,
+            // Sem revisão, os campos dela ficam vazios: zero diria que a pessoa errou tudo.
+            reteste_acertos: revisou ? daPessoa.reteste.acertos : null,
+            reteste_total: revisou ? daPessoa.reteste.total : null,
             ganho_normalizado: ganho,
-            retencao: retido.razao,
-            firmes_no_pos: temPares ? retido.mantidas.firme.total : null,
-            firmes_mantidos: temPares ? retido.mantidas.firme.acertos : null,
-            frageis_no_pos: temPares ? retido.mantidas.fragil.total : null,
-            frageis_mantidos: temPares ? retido.mantidas.fragil.acertos : null,
-            dias_ate_o_reteste: diasAteOReteste,
-            fora_da_janela: foraDaJanela,
-            pontos_cegos_no_pos: pos.quadrantes.ponto_cego,
-            topicos_da_trilha: topicosFeitos,
+            retencao: daPessoa.acertosNoPosComPar === 0 ? null : daPessoa.acertosNoRetesteComPar / daPessoa.acertosNoPosComPar,
+            firmes_no_pos: revisou ? daPessoa.firmes.total : null,
+            firmes_mantidos: revisou ? daPessoa.firmes.acertos : null,
+            frageis_no_pos: revisou ? daPessoa.frageis.total : null,
+            frageis_mantidos: revisou ? daPessoa.frageis.acertos : null,
+            pontos_cegos_no_pos: daPessoa.pontosCegosNoPos,
             dias_ativos: new Set(dias).size,
             maior_sequencia: maiorSequencia(dias),
         });
 
-        for (const [chave, taxa] of [['pre', pre], ['pos', pos], ['reteste', reteste]] as const) {
-            total[chave].acertos += taxa.acertos;
-            total[chave].total += taxa.total;
-        }
-        for (const nivel of [1, 2, 3] as const) {
-            total.porConfianca[nivel].acertos += pos.porConfianca[nivel].acertos;
-            total.porConfianca[nivel].total += pos.porConfianca[nivel].total;
-        }
-        total.firmes.acertos += retido.mantidas.firme.acertos;
-        total.firmes.total += retido.mantidas.firme.total;
-        total.frageis.acertos += retido.mantidas.fragil.acertos;
-        total.frageis.total += retido.mantidas.fragil.total;
-        total.pontosCegosNoPos += pos.quadrantes.ponto_cego;
-        total.topicosDaTrilha += topicosFeitos;
-        if (blocoDoPos.length > 0 && reteste.total === blocoDoPos.length) total.fizeramOReteste += 1;
-        if (foraDaJanela === 1) total.foraDaJanela += 1;
+        somar(total.pre, daPessoa.pre);
+        somar(total.pos, daPessoa.pos);
+        somar(total.reteste, daPessoa.reteste);
+        somar(total.firmes, daPessoa.firmes);
+        somar(total.frageis, daPessoa.frageis);
+        total.pontosCegosNoPos += daPessoa.pontosCegosNoPos;
+        total.verificadas += daPessoa.verificadas;
+        total.revisadas += daPessoa.revisadas;
         if (ganho !== null) total.ganhos.push(ganho);
     }
 
@@ -246,20 +340,34 @@ export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao 
     const media = (valores: number[]) => (valores.length === 0 ? null : valores.reduce((a, b) => a + b, 0) / valores.length);
     const ganhoMedio = media(total.ganhos);
     const resumo = [
-        '# Piloto Beast Maragames: resumo',
+        '# Beast Maragames: resumo dos dados',
         '',
         `Participantes: ${n}`,
-        `Fizeram o reteste: ${total.fizeramOReteste} de ${n}`,
-        `Fora da janela de ${DIAS_ATE_RETESTE} a ${ULTIMO_DIA_DA_JANELA} dias: ${total.foraDaJanela}`,
+        `Lições com a verificação feita: ${total.verificadas}`,
+        `Lições com a revisão feita: ${total.revisadas} de ${total.verificadas}`,
+        `Revisões feitas antes dos ${DIAS_ATE_A_REVISAO} dias: ${total.antesDaHora}`,
         '',
         '## Aprendizagem',
         '',
-        `Acerto no pré-teste: ${porcento(total.pre)} (${fracao(total.pre)})`,
-        `Acerto no pós-teste: ${porcento(total.pos)} (${fracao(total.pos)})`,
-        `Acerto no reteste: ${porcento(total.reteste)} (${fracao(total.reteste)})`,
-        `Ganho normalizado médio: ${ganhoMedio === null ? 'sem dados' : ganhoMedio.toFixed(2).replace('.', ',')}`,
+        'Só entram as lições com o diagnóstico e a verificação completos.',
         '',
-        '## Consciência do próprio saber (pós-teste)',
+        `Acerto no diagnóstico: ${porcento(total.pre)} (${fracao(total.pre)})`,
+        `Acerto na verificação: ${porcento(total.pos)} (${fracao(total.pos)})`,
+        `Acerto na revisão: ${porcento(total.reteste)} (${fracao(total.reteste)})`,
+        `Ganho normalizado médio, por pessoa: ${ganhoMedio === null ? 'sem dados' : ganhoMedio.toFixed(2).replace('.', ',')}`,
+        '',
+        '## Por tópico',
+        '',
+        ...(porTopico.size === 0
+            ? ['Nenhuma lição com a verificação feita.']
+            : topicos
+                  .filter((t) => porTopico.has(t.id))
+                  .map((t) => {
+                      const { pre, pos, pessoas } = porTopico.get(t.id)!;
+                      return `${t.titulo}: antes ${porcento(pre)} (${fracao(pre)}), depois ${porcento(pos)} (${fracao(pos)}), ${pessoas} pessoa${pessoas === 1 ? '' : 's'}`;
+                  })),
+        '',
+        '## Consciência do próprio saber (verificação)',
         '',
         `Quando marcou Palpite, acertou: ${porcento(total.porConfianca[1])} (${fracao(total.porConfianca[1])})`,
         `Quando marcou Tenho dúvida, acertou: ${porcento(total.porConfianca[2])} (${fracao(total.porConfianca[2])})`,
@@ -271,10 +379,6 @@ export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao 
         `Acertos Firmes no pós que continuaram certos no reteste: ${fracao(total.firmes)}`,
         `Acertos Frágeis no pós que continuaram certos no reteste: ${fracao(total.frageis)}`,
         '',
-        '## Trilha diária',
-        '',
-        `Tópicos concluídos, em média: ${n === 0 ? 'sem dados' : (total.topicosDaTrilha / n).toFixed(1).replace('.', ',')} de ${daTrilha.length}`,
-        '',
         `Com ${n} participante${n === 1 ? '' : 's'} e sem grupo de controle, estes números descrevem e não provam causa.`,
         '',
     ].join('\n');
@@ -282,6 +386,7 @@ export function exportarPiloto(dados: DadosDoPiloto, opcoes: OpcoesDaExportacao 
     return {
         eventos,
         participantes: linhasDeParticipante,
+        licoes: linhasDeLicao,
         questoes: linhasDeQuestao,
         resumo,
         chave: participantes.map(({ perfil, codigo }) => ({
@@ -335,6 +440,7 @@ export function arquivosDaExportacao(exportado: Exportacao): ArquivoDaExportacao
     return [
         { nome: 'eventos.csv', conteudo: paraCsv(exportado.eventos) },
         { nome: 'participantes.csv', conteudo: paraCsv(exportado.participantes) },
+        { nome: 'licoes.csv', conteudo: paraCsv(exportado.licoes) },
         { nome: 'questoes.csv', conteudo: paraCsv(exportado.questoes) },
         { nome: 'resumo.md', conteudo: exportado.resumo },
         // Liga cada código ao nome: fica só com o grupo, nunca é enviada.

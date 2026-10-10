@@ -16,7 +16,7 @@ import {
     type QuestaoDaLicao,
     type RespostaDaLicao,
 } from '../licao';
-import { diaDeCalendario, inicioDoDia } from '../roteiro';
+import { diaDeCalendario, inicioDoDia } from '../calendario';
 
 const HORA = 60 * 60 * 1000;
 const DIA = 24 * HORA;

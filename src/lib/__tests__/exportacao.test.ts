@@ -1,11 +1,11 @@
 import type { Answer, BlocoQuestao, Confianca, Fase, Question, Topico } from '../../types/domain';
 import {
     arquivosDaExportacao,
-    exportarPiloto,
+    exportarDados,
     ganhoNormalizado,
     paraCsv,
     pastaDaExportacao,
-    type DadosDoPiloto,
+    type DadosDaExportacao,
     type PerfilDoExport,
 } from '../exportacao';
 
@@ -126,7 +126,7 @@ const DA_BIA: Answer[] = [
     r(BIA.uid, 'reteste', 'mda_a2', '2026-11-02 10:01', false, 1, 'c'),
 ];
 
-const DADOS: DadosDoPiloto = {
+const DADOS: DadosDaExportacao = {
     perfis: [BIA, TESTE, SEM_TERMO, ANA],
     respostas: [...DA_BIA, ...DA_ANA, r(TESTE.uid, 'pre', 'mda_a1', '2026-10-06 10:05', true)],
     questoes: QUESTOES,
@@ -134,7 +134,10 @@ const DADOS: DadosDoPiloto = {
 };
 
 const DESDE = em('2026-10-30 00:00');
-const exportado = () => exportarPiloto(DADOS, { desde: DESDE });
+// A exportação roda depois de tudo: 20/11.
+const AGORA = em('2026-11-20 12:00');
+const exportado = () => exportarDados(DADOS, { desde: DESDE, agora: AGORA });
+const licaoDa = (codigo: string, topico: string) => exportado().licoes.find((l) => l.codigo === codigo && l.topico === topico)!;
 const linhaDa = (codigo: string) => exportado().participantes.find((p) => p.codigo === codigo)!;
 
 describe('quem entra na exportação', () => {
@@ -146,7 +149,7 @@ describe('quem entra na exportação', () => {
     });
 
     it('sem data, entra todo mundo que aceitou o termo', () => {
-        expect(exportarPiloto(DADOS).chave.map((c) => c.nome)).toEqual([
+        expect(exportarDados(DADOS).chave.map((c) => c.nome)).toEqual([
             'Conta de Teste',
             'Ana Beatriz Souza',
             'Bianca Lima',
@@ -154,7 +157,7 @@ describe('quem entra na exportação', () => {
     });
 
     it('o código não depende da ordem em que os perfis chegam do banco', () => {
-        const embaralhado = exportarPiloto({ ...DADOS, perfis: [ANA, SEM_TERMO, BIA, TESTE] }, { desde: DESDE });
+        const embaralhado = exportarDados({ ...DADOS, perfis: [ANA, SEM_TERMO, BIA, TESTE] }, { desde: DESDE });
 
         expect(embaralhado.chave.map((c) => [c.codigo, c.uid])).toEqual(exportado().chave.map((c) => [c.codigo, c.uid]));
     });
@@ -264,36 +267,115 @@ describe('participantes: uma linha por pessoa', () => {
         });
     });
 
-    // O porteiro do app usa o relógio do aparelho; aqui a conta é pelos horários do servidor (item 22).
-    it('dias entre o pós e o reteste, pelos horários gravados, e quem ficou fora da janela', () => {
-        expect(linhaDa('P01')).toMatchObject({ dias_ate_o_reteste: 7, fora_da_janela: 0 });
-        expect(linhaDa('P02')).toMatchObject({ dias_ate_o_reteste: 3, fora_da_janela: 1 });
+    it('quantas lições a pessoa começou, verificou, revisou e concluiu', () => {
+        // Ana: MDA com revisão feita e GDD (só prática) concluída.
+        expect(linhaDa('P01')).toMatchObject({ licoes_comecadas: 2, licoes_verificadas: 1, licoes_revisadas: 1, licoes_concluidas: 2 });
+        expect(linhaDa('P02')).toMatchObject({ licoes_comecadas: 1, licoes_verificadas: 1, licoes_revisadas: 1, licoes_concluidas: 1 });
     });
 
-    it('ponto cego no pós, trilha e dias de uso', () => {
+    it('ponto cego no pós e dias de uso', () => {
         expect(linhaDa('P01')).toMatchObject({
             pontos_cegos_no_pos: 0,
-            topicos_da_trilha: 1,
             // 30/10, 31/10 e 06/11: três dias com resposta; os dois primeiros, seguidos.
             dias_ativos: 3,
             maior_sequencia: 2,
         });
-        expect(linhaDa('P02')).toMatchObject({ pontos_cegos_no_pos: 1, topicos_da_trilha: 0, dias_ativos: 2, maior_sequencia: 1 });
+        expect(linhaDa('P02')).toMatchObject({ pontos_cegos_no_pos: 1, dias_ativos: 2, maior_sequencia: 1 });
+    });
+
+    it('só a lição com a verificação completa entra no antes e depois da pessoa', () => {
+        // Sem a segunda resposta do pós, a verificação da Ana fica pela metade.
+        const pelaMetade = exportarDados(
+            { ...DADOS, respostas: DADOS.respostas.filter((x) => !(x.uid === ANA.uid && x.questionId === 'mda_b2')) },
+            { desde: DESDE, agora: AGORA }
+        ).participantes[0];
+
+        expect(pelaMetade).toMatchObject({ licoes_verificadas: 0, pre_total: 0, pos_total: 0, ganho_normalizado: null });
     });
 
     it('quem não fez o reteste fica com os campos dele vazios, e não com zero', () => {
-        const semReteste = exportarPiloto(
+        const semReteste = exportarDados(
             { ...DADOS, respostas: DADOS.respostas.filter((x) => x.fase !== 'reteste') },
-            { desde: DESDE }
+            { desde: DESDE, agora: AGORA }
         ).participantes[0];
 
         expect(semReteste).toMatchObject({
             reteste_acertos: null,
             reteste_total: null,
             retencao: null,
-            dias_ate_o_reteste: null,
-            fora_da_janela: null,
+            licoes_revisadas: 0,
         });
+    });
+});
+
+// O ganho e a retenção de cada lição de cada pessoa (item 30): a unidade da medida é o tópico.
+describe('licoes: uma linha por pessoa e por lição começada', () => {
+    it('a lição de ciclo completo traz o antes, o depois, a revisão, o ganho e a retenção', () => {
+        expect(licaoDa('P01', 'mda')).toMatchObject({
+            ciclo: 'completo',
+            estado: 'concluida',
+            pratica_acertos: 1,
+            pratica_total: 1,
+            antes_acertos: 1,
+            antes_total: 2,
+            depois_acertos: 2,
+            depois_total: 2,
+            revisao_acertos: 1,
+            revisao_total: 2,
+            ganho_normalizado: 1,
+            retencao: 0.5,
+            firmes_na_verificacao: 1,
+            firmes_mantidos: 1,
+            frageis_na_verificacao: 1,
+            frageis_mantidos: 0,
+            pontos_cegos_na_verificacao: 0,
+        });
+    });
+
+    // O app libera a revisão pelo relógio do aparelho; aqui a conta é pelos horários do servidor.
+    it('dias entre a verificação e a revisão, e quem a fez antes dos 7 dias', () => {
+        expect(licaoDa('P01', 'mda')).toMatchObject({ dias_ate_a_revisao: 7, revisao_antes_da_hora: 0 });
+        expect(licaoDa('P02', 'mda')).toMatchObject({ dias_ate_a_revisao: 3, revisao_antes_da_hora: 1 });
+    });
+
+    it('a lição só com prática sai com o ciclo curto e os campos do antes e depois vazios', () => {
+        expect(licaoDa('P01', 'gdd')).toMatchObject({
+            ciclo: 'curto',
+            estado: 'concluida',
+            pratica_acertos: 1,
+            pratica_total: 1,
+            antes_acertos: null,
+            depois_acertos: null,
+            ganho_normalizado: null,
+            retencao: null,
+        });
+    });
+
+    it('lição que a pessoa não começou não tem linha', () => {
+        expect(exportado().licoes.map((l) => `${l.codigo}/${l.topico}`)).toEqual(['P01/mda', 'P01/gdd', 'P02/mda']);
+    });
+
+    it('sem a revisão, os campos dela ficam vazios, e não com zero', () => {
+        const semRevisao = exportarDados(
+            { ...DADOS, respostas: DADOS.respostas.filter((x) => x.fase !== 'reteste') },
+            { desde: DESDE, agora: AGORA }
+        ).licoes[0];
+
+        expect(semRevisao).toMatchObject({
+            estado: 'revisao',
+            revisao_acertos: null,
+            revisao_total: null,
+            retencao: null,
+            dias_ate_a_revisao: null,
+            revisao_antes_da_hora: null,
+        });
+    });
+
+    it('nada que identifique alguém sai nas linhas de lição', () => {
+        const texto = paraCsv(exportado().licoes);
+
+        expect(texto).not.toContain('Ana');
+        expect(texto).not.toContain(ANA.uid);
     });
 });
 
@@ -334,7 +416,7 @@ describe('questoes: a qualidade do conteúdo', () => {
     });
 
     it('questão sem resposta aparece, com a taxa vazia', () => {
-        const semRespostas = exportarPiloto({ ...DADOS, respostas: [] }, { desde: DESDE }).questoes[0];
+        const semRespostas = exportarDados({ ...DADOS, respostas: [] }, { desde: DESDE }).questoes[0];
 
         expect(semRespostas).toMatchObject({ respostas: 0, taxa_de_acerto: null, distrator_mais_escolhido: null });
     });
@@ -349,8 +431,11 @@ describe('resumo', () => {
         const { resumo } = exportado();
 
         expect(resumo).toContain('Participantes: 2');
-        expect(resumo).toContain('Fizeram o reteste: 2 de 2');
-        expect(resumo).toContain('Fora da janela de 7 a 9 dias: 1');
+        expect(resumo).toContain('Lições com a verificação feita: 2');
+        expect(resumo).toContain('Lições com a revisão feita: 2 de 2');
+        expect(resumo).toContain('Revisões feitas antes dos 7 dias: 1');
+        // Por tópico: Ana 1 de 2 e Bia 0 de 2 no diagnóstico; Ana 2 de 2 e Bia 1 de 2 na verificação.
+        expect(resumo).toContain('Framework MDA: antes 25% (1 de 4), depois 75% (3 de 4), 2 pessoas');
         // Ana: 1 firme mantido de 1. Bia: 1 firme mantido de 1 (mda_a1). Frágeis: 0 de 1.
         expect(resumo).toContain('Acertos Firmes no pós que continuaram certos no reteste: 2 de 2');
         expect(resumo).toContain('Acertos Frágeis no pós que continuaram certos no reteste: 0 de 1');
@@ -403,23 +488,25 @@ describe('pastaDaExportacao', () => {
 });
 
 describe('arquivosDaExportacao', () => {
-    it('com participantes, são os cinco arquivos, cada um com o seu conteúdo', () => {
+    it('com participantes, são os seis arquivos, cada um com o seu conteúdo', () => {
         const arquivos = arquivosDaExportacao(exportado());
 
         expect(arquivos.map((a) => a.nome)).toEqual([
             'eventos.csv',
             'participantes.csv',
+            'licoes.csv',
             'questoes.csv',
             'resumo.md',
             'chave.csv',
         ]);
         expect(arquivos[1].conteudo).toBe(paraCsv(exportado().participantes));
-        expect(arquivos[3].conteudo).toBe(exportado().resumo);
+        expect(arquivos[2].conteudo).toBe(paraCsv(exportado().licoes));
+        expect(arquivos[4].conteudo).toBe(exportado().resumo);
     });
 
     // Um filtro que não pega ninguém gravava arquivos vazios, sem avisar, por cima dos de antes.
     it('sem participantes, não há arquivo nenhum para gravar', () => {
-        const ninguem = exportarPiloto(DADOS, { desde: em('2027-01-01 00:00') });
+        const ninguem = exportarDados(DADOS, { desde: em('2027-01-01 00:00') });
 
         expect(ninguem.participantes).toHaveLength(0);
         expect(arquivosDaExportacao(ninguem)).toEqual([]);

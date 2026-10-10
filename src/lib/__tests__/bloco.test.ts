@@ -1,10 +1,7 @@
 import {
     pendentes,
-    proximoTopicoDaPratica,
     questoesDaPratica,
     questoesDoBlocoMedido,
-    topicosDaTrilha,
-    topicosMedidos,
     type QuestaoDoBloco,
 } from '../bloco';
 
@@ -93,72 +90,5 @@ describe('pendentes', () => {
 
         expect(pendentes(doPos, respostas, 'pos')).toEqual([]);
         expect(pendentes(doPos, respostas, 'reteste')).toEqual(doPos);
-    });
-});
-
-describe('proximoTopicoDaPratica', () => {
-    it('é o primeiro tópico do roteiro quando nada foi praticado', () => {
-        expect(proximoTopicoDaPratica(QUESTOES, [], TOPICOS)).toBe('mda');
-    });
-
-    it('fica no tópico enquanto ele tiver questão pendente', () => {
-        const respostas = [{ questionId: 'mda_p1', fase: 'pratica' }] as const;
-
-        expect(proximoTopicoDaPratica(QUESTOES, respostas, TOPICOS)).toBe('mda');
-    });
-
-    it('passa ao tópico seguinte quando a prática do anterior termina', () => {
-        const respostas = [
-            { questionId: 'mda_p1', fase: 'pratica' },
-            { questionId: 'mda_p2', fase: 'pratica' },
-        ] as const;
-
-        expect(proximoTopicoDaPratica(QUESTOES, respostas, TOPICOS)).toBe('engine');
-    });
-
-    it('é null quando todos os tópicos foram praticados', () => {
-        const respostas = ['mda_p1', 'mda_p2', 'engine_p1', 'engine_p2'].map(
-            (questionId) => ({ questionId, fase: 'pratica' }) as const
-        );
-
-        expect(proximoTopicoDaPratica(QUESTOES, respostas, TOPICOS)).toBeNull();
-    });
-
-    it('pula tópico sem questão de prática', () => {
-        expect(proximoTopicoDaPratica(QUESTOES, [], ['vazio', 'engine'])).toBe('engine');
-    });
-});
-
-describe('topicosMedidos', () => {
-    const comTrilha: QuestaoDoBloco[] = [...QUESTOES, { id: 'gdd_p1', topicId: 'gdd', bloco: 'pratica' }];
-
-    it('fica só com os tópicos que têm questão das formas A ou B, na ordem recebida', () => {
-        expect(topicosMedidos(comTrilha, ['mda', 'gdd', 'engine'])).toEqual(['mda', 'engine']);
-    });
-
-    it('questão sem bloco (sobra de um seed antigo) não faz o tópico contar como medido', () => {
-        const comSobra = [...comTrilha, { id: 'antiga', topicId: 'gdd' }] as QuestaoDoBloco[];
-
-        expect(topicosMedidos(comSobra, ['mda', 'gdd'])).toEqual(['mda']);
-    });
-
-    it('tópico só com prática (trilha diária) fica fora do roteiro medido', () => {
-        expect(topicosMedidos(comTrilha, ['gdd'])).toEqual([]);
-    });
-});
-
-describe('topicosDaTrilha', () => {
-    const comTrilha: QuestaoDoBloco[] = [...QUESTOES, { id: 'gdd_p1', topicId: 'gdd', bloco: 'pratica' }];
-
-    it('são os tópicos que só têm prática, na ordem recebida', () => {
-        expect(topicosDaTrilha(comTrilha, ['gdd', 'mda', 'engine'])).toEqual(['gdd']);
-    });
-
-    it('tópico medido não é da trilha, mesmo tendo prática', () => {
-        expect(topicosDaTrilha(QUESTOES, TOPICOS)).toEqual([]);
-    });
-
-    it('tópico sem questão nenhuma não é da trilha', () => {
-        expect(topicosDaTrilha(comTrilha, ['vazio', 'gdd'])).toEqual(['gdd']);
     });
 });

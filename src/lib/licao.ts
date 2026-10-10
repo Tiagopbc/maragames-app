@@ -6,7 +6,7 @@ import type { Answer, Fase, FormaPre, Question } from '../types/domain';
 import { questoesDaPratica, questoesDoBlocoMedido } from './bloco';
 import type { Quadrante } from './quadrante';
 import { resultadoDoBloco, type RespostaDoResultado, type Taxa } from './resultado';
-import { diaDeCalendario, inicioDoDia } from './roteiro';
+import { diaDeCalendario, inicioDoDia } from './calendario';
 
 export type QuestaoDaLicao = Pick<Question, 'id' | 'topicId' | 'bloco'>;
 export type RespostaDaLicao = Pick<Answer, 'questionId' | 'fase' | 'respondidaEm'>;
