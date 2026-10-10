@@ -16,11 +16,14 @@ type TelaDoCartaoProps = {
     topicId: string;
     aoComecarPratica: () => void; // depois do último slide; quem navega é a rota
     aoSair: () => void; // o X: fecha sem começar a prática
+    // O botão do último slide. Quem relê o cartão com a prática fechada (item 30) não vai para
+    // a prática: a rota troca o rótulo e o destino.
+    rotuloDoFim?: string;
 };
 
 // Cartão de conceito: os slides do tópico, um por vez, antes da prática (item 19).
 // Nada aqui é gravado: em que slide a pessoa está só existe enquanto a tela está aberta.
-export function TelaDoCartao({ topicId, aoComecarPratica, aoSair }: TelaDoCartaoProps) {
+export function TelaDoCartao({ topicId, aoComecarPratica, aoSair, rotuloDoFim = TEXTOS.comecarPratica }: TelaDoCartaoProps) {
     const theme = useTheme();
     const { estado, tentarDeNovo } = useCartao(topicId);
     const [indice, setIndice] = useState(0);
@@ -114,7 +117,7 @@ export function TelaDoCartao({ topicId, aoComecarPratica, aoSair }: TelaDoCartao
 
                             <View style={styles.avancar}>
                                 {ultimo ? (
-                                    <BotaoPrincipal rotulo={TEXTOS.comecarPratica} onPress={aoComecarPratica} />
+                                    <BotaoPrincipal rotulo={rotuloDoFim} onPress={aoComecarPratica} />
                                 ) : (
                                     <BotaoPrincipal rotulo={TEXTOS.proximo} onPress={() => setIndice((i) => i + 1)} />
                                 )}

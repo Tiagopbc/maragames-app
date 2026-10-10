@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, userEvent } from '@testing-library/react-native';
 import { useFonts } from 'expo-font';
 import { renderRouter, screen } from 'expo-router/testing-library';
@@ -11,12 +12,26 @@ import type { BlocoQuestao, Fase, Question } from '@/types/domain';
 // Este teste fica fora de `src/app` de propósito: lá dentro, todo arquivo vira rota.
 
 // Sessão de quem já entrou e tem o perfil completo: é o único estado que chega à home.
+// O perfil fica num objeto que o mock lê a cada render, para um teste poder tirar o termo.
+const mockSessao: { perfil: Record<string, unknown> } = { perfil: {} };
+const COM_TERMO = {
+    uid: 'u1',
+    nome: 'Tiago Cavalcanti',
+    apelido: 'Tiago',
+    email: 'tiago@exemplo.com',
+    telefone: '98987654321',
+    instituicao: 'UNDB',
+    curso: 'Engenharia de Software',
+    experiencia: 'iniciante',
+    formaPre: 'A',
+    consentiuEm: 500,
+};
+
 jest.mock('@/lib/session', () => ({
     SessionProvider: ({ children }: { children: unknown }) => children,
     useSession: () => ({
         user: { uid: 'u1' },
-        // Já aceitou o termo e recebeu a forma A.
-        perfil: { uid: 'u1', apelido: 'Tiago', formaPre: 'A', consentiuEm: 500 },
+        perfil: mockSessao.perfil,
         perfilCompleto: true,
         isLoading: false,
         sair: jest.fn(),
@@ -65,7 +80,7 @@ function questao(id: string, bloco: BlocoQuestao, order: number, topicId = 'mda'
     };
 }
 
-function responder(fase: Fase, questionId: string, quando = Date.now()) {
+function responder(fase: Fase, questionId: string, quando = Date.now(), correta = true) {
     repo.respostas.push({
         id: `r${repo.respostas.length + 1}`,
         uid: 'u1',
@@ -73,20 +88,21 @@ function responder(fase: Fase, questionId: string, quando = Date.now()) {
         topicId: questionId.split('_')[0],
         attemptId: 't1',
         fase,
-        escolha: 'a',
+        escolha: correta ? 'a' : 'b',
         ordemExibida: ['a', 'b', 'c', 'd'],
-        correta: true,
+        correta,
         confianca: 1,
         tempoMs: 1,
         respondidaEm: quando, // por padrão, hoje: o reteste só abre daqui a sete dias
     });
 }
 
-// Um tópico medido, com uma questão por forma e uma de prática, e dois tópicos da trilha
-// diária, com uma questão de prática cada. Nenhuma resposta ainda.
+// Uma lição de ciclo completo (MDA: uma questão por forma e uma de prática) e duas de ciclo
+// curto (GDD e UX/UI: uma questão de prática cada). Nenhuma resposta ainda.
 beforeEach(() => {
     (SplashScreen.hide as jest.Mock).mockClear();
     fontes.mockReturnValue([true, null]);
+    mockSessao.perfil = COM_TERMO;
     repo.reiniciar();
     repo.licoes = [
         { id: 'licao_mda', title: 'Framework MDA', order: 1, topicId: 'mda' },
@@ -113,35 +129,11 @@ async function abrirEm(url: string) {
 }
 
 describe('a navegação de quem está logado', () => {
-    it('abre na home, com a saudação e o botão do roteiro', async () => {
+    it('abre na home, com a saudação e o cartão do dia', async () => {
         await abrirEm('/');
 
         expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-        expect(screen.getByRole('button', { name: 'Continuar estudos' })).toBeOnTheScreen();
-    });
-
-    it('antes do primeiro bloco concluído, a home não mostra total de XP', async () => {
-        await abrirEm('/');
-        await screen.findByText('Pré-teste · 0 de 1');
-
-        expect(screen.queryByText(/^XP:/)).toBeNull();
-    });
-
-    it('com o pré pela metade, o total continua escondido: ele revelaria o acerto', async () => {
-        repo.questoes.push(questao('mda_a2', 'forma_a', 2));
-        responder('pre', 'mda_a1');
-        await abrirEm('/');
-        await screen.findByText('Pré-teste · 1 de 2');
-
-        expect(screen.queryByText(/^XP:/)).toBeNull();
-    });
-
-    it('com o pré concluído, a home mostra o total de XP ao lado da saudação', async () => {
-        // A resposta do teste é um acerto em Palpite: +1.
-        responder('pre', 'mda_a1');
-        await abrirEm('/');
-
-        expect(await screen.findByText('XP: +1')).toBeOnTheScreen();
+        expect(await screen.findByText('Para hoje')).toBeOnTheScreen();
     });
 
     it('a home fica direto no grupo (app), sem grupo de abas em volta', async () => {
@@ -196,6 +188,16 @@ describe('a navegação de quem está logado', () => {
         expect(SplashScreen.hide).toHaveBeenCalled();
     });
 
+    it('enquanto a preferência de tema não é lida do aparelho, a tela de abertura continua', async () => {
+        // A leitura fica pendurada: o app não pode abrir no tema errado e trocar à vista.
+        jest.spyOn(AsyncStorage, 'getItem').mockReturnValueOnce(new Promise(() => {}));
+        await abrirEm('/');
+
+        expect(screen.queryByText('Olá, Tiago')).toBeNull();
+        expect(SplashScreen.hide).not.toHaveBeenCalled();
+        jest.restoreAllMocks();
+    });
+
     it('se a fonte falhar, o app abre mesmo assim, com a fonte do aparelho', async () => {
         fontes.mockReturnValue([false, new Error('sem fonte')]);
         await abrirEm('/');
@@ -205,219 +207,205 @@ describe('a navegação de quem está logado', () => {
     });
 });
 
-// A home leva sempre à etapa certa. Estes testes são de quem chega por outro caminho, como a
-// URL digitada na web (item 23).
-describe('a trava do roteiro', () => {
-    function chegarNaEspera(quando = Date.now()) {
-        responder('pre', 'mda_a1', quando);
-        responder('pratica', 'mda_p1', quando);
-        responder('pos', 'mda_b1', quando);
-    }
+const DIA = 24 * 60 * 60 * 1000;
+const botao = (nome: string) => screen.getByRole('button', { name: nome });
 
-    // Os testes rodam em modo de desenvolvimento; isto simula o app que vai para o participante.
-    async function foraDeDesenvolvimento(acao: () => Promise<void>) {
-        const global = globalThis as { __DEV__?: boolean };
-        global.__DEV__ = false;
-        try {
-            await acao();
-        } finally {
-            global.__DEV__ = true;
-        }
-    }
+// A lição do MDA até a verificação: fica aguardando a revisão, 7 dias depois.
+function mdaAteAVerificacao(quando = Date.now()) {
+    responder('pre', 'mda_a1', quando, false);
+    responder('pratica', 'mda_p1', quando);
+    responder('pos', 'mda_b1', quando);
+}
 
-    describe('na espera do reteste', () => {
-        beforeEach(chegarNaEspera);
+// O cartão "Para hoje" aponta um passo só, entre todas as lições (item 30).
+describe('o Para hoje da home', () => {
+    it('conta nova: sugere a primeira lição, e o botão abre o primeiro passo dela', async () => {
+        const rotas = await abrirEm('/');
+        const user = userEvent.setup();
 
-        it.each(['/cartao/mda', '/bloco/pratica?topicId=mda', '/bloco/pratica'])(
-            '%s volta para a home, sem mostrar o conteúdo',
-            async (url) => {
-                const rotas = await abrirEm(url);
+        expect(await screen.findByText('Framework MDA')).toBeOnTheScreen();
+        expect(screen.getByText('Lição nova')).toBeOnTheScreen();
+        await user.press(botao('Começar'));
 
-                expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-                expect(rotas.caminho()).toBe('/');
-                expect(screen.queryByText('Enunciado de mda_p1')).toBeNull();
-            }
-        );
-
-        it('/bloco/reteste volta para a home: o reteste ainda não abriu', async () => {
-            await foraDeDesenvolvimento(async () => {
-                const rotas = await abrirEm('/bloco/reteste');
-
-                expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-                expect(rotas.caminho()).toBe('/');
-                expect(screen.queryByText('Enunciado de mda_b1')).toBeNull();
-            });
-        });
-
-        it('em desenvolvimento, o link do reteste abre fora da etapa, para dar para testar', async () => {
-            await abrirEm('/bloco/reteste');
-
-            expect(await screen.findByText('Enunciado de mda_b1')).toBeOnTheScreen();
-        });
-
-        it('a home mostra a contagem, as datas e o botão do resultado do dia 1', async () => {
-            await abrirEm('/');
-
-            expect(await screen.findByText('Seu reteste abre em')).toBeOnTheScreen();
-            expect(screen.getByText('7 dias')).toBeOnTheScreen();
-            expect(screen.getByText(/^Abre n[ao] .+, \d\d\/\d\d, e fica disponível até .+, \d\d\/\d\d\.$/)).toBeOnTheScreen();
-            expect(screen.getByRole('button', { name: 'Ver meu resultado do dia 1' })).toBeEnabled();
-        });
-
-        it('o botão da home leva ao resultado do dia 1, com os tópicos travados', async () => {
-            const rotas = await abrirEm('/');
-
-            await userEvent.setup().press(await screen.findByRole('button', { name: 'Ver meu resultado do dia 1' }));
-
-            expect(await screen.findByText('Travados até o reteste')).toBeOnTheScreen();
-            expect(rotas.caminho()).toBe('/dia-1');
-            expect(screen.getByLabelText('Framework MDA, travado')).toBeOnTheScreen();
-        });
-
-        // O app fica dias na memória do celular. Quem volta no dia do reteste não troca de tela,
-        // então a home precisa refazer a conta ao voltar a ficar ativa.
-        it('quem deixou o app aberto e volta depois da liberação encontra o reteste', async () => {
-            const ouvintes: ((estado: AppStateStatus) => void)[] = [];
-            jest.spyOn(AppState, 'addEventListener').mockImplementation((_evento, ouvinte) => {
-                ouvintes.push(ouvinte as (estado: AppStateStatus) => void);
-                return { remove: () => {} };
-            });
-            await abrirEm('/');
-            await screen.findByText('Seu reteste abre em');
-
-            jest.setSystemTime(Date.now() + 8 * 24 * 60 * 60 * 1000);
-            await act(async () => {
-                ouvintes.forEach((ouvinte) => ouvinte('active'));
-            });
-
-            expect(await screen.findByText('Reteste · 0 de 1')).toBeOnTheScreen();
-            expect(screen.queryByText('Seu reteste abre em')).toBeNull();
-            jest.restoreAllMocks();
-        });
-
-        it('em desenvolvimento, a exceção não vale para a prática', async () => {
-            const rotas = await abrirEm('/bloco/pratica?topicId=mda');
-
-            expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-            expect(rotas.caminho()).toBe('/');
-        });
+        expect(await screen.findByText('Enunciado de mda_a1')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/mda/diagnostico');
+        // Sair do passo volta para a lição, e não direto para a home.
+        await user.press(botao('Sair do bloco'));
+        expect(await screen.findByLabelText('Diagnóstico, agora, 1 questão')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/mda');
     });
 
-    describe('no estudo do tópico', () => {
-        beforeEach(() => responder('pre', 'mda_a1'));
+    it('sem o termo aceito, o botão leva à página da lição, que explica o termo', async () => {
+        mockSessao.perfil = { ...COM_TERMO, formaPre: undefined, consentiuEm: undefined };
+        const rotas = await abrirEm('/');
 
-        it('/bloco/pratica?topicId=mda abre a prática', async () => {
-            await abrirEm('/bloco/pratica?topicId=mda');
+        await userEvent.setup().press(await screen.findByRole('button', { name: 'Começar' }));
 
-            expect(await screen.findByText('Enunciado de mda_p1')).toBeOnTheScreen();
-        });
-
-        it('/bloco/pos volta para a home: falta estudar', async () => {
-            await foraDeDesenvolvimento(async () => {
-                const rotas = await abrirEm('/bloco/pos');
-
-                expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-                expect(rotas.caminho()).toBe('/');
-            });
-        });
-
-        it('/dia-1 volta para a home: o resultado só existe depois do pós', async () => {
-            const rotas = await abrirEm('/dia-1');
-
-            expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-            expect(rotas.caminho()).toBe('/');
-            expect(screen.queryByText('Travados até o reteste')).toBeNull();
-        });
-
-        it('o cartão de outro tópico volta para a home', async () => {
-            const rotas = await abrirEm('/cartao/engine');
-
-            expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-            expect(rotas.caminho()).toBe('/');
-        });
+        expect(await screen.findByText(/você lê e aceita o termo/)).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/mda');
     });
-});
 
-// Depois do pós-teste, um tópico novo por dia, fora da medição (item 23).
-describe('a trilha diária', () => {
-    const DIA = 24 * 60 * 60 * 1000;
+    it('lição pela metade vem antes de uma lição nova, e diz onde a pessoa parou', async () => {
+        responder('pratica', 'gdd_p1');
+        repo.questoes.push(questao('gdd_p2', 'pratica', 2, 'gdd'));
+        const rotas = await abrirEm('/');
 
-    function terminarODia1(quando: number) {
-        responder('pre', 'mda_a1', quando);
-        responder('pratica', 'mda_p1', quando);
-        responder('pos', 'mda_b1', quando);
-    }
+        expect(await screen.findByText('GDD')).toBeOnTheScreen();
+        expect(screen.getByText('Cartão e prática · 1 de 2')).toBeOnTheScreen();
+        await userEvent.setup().press(botao('Continuar a prática'));
 
-    it('no dia do pós, a home avisa que a trilha começa amanhã', async () => {
-        terminarODia1(Date.now());
+        expect(await screen.findByText('Enunciado de gdd_p2')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/gdd/pratica');
+    });
+
+    it('revisão que venceu vem antes de tudo', async () => {
+        mdaAteAVerificacao(Date.now() - 7 * DIA);
+        responder('pratica', 'gdd_p1');
+        repo.questoes.push(questao('gdd_p2', 'pratica', 2, 'gdd'));
+        const rotas = await abrirEm('/');
+
+        expect(await screen.findByText('Revisão de Framework MDA')).toBeOnTheScreen();
+        await userEvent.setup().press(botao('Fazer a revisão'));
+
+        expect(await screen.findByText('Enunciado de mda_b1')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/mda/revisao');
+    });
+
+    it('com tudo feito e uma revisão por vir, está em dia, sem botão, e lista a revisão agendada', async () => {
+        mdaAteAVerificacao(Date.now() - 2 * DIA);
+        responder('pratica', 'gdd_p1');
+        responder('pratica', 'ux_p1');
         await abrirEm('/');
 
-        expect(await screen.findByText('Começa amanhã.')).toBeOnTheScreen();
-        expect(screen.getByText('Primeiro tópico: GDD.')).toBeOnTheScreen();
+        expect(await screen.findByText('Tudo em dia')).toBeOnTheScreen();
+        expect(screen.getByText('Próxima revisão: Framework MDA, em 5 dias.')).toBeOnTheScreen();
+        expect(screen.getByText('Revisões agendadas')).toBeOnTheScreen();
+        expect(screen.getByLabelText('Framework MDA, em 5 dias')).toBeOnTheScreen();
         expect(screen.queryByRole('button', { name: 'Começar' })).toBeNull();
     });
 
-    it('no dia seguinte, a home mostra o tópico de hoje, e o resultado do dia 1 continua à mão', async () => {
-        terminarODia1(Date.now() - DIA);
+    it('sem revisão agendada, a seção das revisões não aparece', async () => {
+        await abrirEm('/');
+        await screen.findByText('Para hoje');
+
+        expect(screen.queryByText('Revisões agendadas')).toBeNull();
+    });
+
+    it('com todas as lições concluídas, diz isso', async () => {
+        mdaAteAVerificacao(Date.now() - 8 * DIA);
+        responder('reteste', 'mda_b1');
+        responder('pratica', 'gdd_p1');
+        responder('pratica', 'ux_p1');
         await abrirEm('/');
 
-        expect(await screen.findByText('Tópico de hoje')).toBeOnTheScreen();
-        expect(screen.getByText('GDD')).toBeOnTheScreen();
-        expect(screen.getByRole('button', { name: 'Começar' })).toBeOnTheScreen();
-        expect(screen.getByRole('button', { name: 'Ver meu resultado do dia 1' })).toBeOnTheScreen();
+        expect(await screen.findByText('Você concluiu todas as lições.')).toBeOnTheScreen();
     });
 
-    it('do Começar ao fim do tópico: prática, tela da sequência e volta para a home', async () => {
-        terminarODia1(Date.now() - DIA);
-        const rotas = await abrirEm('/');
-        const user = userEvent.setup();
-        // A resposta de agora é gravada com o horário de hoje, como o servidor faria.
-        repo.acertarRelogio(Date.now());
+    // O app fica dias na memória do celular. Quem volta no dia da revisão não troca de tela,
+    // então a home precisa refazer a conta ao voltar a ficar ativa.
+    it('quem deixou o app aberto e volta no dia da revisão encontra a revisão', async () => {
+        const ouvintes: ((estado: AppStateStatus) => void)[] = [];
+        jest.spyOn(AppState, 'addEventListener').mockImplementation((_evento, ouvinte) => {
+            ouvintes.push(ouvinte as (estado: AppStateStatus) => void);
+            return { remove: () => {} };
+        });
+        mdaAteAVerificacao();
+        responder('pratica', 'gdd_p1');
+        responder('pratica', 'ux_p1');
+        await abrirEm('/');
+        await screen.findByText('Tudo em dia');
 
-        // Pré, prática e pós do dia 1, um acerto em Palpite cada: +3.
-        expect(await screen.findByText('XP: +3')).toBeOnTheScreen();
+        jest.setSystemTime(Date.now() + 8 * DIA);
+        await act(async () => {
+            ouvintes.forEach((ouvinte) => ouvinte('active'));
+        });
 
-        await user.press(await screen.findByRole('button', { name: 'Começar' }));
-        // O tópico de teste não tem cartão, então a prática abre direto.
-        expect(await screen.findByText('Enunciado de gdd_p1')).toBeOnTheScreen();
-
-        await user.press(screen.getByRole('radio', { name: /Certa/ }));
-        await user.press(screen.getByRole('radio', { name: 'Tenho certeza' }));
-        await user.press(screen.getByRole('button', { name: 'Confirmar' }));
-        await user.press(await screen.findByRole('button', { name: 'Concluir' }));
-
-        // Ontem (o dia 1) e hoje: dois dias seguidos.
-        expect(await screen.findByText('Sequência mantida!')).toBeOnTheScreen();
-        expect(screen.getByLabelText('2 dias seguidos')).toBeOnTheScreen();
-        // Um acerto com certeza: +3.
-        expect(screen.getByText('Você acertou 1 de 1 questões de GDD · +3 XP')).toBeOnTheScreen();
-        expect(screen.getByText('UX/UI em jogos')).toBeOnTheScreen();
-        expect(screen.getByText('Libera amanhã. Volte para manter a sequência.')).toBeOnTheScreen();
-
-        await user.press(screen.getByRole('button', { name: 'Voltar para o início' }));
-
-        expect(await screen.findByText('Feito por hoje.')).toBeOnTheScreen();
-        expect(screen.getByText('Próximo: UX/UI em jogos. Libera amanhã.')).toBeOnTheScreen();
-        // O tópico de hoje já entrou no total.
-        expect(screen.getByText('XP: +6')).toBeOnTheScreen();
-        expect(rotas.caminho()).toBe('/');
+        expect(await screen.findByText('Revisão de Framework MDA')).toBeOnTheScreen();
+        jest.restoreAllMocks();
     });
 
-    it('o tópico de amanhã não abre pela URL', async () => {
-        terminarODia1(Date.now() - DIA);
-        const rotas = await abrirEm('/bloco/pratica?topicId=ux');
+    it('se a leitura falha, avisa e deixa tentar de novo', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        repo.falhaAoCarregar = true;
+        await abrirEm('/');
+        expect(await screen.findByText(/Não foi possível carregar as lições/)).toBeOnTheScreen();
 
-        expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-        expect(rotas.caminho()).toBe('/');
-        expect(screen.queryByText('Enunciado de ux_p1')).toBeNull();
-    });
+        repo.falhaAoCarregar = false;
+        await userEvent.setup().press(botao('Tentar de novo'));
 
-    it('antes do pós, o tópico da trilha não abre pela URL', async () => {
-        responder('pre', 'mda_a1');
-        const rotas = await abrirEm('/cartao/gdd');
-
-        expect(await screen.findByText('Olá, Tiago')).toBeOnTheScreen();
-        expect(rotas.caminho()).toBe('/');
+        expect(await screen.findByText('Framework MDA')).toBeOnTheScreen();
+        jest.restoreAllMocks();
     });
 });
 
+describe('os selos da home', () => {
+    it('sem nada à vista, não há total de XP nem sequência', async () => {
+        await abrirEm('/');
+        await screen.findByText('Para hoje');
+
+        expect(screen.queryByText(/^XP:/)).toBeNull();
+        expect(screen.queryByText(/^Sequência:/)).toBeNull();
+    });
+
+    it('com o diagnóstico feito e a lição pela metade, o total continua escondido: ele revelaria o acerto', async () => {
+        responder('pre', 'mda_a1');
+        await abrirEm('/');
+        await screen.findByText('Sequência: 1 dia');
+
+        expect(screen.queryByText(/^XP:/)).toBeNull();
+    });
+
+    it('a prática entra no total na hora, e a sequência conta o dia de hoje', async () => {
+        // A resposta do teste é um acerto em Palpite: +1.
+        responder('pratica', 'gdd_p1');
+        await abrirEm('/');
+
+        expect(await screen.findByText('XP: +1')).toBeOnTheScreen();
+        expect(screen.getByText('Sequência: 1 dia')).toBeOnTheScreen();
+    });
+});
+
+describe('os atalhos da home', () => {
+    it.each([
+        ['Lições', '/licoes'],
+        ['Progresso', '/progresso'],
+        ['Perfil', '/perfil'],
+    ])('%s está liberado e abre a sua tela', async (nome, caminho) => {
+        const rotas = await abrirEm('/');
+
+        await userEvent.setup().press(await screen.findByRole('button', { name: new RegExp(`^${nome}`) }));
+
+        expect(rotas.caminho()).toBe(caminho);
+    });
+
+    it('Lições diz quantas já foram feitas', async () => {
+        responder('pratica', 'gdd_p1');
+        await abrirEm('/');
+
+        expect(await screen.findByRole('button', { name: 'Lições, 1 de 3 feita' })).toBeOnTheScreen();
+    });
+});
+
+// O roteiro do piloto saiu inteiro da home e das rotas (item 30).
+describe('o que saiu com o roteiro do piloto', () => {
+    it('a home não fala mais em pré-teste, pós-teste, reteste nem dia 1', async () => {
+        mdaAteAVerificacao();
+        await abrirEm('/');
+        await screen.findByText('Para hoje');
+
+        for (const texto of [/Pré-teste/, /Pós-teste/, /Reteste/, /Continuar estudos/, /resultado do dia 1/, /Desenvolvimento/, /Próxima etapa/]) {
+            expect(screen.queryByText(texto)).toBeNull();
+        }
+        expect(screen.queryByText('Sair')).toBeNull();
+    });
+
+    it.each(['/bloco/pre', '/bloco/pratica?topicId=mda', '/cartao/mda', '/dia-1'])(
+        '%s não existe mais',
+        async (url) => {
+            await abrirEm(url);
+
+            expect(await screen.findByText('Essa página não existe.')).toBeOnTheScreen();
+            expect(screen.queryByText(/Enunciado de/)).toBeNull();
+        }
+    );
+});

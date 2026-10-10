@@ -56,10 +56,15 @@ export function inicioDoDia(dia: number): number {
     return dia * DIA_MS - FUSO_MS;
 }
 
-/** Dia da semana (0 = domingo), dia e mês de um instante, no mesmo fuso fixo do roteiro. */
-export function dataEmSaoLuis(ms: number): { diaDaSemana: number; dia: number; mes: number } {
+/** Dia da semana (0 = domingo), dia, mês e ano de um instante, no mesmo fuso fixo do roteiro. */
+export function dataEmSaoLuis(ms: number): { diaDaSemana: number; dia: number; mes: number; ano: number } {
     const local = new Date(ms + FUSO_MS);
-    return { diaDaSemana: local.getUTCDay(), dia: local.getUTCDate(), mes: local.getUTCMonth() + 1 };
+    return {
+        diaDaSemana: local.getUTCDay(),
+        dia: local.getUTCDate(),
+        mes: local.getUTCMonth() + 1,
+        ano: local.getUTCFullYear(),
+    };
 }
 
 /**

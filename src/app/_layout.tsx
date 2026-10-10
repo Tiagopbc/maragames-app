@@ -5,13 +5,15 @@ import { Lexend_700Bold } from '@expo-google-fonts/lexend/700Bold';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SessionProvider, useSession } from '@/lib/session';
+import { carregarPreferenciaDeTema } from '@/lib/tema';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,9 +27,17 @@ export default function RootLayout() {
     [Fonts.bold]: Lexend_700Bold,
   });
 
-  // A tela de abertura do aparelho segura até a fonte chegar, para o texto não trocar de fonte à
-  // vista. Se a carga falhar, o app abre com a fonte do aparelho em vez de travar.
-  const pronto = fontesProntas || !!erroNasFontes;
+  // A escolha de tema feita no Perfil fica no aparelho. Ler é rápido, e a função não falha:
+  // sem conseguir ler, vale o tema do aparelho.
+  const [temaLido, setTemaLido] = useState(false);
+  useEffect(() => {
+    carregarPreferenciaDeTema().then(() => setTemaLido(true));
+  }, []);
+
+  // A tela de abertura do aparelho segura até a fonte e o tema chegarem, para o texto não trocar
+  // de fonte nem a tela de cor à vista. Se a fonte falhar, o app abre com a do aparelho em vez
+  // de travar.
+  const pronto = (fontesProntas || !!erroNasFontes) && temaLido;
   useEffect(() => {
     if (pronto) SplashScreen.hide();
   }, [pronto]);
@@ -36,6 +46,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      {/* A barra do aparelho acompanha o tema escolhido no app, e não o do sistema: com o tema
+          escuro forçado num aparelho em claro, os ícones escuros sumiriam no fundo. */}
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       <SessionProvider>
         <RootNavigator />
       </SessionProvider>

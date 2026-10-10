@@ -1,247 +1,224 @@
 import { useCallback } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
-import { BotaoSecundario } from '@/components/botao-secundario';
-import { CartaoDaTrilha } from '@/components/trilha/cartao-da-trilha';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import {
   TEXTOS,
-  TITULO_DA_FASE,
-  contagemDoReteste,
-  descreverEtapa,
+  detalheDaSugestao,
+  emQuantosDias,
+  formatarSequencia,
   formatarXpTotal,
-  janelaDoReteste,
+  licoesFeitas,
+  proximaRevisao,
+  rotuloDoBotaoDaLicao,
+  tituloDaSugestao,
 } from '@/constants/textos';
 import { useAoVoltarAoApp } from '@/hooks/use-ao-voltar-ao-app';
-import { useRoteiro } from '@/hooks/use-roteiro';
+import { useLicoes, type EstadoDasLicoes, type LicaoDoAluno } from '@/hooks/use-licoes';
 import { useTheme } from '@/hooks/use-theme';
+import { destinoDaLicao } from '@/lib/licao';
 import { participanteDoRoteiro } from '@/lib/participante';
-import { destinoDaEtapa, destinoDaTrilha, type Destino } from '@/lib/passo';
 import { useSession } from '@/lib/session';
-import type { Fase } from '@/types/domain';
+
+type LicoesProntas = Extract<EstadoDasLicoes, { tipo: 'pronto' }>;
 
 type Atalho = {
   id: string;
   titulo: string;
   icone: keyof typeof Ionicons.glyphMap;
-  travado: boolean; // no piloto, só o roteiro guiado fica aberto (item 6)
+  rota: '/licoes' | '/progresso' | '/perfil';
+  // Um número pequeno que resume a área, quando há o que dizer.
+  resumo?: (licoes: LicoesProntas) => string;
 };
 
-// Os atalhos são dados: destravar uma trilha depois do piloto é mudar `travado` aqui, e
-// acrescentar ou reordenar é mexer nesta lista, sem tocar no layout.
+// Feita é a lição que já passou da verificação (ou, no ciclo curto, da prática).
+const FEITA: readonly LicaoDoAluno['estado']['tipo'][] = ['aguardando_revisao', 'revisao', 'concluida'];
+
+// Os atalhos são dados: acrescentar ou reordenar é mexer nesta lista, sem tocar no layout (item 6).
 const ATALHOS: Atalho[] = [
-  { id: 'licoes', titulo: 'Lições', icone: 'book', travado: true },
-  { id: 'progresso', titulo: 'Progresso', icone: 'stats-chart', travado: true },
-  { id: 'perfil', titulo: 'Perfil', icone: 'person', travado: true },
+  {
+    id: 'licoes',
+    titulo: 'Lições',
+    icone: 'book',
+    rota: '/licoes',
+    resumo: ({ licoes }) => licoesFeitas(licoes.filter((l) => FEITA.includes(l.estado.tipo)).length, licoes.length),
+  },
+  { id: 'progresso', titulo: 'Progresso', icone: 'stats-chart', rota: '/progresso' },
+  { id: 'perfil', titulo: 'Perfil', icone: 'person', rota: '/perfil' },
 ];
 
-// Só em desenvolvimento: abre um bloco medido sem esperar o roteiro chegar nele (o reteste só
-// abre sozinho 7 dias depois do pós). Exige o termo aceito e grava respostas de verdade na conta logada.
-const BLOCOS_MEDIDOS: Exclude<Fase, 'pratica'>[] = ['pre', 'pos', 'reteste'];
-
 export default function HomeScreen() {
-  const { sair, perfil, user } = useSession();
+  const { perfil, user } = useSession();
   const theme = useTheme();
   const router = useRouter();
 
-  // A etapa não é guardada em lugar nenhum: sai das respostas, a cada vez que a home aparece.
-  const { estado, recarregar } = useRoteiro({
-    uid: user?.uid ?? '',
-    participante: participanteDoRoteiro(perfil),
-  });
+  const { formaPre } = participanteDoRoteiro(perfil);
+  // Nada é guardado: as lições saem das respostas, a cada vez que a home aparece.
+  const { estado, recarregar } = useLicoes({ uid: user?.uid ?? '', formaPre });
 
-  // Roda quando a home ganha foco, inclusive na volta de um bloco, e não só na primeira vez.
+  // Roda quando a home ganha foco, inclusive na volta de uma lição, e não só na primeira vez.
   useFocusEffect(
     useCallback(() => {
       recarregar();
     }, [recarregar])
   );
-
-  function abrir(destino: Destino) {
-    if (destino.tipo === 'consentimento') {
-      router.push('/consentimento');
-      return;
-    }
-    if (destino.tipo === 'cartao') {
-      router.push({ pathname: '/cartao/[topicId]', params: { topicId: destino.topicId } });
-      return;
-    }
-    if (destino.tipo === 'dia1') {
-      router.push('/dia-1');
-      return;
-    }
-    const { fase, topicId } = destino;
-    router.push({ pathname: '/bloco/[fase]', params: topicId ? { fase, topicId } : { fase } });
-  }
-
-  // E quando o app volta do segundo plano: a contagem do reteste depende do dia, e quem deixou
-  // o app aberto e volta no dia da liberação não troca de tela.
+  // E quando o app volta do segundo plano: a revisão abre pela virada do dia, e quem deixou o
+  // app aberto e volta no dia dela não troca de tela.
   useAoVoltarAoApp(recarregar);
 
-  const destino = estado.tipo === 'pronto' ? destinoDaEtapa(estado.etapa) : null;
-  // Na espera do reteste, o cartão da próxima etapa vira a contagem dos dias (M5).
-  const espera = estado.tipo === 'pronto' && estado.etapa.tipo === 'espera' ? estado.etapa : null;
-  const contagem = espera && contagemDoReteste(espera.diasRestantes);
-  // A trilha diária corre ao lado do roteiro, do fim do pós em diante (item 23).
-  const trilha = estado.tipo === 'pronto' ? estado.trilha : null;
-  const destinoDoTopico = trilha ? destinoDaTrilha(trilha) : null;
-  // Na espera, com tópico para hoje, a ação do dia é o tópico: o resultado do dia 1 vira o botão
-  // de contorno. Fora da espera, a ação do roteiro (o reteste, por exemplo) continua na frente.
-  const topicoNaFrente = espera !== null && destinoDoTopico !== null;
-  // O total de XP, do primeiro bloco concluído em diante (item 14).
-  const xp = estado.tipo === 'pronto' ? estado.xp : null;
+  const pronto = estado.tipo === 'pronto' ? estado : null;
+  const sugestao = pronto?.sugestao;
+  // A lição que o Para hoje aponta: a da revisão, a que ficou pela metade ou a próxima nova.
+  const sugerida =
+    pronto && sugestao && (sugestao.tipo === 'revisao' || sugestao.tipo === 'continuar' || sugestao.tipo === 'nova')
+      ? pronto.licoes.find((l) => l.topicId === sugestao.topicId)
+      : undefined;
+  const agendadas = (pronto?.licoes ?? [])
+    .flatMap((l) => (l.estado.tipo === 'aguardando_revisao' ? [{ ...l, estado: l.estado }] : []))
+    .sort((a, b) => a.estado.liberaEm - b.estado.liberaEm);
+
+  function abrirSugerida(licao: LicaoDoAluno) {
+    const { topicId } = licao;
+    const destino = destinoDaLicao(licao, formaPre !== null);
+
+    // A página da lição entra primeiro na pilha: sair do passo volta para ela, e não para a home.
+    router.push({ pathname: '/licoes/[topicId]', params: { topicId } });
+    // Sem o termo aceito, quem explica o que falta é a página da lição.
+    if (!destino || destino.tipo === 'termo') return;
+    if (destino.passo === 'cartao') router.push({ pathname: '/licoes/[topicId]/cartao', params: { topicId } });
+    else router.push({ pathname: '/licoes/[topicId]/[passo]', params: { topicId, passo: destino.passo } });
+  }
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        {/* Com a contagem do reteste e a trilha diária, a home passa da altura de um celular. */}
         <ScrollView contentContainerStyle={styles.conteudo} showsVerticalScrollIndicator={false}>
-        <View style={styles.saudacao}>
-          <View style={styles.topo}>
-            <ThemedText type="title" style={styles.ola}>
-              Olá, {perfil?.apelido}
-            </ThemedText>
-            {xp !== null && (
-              <View style={[styles.selo, { backgroundColor: theme.backgroundSelected }]}>
-                <ThemedText type="smallBold" themeColor="primaria">
-                  {formatarXpTotal(xp)}
+          <View style={styles.saudacao}>
+            <View style={styles.topo}>
+              <ThemedText type="title" style={styles.ola}>
+                Olá, {perfil?.apelido}
+              </ThemedText>
+              {pronto && pronto.xp !== null && (
+                <View style={[styles.selo, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold" themeColor="primaria">
+                    {formatarXpTotal(pronto.xp)}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+            <ThemedText themeColor="textSecondary">O que vamos estudar hoje?</ThemedText>
+          </View>
+
+          {/* Para hoje: a trilha diária como sugestão, um passo só, sem limite por dia (item 30). */}
+          <View style={[styles.cartao, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
+            <View style={styles.topo}>
+              <ThemedText type="smallBold" themeColor="primaria" style={styles.ola}>
+                {TEXTOS.paraHoje}
+              </ThemedText>
+              {pronto && pronto.sequencia > 0 && (
+                <View style={[styles.selo, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold" themeColor="primaria">
+                    {formatarSequencia(pronto.sequencia)}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+
+            {estado.tipo === 'carregando' && <ActivityIndicator />}
+
+            {estado.tipo === 'erro' && (
+              <>
+                <ThemedText type="small" themeColor="erro">
+                  {TEXTOS.erroAoCarregarLicoes}
                 </ThemedText>
-              </View>
+                <BotaoPrincipal rotulo={TEXTOS.tentarDeNovo} onPress={recarregar} />
+              </>
+            )}
+
+            {sugerida && (
+              <>
+                <ThemedText style={styles.titulo}>{tituloDaSugestao(sugerida.titulo, sugerida.estado)}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {detalheDaSugestao(sugerida.estado)}
+                </ThemedText>
+                <BotaoPrincipal rotulo={rotuloDoBotaoDaLicao(sugerida.estado)} onPress={() => abrirSugerida(sugerida)} />
+              </>
+            )}
+
+            {sugestao?.tipo === 'em_dia' && (
+              <>
+                <ThemedText style={styles.titulo}>{TEXTOS.tudoEmDia}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {proximaRevisao(
+                    pronto?.licoes.find((l) => l.topicId === sugestao.topicId)?.titulo ?? '',
+                    sugestao.diasRestantes
+                  )}
+                </ThemedText>
+              </>
+            )}
+
+            {sugestao?.tipo === 'tudo_concluido' && (
+              <ThemedText style={styles.titulo}>{TEXTOS.todasAsLicoesConcluidas}</ThemedText>
             )}
           </View>
-          <ThemedText themeColor="textSecondary">
-            O que vamos estudar hoje?
-          </ThemedText>
-        </View>
 
-        <View
-          style={[styles.proximaEtapa, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
-          <ThemedText type="small" themeColor="textSecondary">
-            {contagem ? contagem.rotulo : TEXTOS.proximaEtapa}
-          </ThemedText>
-
-          {estado.tipo === 'erro' ? (
-            <>
-              <ThemedText type="small" themeColor="erro">
-                {TEXTOS.erroAoCarregarRoteiro}
+          {agendadas.length > 0 && (
+            <View style={styles.secao}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {TEXTOS.revisoesAgendadas}
               </ThemedText>
-              <BotaoPrincipal rotulo={TEXTOS.tentarDeNovo} onPress={recarregar} />
-            </>
-          ) : (
-            <>
-              {espera && contagem ? (
-                <>
-                  <ThemedText style={styles.contagem}>{contagem.destaque}</ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {janelaDoReteste(espera.liberaEm, espera.ultimoDiaEm)}
-                  </ThemedText>
-                </>
-              ) : (
-                estado.tipo === 'pronto' && (
-                  <ThemedText>{descreverEtapa(estado.etapa, estado.nomeDoTopico)}</ThemedText>
-                )
-              )}
-              {/* Sem destino (SUS ainda sem tela, roteiro concluído), o botão fica apagado. */}
-              {topicoNaFrente ? (
-                <BotaoSecundario
-                  rotulo={TEXTOS.verResultadoDoDia1}
-                  onPress={() => {
-                    if (destino) abrir(destino);
-                  }}
-                />
-              ) : (
-                <BotaoPrincipal
-                  rotulo={espera ? TEXTOS.verResultadoDoDia1 : TEXTOS.continuarEstudos}
-                  carregando={estado.tipo === 'carregando'}
-                  desabilitado={estado.tipo === 'pronto' && !destino}
-                  onPress={() => {
-                    if (destino) abrir(destino);
-                  }}
-                />
-              )}
-            </>
-          )}
-        </View>
-
-        {estado.tipo === 'pronto' && (
-          <CartaoDaTrilha
-            trilha={estado.trilha}
-            sequencia={estado.sequencia}
-            nomes={estado.nomes}
-            principal={topicoNaFrente}
-            aoAbrir={() => {
-              if (destinoDoTopico) abrir(destinoDoTopico);
-            }}
-          />
-        )}
-
-        <ThemedText type="small" themeColor="textSecondary">
-          {TEXTOS.trilhas}
-        </ThemedText>
-
-        <View style={styles.grade}>
-          {ATALHOS.map((item) => (
-            <Pressable
-              key={item.id}
-              accessibilityRole="button"
-              accessibilityLabel={item.travado ? `${item.titulo}, ${TEXTOS.trilhaTravada}` : item.titulo}
-              disabled={item.travado}
-              onPress={() => console.log(item.id)}
-              style={({ pressed }) => [
-                styles.card,
-                {
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.borda,
-                  // Travada: o cartão inteiro esmaece e o conteúdo fica em cinza.
-                  opacity: item.travado ? 0.5 : pressed ? 0.6 : 1,
-                },
-              ]}>
-              {item.travado && (
-                <Ionicons
-                  name="lock-closed"
-                  size={16}
-                  color={theme.textSecondary}
-                  style={styles.cadeado}
-                />
-              )}
-              <Ionicons
-                name={item.icone}
-                size={36}
-                color={item.travado ? theme.textSecondary : theme.text}
-              />
-              <ThemedText type="smallBold" themeColor={item.travado ? 'textSecondary' : 'text'}>
-                {item.titulo}
-              </ThemedText>
-            </Pressable>
-          ))}
-        </View>
-
-        {__DEV__ && (
-          <View style={styles.desenvolvimento}>
-            <ThemedText type="small" themeColor="textSecondary">
-              Desenvolvimento: abrir bloco medido
-            </ThemedText>
-            <View style={styles.linha}>
-              {BLOCOS_MEDIDOS.map((fase) => (
-                <Pressable key={fase} accessibilityRole="button" onPress={() => abrir({ tipo: 'bloco', fase })}>
-                  <ThemedText type="linkPrimary">{TITULO_DA_FASE[fase]}</ThemedText>
-                </Pressable>
-              ))}
+              {/* Sem botão: a revisão que vence sobe sozinha para o Para hoje. */}
+              {agendadas.map((licao) => {
+                const quando = emQuantosDias(licao.estado.diasRestantes);
+                return (
+                  <View
+                    key={licao.topicId}
+                    accessible
+                    accessibilityLabel={`${licao.titulo}, ${quando}`}
+                    style={styles.agendada}>
+                    <Ionicons name="time-outline" size={18} color={theme.textSecondary} />
+                    <ThemedText style={styles.ola}>{licao.titulo}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {quando}
+                    </ThemedText>
+                  </View>
+                );
+              })}
             </View>
+          )}
+
+          <View style={styles.grade}>
+            {ATALHOS.map((item) => {
+              const resumo = pronto && item.resumo ? item.resumo(pronto) : null;
+              return (
+                <Pressable
+                  key={item.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={resumo ? `${item.titulo}, ${resumo}` : item.titulo}
+                  onPress={() => router.push(item.rota)}
+                  style={({ pressed }) => [
+                    styles.card,
+                    { backgroundColor: theme.backgroundElement, borderColor: theme.borda, opacity: pressed ? 0.6 : 1 },
+                  ]}>
+                  <Ionicons name={item.icone} size={32} color={theme.primaria} />
+                  <ThemedText type="smallBold" style={styles.noCentro}>
+                    {item.titulo}
+                  </ThemedText>
+                  {resumo && (
+                    <ThemedText type="small" themeColor="textSecondary" style={styles.noCentro}>
+                      {resumo}
+                    </ThemedText>
+                  )}
+                </Pressable>
+              );
+            })}
           </View>
-        )}
-
-        <View style={{ flex: 1 }} />
-
-        <Pressable accessibilityRole="button" onPress={sair} style={styles.sair}>
-          <ThemedText type="linkPrimary">{TEXTOS.sair}</ThemedText>
-        </Pressable>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -258,12 +235,11 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: MaxContentWidth,
   },
-  // `flexGrow` deixa o "Sair" no pé da tela quando o conteúdo é curto; quando é longo, rola.
   conteudo: {
     flexGrow: 1,
     paddingTop: Spacing.four,
     paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.three,
+    paddingBottom: Spacing.four,
     alignItems: 'stretch',
     gap: Spacing.three,
   },
@@ -276,54 +252,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: Spacing.two,
   },
-  // Apelido comprido quebra a linha em vez de empurrar o selo para fora da tela.
+  // Texto comprido quebra a linha em vez de empurrar o selo para fora da tela.
   ola: {
     flexShrink: 1,
+    flexGrow: 1,
   },
   selo: {
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.two,
     borderRadius: 999,
   },
-  proximaEtapa: {
+  cartao: {
     gap: Spacing.two,
     padding: Spacing.three,
     borderRadius: 16,
     borderWidth: 1,
   },
-  contagem: {
-    fontSize: 40,
-    lineHeight: 46,
-    fontWeight: 700,
+  titulo: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: 600,
+  },
+  secao: {
+    gap: Spacing.two,
+  },
+  agendada: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    minHeight: 28,
   },
   grade: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.three,
+    gap: Spacing.two,
   },
+  noCentro: {
+    textAlign: 'center',
+  },
+  // Três atalhos lado a lado, com a mesma largura.
   card: {
-    width: '47%',
-    height: 140,
+    flex: 1,
+    minHeight: 112,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.one,
     borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.two,
-  },
-  cadeado: {
-    position: 'absolute',
-    top: Spacing.three,
-    right: Spacing.three,
-  },
-  desenvolvimento: {
     gap: Spacing.one,
-  },
-  linha: {
-    flexDirection: 'row',
-    gap: Spacing.four,
-  },
-  sair: {
-    alignSelf: 'center',
-    paddingHorizontal: Spacing.three,
   },
 });

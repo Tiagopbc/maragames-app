@@ -3,10 +3,13 @@
 // aluno lê mora aqui, ligado a esse valor, então trocar um rótulo não altera dado nem análise.
 
 import type { Confianca, Fase } from '../types/domain';
+import type { EstadoDaLicao, EtapaDaLicao, SituacaoDaEtapa } from '../lib/licao';
 import type { Falta } from '../lib/pergunta';
+import type { Taxa } from '../lib/resultado';
+import type { PreferenciaDeTema } from '../lib/tema';
 import type { Quadrante } from '../lib/quadrante';
 import { ORDEM_DE_REVISAO } from '../lib/resultado';
-import { dataEmSaoLuis, type Etapa } from '../lib/roteiro';
+import { dataEmSaoLuis } from '../lib/roteiro';
 
 // Ordem em que os níveis aparecem na tela, do menor para o maior.
 export const NIVEIS_DE_CONFIANCA: readonly Confianca[] = [1, 2, 3];
@@ -46,6 +49,28 @@ export const TITULO_DA_FASE: Record<Exclude<Fase, 'pratica'>, string> = {
     reteste: 'Reteste',
 };
 
+// Dentro de uma lição, os mesmos blocos têm o nome do que fazem por ela (item 30). A fase
+// gravada no dado não muda.
+export const TITULO_DA_FASE_NA_LICAO: Record<Exclude<Fase, 'pratica'>, string> = {
+    pre: 'Diagnóstico',
+    pos: 'Verificação',
+    reteste: 'Revisão',
+};
+
+export const TITULO_DA_ETAPA: Record<EtapaDaLicao, string> = {
+    diagnostico: 'Diagnóstico',
+    estudo: 'Cartão e prática',
+    verificacao: 'Verificação',
+    revisao: 'Revisão',
+};
+
+export const SITUACAO_DA_ETAPA: Record<SituacaoDaEtapa, string> = {
+    feito: 'feito',
+    agora: 'agora',
+    espera: 'em espera',
+    depois: 'depois',
+};
+
 export const TEXTO_DA_FALTA: Record<Falta, string> = {
     alternativa_e_confianca: 'Escolha uma alternativa e diga quanto você confia.',
     alternativa: 'Falta escolher uma alternativa.',
@@ -73,33 +98,9 @@ export const TEXTOS = {
     blocoSemQuestoes: 'Este bloco não tem questões. O conteúdo foi carregado no banco?',
     progressoDoBloco: 'Progresso no bloco',
     sair: 'Sair',
-    conferindoRoteiro: 'Conferindo o roteiro',
-    verResultadoDoDia1: 'Ver meu resultado do dia 1',
-    seuDia1: 'Seu dia 1',
-    travadosAteOReteste: 'Travados até o reteste',
-    topicoTravado: 'travado',
-    porQueTravados: 'Eles voltam no reteste. Revisar antes mudaria o que estamos medindo.',
-    erroAoCarregarDia1: 'Não foi possível carregar o seu resultado. Confira a conexão e tente de novo.',
     paginaNaoExiste: 'Essa página não existe.',
     paginaNaoExisteDetalhe: 'O endereço pode ter mudado ou ter sido digitado errado.',
-    topicoDeHoje: 'Tópico de hoje',
-    trilhaDiaria: 'Trilha diária',
     comecar: 'Começar',
-    continuar: 'Continuar',
-    feitoPorHoje: 'Feito por hoje.',
-    trilhaComecaAmanha: 'Começa amanhã.',
-    trilhaConcluida: 'Você concluiu a trilha diária.',
-    sequenciaMantida: 'Sequência mantida!',
-    sequenciaIniciada: 'Sequência iniciada!',
-    liberaAmanha: 'Libera amanhã. Volte para manter a sequência.',
-    proximoTopico: 'Próximo tópico',
-    voltarParaOInicio: 'Voltar para o início',
-    erroAoCarregarSequencia: 'Não foi possível carregar a sua sequência. Confira a conexão e tente de novo.',
-    continuarEstudos: 'Continuar estudos',
-    proximaEtapa: 'Próxima etapa',
-    trilhas: 'Trilhas',
-    trilhaTravada: 'travada',
-    erroAoCarregarRoteiro: 'Não foi possível carregar o seu roteiro. Confira a conexão e tente de novo.',
     sairDoCartao: 'Sair do cartão',
     voltar: 'Voltar',
     proximo: 'Próximo',
@@ -108,13 +109,53 @@ export const TEXTOS = {
     erroAoCarregarCartao: 'Não foi possível carregar o cartão. Confira a conexão e tente de novo.',
     resultado: 'Resultado',
     xpDoBloco: 'XP do bloco',
-    xpDoPosTeste: 'XP do pós-teste',
     comoVoceRespondeu: 'Como você respondeu',
     acertoPorTopico: 'Acerto por tópico',
     acertoPorConfianca: 'Acerto por confiança',
     revisarPrimeiro: 'O que revisar primeiro',
     nadaARevisar: 'Nada a revisar: tudo o que você respondeu está firme.',
     semRespostas: 'sem respostas',
+    semFeedbackNaLicao: 'Sem resultado por questão: tudo aparece no fim da lição.',
+    fecharLicao: 'Fechar a lição',
+    conferindoLicao: 'Conferindo a lição',
+    licaoNaoExiste: 'Essa lição não existe.',
+    erroAoCarregarLicao: 'Não foi possível carregar a lição. Confira a conexão e tente de novo.',
+    termoAntesDoDiagnostico: 'Antes do diagnóstico, você lê e aceita o termo de participação.',
+    reverCartao: 'Rever o cartão',
+    verPratica: 'Ver a prática',
+    revisaoDepoisDaVerificacao: '7 dias depois da verificação',
+    diagnosticoFeito: 'Diagnóstico feito',
+    diagnosticoFeitoDetalhe: 'O resultado aparece no fim da lição, ao lado da verificação.',
+    irParaOCartao: 'Ir para o cartão',
+    fazerVerificacao: 'Fazer a verificação',
+    voltarParaALicao: 'Voltar para a lição',
+    verificacaoFeita: 'Verificação feita',
+    licaoConcluida: 'Lição concluída',
+    xpDaLicao: 'XP da lição',
+    licoes: 'Lições',
+    perfil: 'Perfil',
+    progresso: 'Progresso',
+    semRespostasAVista: 'Ainda não há respostas para mostrar.',
+    quandoOsNumerosAparecem: 'Os números aparecem quando você termina a prática ou a verificação de uma lição.',
+    xpTotal: 'XP total',
+    sequencia: 'Sequência',
+    meuDominio: 'Meu domínio',
+    historico: 'Histórico',
+    revisarNaPratica: 'O que revisar na prática',
+    abrirALicao: 'Abrir a lição',
+    progressoDaLicao: 'Domínio da lição',
+    emailDaConta: 'E-mail da conta',
+    aparencia: 'Aparência',
+    salvarAlteracoes: 'Salvar alterações',
+    alteracoesSalvas: 'Alterações salvas.',
+    termoAindaNaoAceito: 'O termo de participação aparece antes do seu primeiro diagnóstico.',
+    paraHoje: 'Para hoje',
+    licaoNova: 'Lição nova',
+    tudoEmDia: 'Tudo em dia',
+    todasAsLicoesConcluidas: 'Você concluiu todas as lições.',
+    revisoesAgendadas: 'Revisões agendadas',
+    outrasLicoes: 'Outras lições',
+    erroAoCarregarLicoes: 'Não foi possível carregar as lições. Confira a conexão e tente de novo.',
 } as const;
 
 /** "8 de 12". */
@@ -142,37 +183,6 @@ export function posicaoNoCartao(indice: number, total: number): string {
     return `${indice + 1} de ${total}`;
 }
 
-/** A linha que diz, na home, em que ponto do roteiro o aluno está. */
-export function descreverEtapa(etapa: Etapa, nomeDoTopico: string | null): string {
-    switch (etapa.tipo) {
-        case 'consentimento':
-            return 'Falta aceitar o termo de consentimento.';
-        case 'pre':
-        case 'pos':
-        case 'reteste':
-            return `${TITULO_DA_FASE[etapa.tipo]} · ${etapa.respondidas} de ${etapa.total}`;
-        case 'estudo':
-            // Sem resposta de prática, o estudo do tópico começa pelo cartão (o mesmo corte de `destinoDaEtapa`).
-            if (etapa.respondidas === 0) return nomeDoTopico ? `Cartão de ${nomeDoTopico}` : 'Cartão de conceito';
-            return `${nomeDoTopico ? `Prática de ${nomeDoTopico}` : 'Prática'} · ${etapa.respondidas} de ${etapa.total}`;
-        case 'espera':
-            return etapa.diasRestantes === 1
-                ? 'O reteste abre amanhã.'
-                : `O reteste abre em ${etapa.diasRestantes} dias.`;
-        case 'sus':
-            return 'Falta o questionário final.';
-        case 'concluido':
-            return 'Você concluiu o roteiro.';
-    }
-}
-
-/** O cartão da espera na home: "Seu reteste abre em" + "6 dias", ou "Seu reteste abre" + "amanhã". */
-export function contagemDoReteste(diasRestantes: number): { rotulo: string; destaque: string } {
-    return diasRestantes === 1
-        ? { rotulo: 'Seu reteste abre', destaque: 'amanhã' }
-        : { rotulo: 'Seu reteste abre em', destaque: `${diasRestantes} dias` };
-}
-
 /** "Sequência: 3 dias", para o selo da home. */
 export function formatarSequencia(dias: number): string {
     return `Sequência: ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
@@ -183,14 +193,136 @@ export function diasSeguidos(dias: number): string {
     return dias === 1 ? 'dia seguido' : 'dias seguidos';
 }
 
-/** "Cartão curto e 6 questões": o tamanho do tópico de hoje. */
-export function tamanhoDoTopico(questoes: number): string {
-    return `Cartão curto e ${questoes} ${questoes === 1 ? 'questão' : 'questões'}`;
+/** "3 questões", "1 questão". */
+export function contarQuestoes(n: number): string {
+    return `${n} ${n === 1 ? 'questão' : 'questões'}`;
 }
 
-/** "Prática · 2 de 6": onde a pessoa parou no tópico de hoje. */
-export function progressoDoTopico(respondidas: number, total: number): string {
-    return `Prática · ${respondidas} de ${total}`;
+/** O que o botão principal da lição diz em cada estado. */
+export function rotuloDoBotaoDaLicao(estado: EstadoDaLicao): string {
+    switch (estado.tipo) {
+        case 'diagnostico':
+            return 'Continuar o diagnóstico';
+        case 'estudo':
+            return estado.respondidas === 0 ? 'Abrir o cartão' : 'Continuar a prática';
+        case 'verificacao':
+            return estado.respondidas === 0 ? TEXTOS.fazerVerificacao : 'Continuar a verificação';
+        case 'revisao':
+            return estado.respondidas === 0 ? 'Fazer a revisão' : 'Continuar a revisão';
+        default:
+            return TEXTOS.comecar;
+    }
+}
+
+/** A situação de uma lição, para a lista: "Nova", "Em andamento", "Revisão em 5 dias"... */
+export function situacaoDaLicao(estado: EstadoDaLicao): string {
+    switch (estado.tipo) {
+        case 'nova':
+            return 'Nova';
+        case 'aguardando_revisao':
+            return estado.diasRestantes === 1 ? 'Revisão amanhã' : `Revisão em ${estado.diasRestantes} dias`;
+        case 'revisao':
+            return 'Revisão disponível';
+        case 'concluida':
+            return 'Concluída';
+        default:
+            return 'Em andamento';
+    }
+}
+
+/** "em 5 dias", "amanhã": quanto falta para uma revisão abrir. */
+export function emQuantosDias(diasRestantes: number): string {
+    return diasRestantes === 1 ? 'amanhã' : `em ${diasRestantes} dias`;
+}
+
+/** "Próxima revisão: Framework MDA, em 5 dias.": o Para hoje de quem está em dia. */
+export function proximaRevisao(titulo: string, diasRestantes: number): string {
+    return `Próxima revisão: ${titulo}, ${emQuantosDias(diasRestantes)}.`;
+}
+
+/** O título do Para hoje: a revisão leva o nome do que é; nos outros casos, o da lição. */
+export function tituloDaSugestao(titulo: string, estado: EstadoDaLicao): string {
+    return estado.tipo === 'revisao' ? `Revisão de ${titulo}` : titulo;
+}
+
+/** A linha sob o título do Para hoje: "Lição nova", "Cartão e prática · 1 de 2", "3 questões". */
+export function detalheDaSugestao(estado: EstadoDaLicao): string {
+    switch (estado.tipo) {
+        case 'diagnostico':
+        case 'estudo':
+        case 'verificacao': {
+            const etapa = TITULO_DA_ETAPA[estado.tipo];
+            return estado.respondidas === 0 ? etapa : `${etapa} · ${formatarTaxa(estado.respondidas, estado.total)}`;
+        }
+        case 'revisao':
+            return estado.respondidas === 0 ? contarQuestoes(estado.total) : formatarTaxa(estado.respondidas, estado.total);
+        default:
+            return TEXTOS.licaoNova;
+    }
+}
+
+/** "3 de 9 feitas": o resumo do atalho Lições. Feita é a lição que já passou da verificação. */
+export function licoesFeitas(feitas: number, total: number): string {
+    return `${feitas} de ${total} ${feitas === 1 ? 'feita' : 'feitas'}`;
+}
+
+// As três opções de tema do Perfil. O valor guardado no aparelho é a chave, e não o rótulo.
+export const ROTULO_DO_TEMA: Record<PreferenciaDeTema, string> = {
+    sistema: 'Do sistema',
+    claro: 'Claro',
+    escuro: 'Escuro',
+};
+
+// O nome de cada fase quando ela aparece como passo feito, no histórico do tópico.
+export const TITULO_DO_PASSO_FEITO: Record<Fase, string> = {
+    pre: 'Diagnóstico',
+    pratica: 'Prática',
+    pos: 'Verificação',
+    reteste: 'Revisão',
+};
+
+/** "Diagnóstico · 08/10": um passo do histórico, com o dia em que terminou (fuso de São Luís). */
+export function passoFeitoEm(fase: Fase, em: number): string {
+    return `${TITULO_DO_PASSO_FEITO[fase]} · ${diaEMes(dataEmSaoLuis(em))}`;
+}
+
+/** "3 dias", "1 dia": a sequência, quando o rótulo ao lado já diz o que é. */
+export function contarDias(dias: number): string {
+    return `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+}
+
+/** "domínio 5 de 7": o acerto simples no tópico, em contagem (item 14). */
+export function dominioEmContagem(dominio: Taxa): string {
+    return `domínio ${formatarTaxa(dominio.acertos, dominio.total)}`;
+}
+
+/** "Abre amanhã", "Abre em 5 dias": a revisão em espera, na linha da etapa. */
+export function contagemDaRevisao(diasRestantes: number): string {
+    return diasRestantes === 1 ? 'Abre amanhã' : `Abre em ${diasRestantes} dias`;
+}
+
+/**
+ * O detalhe de uma linha da página da lição: o tamanho da etapa ou, na etapa em andamento, onde
+ * a pessoa parou. A revisão que ainda não abriu diz quando abre.
+ */
+export function detalheDaEtapa(etapa: EtapaDaLicao, total: number, estado: EstadoDaLicao): string {
+    if (etapa === 'revisao') {
+        if (estado.tipo === 'aguardando_revisao') return contagemDaRevisao(estado.diasRestantes);
+        if (estado.tipo !== 'revisao' && estado.tipo !== 'concluida') return TEXTOS.revisaoDepoisDaVerificacao;
+    }
+    const daVez = { diagnostico: 'diagnostico', estudo: 'estudo', verificacao: 'verificacao', revisao: 'revisao' } as const;
+    if (estado.tipo === daVez[etapa] && estado.respondidas > 0) return formatarTaxa(estado.respondidas, estado.total);
+    return contarQuestoes(total);
+}
+
+/** "Antes 1 de 3 → Depois 3 de 3": o diagnóstico ao lado da verificação. */
+export function antesEDepois(antes: Taxa, depois: Taxa): string {
+    return `Antes ${formatarTaxa(antes.acertos, antes.total)} → Depois ${formatarTaxa(depois.acertos, depois.total)}`;
+}
+
+/** "Na verificação 3 de 3 → Hoje 2 de 3": o que ficou, 7 dias depois. */
+export function verificacaoEHoje(depois: Taxa, revisao: Taxa): string {
+    return `Na verificação ${formatarTaxa(depois.acertos, depois.total)} → Hoje ${formatarTaxa(revisao.acertos, revisao.total)}`;
 }
 
 /** "Você acertou 5 de 6 questões de UX/UI em jogos · +13 XP": o fim de um tópico da trilha. */
@@ -198,21 +330,23 @@ export function acertosDoTopico(acertos: number, total: number, topico: string, 
     return `Você acertou ${acertos} de ${total} questões de ${topico} · ${formatarXp(xp)}`;
 }
 
-// Abreviações para as bolinhas da semana, na tela da sequência (0 = domingo).
-export const DIA_ABREVIADO = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'] as const;
-
 const DIAS_DA_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 
-/** "Abre na sexta, 06/11, e fica disponível até domingo, 08/11." Datas no fuso de São Luís. */
-export function janelaDoReteste(liberaEm: number, ultimoDiaEm: number): string {
-    const abre = dataEmSaoLuis(liberaEm);
-    const fecha = dataEmSaoLuis(ultimoDiaEm);
-    const doisDigitos = (n: number) => String(n).padStart(2, '0');
-    const data = (d: { dia: number; mes: number }) => `${doisDigitos(d.dia)}/${doisDigitos(d.mes)}`;
-    // Sábado e domingo são masculinos; os outros dias, femininos (a segunda, a terça...).
-    const artigo = abre.diaDaSemana === 0 || abre.diaDaSemana === 6 ? 'no' : 'na';
+const doisDigitos = (n: number) => String(n).padStart(2, '0');
+const diaEMes = (d: { dia: number; mes: number }) => `${doisDigitos(d.dia)}/${doisDigitos(d.mes)}`;
+// Sábado e domingo são masculinos; os outros dias, femininos (a segunda, a terça...).
+const noOuNa = (diaDaSemana: number) => (diaDaSemana === 0 || diaDaSemana === 6 ? 'no' : 'na');
 
-    return `Abre ${artigo} ${DIAS_DA_SEMANA[abre.diaDaSemana]}, ${data(abre)}, e fica disponível até ${DIAS_DA_SEMANA[fecha.diaDaSemana]}, ${data(fecha)}.`;
+/** "Termo de participação aceito em 06/10/2026." Data no fuso de São Luís. */
+export function termoAceitoEm(consentiuEm: number): string {
+    const dia = dataEmSaoLuis(consentiuEm);
+    return `Termo de participação aceito em ${diaEMes(dia)}/${dia.ano}.`;
+}
+
+/** "A revisão abre na sexta, 16/10." Data no fuso de São Luís. */
+export function quandoARevisaoAbre(liberaEm: number): string {
+    const abre = dataEmSaoLuis(liberaEm);
+    return `A revisão abre ${noOuNa(abre.diaDaSemana)} ${DIAS_DA_SEMANA[abre.diaDaSemana]}, ${diaEMes(abre)}.`;
 }
 
 /** "+3 XP", "−4 XP", "0 XP". O sinal de menos é o tipográfico (U+2212), que alinha com o de mais. */

@@ -1,5 +1,20 @@
 import type { BlocoQuestao, Fase } from '../../types/domain';
-import { cicloDaLicao, estadoDaLicao, licoesDoAluno, type QuestaoDaLicao, type RespostaDaLicao } from '../licao';
+import type { Confianca } from '../../types/domain';
+import {
+    cicloDaLicao,
+    destinoDaLicao,
+    estadoDaLicao,
+    etapasDaLicao,
+    licoesDoAluno,
+    podeAbrirNaLicao,
+    respostasAVista,
+    resultadoDaLicao,
+    type Ciclo,
+    type EstadoDaLicao,
+    type PassoDaLicao,
+    type QuestaoDaLicao,
+    type RespostaDaLicao,
+} from '../licao';
 import { diaDeCalendario, inicioDoDia } from '../roteiro';
 
 const HORA = 60 * 60 * 1000;
@@ -302,5 +317,233 @@ describe('conta do roteiro antigo, lida pelo modelo novo', () => {
             ['som', 'nova'],
         ]);
         expect(licoes[0].estado).toMatchObject({ diasRestantes: 4 });
+    });
+});
+
+// O que cada estado deixa abrir e para onde o botão da lição leva (itens 23 e 30).
+describe('o botão e a trava da lição', () => {
+    const progresso = (respondidas: number) => ({ respondidas, total: 3, proximaQuestaoId: 'q' });
+    const ESTADOS: Record<EstadoDaLicao['tipo'], EstadoDaLicao> = {
+        nova: { tipo: 'nova' },
+        diagnostico: { tipo: 'diagnostico', ...progresso(1) },
+        estudo: { tipo: 'estudo', ...progresso(1) },
+        verificacao: { tipo: 'verificacao', ...progresso(0) },
+        aguardando_revisao: { tipo: 'aguardando_revisao', liberaEm: 0, diasRestantes: 3 },
+        revisao: { tipo: 'revisao', liberadaEm: 0, ...progresso(0) },
+        concluida: { tipo: 'concluida', concluidaEm: 0 },
+    };
+    const licao = (tipo: EstadoDaLicao['tipo'], ciclo: Ciclo = 'completo') => ({ ciclo, estado: ESTADOS[tipo] });
+    const abre = (tipo: EstadoDaLicao['tipo'], passo: PassoDaLicao, ciclo: Ciclo = 'completo', temForma = true) =>
+        podeAbrirNaLicao(licao(tipo, ciclo), passo, temForma);
+    const TODOS = Object.keys(ESTADOS) as EstadoDaLicao['tipo'][];
+    const queAbrem = (passo: PassoDaLicao, ciclo: Ciclo = 'completo') => TODOS.filter((tipo) => abre(tipo, passo, ciclo));
+
+    describe('destinoDaLicao', () => {
+        it('lição nova de ciclo completo começa pelo diagnóstico', () => {
+            expect(destinoDaLicao(licao('nova'), true)).toEqual({ tipo: 'passo', passo: 'diagnostico' });
+        });
+
+        it('sem o termo aceito, a lição de ciclo completo começa pelo termo', () => {
+            expect(destinoDaLicao(licao('nova'), false)).toEqual({ tipo: 'termo' });
+        });
+
+        it('lição nova de ciclo curto começa pelo cartão, com ou sem termo', () => {
+            expect(destinoDaLicao(licao('nova', 'curto'), false)).toEqual({ tipo: 'passo', passo: 'cartao' });
+        });
+
+        it('no estudo sem resposta de prática abre o cartão; com resposta, a prática', () => {
+            const semResposta = { ciclo: 'completo' as const, estado: { tipo: 'estudo' as const, ...progresso(0) } };
+
+            expect(destinoDaLicao(semResposta, true)).toEqual({ tipo: 'passo', passo: 'cartao' });
+            expect(destinoDaLicao(licao('estudo'), true)).toEqual({ tipo: 'passo', passo: 'pratica' });
+        });
+
+        it.each([
+            ['diagnostico', 'diagnostico'],
+            ['verificacao', 'verificacao'],
+            ['revisao', 'revisao'],
+        ] as const)('em %s, leva ao passo %s', (tipo, passo) => {
+            expect(destinoDaLicao(licao(tipo), true)).toEqual({ tipo: 'passo', passo });
+        });
+
+        it('aguardando a revisão ou concluída, não há passo da vez', () => {
+            expect(destinoDaLicao(licao('aguardando_revisao'), true)).toBeNull();
+            expect(destinoDaLicao(licao('concluida'), true)).toBeNull();
+        });
+    });
+
+    describe('podeAbrirNaLicao, no ciclo completo', () => {
+        it('o diagnóstico abre na lição nova e enquanto está pela metade', () => {
+            expect(queAbrem('diagnostico')).toEqual(['nova', 'diagnostico']);
+        });
+
+        it('sem o termo aceito, o diagnóstico não abre', () => {
+            expect(abre('nova', 'diagnostico', 'completo', false)).toBe(false);
+        });
+
+        it('o cartão abre do estudo em diante, inclusive na espera da revisão', () => {
+            expect(queAbrem('cartao')).toEqual(['estudo', 'verificacao', 'aguardando_revisao', 'revisao', 'concluida']);
+        });
+
+        it('a prática abre no estudo e fica fechada até a lição ser concluída', () => {
+            expect(queAbrem('pratica')).toEqual(['estudo', 'concluida']);
+        });
+
+        it('a verificação e a revisão só abrem quando são o passo da vez', () => {
+            expect(queAbrem('verificacao')).toEqual(['verificacao']);
+            expect(queAbrem('revisao')).toEqual(['revisao']);
+        });
+    });
+
+    describe('podeAbrirNaLicao, no ciclo curto', () => {
+        // O ciclo curto só passa por estes três estados.
+        it.each(['nova', 'estudo', 'concluida'] as const)('em %s, cartão e prática abrem', (tipo) => {
+            expect(abre(tipo, 'cartao', 'curto')).toBe(true);
+            expect(abre(tipo, 'pratica', 'curto')).toBe(true);
+        });
+
+        it('não pede o termo', () => {
+            expect(abre('nova', 'pratica', 'curto', false)).toBe(true);
+        });
+
+        it('não tem diagnóstico, verificação nem revisão', () => {
+            expect(queAbrem('diagnostico', 'curto')).toEqual([]);
+            expect(queAbrem('verificacao', 'curto')).toEqual([]);
+            expect(queAbrem('revisao', 'curto')).toEqual([]);
+        });
+    });
+
+    describe('etapasDaLicao', () => {
+        const situacoes = (tipo: EstadoDaLicao['tipo'], ciclo: Ciclo = 'completo') =>
+            etapasDaLicao(licao(tipo, ciclo)).map((e) => `${e.etapa}:${e.situacao}`);
+
+        it('lição nova: a primeira etapa é a da vez', () => {
+            expect(situacoes('nova')).toEqual(['diagnostico:agora', 'estudo:depois', 'verificacao:depois', 'revisao:depois']);
+        });
+
+        it('no estudo, o diagnóstico já está feito', () => {
+            expect(situacoes('estudo')).toEqual(['diagnostico:feito', 'estudo:agora', 'verificacao:depois', 'revisao:depois']);
+        });
+
+        it('aguardando a revisão, ela aparece em espera, e não como a da vez', () => {
+            expect(situacoes('aguardando_revisao')).toEqual([
+                'diagnostico:feito',
+                'estudo:feito',
+                'verificacao:feito',
+                'revisao:espera',
+            ]);
+        });
+
+        it('com a revisão disponível, ela é a da vez; concluída, tudo está feito', () => {
+            expect(situacoes('revisao')[3]).toBe('revisao:agora');
+            expect(situacoes('concluida')).toEqual(['diagnostico:feito', 'estudo:feito', 'verificacao:feito', 'revisao:feito']);
+        });
+
+        it('o ciclo curto tem uma etapa só', () => {
+            expect(situacoes('nova', 'curto')).toEqual(['estudo:agora']);
+            expect(situacoes('concluida', 'curto')).toEqual(['estudo:feito']);
+        });
+    });
+});
+
+// O resultado que a lição mostra (item 27, revisto): o antes e o depois só aparecem juntos.
+describe('resultadoDaLicao', () => {
+    const rr = (fase: Fase, questionId: string, correta: boolean, confianca: Confianca, respondidaEm = DIA_1) => ({
+        fase,
+        questionId,
+        topicId: questionId.split('_')[0],
+        correta,
+        confianca,
+        respondidaEm,
+    });
+    // Diagnóstico: 1 de 3 (+3 −4 −4). Prática: 2 de 2 (+3 +2). Verificação: 3 de 3 (+3 +3 +1).
+    const ATE_A_VERIFICACAO = [
+        rr('pre', 'mda_a1', true, 3),
+        rr('pre', 'mda_a2', false, 3),
+        rr('pre', 'mda_a3', false, 3),
+        rr('pratica', 'mda_p1', true, 3),
+        rr('pratica', 'mda_p2', true, 2),
+        rr('pos', 'mda_b1', true, 3),
+        rr('pos', 'mda_b2', true, 3),
+        rr('pos', 'mda_b3', true, 1),
+    ];
+    const resultado = (respostas: ReturnType<typeof rr>[], agora = DIA_1, topicId = 'mda') => {
+        const [licao] = licoesDoAluno({ topicos: [topicId], respostas, questoes: QUESTOES, formaPre: 'A', agora });
+        return resultadoDaLicao({ licao, respostas, questoes: QUESTOES, formaPre: 'A' });
+    };
+
+    it('antes da verificação terminar, não há resultado: o diagnóstico sozinho não aparece', () => {
+        expect(resultado(ATE_A_VERIFICACAO.slice(0, 5))).toBeNull();
+        expect(resultado(ATE_A_VERIFICACAO.slice(0, 7))).toBeNull();
+    });
+
+    it('com a verificação feita, traz o antes, o depois, o XP da lição e os quadrantes da verificação', () => {
+        expect(resultado(ATE_A_VERIFICACAO)).toEqual({
+            ciclo: 'completo',
+            antes: { acertos: 1, total: 3 },
+            depois: { acertos: 3, total: 3 },
+            revisao: null,
+            // Diagnóstico −5, prática +5, verificação +7.
+            xp: 7,
+            quadrantes: { firme: 2, fragil: 1, lacuna: 0, ponto_cego: 0 },
+        });
+    });
+
+    it('com a revisão feita, traz a revisão, soma o XP dela e passa a mostrar os quadrantes dela', () => {
+        const depois = DIA_1 + 7 * DIA;
+        const respostas = [
+            ...ATE_A_VERIFICACAO,
+            rr('reteste', 'mda_b1', true, 3, depois),
+            rr('reteste', 'mda_b2', false, 3, depois),
+            rr('reteste', 'mda_b3', true, 3, depois),
+        ];
+
+        expect(resultado(respostas, depois)).toMatchObject({
+            antes: { acertos: 1, total: 3 },
+            depois: { acertos: 3, total: 3 },
+            revisao: { acertos: 2, total: 3 },
+            // Os 7 de antes, mais +3 −4 +3 da revisão.
+            xp: 9,
+            quadrantes: { firme: 2, ponto_cego: 1 },
+        });
+    });
+
+    it('no ciclo curto, só há resultado com a prática concluída: acertos, XP e quadrantes', () => {
+        const respostas = [rr('pratica', 'gdd_p1', true, 3), rr('pratica', 'gdd_p2', false, 2)];
+
+        expect(resultado(respostas.slice(0, 1), DIA_1, 'gdd')).toBeNull();
+        expect(resultado(respostas, DIA_1, 'gdd')).toEqual({
+            ciclo: 'curto',
+            pratica: { acertos: 1, total: 2 },
+            xp: 2,
+            quadrantes: { firme: 1, fragil: 0, lacuna: 1, ponto_cego: 0 },
+        });
+    });
+});
+
+// O que já pode aparecer para o aluno: a base do XP total, do domínio e do Progresso.
+describe('respostasAVista', () => {
+    const rv = (fase: Fase, questionId: string) => ({ fase, questionId, topicId: questionId.split('_')[0] });
+    const TODAS = [rv('pre', 'mda_a1'), rv('pratica', 'mda_p1'), rv('pos', 'mda_b1'), rv('reteste', 'mda_b1')];
+    const fases = (tipo: EstadoDaLicao['tipo']) =>
+        respostasAVista(TODAS, [{ topicId: 'mda', estado: { tipo } }]).map((x) => x.fase);
+
+    it('a prática aparece sempre, porque o feedback dela já saiu', () => {
+        expect(fases('diagnostico')).toEqual(['pratica']);
+        expect(fases('estudo')).toEqual(['pratica']);
+        expect(fases('verificacao')).toEqual(['pratica']);
+    });
+
+    it('diagnóstico e verificação aparecem juntos, com a verificação concluída', () => {
+        expect(fases('aguardando_revisao')).toEqual(['pre', 'pratica', 'pos']);
+        expect(fases('revisao')).toEqual(['pre', 'pratica', 'pos']);
+    });
+
+    it('a revisão aparece com a lição concluída', () => {
+        expect(fases('concluida')).toEqual(['pre', 'pratica', 'pos', 'reteste']);
+    });
+
+    it('bloco sem feedback de tópico que não é lição não aparece', () => {
+        expect(respostasAVista([rv('pre', 'antigo_a1'), rv('pratica', 'antigo_p1')], []).map((x) => x.fase)).toEqual(['pratica']);
     });
 });

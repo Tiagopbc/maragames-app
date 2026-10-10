@@ -11,7 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS, TEXTO_DA_FALTA } from '@/constants/textos';
-import { useBloco, type EntradaDoBloco, type EstadoDoBloco } from '@/hooks/use-bloco';
+import { useBloco, type EntradaDoBloco, type EstadoDoBloco, type Relatorio } from '@/hooks/use-bloco';
 import { useTheme } from '@/hooks/use-theme';
 import {
     SELECAO_VAZIA,
@@ -28,22 +28,26 @@ import { SeletorConfianca } from './seletor-confianca';
 
 const LETRAS = 'ABCD';
 
-// O que a tela do fim de um tópico da trilha precisa saber do bloco que terminou.
-export type FimDaTrilha = { topicId: string; acertos: number; total: number; xp: number };
-
 type TelaDoBlocoProps = EntradaDoBloco & {
     aoSair: () => void; // fecha a tela; quem navega é a rota
-    // O fim da prática de um tópico da trilha diária é a tela da sequência (item 23). Quem a
-    // monta é a rota, que conhece o participante; sem ela, vale o resultado de sempre.
-    fimDaTrilha?: (fim: FimDaTrilha) => ReactNode;
+    // O fim de um passo de lição (item 30): entra no lugar do resultado do bloco. Quem o monta é
+    // a rota, que sabe qual é o passo e para onde ele leva.
+    fim?: (relatorio: Relatorio) => ReactNode;
 };
 
 // A tela inteira de um bloco: cabeçalho, a pergunta da vez e o fim. Não sabe de onde os dados
 // vêm (isso é do hook) nem para onde a navegação vai (isso é da rota).
-export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProps) {
+export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
     const theme = useTheme();
     const { estado, titulo, confirmar, avancar, tentarDeNovo } = useBloco(entrada);
     const naQuestao = estado.tipo === 'pergunta' || estado.tipo === 'feedback';
+    // Sem feedback por questão, a tela avisa onde o resultado aparece. No diagnóstico de uma
+    // lição não é no fim do bloco: é no fim da lição, ao lado da verificação.
+    const aviso = faseTemFeedback(entrada.fase)
+        ? null
+        : entrada.fase === 'pre' && entrada.topicId !== null
+          ? TEXTOS.semFeedbackNaLicao
+          : TEXTOS.semFeedback;
 
     return (
         <ThemedView style={styles.container}>
@@ -95,19 +99,10 @@ export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProp
                     </View>
                 )}
 
-                {/* Fim do bloco: o resultado, calculado das respostas (M4). */}
-                {estado.tipo === 'concluido' &&
-                    estado.relatorio &&
-                    estado.relatorio.topicoDaTrilha !== null &&
-                    fimDaTrilha &&
-                    fimDaTrilha({
-                        topicId: estado.relatorio.topicoDaTrilha,
-                        acertos: estado.relatorio.resultado.acertos,
-                        total: estado.relatorio.resultado.total,
-                        xp: estado.relatorio.resultado.xp,
-                    })}
+                {estado.tipo === 'concluido' && estado.relatorio && fim && fim(estado.relatorio)}
 
-                {estado.tipo === 'concluido' && estado.relatorio && !(estado.relatorio.topicoDaTrilha !== null && fimDaTrilha) && (
+                {/* Fim do bloco: o resultado, calculado das respostas (M4). */}
+                {estado.tipo === 'concluido' && estado.relatorio && !fim && (
                     <>
                         <ScrollView contentContainerStyle={styles.conteudo}>
                             <ResultadoDoBloco relatorio={estado.relatorio} medido={!faseTemFeedback(entrada.fase)} />
@@ -137,7 +132,7 @@ export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProp
                     <Pergunta
                         key={estado.pergunta.questao.id}
                         estado={estado}
-                        semFeedback={!faseTemFeedback(entrada.fase)}
+                        aviso={aviso}
                         aoConfirmar={confirmar}
                         aoAvancar={avancar}
                     />
@@ -149,12 +144,12 @@ export function TelaDoBloco({ aoSair, fimDaTrilha, ...entrada }: TelaDoBlocoProp
 
 type PerguntaProps = {
     estado: Extract<EstadoDoBloco, { tipo: 'pergunta' | 'feedback' }>;
-    semFeedback: boolean;
+    aviso: string | null; // onde o resultado aparece, nos blocos sem feedback por questão
     aoConfirmar: (selecao: SelecaoCompleta) => void;
     aoAvancar: () => void;
 };
 
-function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps) {
+function Pergunta({ estado, aviso, aoConfirmar, aoAvancar }: PerguntaProps) {
     // Alternativa e confiança são dois campos do mesmo estado, marcados em qualquer ordem.
     // Só existem aqui, na tela: trocar de ideia antes de confirmar não gera evento.
     const theme = useTheme();
@@ -184,9 +179,9 @@ function Pergunta({ estado, semFeedback, aoConfirmar, aoAvancar }: PerguntaProps
     return (
         <>
             <ScrollView ref={rolagem} contentContainerStyle={styles.conteudo}>
-                {semFeedback && (
+                {aviso && (
                     <ThemedText type="small" themeColor="textSecondary">
-                        {TEXTOS.semFeedback}
+                        {aviso}
                     </ThemedText>
                 )}
 
