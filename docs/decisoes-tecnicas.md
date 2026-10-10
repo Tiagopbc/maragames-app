@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -186,7 +186,7 @@ Revisto em 10/10 (Fase 8 do plano). Três mudanças no conteúdo, ainda sem seed
 - **O "Correto." saiu do começo das 70 explicações** de alternativa certa: quando a pessoa errava, a tela mostrava "Resposta certa: Correto. ...".
 - **A validação do seed acompanhou o ciclo da lição.** Saiu a regra "tópico da trilha diária só tem prática". Vale agora: todo tópico tem prática; quem tem questão de uma forma precisa das duas, cada uma com uma questão básica, uma intermediária e uma avançada; tópico sem forma nenhuma é válido e faz o ciclo curto. O campo `trilha` (`medido` ou `diaria`) fica como rótulo de origem, sem efeito no app.
 
-`npm test` passou a conferir o conteúdo com a validação do seed (`src/__tests__/conteudo.test.js`). O seed foi rodado pelo Tiago em 10/10, sem `--prune`: versão `ebaeb429b051`, 100 questões gravadas, e as 3 questões antigas fora do JSON continuam no banco. Consequência para as duas contas de teste: GDD, UX/UI e Efeitos sonoros, que estavam concluídas no ciclo curto, passam a aparecer com o diagnóstico por fazer, apesar da prática já feita.
+`npm test` passou a conferir o conteúdo com a validação do seed (`src/__tests__/conteudo.test.js`). O seed foi rodado pelo Tiago em 10/10, sem `--prune`: versão `ebaeb429b051`, 100 questões gravadas, e as 3 questões antigas fora do JSON continuam no banco. Quem já tinha praticado um dos cinco tópicos antes do seed continua com a lição no ciclo curto (item 30, revisto em 10/10).
 
 ## 22. Fluxo e estado do participante no piloto
 
@@ -321,9 +321,9 @@ Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com
 
 Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do piloto e passam a ser as fases de `docs/plano-do-app-completo.md`, que não têm data. Uma fase só começa quando a prova da anterior passa.
 
-**Para o Tiago revisar, antes de qualquer commit**
+**Esperando o Tiago**
 
-- Tudo o que foi feito em 10/10 está só no computador, na branch `feat/ciclo-da-licao`, sem commit depois do da Fase 1. As escolhas de tela tomadas sem ele estão no item 30 e em `docs/passagem-de-sessao.md`.
+- A correção do ciclo de quem já praticou (item 30) está em commit na branch `fix/ciclo-de-quem-ja-praticou`, só local, à espera do push e do pull request.
 
 **Fase 0 — Documentos e o que está aberto**
 
@@ -338,7 +338,6 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - O grupo revisar as 30 questões novas de diagnóstico e verificação (ids `_07` a `_12` de GDD, UX/UI, Efeitos sonoros, Playtest e Publicando na Steam), escritas pelo assistente.
 - Sobras do seed antigo no banco (item 21): 3 questões fora do JSON, sem versão de conteúdo. Decidir se roda com `--prune`.
-- Com o seed de 10/10, GDD, UX/UI e Efeitos sonoros passaram a aparecer nas contas de teste com o diagnóstico por fazer e a prática já feita. Só afeta essas duas contas.
 
 **Fase 7 — Revisão em intervalos crescentes**
 
@@ -374,6 +373,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 10/10**
 
+- Pull request nº 8 integrado ao `main` pelo Tiago (Fases 1 a 6 e 8, com o tema). A revisão automática deixou um apontamento, tratado em seguida: quem já praticou um tópico antes de ele ter diagnóstico fica no ciclo curto (item 30).
 - Progresso: seção "O que revisar primeiro", com as três lições mais fracas, pedida pelo Tiago depois de ver a tela no iPhone (item 30).
 - Tema claro, escuro ou do sistema, escolhido no Perfil e guardado no aparelho (item 31).
 - Fase 3 do plano: lista de lições em `/licoes`, por módulo, com situação e domínio; qualquer lição abre.
@@ -619,6 +619,15 @@ Conferido no app em 10/10, no Chrome do Tiago, com a conta de teste dele, em tem
 Verificação: `npm test` com 587 testes, `npx tsc --noEmit` sem erros e `npm run test:regras` com 69.
 
 Revisto em 10/10 (Progresso: o que revisar primeiro). O Tiago viu a tela no iPhone e apontou que ela citava os quadrantes no geral, sem dizer em que assunto a pessoa está pior; a resposta estava em "Meu domínio", no fim da tela e na ordem das lições. Decidido com ele: uma seção "O que revisar primeiro" logo abaixo do XP e da sequência, com as três lições mais fracas, cada uma com o acerto e a contagem por quadrante ("3 pontos cegos · 5 lacunas"), abrindo o detalhe do tópico. A ordem é a do item 27: mais pontos cegos primeiro; no empate, mais lacunas; depois, mais frágeis (`revisaoPorTopico`, em `src/lib/progresso.ts`). Lição em que tudo está firme não entra. "Meu domínio" continua com todas as lições, agora nessa mesma ordem e com a contagem completa. Continua sendo contagem por tópico, sem citar questão dos blocos sem feedback. No cartão da sequência, "3 dias seguidos" virou "3 dias", que cabe numa linha no celular. `npm test` passa com 596.
+
+Revisto em 10/10 (o ciclo de quem já praticou). Apontado pela revisão automática do pull request nº 8, com prioridade alta, e aceito: o ciclo de cada lição era decidido só pelo conteúdo. Quando o seed deu diagnóstico e verificação aos cinco tópicos que só tinham prática (item 21), quem já tinha praticado esses tópicos voltou para "diagnóstico por fazer": perdia a lição concluída e faria o "antes" depois de já ter estudado. Decidido com o Tiago:
+
+- **Quem respondeu prática de uma lição antes de terminar o diagnóstico dela fica no ciclo curto naquela lição** (`cicloDoAluno`, em `src/lib/licao.ts`). Para essa pessoa a lição é cartão e prática, sem antes e depois. Vale também para o diagnóstico pela metade com prática já respondida, e para quem praticou sem ter a forma.
+- **A regra sai das respostas**: compara o horário da primeira resposta de prática com o do fim do diagnóstico. Versionar o ciclo ou migrar respostas, que eram as alternativas, pediriam gravar algo derivado (item 2).
+- **No fluxo normal ela nunca dispara**: a trava só abre a prática com o diagnóstico completo. O que garante que o diagnóstico não se pula continua sendo `podeAbrirNaLicao`; esta regra só decide como ler dados em que a prática veio antes.
+- **`Licao.ciclo` passa a ser o ciclo da pessoa**, e a página da lição, a trava, o resultado e a sugestão já liam dele. `respostasAVista` também: em lição de ciclo curto, resposta de bloco sem feedback não entra em XP, domínio nem Progresso.
+
+Nas duas contas de teste, GDD, UX/UI e Efeitos sonoros voltam a aparecer como concluídas. `npm test` passa com 629.
 
 ## 31. Tema escolhido pelo aluno, guardado no aparelho
 
