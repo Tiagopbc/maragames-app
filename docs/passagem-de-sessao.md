@@ -76,10 +76,9 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 ## O que está esperando resposta do Tiago
 
 1. **Integrar o pull request nº 9** e autorizar o push e o pull request da branch `feat/exportacao-e-acabamento`.
-2. **Rodar `npm run seed:conteudo -- --prune`**: apaga as 3 questões antigas, que não têm nenhuma resposta.
-3. **Forma de distribuição**: Expo Go, web na Vercel ou build com APK/TestFlight.
-4. **Conferir no iPhone e num Android**, nos dois temas.
-5. **O grupo:** confirmar a virada e revisar as 30 questões novas.
+2. **Forma de distribuição**: Expo Go, web na Vercel ou build com APK/TestFlight.
+3. **Conferir no iPhone e num Android**, nos dois temas.
+4. **O grupo:** confirmar a virada e revisar as 30 questões novas.
 
 ## Estado do repositório
 
@@ -91,7 +90,7 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
-- **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. Restam 3 questões antigas, sem versão, que só saem com `npm run seed:conteudo -- --prune`.
+- **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
 - **Dados de teste:** duas contas, que ficam até a Fase 2 do plano (decisão D8). A do Tiago (pós em 06/10) tem 58 respostas, incluindo GDD (08/10), UX/UI (09/10) e Efeitos sonoros (10/10, feita pelo assistente), e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 

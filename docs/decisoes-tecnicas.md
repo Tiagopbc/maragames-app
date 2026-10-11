@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 10/10/2026 (itens 23 e 24: exportação por lição, fim do roteiro antigo e acabamento, com nome do app, dependências, ESLint e script de limpeza; item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 11/10/2026 (itens 21 e 24: sobras do seed antigo apagadas; em 10/10, itens 23 e 24: exportação por lição, fim do roteiro antigo e acabamento, com nome do app, dependências, ESLint e script de limpeza; item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -186,7 +186,7 @@ Revisto em 10/10 (Fase 8 do plano). Três mudanças no conteúdo, ainda sem seed
 - **O "Correto." saiu do começo das 70 explicações** de alternativa certa: quando a pessoa errava, a tela mostrava "Resposta certa: Correto. ...".
 - **A validação do seed acompanhou o ciclo da lição.** Saiu a regra "tópico da trilha diária só tem prática". Vale agora: todo tópico tem prática; quem tem questão de uma forma precisa das duas, cada uma com uma questão básica, uma intermediária e uma avançada; tópico sem forma nenhuma é válido e faz o ciclo curto. O campo `trilha` (`medido` ou `diaria`) fica como rótulo de origem, sem efeito no app.
 
-`npm test` passou a conferir o conteúdo com a validação do seed (`src/__tests__/conteudo.test.js`). O seed foi rodado pelo Tiago em 10/10, sem `--prune`: versão `ebaeb429b051`, 100 questões gravadas, e as 3 questões antigas fora do JSON continuam no banco. Quem já tinha praticado um dos cinco tópicos antes do seed continua com a lição no ciclo curto (item 30, revisto em 10/10).
+`npm test` passou a conferir o conteúdo com a validação do seed (`src/__tests__/conteudo.test.js`). O seed foi rodado pelo Tiago em 10/10, versão `ebaeb429b051`, com 100 questões gravadas, e de novo em 11/10 com `--prune`, que apagou as 3 questões antigas fora do JSON (nenhuma resposta apontava para elas). O banco tem agora exatamente as questões do repositório. Quem já tinha praticado um dos cinco tópicos antes do seed continua com a lição no ciclo curto (item 30, revisto em 10/10).
 
 ## 22. Fluxo e estado do participante no piloto
 
@@ -333,7 +333,6 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Esperando o Tiago**
 
 - Integrar o pull request nº 9 (a correção do ciclo de quem já praticou) e decidir o push e o pull request da branch `feat/exportacao-e-acabamento`, que traz a Fase 9 e a parte da Fase 10 feita em 10/10.
-- Rodar `npm run seed:conteudo -- --prune`, para apagar do banco as 3 questões antigas que estão fora do JSON. Conferido em 10/10: nenhuma resposta aponta para elas.
 - Decidir a forma de distribuição (ver abaixo).
 
 **Fase 0 — Documentos e o que está aberto**
@@ -368,6 +367,10 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 - Aplicar o resto do visual do protótipo (item 28) e os pontos em que ele contradizia as decisões: o desenho das telas passou a ser o do plano.
 - A seção "O que revisar primeiro" na tela do dia 1 e a numeração dos dias do reteste: a tela saiu, e os 7 dias contam por lição.
 - Número e perfil dos participantes do piloto, versão em português do SUS e data do Incubators.
+
+**Resolvidas em 11/10**
+
+- Sobras do seed antigo (item 21): as 3 questões fora do JSON foram apagadas pelo Tiago, com `--prune`.
 
 **Resolvidas em 10/10**
 
