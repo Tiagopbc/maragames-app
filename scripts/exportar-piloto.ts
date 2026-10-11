@@ -14,7 +14,7 @@
 // Gera eventos.csv, participantes.csv, questoes.csv e resumo.md, que podem ser enviados, e
 // chave.csv, que liga cada código ao nome e NÃO sai do grupo.
 
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { cert, initializeApp } from 'firebase-admin/app';
@@ -28,7 +28,7 @@ import {
     paraQuestion,
     topicosDasLicoes,
 } from '../src/data/mapeadores';
-import { arquivosDaExportacao, exportarPiloto, pastaDaExportacao, type PerfilDoExport } from '../src/lib/exportacao';
+import { arquivosDaExportacao, exportarDados, pastaDaExportacao, type PerfilDoExport } from '../src/lib/exportacao';
 
 function argumento(nome: string): string | undefined {
     const i = process.argv.indexOf(`--${nome}`);
@@ -42,7 +42,7 @@ async function main() {
     if (desdeTexto && Number.isNaN(desde)) throw new Error(`Data inválida em --desde: ${desdeTexto} (use AAAA-MM-DD).`);
 
     const raiz = join(__dirname, '..');
-    initializeApp({ credential: cert(require(join(raiz, 'serviceAccountKey.json'))) });
+    initializeApp({ credential: cert(JSON.parse(readFileSync(join(raiz, 'serviceAccountKey.json'), 'utf8'))) });
     const db = getFirestore();
 
     const [usuarios, respostas, questoes, licoes] = await Promise.all([
@@ -66,7 +66,7 @@ async function main() {
         };
     });
 
-    const exportado = exportarPiloto(
+    const exportado = exportarDados(
         {
             perfis,
             respostas: respostas.docs.map((d) => paraAnswer(d.id, d.data())),
@@ -95,6 +95,7 @@ async function main() {
     console.log(`Exportado em ${pasta}`);
     console.log(`  participantes: ${exportado.participantes.length}${desdeTexto ? ` (aceite a partir de ${desdeTexto})` : ''}`);
     console.log(`  eventos:       ${exportado.eventos.length}`);
+    console.log(`  lições:        ${exportado.licoes.length} (uma linha por pessoa e por lição começada)`);
     console.log(`  questões:      ${exportado.questoes.length}`);
     console.log('  chave.csv liga os códigos aos nomes: fica só com o grupo, não envie.');
 }

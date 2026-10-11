@@ -43,11 +43,7 @@ export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
     const naQuestao = estado.tipo === 'pergunta' || estado.tipo === 'feedback';
     // Sem feedback por questão, a tela avisa onde o resultado aparece. No diagnóstico de uma
     // lição não é no fim do bloco: é no fim da lição, ao lado da verificação.
-    const aviso = faseTemFeedback(entrada.fase)
-        ? null
-        : entrada.fase === 'pre' && entrada.topicId !== null
-          ? TEXTOS.semFeedbackNaLicao
-          : TEXTOS.semFeedback;
+    const aviso = faseTemFeedback(entrada.fase) ? null : entrada.fase === 'pre' ? TEXTOS.semFeedbackNaLicao : TEXTOS.semFeedback;
 
     return (
         <ThemedView style={styles.container}>
@@ -99,10 +95,10 @@ export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
                     </View>
                 )}
 
-                {estado.tipo === 'concluido' && estado.relatorio && fim && fim(estado.relatorio)}
+                {estado.tipo === 'concluido' && fim && fim(estado.relatorio)}
 
                 {/* Fim do bloco: o resultado, calculado das respostas (M4). */}
-                {estado.tipo === 'concluido' && estado.relatorio && !fim && (
+                {estado.tipo === 'concluido' && !fim && (
                     <>
                         <ScrollView contentContainerStyle={styles.conteudo}>
                             <ResultadoDoBloco relatorio={estado.relatorio} medido={!faseTemFeedback(entrada.fase)} />
@@ -111,20 +107,6 @@ export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
                             <BotaoPrincipal rotulo={TEXTOS.voltarAoInicio} onPress={aoSair} />
                         </View>
                     </>
-                )}
-
-                {/* Sem bloco para resumir (prática sem tópico pendente): só a mensagem. */}
-                {estado.tipo === 'concluido' && !estado.relatorio && (
-                    <View style={styles.centro}>
-                        <Ionicons name="checkmark-done-circle" size={56} color={theme.sucesso} />
-                        <ThemedText type="subtitle" style={styles.textoCentral}>
-                            {TEXTOS.blocoConcluido}
-                        </ThemedText>
-                        <ThemedText themeColor="textSecondary" style={styles.textoCentral}>
-                            {estado.mensagem}
-                        </ThemedText>
-                        <BotaoPrincipal rotulo={TEXTOS.voltarAoInicio} onPress={aoSair} />
-                    </View>
                 )}
 
                 {naQuestao && (

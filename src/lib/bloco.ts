@@ -6,7 +6,7 @@ import type { Answer, BlocoQuestao, Fase, FormaPre, Question } from '../types/do
 export type QuestaoDoBloco = Pick<Question, 'id' | 'topicId' | 'bloco'>;
 export type RespostaDoBloco = Pick<Answer, 'questionId' | 'fase'>;
 
-// Blocos medidos do piloto: atravessam os tópicos e não têm feedback por questão.
+// Blocos sem feedback por questão: o diagnóstico, a verificação e a revisão de uma lição.
 export type FaseMedida = Exclude<Fase, 'pratica'>;
 
 const BLOCO_DA_FORMA: Record<FormaPre, BlocoQuestao> = { A: 'forma_a', B: 'forma_b' };
@@ -27,28 +27,6 @@ export function questoesDoBlocoMedido<T extends QuestaoDoBloco>(
     return topicos.flatMap((topicId) => questoes.filter((q) => q.bloco === bloco && q.topicId === topicId));
 }
 
-/**
- * Tópicos que entram no roteiro medido: os que têm questão da forma A ou B, na ordem recebida.
- * Os da trilha diária só têm prática; sem tirá-los, o roteiro mandaria estudá-los antes do pós.
- */
-export function topicosMedidos(questoes: readonly QuestaoDoBloco[], topicos: readonly string[]): string[] {
-    // Compara com as formas, e não com "diferente de prática": questão sem bloco não é medida.
-    return topicos.filter((topicId) =>
-        questoes.some((q) => q.topicId === topicId && (q.bloco === 'forma_a' || q.bloco === 'forma_b'))
-    );
-}
-
-/**
- * Tópicos da trilha diária (item 23): os que têm prática e nenhuma questão das formas A ou B,
- * na ordem recebida. É o complemento de `topicosMedidos` entre os tópicos com conteúdo.
- */
-export function topicosDaTrilha(questoes: readonly QuestaoDoBloco[], topicos: readonly string[]): string[] {
-    const medidos = new Set(topicosMedidos(questoes, topicos));
-    return topicos.filter(
-        (topicId) => !medidos.has(topicId) && questoes.some((q) => q.topicId === topicId && q.bloco === 'pratica')
-    );
-}
-
 export function questoesDaPratica<T extends QuestaoDoBloco>(questoes: readonly T[], topicId: string): T[] {
     return questoes.filter((q) => q.bloco === 'pratica' && q.topicId === topicId);
 }
@@ -63,14 +41,3 @@ export function pendentes<T extends Pick<Question, 'id'>>(
     return questoes.filter((q) => !respondidas.has(q.id));
 }
 
-/** Primeiro tópico, na ordem do roteiro, com questão de prática pendente; null se não sobrou nenhum. */
-export function proximoTopicoDaPratica(
-    questoes: readonly QuestaoDoBloco[],
-    respostas: readonly RespostaDoBloco[],
-    topicos: readonly string[]
-): string | null {
-    return (
-        topicos.find((topicId) => pendentes(questoesDaPratica(questoes, topicId), respostas, 'pratica').length > 0) ??
-        null
-    );
-}

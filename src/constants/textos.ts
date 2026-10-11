@@ -9,7 +9,7 @@ import type { Taxa } from '../lib/resultado';
 import type { PreferenciaDeTema } from '../lib/tema';
 import type { Quadrante } from '../lib/quadrante';
 import { ORDEM_DE_REVISAO } from '../lib/resultado';
-import { dataEmSaoLuis } from '../lib/roteiro';
+import { dataEmSaoLuis } from '../lib/calendario';
 
 // Ordem em que os níveis aparecem na tela, do menor para o maior.
 export const NIVEIS_DE_CONFIANCA: readonly Confianca[] = [1, 2, 3];
@@ -40,13 +40,6 @@ export const DESCRICAO_QUADRANTE: Record<Quadrante, string> = {
     fragil: 'Acertou sem certeza. Vale revisar.',
     lacuna: 'Você já sabia que não sabia. É o que estudar.',
     ponto_cego: 'Errou achando que sabia. Corrija este primeiro.',
-};
-
-// Na prática, o título do bloco é o nome do tópico.
-export const TITULO_DA_FASE: Record<Exclude<Fase, 'pratica'>, string> = {
-    pre: 'Pré-teste',
-    pos: 'Pós-teste',
-    reteste: 'Reteste',
 };
 
 // Dentro de uma lição, os mesmos blocos têm o nome do que fazem por ela (item 30). A fase
@@ -87,9 +80,6 @@ export const TEXTOS = {
     acertou: 'Você acertou',
     errou: 'Você errou',
     respostaCerta: 'Resposta certa',
-    blocoConcluido: 'Bloco concluído',
-    blocoConcluidoDetalhe: 'Suas respostas foram gravadas.',
-    praticaConcluida: 'Você já praticou todos os tópicos disponíveis.',
     voltarAoInicio: 'Voltar ao início',
     tentarDeNovo: 'Tentar de novo',
     erroAoCarregar: 'Não foi possível carregar as questões. Confira a conexão e tente de novo.',

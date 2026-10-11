@@ -1,4 +1,4 @@
-# Passagem de sessão — 10/10/2026
+# Passagem de sessão — 11/10/2026
 
 Resumo para continuar o trabalho em outra conversa, sem depender do histórico da anterior. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24).
 
@@ -13,23 +13,7 @@ Combinados com o Tiago, que valem para toda sessão:
 - Escrever o teste antes do código e vê-lo falhar.
 - Nada que vai para o GitHub leva assinatura ou crédito do assistente: nem em commit, nem em pull request, nem em comentário.
 - Perguntar antes de dar push e antes de abrir pull request. A liberação de "pode enviar sempre" valia só para o pull request nº 5, já integrado.
-- Não rodar `npm run lint`: ele instala o ESLint e altera `package.json` e o lockfile.
-
-## Combinado da rodada de 10/10 (Tiago fora, assistente trabalhando sozinho)
-
-- **Escopo:** da prova da Fase 2 até a Fase 8 do plano, na ordem; a Fase 7 fica de fora.
-- **Sem commit, sem push, nada no GitHub.** Tudo fica só no computador. À noite o Tiago recebe uma revisão resumida, testa, aprova, e só então se salva.
-- **Sem parar para aprovar desenho de tela:** vale o plano e as decisões abaixo. Cada escolha de tela feita no caminho fica anotada em "Escolhas feitas sem o Tiago", mais abaixo, para a revisão.
-- **Limite de uso:** conferir o uso do plano a cada fase. Se o limite de 5 horas ou o semanal chegar a 90%, parar, avisar e esperar o ok do Tiago.
-- **Decisões tomadas pelo Tiago antes de sair:**
-  - Conferência no app: pelo Chrome dele, na conta de teste dele; olhar as telas e fazer a lição Efeitos sonoros até o fim (grava 6 respostas de prática). O ciclo completo desde o começo fica para ele, à noite, com uma conta nova.
-  - Navegação (D6): atalhos na home, sem barra de abas.
-  - Perfil (Fase 6): edita tudo, menos o e-mail.
-  - SUS (D4): sai do app por ora.
-  - Fase 7 (D7): pulada por ora; fica uma revisão só, aos 7 dias.
-  - Conteúdo (Fase 8): o assistente escreve as 30 questões de diagnóstico e verificação dos cinco tópicos que só têm prática, pesquisando na internet e com o que sabe. Entram como rascunho para o grupo revisar.
-  - Explicações (Fase 8): tirar o "Correto." do começo das 70 explicações, no conteúdo.
-  - Seed: quem roda é o Tiago, à noite. O assistente deixa o JSON validado com `--dry-run`.
+- `npm run lint` pode rodar à vontade: o ESLint foi configurado em 10/10.
 
 ## Resultado da rodada de 10/10
 
@@ -63,25 +47,37 @@ Depois da revisão do Tiago no iPhone, em 10/10: o Progresso ganhou a seção "O
 - **O campo `trilha` do conteúdo não mudou** (`medido` ou `diaria`): virou rótulo de origem, sem efeito no app.
 - **A lição Efeitos sonoros foi respondida em Palpite**, escolhendo sempre a primeira alternativa da tela: 1 acerto em 6.
 
+## Feito na tarde de 10/10, a pedido do Tiago
+
+- Pull request nº 9, com a correção do ciclo de quem já praticou (apontamento do Codex no nº 8): integrado em 11/10.
+- Lição de ciclo completo percorrida no app desde o diagnóstico (Playtest e iteração, conta de teste do Tiago, pelo Chrome dele) e conferida no banco. A prova da Fase 2 está fechada.
+- Fase 9: exportação por lição e por pessoa (`licoes.csv`), e o resto do roteiro do piloto apagado.
+- Fase 10, o que dava para fazer no código: nome de exibição "Beast Maragames", duas dependências sem uso removidas, ESLint configurado e sem erro, script `npm run limpar:teste`.
+- Os três últimos itens estão em commit na branch `feat/exportacao-e-acabamento`, só local.
+
+Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. O `--prune` e a limpeza das contas de teste são comandos para o Tiago rodar; aparelho de verdade e forma de distribuição também são dele.
+
 ## O que está esperando resposta do Tiago
 
-1. **Push e pull request da branch `fix/ciclo-de-quem-ja-praticou`**: a correção do apontamento que a revisão automática deixou no pull request nº 8 (item 30).
-2. **Criar uma conta nova** para percorrer uma lição de ciclo completo desde o diagnóstico: é a parte da prova da Fase 2 que falta.
-3. **Decidir sobre o `--prune`**: o seed de 10/10 gravou as 100 questões e manteve as 3 antigas que estão fora do JSON.
-4. **O grupo:** confirmar a virada e revisar as 30 questões novas.
+1. **Push e pull request da branch `feat/exportacao-e-acabamento`.** Ela está só no computador, com cinco commits em cima do `main`: exportação por lição e fim do roteiro antigo (Fase 9), nome do app, dependências, ESLint e script de limpeza (Fase 10), e documentos. O Tiago ainda não respondeu se pode enviar: perguntar antes.
+2. **Ver as revisões no app, em 13/10 e 17/10.** A conta do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3".
+3. **Percorrer o começo com a conta limpa** (apelido Tiagopbc): termo antes do primeiro diagnóstico. Está coberto por teste e ainda não foi visto no app.
+4. **Forma de distribuição:** Expo Go, web na Vercel ou build com APK/TestFlight.
+5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
+6. **O grupo:** confirmar a virada do projeto e revisar as 30 questões novas.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 8 integrados. O nº 8, de 10/10, trouxe o app do ciclo da lição (Fases 1 a 6 e 8) e o tema.
-- **Branch atual, só local:** `fix/ciclo-de-quem-ja-praticou`, saída do `main`, com a correção do ciclo de quem já praticou.
+- **`main`:** tem os pull requests nº 5 a nº 9 integrados. O nº 8 trouxe o app do ciclo da lição e o nº 9, em 11/10, a correção do ciclo de quem já praticou; a revisão do Codex no nº 9 terminou sem apontamento.
+- **Branch atual, só local:** `feat/exportacao-e-acabamento`, refeita em cima do `main` em 11/10. Sem push e sem pull request.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 629 testes (625 no projeto "nativo" e 4 no "web"; são menos que os 658 de antes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 598 testes (594 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
-- **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. Restam 3 questões antigas, sem versão, que só saem com `npm run seed:conteudo -- --prune`.
-- **Dados de teste:** duas contas, que ficam até a Fase 2 do plano (decisão D8). A do Tiago (pós em 06/10) tem 58 respostas, incluindo GDD (08/10), UX/UI (09/10) e Efeitos sonoros (10/10, feita pelo assistente), e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
+- **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
+- **Dados de teste:** resta uma conta com dados, a do Tiago: 70 respostas, termo aceito, quatro lições com a revisão para 13/10 e uma para 17/10. Ela fica até essas revisões serem vistas no app. A de apelido Tiagopbc foi limpa em 11/10 e está sem respostas e sem termo. O contador do termo segue em 2.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona

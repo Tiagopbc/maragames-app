@@ -55,3 +55,12 @@ it('o mapa de rotas do Expo Router está desligado', () => {
 
     expect(rotas && rotas[1].sitemap).toBe(false);
 });
+
+// O nome que aparece embaixo do ícone e no carregamento do Expo Go é o da marca, o mesmo da
+// tela de login, e não o nome do repositório.
+it('o nome de exibição do app é o da marca', () => {
+    const { TEXTOS_DO_LOGIN } = require('@/constants/textos');
+
+    expect(expo.name).toBe(TEXTOS_DO_LOGIN.marca);
+    expect(expo.name).not.toContain('maragames-app');
+});

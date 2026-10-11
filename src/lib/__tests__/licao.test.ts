@@ -1,5 +1,4 @@
-import type { BlocoQuestao, Fase } from '../../types/domain';
-import type { Confianca } from '../../types/domain';
+import type { BlocoQuestao, Confianca, Fase } from '../../types/domain';
 import {
     cicloDaLicao,
     cicloDoAluno,
@@ -16,7 +15,7 @@ import {
     type QuestaoDaLicao,
     type RespostaDaLicao,
 } from '../licao';
-import { diaDeCalendario, inicioDoDia } from '../roteiro';
+import { diaDeCalendario, inicioDoDia } from '../calendario';
 
 const HORA = 60 * 60 * 1000;
 const DIA = 24 * HORA;

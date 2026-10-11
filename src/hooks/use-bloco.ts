@@ -4,14 +4,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { TEXTOS, TITULO_DA_FASE, TITULO_DA_FASE_NA_LICAO } from '@/constants/textos';
+import { TEXTOS, TITULO_DA_FASE_NA_LICAO } from '@/constants/textos';
 import { repositorio } from '@/data/repositorio';
-import {
-    pendentes,
-    proximoTopicoDaPratica,
-    questoesDaPratica,
-    questoesDoBlocoMedido,
-} from '@/lib/bloco';
+import { pendentes, questoesDaPratica, questoesDoBlocoMedido } from '@/lib/bloco';
 import { ordemDasAlternativas } from '@/lib/embaralhar';
 import {
     faseTemFeedback,
@@ -26,9 +21,7 @@ import type { Alternativa, Fase, FormaPre, Question } from '@/types/domain';
 export interface EntradaDoBloco {
     uid: string;
     fase: Fase;
-    // Na prática, null abre o primeiro tópico com questão pendente. Nos blocos sem feedback, o
-    // tópico faz deles um passo da lição (item 30); null é o bloco geral do roteiro antigo.
-    topicId: string | null;
+    topicId: string; // todo bloco é um passo da lição de um tópico (item 30)
     formaPre: FormaPre | null; // só nos blocos medidos; null enquanto não há consentimento
     relogio?: () => number; // ms; trocável em teste. Precisa ser sempre a mesma função.
 }
@@ -53,8 +46,7 @@ export type EstadoDoBloco =
     | { tipo: 'erro'; mensagem: string; podeTentarDeNovo: boolean }
     | { tipo: 'pergunta'; pergunta: PerguntaAtual; gravando: boolean; erroAoGravar: boolean }
     | { tipo: 'feedback'; pergunta: PerguntaAtual; resposta: SelecaoCompleta; feedback: Feedback }
-    // `relatorio` é null quando não houve bloco (prática sem tópico pendente): só a mensagem aparece.
-    | { tipo: 'concluido'; mensagem: string; relatorio: Relatorio | null };
+    | { tipo: 'concluido'; relatorio: Relatorio };
 
 // O que não muda a tela fica em ref: a fila de questões e a tentativa em que elas são gravadas.
 interface Sessao {
@@ -117,28 +109,18 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
                 repositorio.getRespostas(uid),
             ]);
 
+            const topico = topicos.find((t) => t.id === topicId)?.titulo ?? '';
             let doBloco: Question[];
             let nome: string;
             if (fase === 'pratica') {
-                const alvo =
-                    topicId ??
-                    proximoTopicoDaPratica(
-                        questoes,
-                        respostas,
-                        topicos.map((t) => t.id)
-                    );
-                if (alvo === null) {
-                    return { tipo: 'concluido', mensagem: TEXTOS.praticaConcluida, relatorio: null } as const;
-                }
-                doBloco = questoesDaPratica(questoes, alvo);
-                nome = topicos.find((t) => t.id === alvo)?.titulo ?? '';
+                doBloco = questoesDaPratica(questoes, topicId);
+                nome = topico;
             } else {
                 if (formaPre === null) {
                     return { tipo: 'erro', mensagem: TEXTOS.semConsentimento, podeTentarDeNovo: false } as const;
                 }
-                doBloco = questoesDoBlocoMedido(questoes, fase, topicId ? [topicId] : topicos.map((t) => t.id), formaPre);
-                const topico = topicos.find((t) => t.id === topicId)?.titulo;
-                nome = topico ? `${TITULO_DA_FASE_NA_LICAO[fase]} · ${topico}` : TITULO_DA_FASE[fase];
+                doBloco = questoesDoBlocoMedido(questoes, fase, [topicId], formaPre);
+                nome = `${TITULO_DA_FASE_NA_LICAO[fase]} · ${topico}`;
             }
             // Bloco vazio não é bloco concluído: seria pular a medição sem ninguém perceber.
             if (doBloco.length === 0) {
@@ -154,16 +136,11 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
             // Bloco já concluído: reabrir mostra o resultado, recalculado das respostas.
             const fila = pendentes(doBloco, respostas, fase);
             if (fila.length === 0) {
-                return {
-                    tipo: 'concluido',
-                    mensagem: TEXTOS.blocoConcluidoDetalhe,
-                    relatorio: relatorioDe(base),
-                } as const;
+                return { tipo: 'concluido', relatorio: relatorioDe(base) } as const;
             }
 
-            // A prática e os passos de uma lição pertencem à lição do tópico; os blocos gerais
-            // do roteiro antigo atravessam os tópicos.
-            const lessonId = fase === 'pratica' || topicId ? doBloco[0].lessonId : null;
+            // A tentativa pertence à lição do tópico, em qualquer fase.
+            const { lessonId } = doBloco[0];
             const tentativa =
                 (await repositorio.getAttemptEmAndamento(uid, fase, lessonId)) ??
                 (await repositorio.criarAttempt(uid, fase, lessonId));
@@ -219,7 +196,7 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
             // aberta não segura o aluno.
             console.warn('Não foi possível fechar a tentativa.', e);
         }
-        setEstado({ tipo: 'concluido', mensagem: TEXTOS.blocoConcluidoDetalhe, relatorio: relatorioDe(s) });
+        setEstado({ tipo: 'concluido', relatorio: relatorioDe(s) });
     }
 
     /** Grava a resposta. Só é chamada com as duas seleções feitas; não existe confirmar em branco. */
