@@ -8,6 +8,7 @@
     "scheme": "maragamesapp",
     "userInterfaceStyle": "automatic",
     "android": {
+      "package": "com.beastmaragames.app",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
@@ -15,7 +16,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -41,6 +42,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a4598502-a299-4533-8e42-cd598eab3d14"
+      }
+    },
+    "owner": "tiagopbc"
   }
 }

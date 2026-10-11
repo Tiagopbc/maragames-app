@@ -59,19 +59,19 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que está esperando resposta do Tiago
 
-1. **Aprovar o desenho da distribuição** (item 32 das decisões): web na Vercel e APK pelo EAS, decididos em 11/10. O levantamento está no item 32; nada foi implementado.
+1. **Distribuição (item 32 das decisões):** a configuração está na branch `feat/termo-e-distribuicao` e os projetos estão criados (EAS: `@tiagopbc/maragames-app`; Vercel: `maragames-app`, domínio `maragames-app.vercel.app`, publica a cada push no `main`). Falta o Tiago cadastrar as seis variáveis `EXPO_PUBLIC_FIREBASE_*` na Vercel e no EAS, incluir o domínio nos autorizados do Firebase Auth e liberar o push e o pull request. Depois: conferir a web publicada e gerar o primeiro APK.
 2. **Ver as revisões no app, em 13/10 e 17/10.** A conta do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3".
-3. **Ler o texto novo do termo** (`src/constants/termo.ts`), reescrito em 11/10 para o ciclo da lição, a pedido do Tiago. O começo com a conta limpa (apelido Tiagopbc) foi percorrido no app no mesmo dia, ainda com o texto antigo; a tela com o texto novo está coberta por teste e não foi vista.
+3. **Ver a tela do termo com o texto novo** (`src/constants/termo.ts`), reescrito em 11/10 para o ciclo da lição e aprovado pelo Tiago. O começo com a conta limpa (apelido Tiagopbc) foi percorrido no app no mesmo dia, ainda com o texto antigo; a tela com o texto novo está coberta por teste e não foi vista.
 5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
 6. **O grupo:** confirmar a virada do projeto. As 30 questões novas seguem como estão, por decisão do Tiago em 11/10.
 
 ## Estado do repositório
 
 - **`main`:** tem os pull requests nº 5 a nº 10 integrados (o nº 10, em 11/10, com a Fase 9 e o acabamento de código da Fase 10). O nº 8 trouxe o app do ciclo da lição e o nº 9, em 11/10, a correção do ciclo de quem já praticou; a revisão do Codex no nº 9 terminou sem apontamento.
-- **Branch atual, só local:** `feat/termo-e-distribuicao`, em cima do `main`, com o texto novo do termo e os documentos. Sem commit, sem push e sem pull request.
+- **Branch atual, só local:** `feat/termo-e-distribuicao`, em cima do `main`, com o texto novo do termo, a configuração da distribuição e os documentos, em commit. Sem push e sem pull request.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 604 testes (600 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
-- **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
+- **Verificação:** `npm test` passa com 610 testes (606 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
