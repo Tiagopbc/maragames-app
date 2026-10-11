@@ -59,25 +59,24 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que está esperando resposta do Tiago
 
-1. **Push e pull request da branch `feat/exportacao-e-acabamento`.** Ela está só no computador, com cinco commits em cima do `main`: exportação por lição e fim do roteiro antigo (Fase 9), nome do app, dependências, ESLint e script de limpeza (Fase 10), e documentos. O Tiago ainda não respondeu se pode enviar: perguntar antes.
+1. **Aprovar o desenho da distribuição** (item 32 das decisões): web na Vercel e APK pelo EAS, decididos em 11/10. O levantamento está no item 32; nada foi implementado.
 2. **Ver as revisões no app, em 13/10 e 17/10.** A conta do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3".
-3. **Percorrer o começo com a conta limpa** (apelido Tiagopbc): termo antes do primeiro diagnóstico. Está coberto por teste e ainda não foi visto no app.
-4. **Forma de distribuição:** Expo Go, web na Vercel ou build com APK/TestFlight.
+3. **Ler o texto novo do termo** (`src/constants/termo.ts`), reescrito em 11/10 para o ciclo da lição, a pedido do Tiago. O começo com a conta limpa (apelido Tiagopbc) foi percorrido no app no mesmo dia, ainda com o texto antigo; a tela com o texto novo está coberta por teste e não foi vista.
 5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
-6. **O grupo:** confirmar a virada do projeto e revisar as 30 questões novas.
+6. **O grupo:** confirmar a virada do projeto. As 30 questões novas seguem como estão, por decisão do Tiago em 11/10.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 9 integrados. O nº 8 trouxe o app do ciclo da lição e o nº 9, em 11/10, a correção do ciclo de quem já praticou; a revisão do Codex no nº 9 terminou sem apontamento.
-- **Branch atual, só local:** `feat/exportacao-e-acabamento`, refeita em cima do `main` em 11/10. Sem push e sem pull request.
+- **`main`:** tem os pull requests nº 5 a nº 10 integrados (o nº 10, em 11/10, com a Fase 9 e o acabamento de código da Fase 10). O nº 8 trouxe o app do ciclo da lição e o nº 9, em 11/10, a correção do ciclo de quem já praticou; a revisão do Codex no nº 9 terminou sem apontamento.
+- **Branch atual, só local:** `feat/termo-e-distribuicao`, em cima do `main`, com o texto novo do termo e os documentos. Sem commit, sem push e sem pull request.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 598 testes (594 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 604 testes (600 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
-- **Dados de teste:** resta uma conta com dados, a do Tiago: 70 respostas, termo aceito, quatro lições com a revisão para 13/10 e uma para 17/10. Ela fica até essas revisões serem vistas no app. A de apelido Tiagopbc foi limpa em 11/10 e está sem respostas e sem termo. O contador do termo segue em 2.
+- **Dados de teste:** resta uma conta com dados, a do Tiago: 70 respostas, termo aceito, quatro lições com a revisão para 13/10 e uma para 17/10. Ela fica até essas revisões serem vistas no app. A de apelido Tiagopbc foi usada em 11/10 para percorrer o começo e limpa de novo pelo Tiago em seguida: está sem respostas e sem termo. O contador do termo está em 3.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
@@ -93,9 +92,10 @@ Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em
 ## Limites do assistente nesta máquina
 
 - Não cria conta nem digita senha em serviço de login externo, e o Firebase Auth é um.
-- **Sessão logada no painel do navegador.** A sessão do painel do navegador não passa de uma conversa para outra: em 09/10, numa conversa nova, `http://localhost:8081` abriu no login. A saída foi o Chrome do Tiago, pela extensão, onde a conta dele está logada em `http://localhost:8081` (a conta Tiagopbc estava em `http://127.0.0.1:8081`). Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
+- **Sessão logada no painel do navegador.** A sessão do painel do navegador não passa de uma conversa para outra: em 09/10, numa conversa nova, `http://localhost:8081` abriu no login. A saída foi o Chrome do Tiago, pela extensão, onde a conta principal dele (apelido Tiago) está logada em `http://localhost:8081` e a conta Tiagopbc, em `http://127.0.0.1:8081`. Antes de conferir qualquer tela logada, abrir o painel e ver se cai na home ou no login; se cair no login, pedir ao Tiago para entrar, e não tentar entrar por conta própria.
 - Para ver o login sem deslogar ninguém, abrir `http://127.0.0.1:8081` no painel: é outro endereço para o navegador, então não enxerga a sessão de `localhost`.
 - Não apaga dados em definitivo. Para a limpeza, escreve um script que primeiro lista, e o Tiago roda.
+- O repositório é público: e-mail, telefone ou outro dado de pessoa de verdade não entra em documento, teste, commit nem pull request. As contas são citadas pelo apelido.
 - O protótipo do Figma foi corrigido à mão pelo Tiago em 08/10; a integração do assistente com o Figma estava barrada pelo limite do plano.
 
 ## Prazos
