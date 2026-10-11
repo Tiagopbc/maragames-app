@@ -332,7 +332,8 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Esperando o Tiago**
 
-- Integrar o pull request nº 9 (a correção do ciclo de quem já praticou) e decidir o push e o pull request da branch `feat/exportacao-e-acabamento`, que traz a Fase 9 e a parte da Fase 10 feita em 10/10.
+- Decidir o push e o pull request da branch `feat/exportacao-e-acabamento`, que traz a Fase 9 e a parte da Fase 10 feita em 10/10. Está só no computador.
+- Ver as revisões no app em 13/10 e 17/10, na conta do Tiago, e o começo com o termo, na conta limpa.
 - Decidir a forma de distribuição (ver abaixo).
 
 **Fase 0 — Documentos e o que está aberto**
@@ -370,6 +371,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 11/10**
 
+- Pull request nº 9 integrado ao `main` pelo Tiago (o ciclo de quem já praticou, item 30). A revisão automática terminou sem apontamento.
 - Conta de teste de apelido Tiagopbc limpa pelo Tiago, com `npm run limpar:teste`: saíram as 40 respostas, as 6 tentativas e o aceite do termo. O login e o cadastro ficaram, então ela serve de conta nova para percorrer uma lição do zero.
 - Sobras do seed antigo (item 21): as 3 questões fora do JSON foram apagadas pelo Tiago, com `--prune`.
 
