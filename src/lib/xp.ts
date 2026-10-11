@@ -28,7 +28,7 @@ export function somarXp(respostas: readonly Pick<Answer, 'correta' | 'confianca'
  */
 export function xpDasLicoes(
     respostas: readonly Pick<Answer, 'fase' | 'questionId' | 'topicId' | 'correta' | 'confianca'>[],
-    licoes: readonly { topicId: string; estado: Pick<Licao['estado'], 'tipo'> }[]
+    licoes: readonly { topicId: string; ciclo: Licao['ciclo']; estado: Pick<Licao['estado'], 'tipo'> }[]
 ): number | null {
     const ultimaPorQuestao = new Map<string, Pick<Answer, 'correta' | 'confianca'>>();
     for (const r of respostasAVista(respostas, licoes)) ultimaPorQuestao.set(`${r.fase}|${r.questionId}`, r);

@@ -33,7 +33,7 @@ Combinados com o Tiago, que valem para toda sessão:
 
 ## Resultado da rodada de 10/10
 
-Feito no código, com teste, e **sem commit** (o último commit é o da Fase 1):
+Feito no código, com teste, e integrado ao `main` pelo pull request nº 8:
 
 - **Fase 2:** página da lição, cartão e passos em `/licoes/[topicId]/...`, trava por lição, termo antes do primeiro diagnóstico, testes de emulador de `answers` e `attempts`.
 - **Fase 3:** lista de lições em `/licoes`, por módulo, com situação e domínio.
@@ -65,18 +65,17 @@ Depois da revisão do Tiago no iPhone, em 10/10: o Progresso ganhou a seção "O
 
 ## O que está esperando resposta do Tiago
 
-1. **Revisar e aprovar a rodada de 10/10**, com a lista de escolhas acima, e testar no app.
-2. **Commit, push e pull request** da branch `feat/ciclo-da-licao`: só depois da aprovação.
+1. **Push e pull request da branch `fix/ciclo-de-quem-ja-praticou`**: a correção do apontamento que a revisão automática deixou no pull request nº 8 (item 30).
+2. **Criar uma conta nova** para percorrer uma lição de ciclo completo desde o diagnóstico: é a parte da prova da Fase 2 que falta.
 3. **Decidir sobre o `--prune`**: o seed de 10/10 gravou as 100 questões e manteve as 3 antigas que estão fora do JSON.
-4. **Criar uma conta nova** para percorrer uma lição de ciclo completo desde o diagnóstico: é a parte da prova da Fase 2 que falta.
-5. **O grupo:** confirmar a virada e revisar as 30 questões novas.
+4. **O grupo:** confirmar a virada e revisar as 30 questões novas.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 (roteiro do piloto), nº 6 (correção do tema na web) e nº 7 (XP à vista, exportação, plano e documentos da virada), todos integrados em 09/10.
-- **Branch atual, só local:** `feat/ciclo-da-licao`, saída do `main`. A Fase 1 está em commit; as Fases 2 a 6 e 8 estão prontas e fora de commit, à espera da revisão do Tiago.
+- **`main`:** tem os pull requests nº 5 a nº 8 integrados. O nº 8, de 10/10, trouxe o app do ciclo da lição (Fases 1 a 6 e 8) e o tema.
+- **Branch atual, só local:** `fix/ciclo-de-quem-ja-praticou`, saída do `main`, com a correção do ciclo de quem já praticou.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 613 testes (609 no projeto "nativo" e 4 no "web"; são menos que os 658 de antes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 629 testes (625 no projeto "nativo" e 4 no "web"; são menos que os 658 de antes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081) e, para o celular, `npx expo start --port 8082`.
 
 ## Estado do Firebase (projeto `maragames-mobile`)

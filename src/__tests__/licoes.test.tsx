@@ -387,6 +387,43 @@ describe('a trava da lição', () => {
     });
 });
 
+// O conteúdo pode ganhar diagnóstico depois de alguém já ter praticado o tópico (item 30).
+describe('quem praticou antes de a lição ter diagnóstico', () => {
+    beforeEach(() => {
+        repo.questoes.push(questao('gdd_a1', 'forma_a', 2), questao('gdd_b1', 'forma_b', 3));
+        respondida('pratica', 'gdd_p1');
+    });
+
+    it('a lição continua concluída, só com a etapa de cartão e prática', async () => {
+        await abrirEm('/licoes/gdd');
+
+        expect(await screen.findByLabelText('Cartão e prática, feito, 1 questão')).toBeOnTheScreen();
+        expect(screen.queryByText('Diagnóstico')).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Começar' })).toBeNull();
+    });
+
+    it('o diagnóstico não abre nem pela URL: ele já não mediria o antes', async () => {
+        const rotas = await abrirEm('/licoes/gdd/diagnostico');
+
+        expect(await screen.findByLabelText('Cartão e prática, feito, 1 questão')).toBeOnTheScreen();
+        expect(rotas.caminho()).toBe('/licoes/gdd');
+        expect(screen.queryByText('Enunciado de gdd_a1')).toBeNull();
+    });
+
+    it('na lista, ela aparece como concluída', async () => {
+        await abrirEm('/licoes');
+
+        expect(await screen.findByRole('button', { name: 'GDD, Concluída, domínio 1 de 1' })).toBeOnTheScreen();
+    });
+
+    it('quem ainda não praticou o mesmo tópico começa pelo diagnóstico', async () => {
+        repo.respostas = [];
+        await abrirEm('/licoes/gdd');
+
+        expect(await screen.findByLabelText('Diagnóstico, agora, 1 questão')).toBeOnTheScreen();
+    });
+});
+
 describe('a lista de lições', () => {
     beforeEach(() => {
         repo.licoes[1].modulo = 'Áudio & Música';

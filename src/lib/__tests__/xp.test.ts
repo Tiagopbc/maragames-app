@@ -58,7 +58,11 @@ describe('xpDasLicoes', () => {
         correta,
         confianca,
     });
-    const licao = (topicId: string, tipo: EstadoDaLicao['tipo']) => ({ topicId, estado: { tipo } });
+    const licao = (topicId: string, tipo: EstadoDaLicao['tipo'], ciclo: 'completo' | 'curto' = 'completo') => ({
+        topicId,
+        ciclo,
+        estado: { tipo },
+    });
 
     it('sem resposta nenhuma, não há total para mostrar', () => {
         expect(xpDasLicoes([], [licao('mda', 'nova')])).toBeNull();
@@ -102,6 +106,12 @@ describe('xpDasLicoes', () => {
         const respostas = [r('pre', 'antigo_a1', true, 3), r('pratica', 'antigo_p1', true, 2)];
 
         expect(xpDasLicoes(respostas, [licao('mda', 'nova')])).toBe(2);
+    });
+
+    it('em lição de ciclo curto, bloco sem feedback não entra no total, mesmo com a lição concluída', () => {
+        const respostas = [r('pratica', 'gdd_p1', true, 2), r('pre', 'gdd_a1', true, 3)];
+
+        expect(xpDasLicoes(respostas, [licao('gdd', 'concluida', 'curto')])).toBe(2);
     });
 
     it('questão respondida duas vezes na mesma fase conta uma vez, pela mais recente', () => {
