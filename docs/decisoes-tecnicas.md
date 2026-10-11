@@ -352,7 +352,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - Conferir num aparelho de verdade, iPhone e Android, nos dois temas: home, lista, lição, fim de cada passo, Progresso e Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status. No iPhone, em tema escuro, o Tiago já viu a home, a lista e o Progresso em 10/10.
 - Conferir a troca de tema do sistema com o app aberto e logado (item 29).
-- Dados de teste: limpar as contas de teste quando for a hora, com `npm run limpar:teste`, que só lista até receber `--email` e `--apagar`. O banco tem 6 contas; só duas têm respostas.
+- Dados de teste: a conta de apelido Tiagopbc foi limpa em 11/10 (ver resolvidas). Resta a do Tiago, com 70 respostas e o termo aceito, mantida de propósito até as revisões de 13/10 e 17/10 serem vistas no app. Quando ela for limpa, zerar também o contador do termo, que está em 2 (`--zerar-contador`).
 - Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): decisão do Tiago.
 
 **Decisões em aberto**
@@ -370,6 +370,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 11/10**
 
+- Conta de teste de apelido Tiagopbc limpa pelo Tiago, com `npm run limpar:teste`: saíram as 40 respostas, as 6 tentativas e o aceite do termo. O login e o cadastro ficaram, então ela serve de conta nova para percorrer uma lição do zero.
 - Sobras do seed antigo (item 21): as 3 questões fora do JSON foram apagadas pelo Tiago, com `--prune`.
 
 **Resolvidas em 10/10**

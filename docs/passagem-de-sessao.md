@@ -91,7 +91,7 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
-- **Dados de teste:** duas contas, que ficam até a Fase 2 do plano (decisão D8). A do Tiago (pós em 06/10) tem 58 respostas, incluindo GDD (08/10), UX/UI (09/10) e Efeitos sonoros (10/10, feita pelo assistente), e uma tentativa de reteste aberta. A de apelido Tiagopbc (pós em 08/10) tem 40 respostas. O contador do piloto está em 2.
+- **Dados de teste:** resta uma conta com dados, a do Tiago: 70 respostas, termo aceito, quatro lições com a revisão para 13/10 e uma para 17/10. Ela fica até essas revisões serem vistas no app. A de apelido Tiagopbc foi limpa em 11/10 e está sem respostas e sem termo. O contador do termo segue em 2.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
