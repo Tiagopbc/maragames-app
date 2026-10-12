@@ -4,7 +4,7 @@ Resumo para continuar o trabalho em outra conversa, sem depender do histórico d
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31, 32 e 33 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31, 32, 33 e 34 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
@@ -71,17 +71,19 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que está esperando resposta do Tiago
 
-1. **Fechar o que entrou em 12/10 (item 33 das decisões):** confirmar que o link de redefinição troca a senha (o e-mail chegou, em português, mas no spam) e ver no app o Perfil em seções e o termo para reler. **Responder sobre os dados do perfil**, sugeridos ao Tiago em 12/10: divisão em obrigatórios no cadastro e opcionais no Perfil, que campos entram e se o app aceita menor de 18; nada disso foi codado.
-2. **Instalar o APK num Android** (build `d9a3b84d`, de 12/10, já com o item 33) e conferir o login por e-mail e uma lição.
-3. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
-4. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo com o texto novo já foram vistas pelo Tiago, em 12/10.
+1. **Publicar as regras do Firestore** logo depois de integrar o pull request do item 34: `npx firebase deploy --only firestore:rules`. A ordem importa: primeiro o app no `main`, depois as regras. Sem elas, quem não faz graduação nem pós não salva o perfil.
+2. **Ver no app o que entrou com o item 34**, que pede conta logada e não foi visto: completar o perfil (conta nova e conta antiga), "Sobre você e os jogos", o aceite de contato e as notas por módulo antes do primeiro diagnóstico. E fechar o item 33: confirmar que o link de redefinição troca a senha, e ver o Perfil em seções e o termo para reler.
+3. **Confirmar com o professor** a decisão de aceitar só maiores de 18, tomada sem consulta jurídica.
+4. **Gerar um APK novo** depois do item 34 no `main` e das regras publicadas (`npx eas-cli build -p android --profile preview`), instalar num Android e conferir o login por e-mail e uma lição. Os dois builds de 12/10 não têm o perfil novo.
+5. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. Ela vai cair antes na tela de completar o perfil, por causa do item 34. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
+6. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo já foram vistas pelo Tiago, em 12/10.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 13 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 12, documentos; o nº 13, em 12/10, o olho na senha, a redefinição, o Perfil em seções e o termo para reler.
-- **Branch atual, só local:** `docs/apk-novo-e-redefinicao`, em cima do `main` (que já tem o pull request nº 13), só com o registro do segundo APK e do e-mail de redefinição. Perguntar antes do push.
+- **`main`:** tem os pull requests nº 5 a nº 14 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 12 e o nº 14, documentos.
+- **Branch atual:** `feat/dados-do-perfil`, em cima do `main`, com o item 34 inteiro (núcleo do perfil, opcionais, autoavaliação, origem da tentativa, exportação, termo e regras), em pull request aberto em 12/10. As regras do Firestore mudaram: precisam ser publicadas depois da integração.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 632 testes (628 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 724 testes (720 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 110 (precisa de Java; rodado em 12/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
 - **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
