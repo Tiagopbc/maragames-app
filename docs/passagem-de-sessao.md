@@ -4,7 +4,7 @@ Resumo para continuar o trabalho em outra conversa, sem depender do histórico d
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31 e 32 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31, 32 e 33 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
@@ -71,25 +71,24 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que está esperando resposta do Tiago
 
-1. **Entrar na web publicada**, por e-mail e senha e pelo Google: o assistente não entra em conta, então o login em si não foi testado em `maragames-app.vercel.app`.
+1. **Testar e ver o que entrou em 12/10 (item 33 das decisões):** o "Esqueci a senha" com uma conta de e-mail e senha (o e-mail chega? o link troca a senha?), o Perfil em seções e o termo para reler. O olho da senha já foi visto no navegador. **Escolher os campos novos do perfil**, entre os sugeridos ao Tiago em 12/10: faixa etária, cidade e estado, área de interesse, objetivo e aceite de contato; nada disso foi codado.
 2. **Instalar o primeiro APK num Android** (build `d11d99c8`) e conferir o login por e-mail e uma lição.
-3. **Ver as revisões no app, em 13/10 e 17/10.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso a conta pode ser limpa, com o contador do termo (`--zerar-contador`).
+3. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
 4. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo com o texto novo já foram vistas pelo Tiago, em 12/10.
-5. **O grupo:** confirmar a virada do projeto.
 
 ## Estado do repositório
 
 - **`main`:** tem os pull requests nº 5 a nº 11 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, em 12/10, o termo novo e a configuração da distribuição.
-- **Branch atual:** `docs/distribuicao-no-ar`, em cima do `main`, só com esta passagem e os itens 24 e 32 atualizados, em pull request aberto em 12/10. Depois de integrado, o trabalho novo parte do `main`, em branch própria.
+- **Branch atual:** `feat/senha-e-perfil`, em cima do `main` (que já tem o pull request nº 12), com o registro da lição feita na web publicada, a virada confirmada e o item 33 (olho da senha, redefinição, Perfil em seções e termo para reler), em pull request aberto em 12/10.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 610 testes (606 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 632 testes (628 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
 - **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
-- **Dados de teste:** resta uma conta com dados, a do Tiago: 70 respostas, termo aceito, quatro lições com a revisão para 13/10 e uma para 17/10. Ela fica até essas revisões serem vistas no app. A de apelido Tiagopbc foi usada em 11/10 para percorrer o começo e limpa de novo pelo Tiago em seguida: está sem respostas e sem termo. O contador do termo está em 3.
+- **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 82 respostas, termo aceito, revisões para 13/10 e 17/10; fica até elas serem vistas no app. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: limpa. O contador do termo está em 4.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
