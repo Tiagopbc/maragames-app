@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { TEXTOS, TITULO_DA_FASE_NA_LICAO } from '@/constants/textos';
 import { repositorio } from '@/data/repositorio';
+import { origemDaTentativa } from '@/lib/aparelho';
 import { pendentes, questoesDaPratica, questoesDoBlocoMedido } from '@/lib/bloco';
 import { ordemDasAlternativas } from '@/lib/embaralhar';
 import {
@@ -143,7 +144,7 @@ export function useBloco({ uid, fase, topicId, formaPre, relogio = Date.now }: E
             const { lessonId } = doBloco[0];
             const tentativa =
                 (await repositorio.getAttemptEmAndamento(uid, fase, lessonId)) ??
-                (await repositorio.criarAttempt(uid, fase, lessonId));
+                (await repositorio.criarAttempt(uid, fase, lessonId, origemDaTentativa()));
 
             const sessao: Sessao = { attemptId: tentativa.id, fila, indice: 0, total: doBloco.length, ...base };
             return { tipo: 'aberto', nome, sessao } as const;

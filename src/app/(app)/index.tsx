@@ -54,7 +54,7 @@ const ATALHOS: Atalho[] = [
 ];
 
 export default function HomeScreen() {
-  const { perfil, user } = useSession();
+  const { perfil, user, precisaDaAutoavaliacao } = useSession();
   const theme = useTheme();
   const router = useRouter();
 
@@ -91,6 +91,8 @@ export default function HomeScreen() {
     router.push({ pathname: '/licoes/[topicId]', params: { topicId } });
     // Sem o termo aceito, quem explica o que falta é a página da lição.
     if (!destino || destino.tipo === 'termo') return;
+    // Antes do primeiro diagnóstico vêm as notas por módulo (item 34): a página da lição leva a elas.
+    if (destino.passo === 'diagnostico' && precisaDaAutoavaliacao && licao.estado.tipo === 'nova') return;
     if (destino.passo === 'cartao') router.push({ pathname: '/licoes/[topicId]/cartao', params: { topicId } });
     else router.push({ pathname: '/licoes/[topicId]/[passo]', params: { topicId, passo: destino.passo } });
   }

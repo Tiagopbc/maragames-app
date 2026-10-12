@@ -14,6 +14,9 @@ export default function AppLayout() {
       <Stack.Screen name="progresso/[topicId]" />
       <Stack.Screen name="perfil" />
       <Stack.Screen name="termo" />
+      <Stack.Screen name="sobre-voce" />
+      {/* Sem gesto de voltar, como nos blocos: as notas não se pulam com um deslize. */}
+      <Stack.Screen name="autoavaliacao" options={{ gestureEnabled: false }} />
     </Stack>
   );
 }

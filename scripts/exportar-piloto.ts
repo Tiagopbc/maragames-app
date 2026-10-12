@@ -45,11 +45,13 @@ async function main() {
     initializeApp({ credential: cert(JSON.parse(readFileSync(join(raiz, 'serviceAccountKey.json'), 'utf8'))) });
     const db = getFirestore();
 
-    const [usuarios, respostas, questoes, licoes] = await Promise.all([
+    const [usuarios, respostas, questoes, licoes, tentativas, autoavaliacoes] = await Promise.all([
         db.collection('users').get(),
         db.collection('answers').get(),
         db.collection('questions').get(),
         db.collection('lessons').get(),
+        db.collection('attempts').get(),
+        db.collection('selfAssessments').get(),
     ]);
 
     const perfis: PerfilDoExport[] = usuarios.docs.map((d) => {
@@ -60,7 +62,23 @@ async function main() {
             apelido: u.apelido,
             email: u.email,
             telefone: u.telefone,
+            faixaEtaria: u.faixaEtaria,
+            cidade: u.cidade,
+            uf: u.uf,
+            situacaoDeEstudo: u.situacaoDeEstudo,
+            instituicao: u.instituicao,
+            curso: u.curso,
             experiencia: u.experiencia,
+            aceitaContato: u.aceitaContato,
+            ocupacao: u.ocupacao,
+            engines: u.engines,
+            linguagens: u.linguagens,
+            estudoDeGameDesign: u.estudoDeGameDesign,
+            interesses: u.interesses,
+            objetivo: u.objetivo,
+            tempoPorSemana: u.tempoPorSemana,
+            comoConheceu: u.comoConheceu,
+            alunoDoSite: u.alunoDoSite,
             formaPre: u.formaPre ?? null,
             consentiuEm: u.consentiuEm ? u.consentiuEm.toMillis() : null,
         };
@@ -73,6 +91,16 @@ async function main() {
             // Questão sem bloco é sobra de um seed antigo: não faz parte do conteúdo do piloto.
             questoes: ordenarQuestoes(questoes.docs.map((d) => paraQuestion(d.id, d.data())).filter((q) => q.bloco)),
             topicos: topicosDasLicoes(ordenarLicoes(licoes.docs.map((d) => paraLesson(d.id, d.data())))),
+            tentativas: tentativas.docs.map((d) => ({
+                id: d.id,
+                plataforma: d.data().plataforma,
+                versaoDoApp: d.data().versaoDoApp,
+            })),
+            autoavaliacoes: autoavaliacoes.docs.map((d) => ({
+                uid: d.id,
+                notas: d.data().notas,
+                respondidaEm: d.data().respondidaEm.toMillis(),
+            })),
         },
         { desde }
     );

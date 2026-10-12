@@ -12,7 +12,7 @@ import { useSession } from '@/lib/session';
 // ordem; a trava vale só para os passos dentro dela.
 export default function LicaoScreen() {
     const { topicId } = useLocalSearchParams<{ topicId: string }>();
-    const { user, perfil } = useSession();
+    const { user, perfil, precisaDaAutoavaliacao } = useSession();
     const router = useRouter();
 
     const { formaPre } = participanteDoRoteiro(perfil);
@@ -38,6 +38,11 @@ export default function LicaoScreen() {
     function abrir(destino: DestinoDaLicao) {
         if (destino.tipo === 'termo') {
             router.push('/consentimento');
+            return;
+        }
+        // Antes do primeiro diagnóstico, a pessoa se dá uma nota em cada módulo (item 34).
+        if (destino.passo === 'diagnostico' && precisaDaAutoavaliacao && estado.tipo === 'pronto' && estado.licao.estado.tipo === 'nova') {
+            router.push('/autoavaliacao');
             return;
         }
         if (destino.passo === 'cartao') {

@@ -221,7 +221,7 @@ Andamento em 10/10: feita. Entrou `licoes.csv`, e o que sobrava do roteiro do pi
 **Fase 10 — Acabamento.**
 Conferência em iPhone e Android, nome de exibição do app, dependências sem uso, ESLint, limpeza dos dados de teste e forma de distribuição.
 Prova: uma pessoa de fora instala, cria conta e conclui uma lição sem ajuda.
-Andamento em 10/10: nome de exibição, dependências sem uso, ESLint e script de limpeza feitos. Em 11/10 a forma de distribuição foi decidida: web na Vercel e APK pelo EAS (item 32 das decisões). Em 12/10 a web foi ao ar em `maragames-app.vercel.app`, com as variáveis do Firebase cadastradas, e o primeiro APK foi gerado no EAS. Faltam o login testado na web publicada, o APK instalado num aparelho, a conferência em iPhone e Android e a limpeza da conta de teste que resta (comando do Tiago).
+Andamento em 10/10: nome de exibição, dependências sem uso, ESLint e script de limpeza feitos. Em 11/10 a forma de distribuição foi decidida: web na Vercel e APK pelo EAS (item 32 das decisões). Em 12/10 a web foi ao ar em `maragames-app.vercel.app`, com as variáveis do Firebase cadastradas, e o primeiro APK foi gerado no EAS. Ainda em 12/10 entraram o olho na senha, a redefinição por e-mail e o Perfil em seções (item 33) e os dados do perfil, com a autoavaliação por módulo (item 34). Faltam publicar as regras do Firestore, um APK novo instalado num aparelho, a conferência em iPhone e Android e a limpeza das contas de teste (comando do Tiago).
 
 ## 9. Para onde vão as pendências do item 24
 

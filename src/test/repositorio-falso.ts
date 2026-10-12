@@ -7,10 +7,12 @@ import { formaDoParticipante } from '../lib/participante';
 import type {
     Answer,
     Attempt,
+    Autoavaliacao,
     Consentimento,
     Fase,
     Lesson,
     NovaResposta,
+    OrigemDaTentativa,
     Question,
     Topico,
 } from '../types/domain';
@@ -21,6 +23,7 @@ export class RepositorioFalso implements ProgressRepository {
     respostas: Answer[] = [];
     attempts: Attempt[] = [];
     consentimentos = new Map<string, Consentimento>();
+    autoavaliacoes = new Map<string, Autoavaliacao>();
 
     /** Quantas das próximas gravações falham antes de gravar qualquer coisa (aparelho sem rede). */
     falhasAoGravar = 0;
@@ -42,6 +45,7 @@ export class RepositorioFalso implements ProgressRepository {
         this.respostas = [];
         this.attempts = [];
         this.consentimentos = new Map();
+        this.autoavaliacoes = new Map();
         this.falhasAoGravar = 0;
         this.falhaDepoisDeGravar = false;
         this.falhaAoCarregar = false;
@@ -78,7 +82,7 @@ export class RepositorioFalso implements ProgressRepository {
         );
     }
 
-    async criarAttempt(uid: string, fase: Fase, lessonId: string | null): Promise<Attempt> {
+    async criarAttempt(uid: string, fase: Fase, lessonId: string | null, origem?: OrigemDaTentativa): Promise<Attempt> {
         const attempt: Attempt = {
             id: `t${this.attempts.length + 1}`,
             uid,
@@ -87,6 +91,7 @@ export class RepositorioFalso implements ProgressRepository {
             respostas: [],
             concluida: false,
             createdAt: this.relogio++,
+            ...origem,
         };
         this.attempts.push(attempt);
         return attempt;
@@ -119,5 +124,17 @@ export class RepositorioFalso implements ProgressRepository {
         };
         this.consentimentos.set(uid, consentimento);
         return consentimento;
+    }
+
+    async getAutoavaliacao(uid: string): Promise<Autoavaliacao | null> {
+        return this.autoavaliacoes.get(uid) ?? null;
+    }
+
+    async registrarAutoavaliacao(uid: string, notas: Record<string, number>): Promise<Autoavaliacao> {
+        const jaGravada = this.autoavaliacoes.get(uid);
+        if (jaGravada) return jaGravada;
+        const autoavaliacao: Autoavaliacao = { uid, notas, respondidaEm: this.relogio++ };
+        this.autoavaliacoes.set(uid, autoavaliacao);
+        return autoavaliacao;
     }
 }

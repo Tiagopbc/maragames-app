@@ -123,6 +123,19 @@ describe('a pergunta', () => {
 
 // Em tela de celular, o que fica dentro da área que rola pode sumir abaixo da dobra. A confiança
 // não pode depender de rolagem: um nível que o participante não vê enviesa a medida.
+describe('a tentativa', () => {
+    it('guarda de onde foi feita: a plataforma e a versão do app', async () => {
+        await abrir('pratica');
+        await screen.findByRole('button', { name: 'Confirmar' });
+
+        expect(repo.attempts).toHaveLength(1);
+        expect(typeof repo.attempts[0].plataforma).toBe('string');
+        expect(repo.attempts[0].plataforma).not.toBe('');
+        expect(typeof repo.attempts[0].versaoDoApp).toBe('string');
+        expect(repo.attempts[0].versaoDoApp).not.toBe('');
+    });
+});
+
 describe('a barra de progresso', () => {
     const barra = () => screen.getByRole('progressbar');
 

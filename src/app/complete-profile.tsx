@@ -4,33 +4,31 @@ import { FormularioDoPerfil } from '@/components/perfil/formulario-do-perfil';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { TEXTOS_DO_PERFIL } from '@/constants/textos';
 import { useSession } from '@/lib/session';
 
-// O primeiro preenchimento do perfil: todos os campos são obrigatórios (item 8). Ao salvar, a
-// navegação troca de tela sozinha, pelo estado da sessão (item 7).
+// O preenchimento do núcleo do perfil, que é obrigatório (itens 8 e 34). É a tela de quem acabou
+// de criar a conta e também a de quem tem um perfil de antes de 12/10/2026, sem os campos novos:
+// o que já existe vem preenchido. Ao salvar, a navegação troca de tela sozinha, pelo estado da
+// sessão (item 7).
 export default function CompleteProfileScreen() {
-    const { user, salvarPerfil, sair } = useSession();
+    const { user, perfil, salvarPerfil, sair } = useSession();
 
     return (
         <ThemedView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scroll}>
+            <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
                 <ThemedView style={styles.card}>
-                    <ThemedText type="subtitle">Seu perfil</ThemedText>
+                    <ThemedText type="subtitle">{TEXTOS_DO_PERFIL.seuPerfil}</ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
                         Falta pouco para começar. Entrando como {user?.email}.
                     </ThemedText>
 
                     <FormularioDoPerfil
-                        inicial={{
-                            nome: user?.displayName ?? '',
-                            apelido: '',
-                            telefone: '',
-                            instituicao: '',
-                            curso: '',
-                            experiencia: 'iniciante',
-                        }}
-                        rotuloDoBotao="Salvar e começar"
-                        aoSalvar={salvarPerfil}
+                        inicial={{ nome: user?.displayName ?? '', ...perfil }}
+                        rotuloDoBotao={TEXTOS_DO_PERFIL.salvarEComecar}
+                        // O aceite de contato vai junto, na mesma gravação.
+                        aoSalvar={(dados, aceitaContato) => salvarPerfil(dados, { aceitaContato: aceitaContato ?? false })}
+                        comAceiteDeContato
                     />
 
                     <Pressable onPress={sair}>

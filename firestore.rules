@@ -10,13 +10,53 @@ service cloud.firestore {
     // O cliente valida para dar mensagem boa; a regra abaixo é a garantia.
     // Com setDoc({ merge: true }), request.resource.data é o documento já mesclado,
     // então a checagem vale tanto para a criação quanto para a edição do perfil.
-    function perfilValido(d) {
+    // As listas são as de src/lib/perfil.ts. Mudou uma, muda a outra.
+
+    // O núcleo obrigatório (item 34). Instituição e curso só são exigidos na graduação e na pós.
+    function nucleoValido(d) {
       return d.nome is string && d.nome.size() >= 2 && d.nome.size() <= 60
           && d.apelido is string && d.apelido.size() >= 2 && d.apelido.size() <= 20
           && d.telefone is string && d.telefone.size() >= 10 && d.telefone.size() <= 11
-          && d.instituicao is string && d.instituicao.size() >= 2 && d.instituicao.size() <= 80
-          && d.curso is string && d.curso.size() >= 2 && d.curso.size() <= 80
+          && d.faixaEtaria in ['18_24', '25_34', '35_44', '45_mais']
+          && d.cidade is string && d.cidade.size() >= 2 && d.cidade.size() <= 60
+          && d.uf in ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
+                      'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
+          && d.situacaoDeEstudo in ['ensino_medio', 'graduacao', 'pos', 'formado', 'nao_estudo']
+          && (!(d.situacaoDeEstudo in ['graduacao', 'pos'])
+              || (d.instituicao is string && d.instituicao.size() >= 2 && d.instituicao.size() <= 80
+                  && d.curso is string && d.curso.size() >= 2 && d.curso.size() <= 80))
           && d.experiencia in ['iniciante', 'intermediario', 'avancado'];
+    }
+
+    // As perguntas opcionais: ausentes, ou dentro da lista.
+    function escolhaOpcional(d, campo, lista) {
+      return !(campo in d) || d[campo] in lista;
+    }
+
+    function listaOpcional(d, campo, lista) {
+      return !(campo in d)
+          || (d[campo] is list && d[campo].size() >= 1 && d[campo].size() <= lista.size() && d[campo].hasOnly(lista));
+    }
+
+    function simOuNaoOpcional(d, campo) {
+      return !(campo in d) || d[campo] is bool;
+    }
+
+    function extrasValidos(d) {
+      return escolhaOpcional(d, 'ocupacao', ['estudo', 'tecnologia', 'outra_area'])
+          && listaOpcional(d, 'engines', ['nenhuma', 'godot', 'unity', 'unreal', 'gamemaker', 'outra'])
+          && listaOpcional(d, 'linguagens', ['nenhuma', 'python', 'csharp', 'javascript', 'gdscript', 'cpp', 'outra'])
+          && escolhaOpcional(d, 'estudoDeGameDesign', ['nunca', 'sozinho', 'curso', 'faculdade'])
+          && listaOpcional(d, 'interesses', ['programacao', 'arte', 'game_design', 'audio', 'publicacao'])
+          && escolhaOpcional(d, 'objetivo', ['hobby', 'carreira', 'publicar', 'faculdade'])
+          && escolhaOpcional(d, 'tempoPorSemana', ['ate_1h', '1_a_3h', 'mais_de_3h'])
+          && escolhaOpcional(d, 'comoConheceu', ['instagram', 'amigo', 'faculdade', 'evento', 'outro'])
+          && simOuNaoOpcional(d, 'alunoDoSite')
+          && simOuNaoOpcional(d, 'aceitaContato');
+    }
+
+    function perfilValido(d) {
+      return nucleoValido(d) && extrasValidos(d);
     }
 
     // --- Consentimento (item 22) ---
@@ -96,6 +136,25 @@ service cloud.firestore {
                     && request.resource.data.keys().hasOnly(['total'])
                     && request.resource.data.total == resource.data.total + 1
                     && aceitandoNestaTransacao();
+    }
+
+    // A nota que a pessoa se dá em cada módulo, de 1 a 5, antes do primeiro diagnóstico (item 34).
+    // Um documento por pessoa, com o id dela, gravado uma vez: mudar a nota depois de estudar
+    // estragaria a comparação com o diagnóstico.
+    function autoavaliacaoValida(d) {
+      return d.keys().hasAll(['uid', 'notas', 'respondidaEm']) && d.keys().hasOnly(['uid', 'notas', 'respondidaEm'])
+          && d.uid == request.auth.uid
+          && d.notas is map && d.notas.size() >= 1 && d.notas.size() <= 30
+          && d.notas.values().hasOnly([1, 2, 3, 4, 5])
+          && d.respondidaEm == request.time;
+    }
+
+    match /selfAssessments/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && autoavaliacaoValida(request.resource.data);
+      allow update, delete: if false; // gravada uma vez
     }
 
     match /progress/{uid}/lessons/{lessonId} {

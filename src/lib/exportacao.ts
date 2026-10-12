@@ -5,25 +5,41 @@
 // As contas são as mesmas que o aluno vê no app: o estado e o ciclo de cada lição, o quadrante,
 // o XP e a retenção vêm das funções de src/lib, e não de uma segunda versão delas.
 
-import type { Answer, FormaPre, Question, Topico } from '../types/domain';
+import type { Answer, Autoavaliacao, ExtrasDoPerfil, FormaPre, Question, Topico } from '../types/domain';
 import { questoesDaPratica, questoesDoBlocoMedido } from './bloco';
 import { FUSO_MS, diaDeCalendario } from './calendario';
 import { DIAS_ATE_A_REVISAO, licoesDoAluno } from './licao';
+import { idDoModulo } from './perfil';
 import { quadranteDe } from './quadrante';
 import { resultadoDoBloco, type Taxa } from './resultado';
 import { retencao } from './retencao';
 import { xpDaResposta } from './xp';
 
-// O que a exportação lê de `users/{uid}`. Nome e contato só vão para a chave do grupo.
-export interface PerfilDoExport {
+// O que a exportação lê de `users/{uid}`. Nome, contato e cidade só vão para a chave do grupo.
+// Os campos de 12/10/2026 em diante (item 34) faltam nas contas mais antigas.
+export interface PerfilDoExport extends ExtrasDoPerfil {
     uid: string;
     nome?: string;
     apelido?: string;
     email?: string;
     telefone?: string;
+    faixaEtaria?: string;
+    cidade?: string;
+    uf?: string;
+    situacaoDeEstudo?: string;
+    instituicao?: string;
+    curso?: string;
     experiencia?: string;
+    aceitaContato?: boolean;
     formaPre: FormaPre | null;
     consentiuEm: number | null;
+}
+
+// De `attempts`, só o que diz de onde a tentativa foi feita.
+export interface TentativaDoExport {
+    id: string;
+    plataforma?: string;
+    versaoDoApp?: string;
 }
 
 export interface DadosDaExportacao {
@@ -31,6 +47,8 @@ export interface DadosDaExportacao {
     respostas: readonly Answer[];
     questoes: readonly Question[]; // dentro de cada tópico, na ordem de exibição
     topicos: readonly Topico[]; // na ordem sugerida
+    tentativas?: readonly TentativaDoExport[];
+    autoavaliacoes?: readonly Autoavaliacao[];
 }
 
 export interface OpcoesDaExportacao {
@@ -45,6 +63,7 @@ export interface Exportacao {
     participantes: Linha[]; // uma linha por pessoa
     licoes: Linha[]; // uma linha por pessoa e por lição começada: é onde ficam o ganho e a retenção
     questoes: Linha[]; // uma linha por questão
+    autoavaliacoes: Linha[]; // uma linha por pessoa e por módulo: a nota que ela se deu antes de estudar
     resumo: string; // os números agregados, em texto
     chave: Linha[]; // código ↔ nome: fica só com o grupo, nunca é enviada
 }
@@ -96,6 +115,11 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
     const agora = opcoes.agora ?? Date.now();
     const ids = topicos.map((t) => t.id);
     const questaoPorId = new Map(questoes.map((q) => [q.id, q]));
+    const tentativaPorId = new Map((dados.tentativas ?? []).map((t) => [t.id, t]));
+    const autoavaliacaoDe = new Map((dados.autoavaliacoes ?? []).map((a) => [a.uid, a]));
+    // As notas são gravadas pelo id do módulo; aqui volta o nome que está no conteúdo.
+    const nomeDoModulo = new Map(topicos.flatMap((t) => (t.modulo ? [[idDoModulo(t.modulo), t.modulo] as const] : [])));
+    const linhasDeAutoavaliacao: Linha[] = [];
 
     // Só quem aceitou o termo, na ordem do aceite: o código é o mesmo a cada rodada.
     const participantes = dados.perfis
@@ -147,7 +171,25 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
                 posicao_certa: certa === undefined ? null : r.ordemExibida.indexOf(certa) + 1,
                 tempo_ms: r.tempoMs,
                 respondida_em: dataHora(r.respondidaEm),
+                // De onde a resposta veio; vazio nas tentativas anteriores a 12/10/2026.
+                plataforma: tentativaPorId.get(r.attemptId)?.plataforma ?? null,
+                versao_do_app: tentativaPorId.get(r.attemptId)?.versaoDoApp ?? null,
             });
+        }
+
+        const autoavaliacao = autoavaliacaoDe.get(perfil.uid);
+        if (autoavaliacao) {
+            // A nota só serve de "antes" se veio antes de qualquer questão de diagnóstico.
+            const primeiroDiagnostico = respostas.find((r) => r.fase === 'pre')?.respondidaEm ?? Infinity;
+            for (const [modulo, nota] of Object.entries(autoavaliacao.notas)) {
+                linhasDeAutoavaliacao.push({
+                    codigo,
+                    modulo: nomeDoModulo.get(modulo) ?? modulo,
+                    nota,
+                    respondida_em: dataHora(autoavaliacao.respondidaEm),
+                    antes_do_primeiro_diagnostico: autoavaliacao.respondidaEm < primeiroDiagnostico ? 1 : 0,
+                });
+            }
         }
 
         const daFase = (fase: Answer['fase']) => respostas.filter((r) => r.fase === fase);
@@ -268,6 +310,24 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             codigo,
             forma_pre: perfil.formaPre,
             experiencia: perfil.experiencia ?? null,
+            // O perfil de 12/10/2026 em diante (item 34). A cidade não entra: fica na chave.
+            faixa_etaria: perfil.faixaEtaria ?? null,
+            uf: perfil.uf ?? null,
+            situacao_de_estudo: perfil.situacaoDeEstudo ?? null,
+            instituicao: perfil.instituicao ?? null,
+            curso: perfil.curso ?? null,
+            ocupacao: perfil.ocupacao ?? null,
+            engines: lista(perfil.engines),
+            linguagens: lista(perfil.linguagens),
+            estudo_de_game_design: perfil.estudoDeGameDesign ?? null,
+            interesses: lista(perfil.interesses),
+            objetivo: perfil.objetivo ?? null,
+            tempo_por_semana: perfil.tempoPorSemana ?? null,
+            como_conheceu: perfil.comoConheceu ?? null,
+            // Sem resposta fica vazio: zero diria que a pessoa respondeu "não".
+            aluno_do_site: perfil.alunoDoSite === undefined ? null : perfil.alunoDoSite ? 1 : 0,
+            // Aqui a ausência é "não": a caixa do aceite começa desmarcada.
+            aceita_contato: perfil.aceitaContato ? 1 : 0,
             aceitou_em: dataHora(perfil.consentiuEm).slice(0, 10),
             licoes_comecadas: daPessoa.comecadas,
             licoes_verificadas: daPessoa.verificadas,
@@ -388,6 +448,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
         participantes: linhasDeParticipante,
         licoes: linhasDeLicao,
         questoes: linhasDeQuestao,
+        autoavaliacoes: linhasDeAutoavaliacao,
         resumo,
         chave: participantes.map(({ perfil, codigo }) => ({
             codigo,
@@ -395,8 +456,14 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             nome: perfil.nome ?? null,
             apelido: perfil.apelido ?? null,
             email: perfil.email ?? null,
+            cidade: perfil.cidade ?? null,
         })),
     };
+}
+
+/** Uma lista de escolhas numa célula só: `godot|unity`. Sem resposta, vazio. */
+function lista(valores: readonly string[] | undefined): string | null {
+    return valores && valores.length > 0 ? valores.join('|') : null;
 }
 
 const MARCA = '﻿'; // faz o Excel abrir o arquivo como UTF-8
@@ -442,6 +509,10 @@ export function arquivosDaExportacao(exportado: Exportacao): ArquivoDaExportacao
         { nome: 'participantes.csv', conteudo: paraCsv(exportado.participantes) },
         { nome: 'licoes.csv', conteudo: paraCsv(exportado.licoes) },
         { nome: 'questoes.csv', conteudo: paraCsv(exportado.questoes) },
+        // Só existe quando alguém respondeu: uma tabela vazia não diz nada.
+        ...(exportado.autoavaliacoes.length > 0
+            ? [{ nome: 'autoavaliacao.csv', conteudo: paraCsv(exportado.autoavaliacoes) }]
+            : []),
         { nome: 'resumo.md', conteudo: exportado.resumo },
         // Liga cada código ao nome: fica só com o grupo, nunca é enviada.
         { nome: 'chave.csv', conteudo: paraCsv(exportado.chave) },

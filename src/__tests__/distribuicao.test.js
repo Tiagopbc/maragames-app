@@ -55,4 +55,12 @@ describe('o APK pelo EAS', () => {
 
         expect(build.preview.environment).toBe('preview');
     });
+
+    // Dois APKs com o mesmo número de versão: o Android não sabe qual é o mais novo.
+    it('cada build sobe o número de versão do Android sozinho', () => {
+        const { build, cli } = lerJson('eas.json');
+
+        expect(build.preview.autoIncrement).toBe(true);
+        expect(cli.appVersionSource).toBe('remote');
+    });
 });

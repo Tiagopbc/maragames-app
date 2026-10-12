@@ -15,6 +15,10 @@ const PERFIL = {
     apelido: 'Tiago',
     email: 'tiago@exemplo.com',
     telefone: '98987654321',
+    faixaEtaria: '25_34',
+    cidade: 'São Luís',
+    uf: 'MA',
+    situacaoDeEstudo: 'graduacao',
     instituicao: 'UNDB',
     curso: 'Engenharia de Software',
     experiencia: 'iniciante',
@@ -33,6 +37,9 @@ const mockSalvar = jest.fn(async (dados: Record<string, unknown>) => {
 });
 const mockSair = jest.fn();
 const mockRedefinirSenha = jest.fn();
+const mockSalvarExtras = jest.fn(async (extras: Record<string, unknown>) => {
+    mockSessao.perfil = { ...mockSessao.perfil, ...extras };
+});
 
 jest.mock('@/lib/session', () => ({
     SessionProvider: ({ children }: { children: unknown }) => children,
@@ -45,6 +52,7 @@ jest.mock('@/lib/session', () => ({
         sair: mockSair,
         entraComSenha: mockSessao.entraComSenha,
         redefinirSenha: mockRedefinirSenha,
+        salvarExtras: mockSalvarExtras,
     }),
 }));
 
@@ -67,6 +75,7 @@ beforeEach(() => {
     mockSessao.entraComSenha = true;
     mockRedefinirSenha.mockReset();
     mockRedefinirSenha.mockResolvedValue(undefined);
+    mockSalvarExtras.mockClear();
     repo.reiniciar();
     repo.licoes = [{ id: 'licao_gdd', title: 'GDD', order: 1, topicId: 'gdd' }];
     repo.questoes = [
@@ -135,6 +144,10 @@ describe('a tela de Perfil', () => {
             nome: 'Tiago Cavalcanti',
             apelido: 'Tiagão',
             telefone: '98987654321',
+            faixaEtaria: '25_34',
+            cidade: 'São Luís',
+            uf: 'MA',
+            situacaoDeEstudo: 'graduacao',
             instituicao: 'UNDB',
             curso: 'Engenharia de Software',
             experiencia: 'avancado',
@@ -187,6 +200,118 @@ describe('a tela de Perfil', () => {
         await userEvent.setup().press(await screen.findByRole('button', { name: 'Sair' }));
 
         expect(mockSair).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('o núcleo do perfil, na edição (item 34)', () => {
+    it('mostra a faixa etária, a cidade, o estado e a situação de estudo que estão gravados', async () => {
+        await abrirEm('/perfil');
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        expect(screen.getByRole('radio', { name: '25 a 34' })).toBeChecked();
+        expect(campo('Cidade').props.value).toBe('São Luís');
+        expect(campo('Estado (UF)').props.value).toBe('MA');
+        expect(screen.getByRole('radio', { name: 'Graduação' })).toBeChecked();
+    });
+
+    it('quem deixa de estudar salva sem instituição nem curso', async () => {
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        await user.press(screen.getByRole('radio', { name: 'Já me formei' }));
+        expect(screen.queryByLabelText('Instituição')).toBeNull();
+        expect(screen.queryByLabelText('Curso')).toBeNull();
+
+        await user.press(botao('Salvar alterações'));
+
+        expect(mockSalvar).toHaveBeenCalledWith({
+            nome: 'Tiago Cavalcanti',
+            apelido: 'Tiago',
+            telefone: '98987654321',
+            faixaEtaria: '25_34',
+            cidade: 'São Luís',
+            uf: 'MA',
+            situacaoDeEstudo: 'formado',
+            experiencia: 'iniciante',
+        });
+    });
+
+    it('na edição, o aceite de contato não fica no formulário: salvar não mexe nele', async () => {
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        await user.clear(campo('Cidade'));
+        await user.type(campo('Cidade'), 'Imperatriz');
+        await user.press(botao('Salvar alterações'));
+
+        expect(mockSalvar).toHaveBeenCalledTimes(1);
+        expect(mockSalvar.mock.calls[0]).toHaveLength(1);
+    });
+});
+
+describe('o aceite de contato, na Conta', () => {
+    const aceite = () => screen.getByRole('checkbox', { name: 'Aceito receber mensagens da Beast Maragames' });
+
+    it('começa desmarcado para quem nunca aceitou, e marcar grava na hora', async () => {
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        expect(aceite()).not.toBeChecked();
+
+        await user.press(aceite());
+
+        expect(mockSalvarExtras).toHaveBeenCalledWith({ aceitaContato: true });
+        expect(aceite()).toBeChecked();
+    });
+
+    it('se a gravação falha, a caixa volta atrás e avisa', async () => {
+        mockSalvarExtras.mockRejectedValueOnce(new Error('sem rede'));
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        await user.press(aceite());
+
+        expect(await screen.findByText('Não foi possível salvar. Tente de novo.')).toBeOnTheScreen();
+        expect(aceite()).not.toBeChecked();
+    });
+
+    it('quem aceitou pode mudar de ideia', async () => {
+        mockSessao.perfil = { ...PERFIL, aceitaContato: true };
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        expect(aceite()).toBeChecked();
+
+        await user.press(aceite());
+
+        expect(mockSalvarExtras).toHaveBeenCalledWith({ aceitaContato: false });
+    });
+});
+
+describe('o cartão "Sobre você e os jogos", no Perfil', () => {
+    it('sem resposta nenhuma, diz 0 de 9 e leva às perguntas', async () => {
+        const { caminho } = await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        expect(screen.getByText('0 de 9 respondidas')).toBeOnTheScreen();
+
+        await user.press(botao('Responder'));
+
+        expect(await screen.findByText('O que você faz hoje?')).toBeOnTheScreen();
+        expect(caminho()).toBe('/sobre-voce');
+    });
+
+    it('conta as que já têm resposta', async () => {
+        mockSessao.perfil = { ...PERFIL, objetivo: 'carreira', interesses: ['arte'] };
+        await abrirEm('/perfil');
+
+        expect(await screen.findByText('2 de 9 respondidas')).toBeOnTheScreen();
     });
 });
 
