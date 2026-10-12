@@ -1,10 +1,10 @@
-# Passagem de sessão — 11/10/2026
+# Passagem de sessão — 12/10/2026
 
 Resumo para continuar o trabalho em outra conversa, sem depender do histórico da anterior. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24).
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24 e 30 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31 e 32 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
@@ -14,6 +14,8 @@ Combinados com o Tiago, que valem para toda sessão:
 - Nada que vai para o GitHub leva assinatura ou crédito do assistente: nem em commit, nem em pull request, nem em comentário.
 - Perguntar antes de dar push e antes de abrir pull request. A liberação de "pode enviar sempre" valia só para o pull request nº 5, já integrado.
 - `npm run lint` pode rodar à vontade: o ESLint foi configurado em 10/10.
+- O repositório é público: nenhum dado de pessoa de verdade (e-mail, telefone) entra em arquivo, commit ou pull request. As contas de teste são citadas pelo apelido.
+- O Chrome do Tiago só é usado quando ele pede.
 
 ## Resultado da rodada de 10/10
 
@@ -53,25 +55,36 @@ Depois da revisão do Tiago no iPhone, em 10/10: o Progresso ganhou a seção "O
 - Lição de ciclo completo percorrida no app desde o diagnóstico (Playtest e iteração, conta de teste do Tiago, pelo Chrome dele) e conferida no banco. A prova da Fase 2 está fechada.
 - Fase 9: exportação por lição e por pessoa (`licoes.csv`), e o resto do roteiro do piloto apagado.
 - Fase 10, o que dava para fazer no código: nome de exibição "Beast Maragames", duas dependências sem uso removidas, ESLint configurado e sem erro, script `npm run limpar:teste`.
-- Os três últimos itens estão em commit na branch `feat/exportacao-e-acabamento`, só local.
+- Os três últimos itens foram para o `main` pelo pull request nº 10, em 11/10.
 
 Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. O `--prune` e a limpeza das contas de teste são comandos para o Tiago rodar; aparelho de verdade e forma de distribuição também são dele.
 
+## Feito em 11/10 e 12/10
+
+- **Pull request nº 10 integrado** (Fase 9 e o acabamento de código da Fase 10).
+- **Começo com a conta limpa percorrido no app** (apelido Tiagopbc, no Chrome do Tiago, em `http://127.0.0.1:8081`): aviso do termo na lição, trava pela URL, termo, diagnóstico sem número, saída e retomada. Conferido no banco. O Tiago limpou a conta de novo em seguida.
+- **Termo reescrito para o ciclo da lição** (`src/constants/termo.ts`), com teste, e aprovado pelo Tiago. As 30 questões novas seguem como estão, por decisão dele.
+- **Distribuição decidida e no ar (item 32):** web na Vercel e APK pelo EAS. `web.output` passou a `single`, entraram o `vercel.json`, o `android.package` (`com.beastmaragames.app`) e o `eas.json`. Projetos criados pelo assistente, com a liberação do Tiago; variáveis do Firebase e domínio autorizado cadastrados por ele.
+- **Pull request nº 11 integrado em 12/10.** A revisão do Codex apontou e-mails reais num documento, escritos pelo assistente; os commits foram refeitos sem eles antes da integração. O commit antigo ainda responde no GitHub pelo identificador; o Tiago decidiu não pedir a remoção ao suporte.
+- **Web publicada:** `https://maragames-app.vercel.app`, a partir do `main`. Conferida sem entrar em conta.
+- **Primeiro APK gerado em 12/10** (build `d11d99c8`, perfil `preview`, versão 1.0.0, `versionCode` 1). O link para baixar está na página do build, no painel do Expo, ou em `npx eas-cli build:list --platform android --limit 1`. Ninguém o instalou ainda.
+
 ## O que está esperando resposta do Tiago
 
-1. **Distribuição (item 32 das decisões):** a configuração está na branch `feat/termo-e-distribuicao` e os projetos estão criados (EAS: `@tiagopbc/maragames-app`; Vercel: `maragames-app`, domínio `maragames-app.vercel.app`, publica a cada push no `main`). Falta o Tiago cadastrar as seis variáveis `EXPO_PUBLIC_FIREBASE_*` na Vercel e no EAS, incluir o domínio nos autorizados do Firebase Auth e liberar o push e o pull request. Depois: conferir a web publicada e gerar o primeiro APK.
-2. **Ver as revisões no app, em 13/10 e 17/10.** A conta do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3".
-3. **Ver a tela do termo com o texto novo** (`src/constants/termo.ts`), reescrito em 11/10 para o ciclo da lição e aprovado pelo Tiago. O começo com a conta limpa (apelido Tiagopbc) foi percorrido no app no mesmo dia, ainda com o texto antigo; a tela com o texto novo está coberta por teste e não foi vista.
-5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
-6. **O grupo:** confirmar a virada do projeto. As 30 questões novas seguem como estão, por decisão do Tiago em 11/10.
+1. **Entrar na web publicada**, por e-mail e senha e pelo Google: o assistente não entra em conta, então o login em si não foi testado em `maragames-app.vercel.app`.
+2. **Instalar o primeiro APK num Android** (build `d11d99c8`) e conferir o login por e-mail e uma lição.
+3. **Ver as revisões no app, em 13/10 e 17/10.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso a conta pode ser limpa, com o contador do termo (`--zerar-contador`).
+4. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo com o texto novo já foram vistas pelo Tiago, em 12/10.
+5. **O grupo:** confirmar a virada do projeto.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 10 integrados (o nº 10, em 11/10, com a Fase 9 e o acabamento de código da Fase 10). O nº 8 trouxe o app do ciclo da lição e o nº 9, em 11/10, a correção do ciclo de quem já praticou; a revisão do Codex no nº 9 terminou sem apontamento.
-- **Branch atual, só local:** `feat/termo-e-distribuicao`, em cima do `main`, com o texto novo do termo, a configuração da distribuição e os documentos, em commit. Sem push e sem pull request.
+- **`main`:** tem os pull requests nº 5 a nº 11 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, em 12/10, o termo novo e a configuração da distribuição.
+- **Branch atual:** `docs/distribuicao-no-ar`, em cima do `main`, só com esta passagem e os itens 24 e 32 atualizados, em pull request aberto em 12/10. Depois de integrado, o trabalho novo parte do `main`, em branch própria.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 610 testes (606 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
+- **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
@@ -81,13 +94,13 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que já funciona
 
-Cadastro, perfil obrigatório, home com "Para hoje", lista de lições, página da lição com diagnóstico, cartão, prática, verificação e revisão, Progresso com o detalhe de cada tópico, Perfil com edição e "Sair", e `npm run exportar` (ainda pelo desenho do piloto). O app tem a identidade da Beast Maragames.
+Cadastro, perfil obrigatório, home com "Para hoje", lista de lições, página da lição com diagnóstico, cartão, prática, verificação e revisão, Progresso com o detalhe de cada tópico, Perfil com edição e "Sair", e `npm run exportar`, com ganho e retenção por lição e por pessoa. O app tem a identidade da Beast Maragames e está publicado em `https://maragames-app.vercel.app`.
 
-Conferido no app de verdade em 10/10: na web, em largura de computador e tema escuro, com a conta de teste do Tiago. Antes disso, num iPhone pelo Expo Go, só as telas que não mudaram (login, pergunta, cartão).
+Conferido no app de verdade: em 10/10, na web, em largura de computador e tema escuro, com a conta de teste do Tiago; em 11/10, o começo com o termo, com a conta limpa; em 12/10, o endereço publicado, sem entrar em conta. Antes disso, num iPhone pelo Expo Go, só as telas que não mudaram (login, pergunta, cartão).
 
 ## O que falta
 
-Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo: revisão e commit da rodada de 10/10, seed do conteúdo, a lição de ciclo completo com uma conta nova, a exportação por tópico (Fase 9) e o acabamento (Fase 10).
+Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo, só a Fase 10: o login testado na web publicada, o APK instalado num aparelho, as revisões de 13/10 e 17/10 vistas no app, a conferência em iPhone e Android nos dois temas, a limpeza da conta de teste que resta e a prova da fase, com uma pessoa de fora.
 
 ## Limites do assistente nesta máquina
 
