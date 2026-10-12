@@ -1,9 +1,10 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { CampoSenha } from '@/components/campo-senha';
 import { CampoTexto } from '@/components/campo-texto';
 import { LogoBeast } from '@/components/logo-beast';
 import { ThemedText } from '@/components/themed-text';
@@ -12,6 +13,7 @@ import { Spacing } from '@/constants/theme';
 import { TEXTOS_DO_LOGIN } from '@/constants/textos';
 import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/lib/session';
+import { validarEmail } from '@/lib/validacao';
 
 const ERROS: Record<string, string> = {
     'auth/invalid-credential': 'Email ou senha incorretos.',
@@ -24,15 +26,17 @@ const ERROS: Record<string, string> = {
 
 export default function SignInScreen() {
     const theme = useTheme();
-    const { entrarComEmail, entrarComGoogle } = useSession();
+    const { entrarComEmail, entrarComGoogle, redefinirSenha } = useSession();
 
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState<string | null>(null);
+    const [aviso, setAviso] = useState<string | null>(null);
     const [carregando, setCarregando] = useState(false);
 
     async function executar(acao: () => Promise<void>) {
         setErro(null);
+        setAviso(null);
         setCarregando(true);
         try {
             await acao();
@@ -44,6 +48,26 @@ export default function SignInScreen() {
     }
 
     const enviar = () => executar(() => entrarComEmail(email, senha));
+
+    // O link vai para o e-mail que estiver digitado no campo de cima.
+    async function esqueciASenha() {
+        setAviso(null);
+        if (validarEmail(email)) {
+            setErro(TEXTOS_DO_LOGIN.informeOEmailParaRedefinir);
+            return;
+        }
+
+        setErro(null);
+        setCarregando(true);
+        try {
+            await redefinirSenha(email.trim());
+            setAviso(TEXTOS_DO_LOGIN.linkDeRedefinicaoEnviado);
+        } catch (e: any) {
+            setErro(ERROS[e?.code] ?? TEXTOS_DO_LOGIN.erroAoEnviarOLink);
+        } finally {
+            setCarregando(false);
+        }
+    }
 
     return (
         <ThemedView style={styles.container}>
@@ -74,20 +98,33 @@ export default function SignInScreen() {
                         editable={!carregando}
                     />
 
-                    <CampoTexto
+                    <CampoSenha
                         rotulo={TEXTOS_DO_LOGIN.senha}
                         placeholder={TEXTOS_DO_LOGIN.dicaDaSenha}
                         value={senha}
                         onChangeText={setSenha}
-                        secureTextEntry
                         autoComplete="current-password"
                         editable={!carregando}
                         onSubmitEditing={enviar}
                     />
 
+                    <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={TEXTOS_DO_LOGIN.esqueciASenha}
+                        disabled={carregando}
+                        onPress={esqueciASenha}
+                        style={styles.esqueci}>
+                        <ThemedText type="linkPrimary">{TEXTOS_DO_LOGIN.esqueciASenha}</ThemedText>
+                    </Pressable>
+
                     {erro && (
                         <ThemedText type="small" themeColor="erro" aria-live="polite">
                             {erro}
+                        </ThemedText>
+                    )}
+                    {aviso && (
+                        <ThemedText type="small" themeColor="sucesso" aria-live="polite">
+                            {aviso}
                         </ThemedText>
                     )}
 
@@ -127,5 +164,6 @@ const styles = StyleSheet.create({
     marca: { fontSize: 20, lineHeight: 26, fontWeight: 600 },
     centro: { textAlign: 'center' },
     cartao: { gap: Spacing.three, padding: Spacing.three, borderRadius: 20, borderWidth: 1 },
+    esqueci: { alignSelf: 'flex-end', minHeight: 32, justifyContent: 'center' },
     cadastro: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.one },
 });

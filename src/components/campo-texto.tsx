@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -8,9 +9,11 @@ import type { Erro } from '@/lib/validacao';
 type CampoTextoProps = TextInputProps & {
     rotulo: string;
     erro?: Erro;
+    // Um botão dentro do campo, à direita (o de mostrar a senha, por exemplo).
+    aDireita?: ReactNode;
 };
 
-export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
+export function CampoTexto({ rotulo, erro, aDireita, style, ...rest }: CampoTextoProps) {
     const theme = useTheme();
 
     return (
@@ -20,21 +23,25 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
                 {rotulo}
             </ThemedText>
 
-            <TextInput
-                accessibilityLabel={rotulo}
-                style={[
-                    styles.input,
-                    {
-                        color: theme.text,
-                        backgroundColor: theme.background,
-                        borderColor: erro ? theme.erro : theme.borda,
-                        fontFamily: Fonts.regular,
-                    },
-                    style,
-                ]}
-                placeholderTextColor={theme.textSecondary}
-                {...rest}
-            />
+            <View>
+                <TextInput
+                    accessibilityLabel={rotulo}
+                    style={[
+                        styles.input,
+                        {
+                            color: theme.text,
+                            backgroundColor: theme.background,
+                            borderColor: erro ? theme.erro : theme.borda,
+                            fontFamily: Fonts.regular,
+                        },
+                        aDireita ? styles.comBotao : null,
+                        style,
+                    ]}
+                    placeholderTextColor={theme.textSecondary}
+                    {...rest}
+                />
+                {aDireita && <View style={styles.aDireita}>{aDireita}</View>}
+            </View>
 
             {erro && (
                 <ThemedText type="small" themeColor="erro">
@@ -45,6 +52,9 @@ export function CampoTexto({ rotulo, erro, style, ...rest }: CampoTextoProps) {
     );
 }
 
+// A área de toque mínima de um botão.
+const LARGURA_DO_BOTAO = 48;
+
 const styles = StyleSheet.create({
     container: { gap: Spacing.one },
     rotulo: { fontSize: 12, letterSpacing: 0.7, textTransform: 'uppercase' },
@@ -54,5 +64,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.three,
         paddingVertical: 12,
         fontSize: 16,
+    },
+    // O texto para antes do botão, para não passar por baixo dele.
+    comBotao: { paddingRight: LARGURA_DO_BOTAO },
+    aDireita: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: LARGURA_DO_BOTAO,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

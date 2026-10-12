@@ -54,5 +54,6 @@ export const TEXTOS_DO_TERMO = {
     concordo: 'Li e concordo em participar',
     aceitar: 'Aceitar e começar',
     agoraNao: 'Agora não',
+    fechar: 'Fechar',
     erroAoAceitar: 'Não foi possível registrar o seu aceite. Confira a conexão e tente de novo.',
 } as const;
