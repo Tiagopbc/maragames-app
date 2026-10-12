@@ -2,7 +2,21 @@
 // O dado guarda só o valor (confiança 1, 2, 3; quadrante 'firme', 'fragil'...). O texto que o
 // aluno lê mora aqui, ligado a esse valor, então trocar um rótulo não altera dado nem análise.
 
-import type { Confianca, Fase } from '../types/domain';
+import type {
+    ComoConheceu,
+    Confianca,
+    Engine,
+    EstudoDeGameDesign,
+    Experiencia,
+    FaixaEtaria,
+    Fase,
+    Interesse,
+    Linguagem,
+    Objetivo,
+    Ocupacao,
+    SituacaoDeEstudo,
+    TempoPorSemana,
+} from '../types/domain';
 import type { EstadoDaLicao, EtapaDaLicao, SituacaoDaEtapa } from '../lib/licao';
 import type { Falta } from '../lib/pergunta';
 import type { Taxa } from '../lib/resultado';
@@ -387,3 +401,156 @@ export const TEXTOS_DO_LOGIN = {
     criarConta: 'Criar agora',
     erroAoEntrar: 'Não foi possível entrar. Tente de novo.',
 } as const;
+
+// --- Perfil (item 34): o núcleo obrigatório, as perguntas opcionais e a autoavaliação. ---
+// No dado vão os valores (`18_24`, `graduacao`); os rótulos abaixo ficam só na tela.
+
+export const ROTULO_DA_FAIXA_ETARIA: Record<FaixaEtaria, string> = {
+    '18_24': '18 a 24',
+    '25_34': '25 a 34',
+    '35_44': '35 a 44',
+    '45_mais': '45 ou mais',
+};
+
+export const ROTULO_DA_SITUACAO_DE_ESTUDO: Record<SituacaoDeEstudo, string> = {
+    ensino_medio: 'Ensino médio',
+    graduacao: 'Graduação',
+    pos: 'Pós-graduação',
+    formado: 'Já me formei',
+    nao_estudo: 'Não estudo',
+};
+
+export const ROTULO_DA_EXPERIENCIA: Record<Experiencia, string> = {
+    iniciante: 'Iniciante',
+    intermediario: 'Intermediário',
+    avancado: 'Avançado',
+};
+
+// O que cada nível quer dizer: é experiência em criar jogos, e não em jogar.
+export const DESCRICAO_DA_EXPERIENCIA: Record<Experiencia, string> = {
+    iniciante: 'Nunca criei um jogo.',
+    intermediario: 'Já fiz protótipo ou participei de game jam.',
+    avancado: 'Já publiquei um jogo.',
+};
+
+export const ROTULO_DA_OCUPACAO: Record<Ocupacao, string> = {
+    estudo: 'Só estudo',
+    tecnologia: 'Trabalho com tecnologia',
+    outra_area: 'Trabalho em outra área',
+};
+
+export const ROTULO_DA_ENGINE: Record<Engine, string> = {
+    nenhuma: 'Nenhuma',
+    godot: 'Godot',
+    unity: 'Unity',
+    unreal: 'Unreal',
+    gamemaker: 'GameMaker',
+    outra: 'Outra',
+};
+
+export const ROTULO_DA_LINGUAGEM: Record<Linguagem, string> = {
+    nenhuma: 'Nenhuma',
+    python: 'Python',
+    csharp: 'C#',
+    javascript: 'JavaScript',
+    gdscript: 'GDScript',
+    cpp: 'C++',
+    outra: 'Outra',
+};
+
+export const ROTULO_DO_ESTUDO_DE_GAME_DESIGN: Record<EstudoDeGameDesign, string> = {
+    nunca: 'Nunca estudei',
+    sozinho: 'Por conta própria',
+    curso: 'Em curso',
+    faculdade: 'Na faculdade',
+};
+
+export const ROTULO_DO_INTERESSE: Record<Interesse, string> = {
+    programacao: 'Programação',
+    arte: 'Arte',
+    game_design: 'Game design',
+    audio: 'Áudio',
+    publicacao: 'Publicação',
+};
+
+export const ROTULO_DO_OBJETIVO: Record<Objetivo, string> = {
+    hobby: 'Hobby',
+    carreira: 'Carreira',
+    publicar: 'Publicar um jogo',
+    faculdade: 'Complementar a faculdade',
+};
+
+export const ROTULO_DO_TEMPO_POR_SEMANA: Record<TempoPorSemana, string> = {
+    ate_1h: 'Até 1 hora',
+    '1_a_3h': '1 a 3 horas',
+    mais_de_3h: 'Mais de 3 horas',
+};
+
+export const ROTULO_DE_COMO_CONHECEU: Record<ComoConheceu, string> = {
+    instagram: 'Instagram',
+    amigo: 'Indicação de amigo',
+    faculdade: 'Faculdade',
+    evento: 'Evento',
+    outro: 'Outro',
+};
+
+export const TEXTOS_DO_PERFIL = {
+    seuPerfil: 'Seu perfil',
+    sobreVoce: 'Sobre você',
+    estudoEJogos: 'Estudo e jogos',
+    nome: 'Nome completo',
+    apelido: 'Apelido',
+    dicaDoApelido: 'como você aparece no ranking',
+    telefone: 'Telefone',
+    faixaEtaria: 'Faixa etária',
+    cidade: 'Cidade',
+    uf: 'Estado (UF)',
+    dicaDaUf: 'MA',
+    situacaoDeEstudo: 'Situação de estudo',
+    instituicao: 'Instituição',
+    curso: 'Curso',
+    experiencia: 'Experiência em criar jogos',
+    aceitaContato: 'Aceito receber mensagens da Beast Maragames',
+    escolhaAFaixaEtaria: 'Escolha a faixa etária.',
+    escolhaASituacao: 'Escolha a situação de estudo.',
+    salvarEComecar: 'Salvar e começar',
+    servidorRecusou: 'O servidor recusou o perfil. As regras do Firestore foram publicadas?',
+    erroAoSalvar: 'Não foi possível salvar. Tente de novo.',
+    // "Sobre você e os jogos": as perguntas opcionais.
+    sobreVoceEOsJogos: 'Sobre você e os jogos',
+    sobreAsOpcionais: 'São opcionais. Ajudam a Beast Maragames a preparar conteúdo para você.',
+    responder: 'Responder',
+    salvarRespostas: 'Salvar respostas',
+    respostasSalvas: 'Respostas salvas.',
+    variasOpcoes: 'Pode marcar mais de uma.',
+    ocupacao: 'O que você faz hoje?',
+    engines: 'Que engines você já usou?',
+    linguagens: 'Que linguagens de programação você conhece?',
+    estudoDeGameDesign: 'Você já estudou game design?',
+    interesses: 'Que áreas de criar jogos mais te interessam?',
+    objetivo: 'Qual é o seu objetivo com jogos?',
+    tempoPorSemana: 'Quanto tempo por semana você tem para estudar?',
+    comoConheceu: 'Como você conheceu a Beast Maragames?',
+    alunoDoSite: 'Você já é aluno do site da Beast Maragames?',
+    sim: 'Sim',
+    nao: 'Não',
+    // A autoavaliação por módulo, antes do primeiro diagnóstico.
+    autoavaliacao: 'Antes de começar',
+    perguntaDaAutoavaliacao: 'Quanto você acha que já sabe de cada área?',
+    sobreAAutoavaliacao: 'De 1 (nada) a 5 (muito). É um palpite seu: não vale ponto e você responde uma vez só.',
+    continuar: 'Continuar',
+    faltaAvaliar: 'Dê uma nota para cada área para continuar.',
+    erroAoGravarAAutoavaliacao: 'Não foi possível gravar as suas notas. Confira a conexão e tente de novo.',
+    fecharAAutoavaliacao: 'Fechar',
+    erroAoCarregarAsAreas: 'Não foi possível carregar as áreas. Confira a conexão e tente de novo.',
+} as const;
+
+/** "3 de 9 respondidas" */
+export function extrasRespondidosDe(respondidas: number, total: number): string {
+    return `${respondidas} de ${total} respondidas`;
+}
+
+/** O que o leitor de tela diz de cada nota: "Arte & Pixel Art: nota 3 de 5". */
+export function notaDoModulo(modulo: string, nota: number): string {
+    return `${modulo}: nota ${nota} de 5`;
+}

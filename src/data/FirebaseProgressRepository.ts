@@ -6,6 +6,7 @@ import {
     getDocs,
     addDoc,
     updateDoc,
+    setDoc,
     doc,
     getDoc,
     arrayUnion,
@@ -28,11 +29,13 @@ import {
 import {
     Answer,
     Attempt,
+    Autoavaliacao,
     Consentimento,
     Fase,
     FormaPre,
     Lesson,
     NovaResposta,
+    OrigemDaTentativa,
     Question,
     Topico,
 } from '../types/domain';
@@ -92,7 +95,7 @@ export class FirebaseProgressRepository implements ProgressRepository {
         return { id: d.id, ...(d.data() as Omit<Attempt, 'id'>) };
     }
 
-    async criarAttempt(uid: string, fase: Fase, lessonId: string | null): Promise<Attempt> {
+    async criarAttempt(uid: string, fase: Fase, lessonId: string | null, origem?: OrigemDaTentativa): Promise<Attempt> {
         const data: Omit<Attempt, 'id'> = {
             uid,
             fase,
@@ -100,6 +103,8 @@ export class FirebaseProgressRepository implements ProgressRepository {
             respostas: [],
             concluida: false,
             createdAt: Date.now(),
+            // Sem origem (teste, script), os dois campos ficam de fora: o Firestore recusa `undefined`.
+            ...(origem ? { plataforma: origem.plataforma, versaoDoApp: origem.versaoDoApp } : {}),
         };
         const ref = await addDoc(collection(this.db, 'attempts'), data);
         return { id: ref.id, ...data };
@@ -127,6 +132,25 @@ export class FirebaseProgressRepository implements ProgressRepository {
 
     async concluirAttempt(attemptId: string): Promise<void> {
         await updateDoc(doc(this.db, 'attempts', attemptId), { concluida: true });
+    }
+
+    async getAutoavaliacao(uid: string): Promise<Autoavaliacao | null> {
+        const snap = await getDoc(doc(this.db, 'selfAssessments', uid));
+        if (!snap.exists()) return null;
+        // 'estimate': o carimbo ainda não confirmado pelo servidor viria null.
+        const d = snap.data({ serverTimestamps: 'estimate' });
+        return { uid: d.uid, notas: d.notas, respondidaEm: d.respondidaEm.toMillis() };
+    }
+
+    async registrarAutoavaliacao(uid: string, notas: Record<string, number>): Promise<Autoavaliacao> {
+        // A regra recusa uma segunda gravação: quem já respondeu fica com o que respondeu.
+        const jaGravada = await this.getAutoavaliacao(uid);
+        if (jaGravada) return jaGravada;
+
+        await setDoc(doc(this.db, 'selfAssessments', uid), { uid, notas, respondidaEm: serverTimestamp() });
+        const gravada = await this.getAutoavaliacao(uid);
+        if (!gravada) throw new Error('A autoavaliação não foi gravada.');
+        return gravada;
     }
 
     async registrarConsentimento(uid: string): Promise<Consentimento> {

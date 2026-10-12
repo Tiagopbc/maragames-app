@@ -5,7 +5,7 @@ import { useSession } from '@/lib/session';
 
 // O Perfil (Fase 6 do plano): /perfil. É também onde fica o Sair, que saiu da home.
 export default function PerfilScreen() {
-    const { perfil, salvarPerfil, entraComSenha, redefinirSenha, sair } = useSession();
+    const { perfil, salvarPerfil, salvarExtras, entraComSenha, redefinirSenha, sair } = useSession();
     const router = useRouter();
 
     if (!perfil) return <Redirect href="/" />;
@@ -19,10 +19,13 @@ export default function PerfilScreen() {
     return (
         <TelaDoPerfil
             perfil={perfil}
-            aoSalvar={salvarPerfil}
+            // Só o núcleo: o aceite de contato é gravado à parte, na seção Conta.
+            aoSalvar={(dados) => salvarPerfil(dados)}
             entraComSenha={entraComSenha}
             // O link vai sempre para o e-mail da conta: aqui a pessoa já está dentro dela.
             aoRedefinirSenha={() => redefinirSenha(perfil.email)}
+            aoMudarAceiteDeContato={(aceitaContato) => salvarExtras({ aceitaContato })}
+            aoResponderSobreVoce={() => router.push('/sobre-voce')}
             aoLerOTermo={() => router.push('/termo')}
             aoSairDaConta={sair}
             aoSair={fechar}

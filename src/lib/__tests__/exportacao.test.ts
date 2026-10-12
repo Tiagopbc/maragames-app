@@ -194,6 +194,7 @@ describe('nada que identifique alguém sai nos arquivos que são enviados', () =
             nome: ANA.nome,
             apelido: ANA.apelido,
             email: ANA.email,
+            cidade: null,
         });
     });
 });
@@ -218,6 +219,8 @@ describe('eventos: uma linha por resposta', () => {
             posicao_certa: 2,
             tempo_ms: 4200,
             respondida_em: '2026-10-30 19:10:00',
+            plataforma: null,
+            versao_do_app: null,
         });
     });
 
@@ -510,5 +513,159 @@ describe('arquivosDaExportacao', () => {
 
         expect(ninguem.participantes).toHaveLength(0);
         expect(arquivosDaExportacao(ninguem)).toEqual([]);
+    });
+});
+
+// Os dados do perfil de 12/10/2026 em diante (item 34).
+describe('os dados novos do perfil na exportação', () => {
+    const ANA_COMPLETA: PerfilDoExport = {
+        ...ANA,
+        faixaEtaria: '18_24',
+        cidade: 'São Luís',
+        uf: 'MA',
+        situacaoDeEstudo: 'graduacao',
+        instituicao: 'UNDB',
+        curso: 'Engenharia de Software',
+        aceitaContato: true,
+        ocupacao: 'estudo',
+        engines: ['godot', 'unity'],
+        linguagens: ['python'],
+        estudoDeGameDesign: 'sozinho',
+        interesses: ['programacao', 'game_design'],
+        objetivo: 'carreira',
+        tempoPorSemana: '1_a_3h',
+        comoConheceu: 'instagram',
+        alunoDoSite: false,
+    };
+    const comAAna = () =>
+        exportarDados({ ...DADOS, perfis: [ANA_COMPLETA, BIA] }, { desde: DESDE, agora: AGORA });
+    const daAna = () => comAAna().participantes.find((p) => p.codigo === 'P01')!;
+    const daBia = () => comAAna().participantes.find((p) => p.codigo === 'P02')!;
+
+    it('o núcleo vai para os participantes, com o código no lugar do nome', () => {
+        expect(daAna()).toMatchObject({
+            faixa_etaria: '18_24',
+            uf: 'MA',
+            situacao_de_estudo: 'graduacao',
+            instituicao: 'UNDB',
+            curso: 'Engenharia de Software',
+        });
+    });
+
+    it('as opcionais também, com as listas separadas por barra', () => {
+        expect(daAna()).toMatchObject({
+            ocupacao: 'estudo',
+            engines: 'godot|unity',
+            linguagens: 'python',
+            estudo_de_game_design: 'sozinho',
+            interesses: 'programacao|game_design',
+            objetivo: 'carreira',
+            tempo_por_semana: '1_a_3h',
+            como_conheceu: 'instagram',
+            aluno_do_site: 0,
+            aceita_contato: 1,
+        });
+    });
+
+    it('quem não respondeu sai com os campos vazios, e não com zero', () => {
+        expect(daBia()).toMatchObject({
+            faixa_etaria: null,
+            uf: null,
+            ocupacao: null,
+            engines: null,
+            aluno_do_site: null,
+            // O aceite de contato ausente é "não": a pessoa nunca marcou a caixa.
+            aceita_contato: 0,
+        });
+    });
+
+    it('a cidade ajuda a identificar a pessoa: fica só na chave do grupo', () => {
+        const exportado = comAAna();
+
+        expect(exportado.chave[0]).toMatchObject({ codigo: 'P01', cidade: 'São Luís' });
+        expect(paraCsv(exportado.participantes)).not.toContain('São Luís');
+        expect(paraCsv(exportado.eventos)).not.toContain('São Luís');
+    });
+
+    it('todas as linhas de participantes têm as mesmas colunas', () => {
+        expect(Object.keys(daAna())).toEqual(Object.keys(daBia()));
+    });
+});
+
+describe('de onde cada resposta veio', () => {
+    it('a plataforma e a versão do app saem da tentativa da resposta', () => {
+        const exportado = exportarDados(
+            { ...DADOS, tentativas: [{ id: 't', plataforma: 'android', versaoDoApp: '1.0.0' }] },
+            { desde: DESDE, agora: AGORA }
+        );
+
+        expect(exportado.eventos[0]).toMatchObject({ plataforma: 'android', versao_do_app: '1.0.0' });
+    });
+
+    it('tentativa de antes de 12/10/2026, sem esses campos, sai vazia', () => {
+        expect(exportado().eventos[0]).toMatchObject({ plataforma: null, versao_do_app: null });
+        expect(
+            exportarDados({ ...DADOS, tentativas: [{ id: 't' }] }, { desde: DESDE, agora: AGORA }).eventos[0]
+        ).toMatchObject({ plataforma: null, versao_do_app: null });
+    });
+});
+
+describe('a autoavaliação na exportação', () => {
+    const TOPICOS_COM_MODULO: Topico[] = [
+        { id: 'mda', titulo: 'Framework MDA', modulo: 'Fundamentos de Game Design', ordem: 1 },
+        { id: 'gdd', titulo: 'GDD', modulo: 'Arte & Pixel Art', ordem: 5 },
+    ];
+    const com = (respondidaEm: number) =>
+        exportarDados(
+            {
+                ...DADOS,
+                topicos: TOPICOS_COM_MODULO,
+                autoavaliacoes: [
+                    { uid: ANA.uid, notas: { fundamentos_de_game_design: 2, arte_pixel_art: 4 }, respondidaEm },
+                    { uid: TESTE.uid, notas: { fundamentos_de_game_design: 5 }, respondidaEm },
+                ],
+            },
+            { desde: DESDE, agora: AGORA }
+        );
+
+    it('uma linha por pessoa e por módulo, com o nome do módulo e o código da pessoa', () => {
+        const { autoavaliacoes } = com(em('2026-10-30 19:01'));
+
+        expect(autoavaliacoes).toEqual([
+            {
+                codigo: 'P01',
+                modulo: 'Fundamentos de Game Design',
+                nota: 2,
+                respondida_em: '2026-10-30 19:01:00',
+                antes_do_primeiro_diagnostico: 1,
+            },
+            {
+                codigo: 'P01',
+                modulo: 'Arte & Pixel Art',
+                nota: 4,
+                respondida_em: '2026-10-30 19:01:00',
+                antes_do_primeiro_diagnostico: 1,
+            },
+        ]);
+    });
+
+    it('quem ficou de fora da exportação não entra', () => {
+        expect(com(em('2026-10-30 19:01')).autoavaliacoes.every((a) => a.codigo === 'P01')).toBe(true);
+    });
+
+    // A nota só serve de "antes" se veio antes de a pessoa ver qualquer questão de diagnóstico.
+    it('nota dada depois do primeiro diagnóstico sai marcada', () => {
+        const { autoavaliacoes } = com(em('2026-11-10 10:00'));
+
+        expect(autoavaliacoes[0].antes_do_primeiro_diagnostico).toBe(0);
+    });
+
+    it('sem autoavaliação nenhuma, a tabela sai vazia e o arquivo não é gravado', () => {
+        expect(exportado().autoavaliacoes).toEqual([]);
+        expect(arquivosDaExportacao(exportado()).map((a) => a.nome)).not.toContain('autoavaliacao.csv');
+    });
+
+    it('com autoavaliação, o arquivo entra na pasta', () => {
+        expect(arquivosDaExportacao(com(em('2026-10-30 19:01'))).map((a) => a.nome)).toContain('autoavaliacao.csv');
     });
 });

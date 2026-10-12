@@ -1,6 +1,8 @@
 // Funções puras de validação: sem React, sem Firebase, sem estado.
 // Cada validador devolve a mensagem de erro, ou null quando o valor está certo.
 
+import { UFS } from './perfil';
+
 export type Erro = string | null;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,6 +55,19 @@ export function validarTexto(valor: string, campo: string, min = 2, max = 60): E
     if (v.length < min) return `${campo} precisa de pelo menos ${min} caracteres.`;
     if (v.length > max) return `${campo} passa de ${max} caracteres.`;
     return null;
+}
+
+/** A sigla do estado, em qualquer caixa. A lista é a de `src/lib/perfil.ts`, a mesma da regra. */
+export function validarUf(valor: string): Erro {
+    const v = valor.trim().toUpperCase();
+    if (!v) return 'Informe o estado.';
+    if (!UFS.includes(v)) return 'Use a sigla do estado, como MA.';
+    return null;
+}
+
+/** Campo de escolha obrigatória (faixa etária, situação de estudo): sem escolha, a mensagem dele. */
+export function validarEscolha(valor: string | null | undefined, mensagem: string): Erro {
+    return valor ? null : mensagem;
 }
 
 /** Verdadeiro quando nenhum campo do mapa tem erro. */

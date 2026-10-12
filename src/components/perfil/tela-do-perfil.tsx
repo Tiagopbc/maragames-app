@@ -4,14 +4,16 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { Caixa } from '@/components/opcoes';
 import { FormularioDoPerfil } from '@/components/perfil/formulario-do-perfil';
 import { Secao } from '@/components/perfil/secao';
 import { SeletorDeTema } from '@/components/perfil/seletor-de-tema';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { TEXTOS, termoAceitoEm } from '@/constants/textos';
+import { TEXTOS, TEXTOS_DO_PERFIL, extrasRespondidosDe, termoAceitoEm } from '@/constants/textos';
 import { useTheme } from '@/hooks/use-theme';
+import { TOTAL_DE_EXTRAS, extrasRespondidos } from '@/lib/perfil';
 import type { DadosPerfil, Perfil } from '@/types/domain';
 
 type TelaDoPerfilProps = {
@@ -20,6 +22,8 @@ type TelaDoPerfilProps = {
     // Quem entra pelo Google não tem senha neste app, e não vê o botão de redefinir.
     entraComSenha: boolean;
     aoRedefinirSenha: () => Promise<void>; // pede o e-mail com o link; rejeita se não conseguir
+    aoMudarAceiteDeContato: (aceita: boolean) => Promise<void>; // grava na hora
+    aoResponderSobreVoce: () => void; // abre as perguntas opcionais
     aoLerOTermo: () => void;
     aoSairDaConta: () => void;
     aoSair: () => void; // fecha a tela; quem navega é a rota
@@ -27,20 +31,27 @@ type TelaDoPerfilProps = {
 
 type Envio = 'parado' | 'enviando' | 'enviado' | 'falhou';
 
-// O Perfil (Fase 6 do plano), em seções: os dados do cadastro, editáveis; a conta, com o
-// e-mail e a senha; a escolha do tema; o termo; e o Sair.
+// O Perfil (Fase 6 do plano), em seções: os dados do cadastro, editáveis; as perguntas
+// opcionais; a conta, com o e-mail, a senha e o aceite de contato; o tema; o termo; e o Sair.
 // A validação é a do cadastro, e quem garante é a regra do Firestore (item 9).
 export function TelaDoPerfil({
     perfil,
     aoSalvar,
     entraComSenha,
     aoRedefinirSenha,
+    aoMudarAceiteDeContato,
+    aoResponderSobreVoce,
     aoLerOTermo,
     aoSairDaConta,
     aoSair,
 }: TelaDoPerfilProps) {
     const theme = useTheme();
     const [envio, setEnvio] = useState<Envio>('parado');
+    // A caixa muda no toque e volta atrás se a gravação falhar: esperar o servidor para marcar
+    // faria o toque parecer que não pegou.
+    const [aceitaContato, setAceitaContato] = useState(perfil.aceitaContato === true);
+    const [gravandoAceite, setGravandoAceite] = useState(false);
+    const [erroNoAceite, setErroNoAceite] = useState(false);
 
     async function redefinirSenha() {
         setEnvio('enviando');
@@ -50,6 +61,22 @@ export function TelaDoPerfil({
         } catch (e) {
             console.warn('Não foi possível pedir a redefinição da senha.', e);
             setEnvio('falhou');
+        }
+    }
+
+    // O aceite não passa pelo "Salvar alterações": é uma caixa, e vale na hora.
+    async function mudarAceite(aceita: boolean) {
+        setErroNoAceite(false);
+        setGravandoAceite(true);
+        setAceitaContato(aceita);
+        try {
+            await aoMudarAceiteDeContato(aceita);
+        } catch (e) {
+            console.warn('Não foi possível gravar o aceite de contato.', e);
+            setAceitaContato(!aceita);
+            setErroNoAceite(true);
+        } finally {
+            setGravandoAceite(false);
         }
     }
 
@@ -80,6 +107,17 @@ export function TelaDoPerfil({
                         />
                     </Secao>
 
+                    {/* As perguntas opcionais ficam numa tela própria: aqui, só quantas faltam. */}
+                    <Secao titulo={TEXTOS_DO_PERFIL.sobreVoceEOsJogos}>
+                        <ThemedText type="small" themeColor="textSecondary">
+                            {TEXTOS_DO_PERFIL.sobreAsOpcionais}
+                        </ThemedText>
+                        <ThemedText type="smallBold">
+                            {extrasRespondidosDe(extrasRespondidos(perfil), TOTAL_DE_EXTRAS)}
+                        </ThemedText>
+                        <BotaoSecundario rotulo={TEXTOS_DO_PERFIL.responder} onPress={aoResponderSobreVoce} />
+                    </Secao>
+
                     <Secao titulo={TEXTOS.conta}>
                         {/* O e-mail é a credencial da conta: aparece, mas não é campo. */}
                         <View style={[styles.cartao, { backgroundColor: theme.backgroundElement, borderColor: theme.borda }]}>
@@ -107,6 +145,18 @@ export function TelaDoPerfil({
                         {envio === 'falhou' && (
                             <ThemedText type="small" themeColor="erro" aria-live="polite">
                                 {TEXTOS.erroAoEnviarOLink}
+                            </ThemedText>
+                        )}
+
+                        <Caixa
+                            rotulo={TEXTOS_DO_PERFIL.aceitaContato}
+                            marcada={aceitaContato}
+                            aoMudar={mudarAceite}
+                            desabilitado={gravandoAceite}
+                        />
+                        {erroNoAceite && (
+                            <ThemedText type="small" themeColor="erro" aria-live="polite">
+                                {TEXTOS_DO_PERFIL.erroAoSalvar}
                             </ThemedText>
                         )}
                     </Secao>

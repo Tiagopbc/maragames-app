@@ -46,6 +46,10 @@ describe('o termo de participação', () => {
             /instituição/i,
             /curso/i,
             /experiência/i,
+            /faixa etária/i,
+            /cidade/i,
+            /estado/i,
+            /situação de estudo/i,
         ]) {
             expect(texto).toMatch(dado);
         }
@@ -56,5 +60,20 @@ describe('o termo de participação', () => {
             expect(secao.titulo.trim()).not.toBe('');
             expect(secao.texto.trim()).not.toBe('');
         }
+    });
+
+    // Item 34: o que é novo no que o app guarda precisa estar no que a pessoa aceita.
+    it('avisa das perguntas opcionais, das notas por área e de onde o app é usado', () => {
+        expect(texto).toMatch(/opcionais/i);
+        expect(texto).toMatch(/nota que você se dá/i);
+        expect(texto).toMatch(/navegador ou no celular/i);
+    });
+
+    it('diz que o app é para maiores de 18 anos', () => {
+        expect(texto).toMatch(/18 anos/);
+    });
+
+    it('diz que as mensagens da Beast Maragames só vão para quem aceitou', () => {
+        expect(texto).toMatch(/só.*se você aceitar/i);
     });
 });

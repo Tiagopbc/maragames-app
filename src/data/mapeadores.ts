@@ -54,6 +54,21 @@ export function paraAnswer(id: string, d: Dados): Answer {
     };
 }
 
+const CAMPOS_OPCIONAIS_DO_PERFIL = [
+    'instituicao',
+    'curso',
+    'aceitaContato',
+    'ocupacao',
+    'engines',
+    'linguagens',
+    'estudoDeGameDesign',
+    'interesses',
+    'objetivo',
+    'tempoPorSemana',
+    'comoConheceu',
+    'alunoDoSite',
+] as const;
+
 // `criadoEm` e `atualizadoEm` são números gravados pelo aparelho; `consentiuEm` é Timestamp do
 // servidor e vira ms. Forma e consentimento só entram no objeto quando existem no documento.
 export function paraPerfil(d: Dados): Perfil {
@@ -63,12 +78,19 @@ export function paraPerfil(d: Dados): Perfil {
         apelido: d.apelido,
         email: d.email,
         telefone: d.telefone,
-        instituicao: d.instituicao,
-        curso: d.curso,
+        faixaEtaria: d.faixaEtaria,
+        cidade: d.cidade,
+        uf: d.uf,
+        situacaoDeEstudo: d.situacaoDeEstudo,
         experiencia: d.experiencia,
         criadoEm: d.criadoEm,
         atualizadoEm: d.atualizadoEm,
     };
+    // O que pode não existir no documento só entra no objeto quando existe: instituição e curso
+    // (só de quem estuda), as perguntas opcionais e o aceite de contato.
+    for (const campo of CAMPOS_OPCIONAIS_DO_PERFIL) {
+        if (d[campo] !== undefined) (perfil as unknown as Record<string, unknown>)[campo] = d[campo];
+    }
     if (d.formaPre) perfil.formaPre = d.formaPre;
     if (d.consentiuEm) perfil.consentiuEm = d.consentiuEm.toMillis();
     return perfil;
