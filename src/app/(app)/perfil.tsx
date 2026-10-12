@@ -5,7 +5,7 @@ import { useSession } from '@/lib/session';
 
 // O Perfil (Fase 6 do plano): /perfil. É também onde fica o Sair, que saiu da home.
 export default function PerfilScreen() {
-    const { perfil, salvarPerfil, sair } = useSession();
+    const { perfil, salvarPerfil, entraComSenha, redefinirSenha, sair } = useSession();
     const router = useRouter();
 
     if (!perfil) return <Redirect href="/" />;
@@ -16,5 +16,16 @@ export default function PerfilScreen() {
         else router.replace('/');
     }
 
-    return <TelaDoPerfil perfil={perfil} aoSalvar={salvarPerfil} aoSairDaConta={sair} aoSair={fechar} />;
+    return (
+        <TelaDoPerfil
+            perfil={perfil}
+            aoSalvar={salvarPerfil}
+            entraComSenha={entraComSenha}
+            // O link vai sempre para o e-mail da conta: aqui a pessoa já está dentro dela.
+            aoRedefinirSenha={() => redefinirSenha(perfil.email)}
+            aoLerOTermo={() => router.push('/termo')}
+            aoSairDaConta={sair}
+            aoSair={fechar}
+        />
+    );
 }

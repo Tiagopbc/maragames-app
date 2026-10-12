@@ -121,3 +121,25 @@ describe('a tela de consentimento', () => {
         aviso.mockRestore();
     });
 });
+
+describe('o termo aberto só para leitura, pelo Perfil', () => {
+    it('mostra todas as seções, sem a caixa e sem o botão de aceitar', async () => {
+        await render(<TelaDeConsentimento somenteLeitura aoSair={aoSair} />);
+
+        for (const secao of TERMO) {
+            expect(screen.getByText(secao.titulo)).toBeOnTheScreen();
+            expect(screen.getByText(secao.texto)).toBeOnTheScreen();
+        }
+        expect(screen.queryByRole('checkbox')).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Aceitar e começar' })).toBeNull();
+        expect(screen.queryByText('Agora não')).toBeNull();
+    });
+
+    it('Fechar devolve a pessoa para onde ela estava', async () => {
+        await render(<TelaDeConsentimento somenteLeitura aoSair={aoSair} />);
+
+        await userEvent.setup().press(screen.getByRole('button', { name: 'Fechar' }));
+
+        expect(aoSair).toHaveBeenCalledTimes(1);
+    });
+});

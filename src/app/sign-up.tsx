@@ -4,6 +4,7 @@ import { Platform, StyleSheet } from 'react-native';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { CampoSenha } from '@/components/campo-senha';
 import { CampoTexto } from '@/components/campo-texto';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -94,27 +95,27 @@ export default function SignUpScreen() {
                     editable={!carregando}
                 />
 
-                <CampoTexto
-                    rotulo="Senha"
+                <CampoSenha
+                    rotulo={TEXTOS_DO_LOGIN.senha}
                     placeholder="8+ caracteres, com letra e número"
                     erro={erros.senha}
                     value={senha}
                     onChangeText={setSenha}
                     onBlur={() => setErros((e) => ({ ...e, senha: validarSenha(senha) }))}
-                    secureTextEntry
                     autoComplete="new-password"
                     editable={!carregando}
                 />
 
-                <CampoTexto
-                    rotulo="Repetir senha"
+                <CampoSenha
+                    rotulo={TEXTOS_DO_LOGIN.repetirSenha}
+                    rotuloDeMostrar={TEXTOS_DO_LOGIN.mostrarASenhaRepetida}
+                    rotuloDeOcultar={TEXTOS_DO_LOGIN.ocultarASenhaRepetida}
                     erro={erros.confirmacao}
                     value={confirmacao}
                     onChangeText={setConfirmacao}
                     onBlur={() =>
                         setErros((e) => ({ ...e, confirmacao: validarConfirmacao(senha, confirmacao) }))
                     }
-                    secureTextEntry
                     autoComplete="new-password"
                     editable={!carregando}
                     onSubmitEditing={enviar}

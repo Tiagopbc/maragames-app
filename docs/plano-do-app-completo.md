@@ -1,6 +1,6 @@
 # Plano do app completo
 
-09/10/2026 · Tiago Cavalcanti. **Aprovado pelo Tiago em 09/10**, com a medição por tópico, a sugestão do dia e as decisões D1, D2, D3 e D5 fechadas; D4, D6, D7 e D8 seguem como recomendação até serem respondidas, e falta o grupo confirmar a virada. Este arquivo guia o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md` (a virada é o item 30), e o andamento de cada fase fica no item 24.
+09/10/2026 · Tiago Cavalcanti. **Aprovado pelo Tiago em 09/10**, com a medição por tópico, a sugestão do dia e as decisões D1, D2, D3 e D5 fechadas; D4, D6 e D7 foram decididas em 10/10, e o grupo confirmou a virada em 12/10. Este arquivo guia o projeto no lugar de `docs/rota-recalculada.md`. As decisões técnicas continuam em `docs/decisoes-tecnicas.md` (a virada é o item 30), e o andamento de cada fase fica no item 24.
 
 ## 1. O que muda
 
@@ -162,7 +162,7 @@ Sem datas. Cada fase tem uma prova; só começa a seguinte quando a prova passa.
 **Fase 0 — Virar os documentos e fechar o que está aberto.**
 Atualizar `AGENTS.md` (escopo, regras da home, fora de escopo), rever nas decisões os itens 6, 19, 20, 22, 23 e 27, e reescrever o item 24 na ordem destas fases. Decidir push e pull request da branch `fix/exportacao-pasta-e-aviso`. Conferir se a branch `fix/tema-na-web` resolve o tema preso e trazê-la.
 Prova: quem ler `AGENTS.md` e o item 24 entende o projeto novo sem ler este arquivo.
-Andamento em 09/10: concluída, com o pull request nº 7 integrado. Falta só o grupo confirmar a virada.
+Andamento em 12/10: concluída, com o pull request nº 7 integrado e a virada confirmada pelo grupo.
 
 **Fase 1 — Motor do ciclo da lição.**
 Funções puras, sem tela: `estadoDaLicao`, `sugestaoDoDia`, o recorte de questões por tópico e fase, e o `xpAcumulado` por tópico.
@@ -257,4 +257,4 @@ A D1, a D2, a D3 e a D5 foram decididas pelo Tiago em 09/10, conforme a recomend
 | D7 | Uma revisão aos 7 dias ou intervalos crescentes? | **Decidido em 10/10: uma, por ora; a Fase 7 fica de fora.** Os intervalos são a Fase 7. |
 | D8 | As duas contas de teste: apagar ou manter? | Manter até a Fase 2, porque servem de prova de que os dados antigos são lidos pelo modelo novo. |
 
-Falta também o grupo confirmar a virada: pelo `AGENTS.md`, decisão de produto é do grupo, e este plano foi fechado com o Tiago.
+A virada foi confirmada pelo grupo em 12/10: pelo `AGENTS.md`, decisão de produto é do grupo, e este plano tinha sido fechado só com o Tiago.

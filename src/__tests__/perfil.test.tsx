@@ -22,12 +22,17 @@ const PERFIL = {
     atualizadoEm: 1,
 };
 // O perfil muda dentro do teste (salvar), então fica num objeto que o mock lê a cada render.
-const mockSessao: { perfil: Record<string, unknown>; falhaAoSalvar: boolean } = { perfil: {}, falhaAoSalvar: false };
+const mockSessao: { perfil: Record<string, unknown>; falhaAoSalvar: boolean; entraComSenha: boolean } = {
+    perfil: {},
+    falhaAoSalvar: false,
+    entraComSenha: true,
+};
 const mockSalvar = jest.fn(async (dados: Record<string, unknown>) => {
     if (mockSessao.falhaAoSalvar) throw new Error('sem rede');
     mockSessao.perfil = { ...mockSessao.perfil, ...dados };
 });
 const mockSair = jest.fn();
+const mockRedefinirSenha = jest.fn();
 
 jest.mock('@/lib/session', () => ({
     SessionProvider: ({ children }: { children: unknown }) => children,
@@ -38,6 +43,8 @@ jest.mock('@/lib/session', () => ({
         isLoading: false,
         salvarPerfil: mockSalvar,
         sair: mockSair,
+        entraComSenha: mockSessao.entraComSenha,
+        redefinirSenha: mockRedefinirSenha,
     }),
 }));
 
@@ -57,6 +64,9 @@ beforeEach(() => {
     mockSair.mockClear();
     mockSessao.perfil = { ...PERFIL };
     mockSessao.falhaAoSalvar = false;
+    mockSessao.entraComSenha = true;
+    mockRedefinirSenha.mockReset();
+    mockRedefinirSenha.mockResolvedValue(undefined);
     repo.reiniciar();
     repo.licoes = [{ id: 'licao_gdd', title: 'GDD', order: 1, topicId: 'gdd' }];
     repo.questoes = [
@@ -177,6 +187,95 @@ describe('a tela de Perfil', () => {
         await userEvent.setup().press(await screen.findByRole('button', { name: 'Sair' }));
 
         expect(mockSair).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('as seções do Perfil', () => {
+    it('separa a tela em Meus dados, Conta, Aparência e Estudo', async () => {
+        await abrirEm('/perfil');
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        for (const titulo of ['Meus dados', 'Conta', 'Aparência', 'Estudo']) {
+            expect(screen.getByRole('header', { name: titulo })).toBeOnTheScreen();
+        }
+    });
+});
+
+describe('a conta, no Perfil', () => {
+    it('quem entra por e-mail e senha vê isso escrito e pode pedir para redefinir a senha', async () => {
+        await abrirEm('/perfil');
+
+        expect(await screen.findByText('Você entra por e-mail e senha.')).toBeOnTheScreen();
+        expect(botao('Redefinir a senha')).toBeEnabled();
+    });
+
+    it('Redefinir a senha manda o link para o e-mail da conta e avisa', async () => {
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        await user.press(botao('Redefinir a senha'));
+
+        expect(mockRedefinirSenha).toHaveBeenCalledWith('tiago@exemplo.com');
+        expect(await screen.findByText('Enviamos um link para o e-mail da conta. Confira também o spam.')).toBeOnTheScreen();
+    });
+
+    it('se o envio falha, avisa e não diz que enviou', async () => {
+        mockRedefinirSenha.mockRejectedValue(new Error('sem rede'));
+        await abrirEm('/perfil');
+        const user = userEvent.setup();
+        await screen.findByDisplayValue('Tiago Cavalcanti');
+
+        await user.press(botao('Redefinir a senha'));
+
+        expect(await screen.findByText('Não foi possível enviar o e-mail. Tente de novo.')).toBeOnTheScreen();
+        expect(screen.queryByText(/Enviamos um link/)).toBeNull();
+    });
+
+    it('quem entra pelo Google vê isso escrito e não tem senha para redefinir', async () => {
+        mockSessao.entraComSenha = false;
+        await abrirEm('/perfil');
+
+        expect(await screen.findByText('Você entra pela sua conta do Google.')).toBeOnTheScreen();
+        expect(screen.queryByRole('button', { name: 'Redefinir a senha' })).toBeNull();
+    });
+});
+
+describe('o termo, no Perfil', () => {
+    it('Ler o termo abre o texto só para leitura, e Fechar volta para o Perfil', async () => {
+        mockSessao.perfil = { ...PERFIL, formaPre: 'A', consentiuEm: Date.UTC(2026, 9, 6, 15) };
+        const { caminho } = await abrirEm('/perfil');
+        const user = userEvent.setup();
+
+        await user.press(await screen.findByRole('button', { name: 'Ler o termo' }));
+
+        expect(await screen.findByText('O que é este estudo')).toBeOnTheScreen();
+        expect(caminho()).toBe('/termo');
+        expect(screen.queryByRole('checkbox')).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Aceitar e começar' })).toBeNull();
+
+        await user.press(screen.getByRole('button', { name: 'Fechar' }));
+
+        expect(await screen.findByRole('header', { name: 'Meus dados' })).toBeOnTheScreen();
+        expect(caminho()).toBe('/perfil');
+    });
+
+    it('quem ainda não aceitou também pode ler, e ler não registra aceite nenhum', async () => {
+        const { caminho } = await abrirEm('/perfil');
+        const user = userEvent.setup();
+
+        await user.press(await screen.findByRole('button', { name: 'Ler o termo' }));
+
+        expect(await screen.findByText('O que é este estudo')).toBeOnTheScreen();
+        expect(caminho()).toBe('/termo');
+        expect(mockSessao.perfil.consentiuEm).toBeUndefined();
+    });
+
+    it('o termo para leitura abre também pelo endereço', async () => {
+        await abrirEm('/termo');
+
+        expect(await screen.findByText('O que é este estudo')).toBeOnTheScreen();
+        expect(screen.getByRole('button', { name: 'Fechar' })).toBeOnTheScreen();
     });
 });
 

@@ -5,6 +5,7 @@ import { renderRouter, screen } from 'expo-router/testing-library';
 // Este teste fica fora de `src/app` de propósito: lá dentro, todo arquivo vira rota.
 
 const mockEntrarComEmail = jest.fn();
+const mockRedefinirSenha = jest.fn();
 
 // Sessão de quem ainda não entrou: o layout raiz só deixa abrir o login e o cadastro.
 jest.mock('@/lib/session', () => ({
@@ -16,6 +17,8 @@ jest.mock('@/lib/session', () => ({
         isLoading: false,
         entrarComEmail: mockEntrarComEmail,
         entrarComGoogle: jest.fn(),
+        cadastrarComEmail: jest.fn(),
+        redefinirSenha: mockRedefinirSenha,
     }),
 }));
 
@@ -33,6 +36,8 @@ beforeEach(() => {
     (useFonts as jest.Mock).mockReturnValue([true, null]);
     mockEntrarComEmail.mockReset();
     mockEntrarComEmail.mockResolvedValue(undefined);
+    mockRedefinirSenha.mockReset();
+    mockRedefinirSenha.mockResolvedValue(undefined);
 });
 
 async function abrirOApp() {
@@ -96,6 +101,18 @@ describe('a tela de login', () => {
         expect(await screen.findByText('Email ou senha incorretos.')).toBeOnTheScreen();
     });
 
+    it('a senha começa escondida, e o botão do campo a mostra', async () => {
+        await abrirOApp();
+        const user = userEvent.setup();
+        await screen.findByText('Pronto pra soltar a fera?');
+
+        expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(true);
+
+        await user.press(screen.getByRole('button', { name: 'Mostrar a senha' }));
+
+        expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(false);
+    });
+
     it('leva ao cadastro quem ainda não tem conta', async () => {
         await abrirOApp();
 
@@ -108,5 +125,80 @@ describe('a tela de login', () => {
         await userEvent.setup().press(await screen.findByRole('button', { name: 'Voltar ao início' }));
 
         expect(await screen.findByText('Pronto pra soltar a fera?')).toBeOnTheScreen();
+    });
+});
+
+describe('esqueci a senha, no login', () => {
+    const esqueci = () => screen.getByRole('button', { name: 'Esqueci a senha' });
+
+    it('sem e-mail digitado, pede o e-mail e não envia nada', async () => {
+        await abrirOApp();
+        const user = userEvent.setup();
+        await screen.findByText('Pronto pra soltar a fera?');
+
+        await user.press(esqueci());
+
+        expect(await screen.findByText('Digite o seu e-mail acima para receber o link de redefinição.')).toBeOnTheScreen();
+        expect(mockRedefinirSenha).not.toHaveBeenCalled();
+    });
+
+    it('com um e-mail que não é e-mail, também não envia', async () => {
+        await abrirOApp();
+        const user = userEvent.setup();
+        await screen.findByText('Pronto pra soltar a fera?');
+
+        await user.type(screen.getByLabelText('E-mail'), 'ana-sem-arroba');
+        await user.press(esqueci());
+
+        expect(await screen.findByText('Digite o seu e-mail acima para receber o link de redefinição.')).toBeOnTheScreen();
+        expect(mockRedefinirSenha).not.toHaveBeenCalled();
+    });
+
+    it('com o e-mail digitado, pede o link para ele e avisa sem dizer se a conta existe', async () => {
+        await abrirOApp();
+        const user = userEvent.setup();
+        await screen.findByText('Pronto pra soltar a fera?');
+
+        await user.type(screen.getByLabelText('E-mail'), ' ana@exemplo.com ');
+        await user.press(esqueci());
+
+        expect(mockRedefinirSenha).toHaveBeenCalledWith('ana@exemplo.com');
+        expect(
+            await screen.findByText('Se existir uma conta com esse e-mail, enviamos um link para redefinir a senha. Confira também o spam.')
+        ).toBeOnTheScreen();
+    });
+
+    it('se o envio falha, avisa e não diz que enviou', async () => {
+        mockRedefinirSenha.mockRejectedValue({ code: 'auth/network-request-failed' });
+        await abrirOApp();
+        const user = userEvent.setup();
+        await screen.findByText('Pronto pra soltar a fera?');
+
+        await user.type(screen.getByLabelText('E-mail'), 'ana@exemplo.com');
+        await user.press(esqueci());
+
+        expect(await screen.findByText('Sem conexão com o servidor.')).toBeOnTheScreen();
+        expect(screen.queryByText(/enviamos um link/)).toBeNull();
+    });
+});
+
+describe('a tela de cadastro', () => {
+    it('os dois campos de senha começam escondidos, cada um com o seu botão', async () => {
+        await renderRouter('./src/app', { initialUrl: '/sign-up' });
+        const user = userEvent.setup();
+        await screen.findByText('Depois a gente completa seu perfil.');
+
+        expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(true);
+        expect(screen.getByLabelText('Repetir senha').props.secureTextEntry).toBe(true);
+
+        await user.press(screen.getByRole('button', { name: 'Mostrar a senha' }));
+
+        // Mostrar uma não mostra a outra.
+        expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(false);
+        expect(screen.getByLabelText('Repetir senha').props.secureTextEntry).toBe(true);
+
+        await user.press(screen.getByRole('button', { name: 'Mostrar a senha repetida' }));
+
+        expect(screen.getByLabelText('Repetir senha').props.secureTextEntry).toBe(false);
     });
 });

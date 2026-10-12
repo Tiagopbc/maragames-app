@@ -11,6 +11,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithPopup,
     GoogleAuthProvider,
+    sendPasswordResetEmail,
     signOut,
     updateProfile,
     type User,
@@ -30,6 +31,9 @@ type SessionValue = {
     entrarComEmail: (email: string, senha: string) => Promise<void>;
     cadastrarComEmail: (email: string, senha: string) => Promise<void>;
     entrarComGoogle: () => Promise<void>;
+    // Só quem tem senha pode redefini-la: quem entra pelo Google não tem senha neste app.
+    entraComSenha: boolean;
+    redefinirSenha: (email: string) => Promise<void>;
     salvarPerfil: (dados: DadosPerfil) => Promise<void>;
     aceitarConsentimento: () => Promise<void>;
     sair: () => Promise<void>;
@@ -101,6 +105,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await signInWithPopup(auth, new GoogleAuthProvider());
     }
 
+    // O Firebase manda um e-mail com o link; a senha nova é escolhida na página dele.
+    async function redefinirSenha(email: string) {
+        auth.languageCode = 'pt-BR';
+        await sendPasswordResetEmail(auth, email);
+    }
+
     async function salvarPerfil(dados: DadosPerfil) {
         if (!user) throw new Error('Não há sessão ativa para salvar o perfil.');
 
@@ -150,6 +160,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 entrarComEmail,
                 cadastrarComEmail,
                 entrarComGoogle,
+                entraComSenha: !!user?.providerData.some((p) => p.providerId === 'password'),
+                redefinirSenha,
                 salvarPerfil,
                 aceitarConsentimento,
                 sair: () => signOut(auth),

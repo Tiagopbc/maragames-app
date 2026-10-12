@@ -13,6 +13,7 @@ export default function AppLayout() {
       <Stack.Screen name="progresso/index" />
       <Stack.Screen name="progresso/[topicId]" />
       <Stack.Screen name="perfil" />
+      <Stack.Screen name="termo" />
     </Stack>
   );
 }

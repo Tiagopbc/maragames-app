@@ -11,14 +11,19 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TERMO, TEXTOS_DO_TERMO } from '@/constants/termo';
 import { useTheme } from '@/hooks/use-theme';
 
-type TelaDeConsentimentoProps = {
-    aoAceitar: () => Promise<void>; // grava o aceite; se rejeitar, a tela avisa e deixa tentar de novo
-    aoSair: () => void; // "Agora não": fecha sem gravar nada
-};
+type TelaDeConsentimentoProps =
+    | {
+          somenteLeitura?: false;
+          aoAceitar: () => Promise<void>; // grava o aceite; se rejeitar, a tela avisa e deixa tentar de novo
+          aoSair: () => void; // "Agora não": fecha sem gravar nada
+      }
+    // Aberto pelo Perfil, para reler: o texto e um Fechar, sem caixa e sem aceite.
+    | { somenteLeitura: true; aoSair: () => void };
 
 // Mostra o termo e colhe o aceite. Não sabe como o aceite é gravado (isso é da sessão e do
 // repositório) nem para onde a navegação vai depois (isso é da rota).
-export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoProps) {
+export function TelaDeConsentimento(props: TelaDeConsentimentoProps) {
+    const { aoSair } = props;
     const theme = useTheme();
     const [concordo, setConcordo] = useState(false);
     const [enviando, setEnviando] = useState(false);
@@ -26,12 +31,12 @@ export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoPr
     const ocupado = useRef(false); // barra o toque duplo antes de a tela redesenhar
 
     async function aceitar() {
-        if (!concordo || ocupado.current) return;
+        if (props.somenteLeitura || !concordo || ocupado.current) return;
         ocupado.current = true;
         setErro(false);
         setEnviando(true);
         try {
-            await aoAceitar();
+            await props.aoAceitar();
         } catch (e) {
             console.warn('Não foi possível registrar o consentimento.', e);
             setErro(true);
@@ -56,41 +61,47 @@ export function TelaDeConsentimento({ aoAceitar, aoSair }: TelaDeConsentimentoPr
                     ))}
                 </ScrollView>
 
-                <View style={styles.rodape}>
-                    <Pressable
-                        accessibilityRole="checkbox"
-                        accessibilityLabel={TEXTOS_DO_TERMO.concordo}
-                        aria-checked={concordo}
-                        disabled={enviando}
-                        onPress={() => setConcordo((marcado) => !marcado)}
-                        style={styles.caixa}>
-                        <Ionicons
-                            name={concordo ? 'checkbox' : 'square-outline'}
-                            size={24}
-                            color={concordo ? theme.primaria : theme.textSecondary}
+                {props.somenteLeitura ? (
+                    <View style={styles.rodape}>
+                        <BotaoPrincipal rotulo={TEXTOS_DO_TERMO.fechar} onPress={aoSair} />
+                    </View>
+                ) : (
+                    <View style={styles.rodape}>
+                        <Pressable
+                            accessibilityRole="checkbox"
+                            accessibilityLabel={TEXTOS_DO_TERMO.concordo}
+                            aria-checked={concordo}
+                            disabled={enviando}
+                            onPress={() => setConcordo((marcado) => !marcado)}
+                            style={styles.caixa}>
+                            <Ionicons
+                                name={concordo ? 'checkbox' : 'square-outline'}
+                                size={24}
+                                color={concordo ? theme.primaria : theme.textSecondary}
+                            />
+                            <ThemedText type="smallBold" style={styles.textoDaCaixa}>
+                                {TEXTOS_DO_TERMO.concordo}
+                            </ThemedText>
+                        </Pressable>
+
+                        {erro && (
+                            <ThemedText type="small" themeColor="erro" aria-live="polite">
+                                {TEXTOS_DO_TERMO.erroAoAceitar}
+                            </ThemedText>
+                        )}
+
+                        <BotaoPrincipal
+                            rotulo={TEXTOS_DO_TERMO.aceitar}
+                            desabilitado={!concordo}
+                            carregando={enviando}
+                            onPress={aceitar}
                         />
-                        <ThemedText type="smallBold" style={styles.textoDaCaixa}>
-                            {TEXTOS_DO_TERMO.concordo}
-                        </ThemedText>
-                    </Pressable>
 
-                    {erro && (
-                        <ThemedText type="small" themeColor="erro" aria-live="polite">
-                            {TEXTOS_DO_TERMO.erroAoAceitar}
-                        </ThemedText>
-                    )}
-
-                    <BotaoPrincipal
-                        rotulo={TEXTOS_DO_TERMO.aceitar}
-                        desabilitado={!concordo}
-                        carregando={enviando}
-                        onPress={aceitar}
-                    />
-
-                    <Pressable accessibilityRole="button" disabled={enviando} onPress={aoSair} style={styles.agoraNao}>
-                        <ThemedText type="linkPrimary">{TEXTOS_DO_TERMO.agoraNao}</ThemedText>
-                    </Pressable>
-                </View>
+                        <Pressable accessibilityRole="button" disabled={enviando} onPress={aoSair} style={styles.agoraNao}>
+                            <ThemedText type="linkPrimary">{TEXTOS_DO_TERMO.agoraNao}</ThemedText>
+                        </Pressable>
+                    </View>
+                )}
             </SafeAreaView>
         </ThemedView>
     );
