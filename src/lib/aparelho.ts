@@ -6,10 +6,12 @@ import { Platform } from 'react-native';
 
 import type { OrigemDaTentativa } from '../types/domain';
 
-/** 'web', 'android' ou 'ios', e a versão do `app.json`. É só leitura: nada muda de comportamento aqui. */
+/** A versão do `app.json`, a mesma que o Perfil mostra em "Sobre". */
+export function versaoDoApp(): string {
+    return Constants.expoConfig?.version ?? 'desconhecida';
+}
+
+/** 'web', 'android' ou 'ios', e a versão do app. É só leitura: nada muda de comportamento aqui. */
 export function origemDaTentativa(): OrigemDaTentativa {
-    return {
-        plataforma: Platform.OS,
-        versaoDoApp: Constants.expoConfig?.version ?? 'desconhecida',
-    };
+    return { plataforma: Platform.OS, versaoDoApp: versaoDoApp() };
 }

@@ -7,7 +7,7 @@ import { BotaoPrincipal } from '@/components/botao-principal';
 import { Opcoes, OpcoesMultiplas, type Opcao } from '@/components/opcoes';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { LarguraDoFormulario, Spacing } from '@/constants/theme';
 import {
     ROTULO_DA_ENGINE,
     ROTULO_DA_LINGUAGEM,
@@ -239,7 +239,7 @@ export function TelaSobreVoce({ inicial, aoSalvar, aoSair }: TelaSobreVoceProps)
 
 const styles = StyleSheet.create({
     container: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
-    safeArea: { flex: 1, maxWidth: MaxContentWidth },
+    safeArea: { flex: 1, maxWidth: LarguraDoFormulario },
     cabecalho: {
         flexDirection: 'row',
         alignItems: 'center',

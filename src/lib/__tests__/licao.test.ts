@@ -617,3 +617,17 @@ describe('respostasAVista', () => {
         expect(respostasAVista([rv('pre', 'antigo_a1'), rv('pratica', 'antigo_p1')], []).map((x) => x.fase)).toEqual(['pratica']);
     });
 });
+
+// O resumo do atalho Lições e o do Perfil contam a mesma coisa.
+describe('licaoFeita', () => {
+    const { licaoFeita } = require('../licao');
+
+    it.each(['aguardando_revisao', 'revisao', 'concluida'])('%s: a lição já passou da verificação (ou da prática, no ciclo curto)', (tipo) => {
+        expect(licaoFeita({ estado: { tipo } })).toBe(true);
+    });
+
+    it.each(['nova', 'diagnostico', 'estudo', 'verificacao'])('%s: ainda não', (tipo) => {
+        expect(licaoFeita({ estado: { tipo } })).toBe(false);
+    });
+});
+

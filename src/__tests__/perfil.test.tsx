@@ -203,6 +203,69 @@ describe('a tela de Perfil', () => {
     });
 });
 
+describe('o cabeçalho do Perfil', () => {
+    const praticaFeita = () =>
+        repo.respostas.push({
+            id: 'r1',
+            uid: 'u1',
+            questionId: 'gdd_p1',
+            topicId: 'gdd',
+            attemptId: 't0',
+            fase: 'pratica',
+            escolha: 'a',
+            ordemExibida: ['a', 'b', 'c', 'd'],
+            correta: true,
+            confianca: 3,
+            tempoMs: 1,
+            respondidaEm: Date.now(),
+        });
+
+    it('mostra a inicial do apelido, o nome e o resumo com os números da home', async () => {
+        praticaFeita();
+        await abrirEm('/perfil');
+
+        expect(await screen.findByText('Tiago · XP: +3 · 1 de 1 feita')).toBeOnTheScreen();
+        expect(screen.getByText('Tiago Cavalcanti')).toBeOnTheScreen();
+        expect(screen.getByTestId('inicial-do-perfil')).toHaveTextContent('T');
+    });
+
+    it('sem nada que já possa virar número, o resumo não mostra XP', async () => {
+        await abrirEm('/perfil');
+
+        // "0 de 1 feitas", como no atalho Lições da home: só o 1 fica no singular.
+        expect(await screen.findByText('Tiago · 0 de 1 feitas')).toBeOnTheScreen();
+        expect(screen.queryByText(/XP/)).toBeNull();
+    });
+
+    it('se as lições não carregam, fica só o apelido, e o resto do Perfil funciona', async () => {
+        repo.falhaAoCarregar = true;
+        await abrirEm('/perfil');
+
+        expect(await screen.findByDisplayValue('Tiago Cavalcanti')).toBeOnTheScreen();
+        expect(screen.getByTestId('resumo-do-perfil')).toHaveTextContent('Tiago');
+        expect(screen.queryByText(/feita/)).toBeNull();
+    });
+
+    it('a inicial é maiúscula mesmo com o apelido em minúsculas', async () => {
+        mockSessao.perfil = { ...PERFIL, apelido: 'tiagão' };
+        await abrirEm('/perfil');
+
+        expect(await screen.findByTestId('inicial-do-perfil')).toHaveTextContent('T');
+    });
+});
+
+describe('a seção Sobre, no Perfil', () => {
+    it('diz a versão do app e para onde escrever', async () => {
+        const { versaoDoApp } = require('@/lib/aparelho');
+        const { CONTATO_DO_GRUPO } = require('@/constants/textos');
+        await abrirEm('/perfil');
+
+        expect(await screen.findByRole('header', { name: 'Sobre' })).toBeOnTheScreen();
+        expect(screen.getByText(`Beast Maragames · versão ${versaoDoApp()}`)).toBeOnTheScreen();
+        expect(screen.getByText(new RegExp(`escreva para ${CONTATO_DO_GRUPO.replace('.', '\\.')}`))).toBeOnTheScreen();
+    });
+});
+
 describe('o núcleo do perfil, na edição (item 34)', () => {
     it('mostra a faixa etária, a cidade, o estado e a situação de estudo que estão gravados', async () => {
         await abrirEm('/perfil');
@@ -320,7 +383,7 @@ describe('as seções do Perfil', () => {
         await abrirEm('/perfil');
         await screen.findByDisplayValue('Tiago Cavalcanti');
 
-        for (const titulo of ['Meus dados', 'Conta', 'Aparência', 'Estudo']) {
+        for (const titulo of ['Meus dados', 'Sobre você e os jogos', 'Conta', 'Aparência', 'Estudo', 'Sobre']) {
             expect(screen.getByRole('header', { name: titulo })).toBeOnTheScreen();
         }
     });

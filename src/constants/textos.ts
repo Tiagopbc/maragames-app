@@ -554,3 +554,32 @@ export function extrasRespondidosDe(respondidas: number, total: number): string 
 export function notaDoModulo(modulo: string, nota: number): string {
     return `${modulo}: nota ${nota} de 5`;
 }
+
+// --- Perfil: o cabeçalho e a seção Sobre. ---
+
+// Para onde escrever com dúvida ou para sair do estudo. Escolhido pelo Tiago em 12/10/2026; é o
+// único contato de pessoa que fica no código, por decisão dele.
+export const CONTATO_DO_GRUPO = 'pereirabc1981@gmail.com';
+
+export const TEXTOS_DO_SOBRE = {
+    titulo: 'Sobre',
+    contato: `Dúvidas ou para sair do estudo, escreva para ${CONTATO_DO_GRUPO}.`,
+} as const;
+
+/** "Beast Maragames · versão 1.0.0" */
+export function versaoDoAppNoPerfil(versao: string): string {
+    return `${TEXTOS_DO_LOGIN.marca} · versão ${versao}`;
+}
+
+/**
+ * A linha de resumo do cabeçalho do Perfil: "Tiago · XP: +47 · 9 de 9 feitas". São os números
+ * da home. Sem lições lidas, fica só o apelido; sem XP à vista (item 14), o XP não aparece.
+ */
+export function resumoDoPerfil(apelido: string, resumo: { xp: number | null; feitas: number; total: number } | null): string {
+    if (!resumo) return apelido;
+    const partes = [apelido];
+    if (resumo.xp !== null) partes.push(formatarXpTotal(resumo.xp));
+    partes.push(licoesFeitas(resumo.feitas, resumo.total));
+    return partes.join(' · ');
+}
+
