@@ -38,7 +38,7 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 - `users/{uid}`: perfil (núcleo obrigatório, opcionais e `aceitaContato`), `formaPre` (A ou B, imutável depois de gravada) e `consentiuEm`.
 - `selfAssessments/{uid}`: a nota de 1 a 5 que a pessoa se dá em cada módulo, antes do primeiro diagnóstico. Gravada uma vez, nunca atualizada.
 - `attempts` guarda `plataforma` e `versaoDoApp` na criação, sem perguntar nada.
-- O repositório é público: e-mail, telefone ou outro dado de pessoa de verdade não entra em arquivo, teste, commit nem pull request.
+- O repositório é público: e-mail, telefone ou outro dado de pessoa de verdade não entra em arquivo, teste, commit nem pull request. A única exceção é o contato da seção "Sobre" do Perfil (`CONTATO_DO_GRUPO`), escolhido pelo Tiago.
 
 ## Regras de negócio
 
