@@ -71,15 +71,15 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## O que está esperando resposta do Tiago
 
-1. **Testar e ver o que entrou em 12/10 (item 33 das decisões):** o "Esqueci a senha" com uma conta de e-mail e senha (o e-mail chega? o link troca a senha?), o Perfil em seções e o termo para reler. O olho da senha já foi visto no navegador. **Escolher os campos novos do perfil**, entre os sugeridos ao Tiago em 12/10: faixa etária, cidade e estado, área de interesse, objetivo e aceite de contato; nada disso foi codado.
-2. **Instalar o primeiro APK num Android** (build `d11d99c8`) e conferir o login por e-mail e uma lição.
+1. **Fechar o que entrou em 12/10 (item 33 das decisões):** confirmar que o link de redefinição troca a senha (o e-mail chegou, em português, mas no spam) e ver no app o Perfil em seções e o termo para reler. **Responder sobre os dados do perfil**, sugeridos ao Tiago em 12/10: divisão em obrigatórios no cadastro e opcionais no Perfil, que campos entram e se o app aceita menor de 18; nada disso foi codado.
+2. **Instalar o APK num Android** (build `d9a3b84d`, de 12/10, já com o item 33) e conferir o login por e-mail e uma lição.
 3. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
 4. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo com o texto novo já foram vistas pelo Tiago, em 12/10.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 11 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, em 12/10, o termo novo e a configuração da distribuição.
-- **Branch atual:** `feat/senha-e-perfil`, em cima do `main` (que já tem o pull request nº 12), com o registro da lição feita na web publicada, a virada confirmada e o item 33 (olho da senha, redefinição, Perfil em seções e termo para reler), em pull request aberto em 12/10.
+- **`main`:** tem os pull requests nº 5 a nº 13 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 12, documentos; o nº 13, em 12/10, o olho na senha, a redefinição, o Perfil em seções e o termo para reler.
+- **Branch atual, só local:** `docs/apk-novo-e-redefinicao`, em cima do `main` (que já tem o pull request nº 13), só com o registro do segundo APK e do e-mail de redefinição. Perguntar antes do push.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 632 testes (628 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.

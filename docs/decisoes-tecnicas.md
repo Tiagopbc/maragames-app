@@ -333,9 +333,9 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Esperando o Tiago**
 
 - Ver as revisões no app, na conta principal do Tiago: quatro abrem em 13/10, uma em 17/10 e uma em 19/10.
-- Testar o "Esqueci a senha" com uma conta de e-mail e senha: ver se o e-mail chega e se o link troca a senha (item 33). O assistente não tem como receber o e-mail.
+- Terminar o teste da redefinição de senha (item 33): o e-mail chegou, em português, mas no spam e com o nome "maragames-app"; falta confirmar que o link troca a senha. Trocar o nome exibido ao público para "Beast Maragames", no console do Firebase.
 - Ver no app o Perfil em seções e o termo para reler (item 33): cobertos por teste, não vistos com conta logada.
-- Escolher os campos novos do perfil, entre os sugeridos em 12/10 (faixa etária, cidade e estado, área de interesse, objetivo, aceite de contato), e dizer se algum pode ser opcional.
+- Responder sobre os dados do perfil, sugeridos em 12/10: se vale a divisão em obrigatórios no cadastro e opcionais no Perfil (o que revê a regra de "todos os campos obrigatórios"), que campos entram e se o app aceita menor de 18. O desenho vem depois das respostas.
 
 **Fase 0 — Documentos e o que está aberto**
 
@@ -353,7 +353,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - Conferir num aparelho de verdade, iPhone e Android, nos dois temas: home, lista, lição, fim de cada passo, Progresso e Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status. No iPhone, em tema escuro, o Tiago já viu a home, a lista e o Progresso em 10/10.
 - Dados de teste: três contas a tratar. A principal do Tiago (apelido Tiago), com 82 respostas e o termo aceito, fica até as revisões serem vistas no app: quatro abrem em 13/10, uma em 17/10 e a de Publicando na Steam, feita em 12/10, em 19/10. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada, tem 10 respostas, o termo aceito e a revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc, está limpa. Quando forem limpas, zerar o contador do termo, que está em 4 (`--zerar-contador`).
-- Distribuição (item 32): instalar o primeiro APK num Android (build `d11d99c8`, de 12/10, no painel do Expo) e conferir o login por e-mail e uma lição. O APK foi gerado; ninguém o instalou ainda.
+- Distribuição (item 32): instalar o APK num Android e conferir o login por e-mail e uma lição. O atual é o build `d9a3b84d`, de 12/10, feito do `main` já com o item 33; o primeiro (`d11d99c8`) ficou para trás. Ninguém instalou nenhum dos dois ainda. Os dois saíram com `versionCode` 1: ligar o `autoIncrement` no `eas.json` antes do próximo.
 - A prova da fase: uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
 
 **Decisões em aberto**
@@ -371,6 +371,9 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 12/10**
 
+- Pull request nº 13 integrado ao `main` pelo Tiago (item 33). A revisão automática terminou depois da integração, sem apontamento. A web publicada passou a ter o olho na senha, o "Esqueci a senha", o Perfil em seções e o termo para reler.
+- Segundo APK gerado, a partir do `main` com o item 33: build `d9a3b84d`, perfil `preview`, com a mesma chave de assinatura do primeiro; a montagem levou 16 minutos.
+- E-mail de redefinição de senha recebido pelo Tiago, pedido pela web publicada: veio em português, do endereço padrão do Firebase, e caiu no spam.
 - Botão de ver a senha, "Esqueci a senha" no login, redefinição de senha no Perfil, Perfil em seções e termo para reler (item 33), com o desenho aprovado pelo Tiago. `npm test` passa com 632.
 - Virada para o app completo (item 30) confirmada pelo grupo, informado pelo Tiago em 12/10. Era a última pendência da Fase 0.
 - Login por e-mail e senha usado na web publicada, pelo Tiago, com a conta principal: a home abriu com "XP: +47", "Tudo em dia", "9 de 9 feitas" e as seis revisões agendadas, e o Perfil, no tema claro e em largura de computador. Com isso os dois logins (Google e e-mail) estão vistos em `maragames-app.vercel.app`.
