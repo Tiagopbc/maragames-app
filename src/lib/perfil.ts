@@ -42,6 +42,20 @@ export const COMO_CONHECEU: readonly ComoConheceu[] = ['instagram', 'amigo', 'fa
 // A escala da autoavaliação por módulo.
 export const NOTAS_DA_AUTOAVALIACAO: readonly number[] = [1, 2, 3, 4, 5];
 
+// Em engines e linguagens, "nenhuma" não combina com as outras: quem a marca, marca só ela.
+export const OPCAO_EXCLUSIVA = 'nenhuma';
+
+/**
+ * O que fica marcado, numa pergunta de várias opções, depois de um toque: a opção tocada troca
+ * de estado, "nenhuma" tira as outras e qualquer outra tira "nenhuma". A ordem do resultado é a
+ * da lista de opções, e não a dos toques.
+ */
+export function alternarOpcao<V extends string>(opcoes: readonly V[], marcadas: readonly V[], tocada: V): V[] {
+    if (marcadas.includes(tocada)) return opcoes.filter((o) => o !== tocada && marcadas.includes(o));
+    if (tocada === OPCAO_EXCLUSIVA) return [tocada];
+    return opcoes.filter((o) => o === tocada || (marcadas.includes(o) && o !== OPCAO_EXCLUSIVA));
+}
+
 /** Instituição e curso só fazem sentido para quem está na graduação ou na pós. */
 export function pedeInstituicaoECurso(situacao: SituacaoDeEstudo | null | undefined): boolean {
     return situacao === 'graduacao' || situacao === 'pos';

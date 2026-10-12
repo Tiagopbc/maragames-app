@@ -107,6 +107,28 @@ describe('a tela "Sobre você e os jogos"', () => {
         expect(screen.getByText('3 de 9 respondidas')).toBeOnTheScreen();
     });
 
+    it('"Nenhuma" não combina com as outras: marcar uma desmarca a outra', async () => {
+        const { user } = await abrir();
+        const engine = (nome: string) => opcao('Que engines você já usou?', 'checkbox', nome);
+
+        await user.press(engine('Godot'));
+        await user.press(engine('Unity'));
+        await user.press(engine('Nenhuma'));
+
+        expect(engine('Nenhuma')).toBeChecked();
+        expect(engine('Godot')).not.toBeChecked();
+        expect(engine('Unity')).not.toBeChecked();
+
+        await user.press(engine('Unreal'));
+
+        expect(engine('Unreal')).toBeChecked();
+        expect(engine('Nenhuma')).not.toBeChecked();
+
+        await user.press(salvar());
+
+        expect(mockSalvarExtras).toHaveBeenCalledWith(expect.objectContaining({ engines: ['unreal'] }));
+    });
+
     it('o que já estava respondido vem marcado', async () => {
         mockSessao.perfil = { ...PERFIL, objetivo: 'publicar', interesses: ['arte', 'audio'], alunoDoSite: true };
         await abrir();

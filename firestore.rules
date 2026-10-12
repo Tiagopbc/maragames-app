@@ -12,7 +12,12 @@ service cloud.firestore {
     // então a checagem vale tanto para a criação quanto para a edição do perfil.
     // As listas são as de src/lib/perfil.ts. Mudou uma, muda a outra.
 
-    // O núcleo obrigatório (item 34). Instituição e curso só são exigidos na graduação e na pós.
+    function estuda(d) {
+      return d.situacaoDeEstudo in ['graduacao', 'pos'];
+    }
+
+    // O núcleo obrigatório (item 34). Instituição e curso são exigidos na graduação e na pós, e
+    // não podem existir nas outras situações: sobra de um perfil anterior não fica.
     function nucleoValido(d) {
       return d.nome is string && d.nome.size() >= 2 && d.nome.size() <= 60
           && d.apelido is string && d.apelido.size() >= 2 && d.apelido.size() <= 20
@@ -22,9 +27,10 @@ service cloud.firestore {
           && d.uf in ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
                       'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
           && d.situacaoDeEstudo in ['ensino_medio', 'graduacao', 'pos', 'formado', 'nao_estudo']
-          && (!(d.situacaoDeEstudo in ['graduacao', 'pos'])
-              || (d.instituicao is string && d.instituicao.size() >= 2 && d.instituicao.size() <= 80
-                  && d.curso is string && d.curso.size() >= 2 && d.curso.size() <= 80))
+          && ((estuda(d)
+                && d.instituicao is string && d.instituicao.size() >= 2 && d.instituicao.size() <= 80
+                && d.curso is string && d.curso.size() >= 2 && d.curso.size() <= 80)
+              || (!estuda(d) && !('instituicao' in d) && !('curso' in d)))
           && d.experiencia in ['iniciante', 'intermediario', 'avancado'];
     }
 
@@ -33,9 +39,11 @@ service cloud.firestore {
       return !(campo in d) || d[campo] in lista;
     }
 
+    // "nenhuma" não combina com outra opção: quem a marca, marca só ela.
     function listaOpcional(d, campo, lista) {
       return !(campo in d)
-          || (d[campo] is list && d[campo].size() >= 1 && d[campo].size() <= lista.size() && d[campo].hasOnly(lista));
+          || (d[campo] is list && d[campo].size() >= 1 && d[campo].size() <= lista.size() && d[campo].hasOnly(lista)
+              && (!('nenhuma' in d[campo]) || d[campo].size() == 1));
     }
 
     function simOuNaoOpcional(d, campo) {
@@ -140,11 +148,19 @@ service cloud.firestore {
 
     // A nota que a pessoa se dá em cada módulo, de 1 a 5, antes do primeiro diagnóstico (item 34).
     // Um documento por pessoa, com o id dela, gravado uma vez: mudar a nota depois de estudar
-    // estragaria a comparação com o diagnóstico.
+    // estragaria a comparação com o diagnóstico. Por não se repetir, a gravação tem de trazer uma
+    // nota para cada módulo: os ids abaixo são os de content/topicos.json (`idDoModulo`).
+    // Módulo novo no conteúdo muda esta lista; src/__tests__/regras-do-perfil.test.js confere.
+    function modulosDaAutoavaliacao() {
+      return ['fundamentos_de_game_design', 'arte_pixel_art', 'game_engines', 'programacao_para_jogos',
+              'audio_musica', 'publicacao_monetizacao'];
+    }
+
     function autoavaliacaoValida(d) {
       return d.keys().hasAll(['uid', 'notas', 'respondidaEm']) && d.keys().hasOnly(['uid', 'notas', 'respondidaEm'])
           && d.uid == request.auth.uid
-          && d.notas is map && d.notas.size() >= 1 && d.notas.size() <= 30
+          && d.notas is map
+          && d.notas.keys().hasAll(modulosDaAutoavaliacao()) && d.notas.keys().hasOnly(modulosDaAutoavaliacao())
           && d.notas.values().hasOnly([1, 2, 3, 4, 5])
           && d.respondidaEm == request.time;
     }

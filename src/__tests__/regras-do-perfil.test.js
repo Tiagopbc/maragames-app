@@ -33,8 +33,24 @@ it.each(Object.entries(LISTAS))('a lista de %s da regra é a do app', (_nome, li
     expect(regras).toContain(naRegra(lista));
 });
 
-it('a regra exige instituição e curso nas mesmas situações que o app', () => {
+it('a regra exige instituição e curso nas mesmas situações que o app, e os recusa nas outras', () => {
     const exigem = perfil.SITUACOES_DE_ESTUDO.filter((s) => perfil.pedeInstituicaoECurso(s));
 
-    expect(regras).toContain(`!(d.situacaoDeEstudo in ${naRegra(exigem)})`);
+    expect(regras).toContain(`function estuda(d) { return d.situacaoDeEstudo in ${naRegra(exigem)}; }`);
+    expect(regras).toContain("!('instituicao' in d) && !('curso' in d)");
+});
+
+// A autoavaliação é gravada uma vez, então a regra exige uma nota para cada módulo: os ids são
+// os do conteúdo. Módulo novo no conteúdo pede a mesma mudança na regra, e este teste avisa.
+it('os módulos da autoavaliação, na regra, são os do conteúdo', () => {
+    const topicos = require('../../content/topicos.json');
+    const modulos = perfil.modulosDosTopicos(topicos).map((m) => m.id);
+
+    expect(modulos.length).toBeGreaterThan(0);
+    expect(regras).toContain(`function modulosDaAutoavaliacao() { return ${naRegra(modulos)}; }`);
+});
+
+it('a opção que exclui as outras, na regra, é a do app', () => {
+    expect(perfil.OPCAO_EXCLUSIVA).toBe('nenhuma');
+    expect(regras).toContain("!('nenhuma' in d[campo]) || d[campo].size() == 1");
 });
