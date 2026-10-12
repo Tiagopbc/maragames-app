@@ -1,6 +1,6 @@
 # Decisões técnicas — pontos para apresentação ao professor
 
-Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 11/10/2026 (item 24: pull request nº 10 aberto, com a exportação por lição e o acabamento; itens 21 e 24: sobras do seed antigo apagadas; em 10/10, itens 23 e 24: exportação por lição, fim do roteiro antigo e acabamento, com nome do app, dependências, ESLint e script de limpeza; item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
+Lista viva, atualizada conforme os marcos avançam. Cada item é uma escolha de arquitetura/modelagem que vale explicar na apresentação, com o raciocínio por trás. Última atualização: 11/10/2026 (itens 24 e 32: configuração da distribuição no repositório e projetos criados na Vercel e no EAS; item 32 novo: distribuição pela web na Vercel e por APK do EAS; item 24: pull request nº 10 integrado, texto do termo reescrito para o ciclo da lição e as 30 questões novas seguem como estão; começo com o termo percorrido no app com a conta limpa; pull request nº 10 aberto, com a exportação por lição e o acabamento; itens 21 e 24: sobras do seed antigo apagadas; em 10/10, itens 23 e 24: exportação por lição, fim do roteiro antigo e acabamento, com nome do app, dependências, ESLint e script de limpeza; item 30: o ciclo de quem já praticou, apontado na revisão do pull request nº 8; item 31 novo: tema claro, escuro ou do sistema, escolhido no Perfil; item 30: "O que revisar primeiro" no Progresso; itens 6, 14, 21, 23, 24 e 30: Fases 3 a 6 e 8 do plano, com a lista de lições, a home nova, o Progresso, o Perfil, a retirada do roteiro do piloto e as 30 questões novas; itens 24 e 30: Fase 2 do plano, com a página da lição, os blocos por tópico, a trava por lição e os testes de emulador de `answers` e `attempts`; em 09/10, itens 24 e 30: Fase 1 do plano, com o motor do ciclo da lição em funções puras; itens 20 e 30: prazos cancelados e virada para o app completo, com o plano em `docs/plano-do-app-completo.md`; itens 6, 19, 22, 23, 24 e 27 revistos para a virada; itens 14 e 24: XP à vista na tela da sequência, no "Seu dia 1" e na home; item 29 novo e item 24 revisto: troca de tema do sistema na web; itens 23 e 24: pull request nº 5 integrado e ajustes na exportação; em 08/10, itens 24 e 28: protótipo do Figma corrigido à mão; itens 24, 25, 26 e 28: validação na web, com o roteiro do dia 1 refeito numa conta nova, estado de acessibilidade em `aria-*`, botões do cadastro e do perfil, abertura e ícone com a logo, pull request nº 5 aberto com o `main` integrado, endereço que não existe (item 7), cálculo de retenção e ordem de apresentação no app (item 23), volta ao app e relógio do aparelho (item 22), trilha diária no app e script de exportação (item 23) e home com rolagem (item 6); em 07/10, itens 6, 23, 24, 25, 26 e 28 revistos: as abas do template saíram, o rodapé fixo foi conferido na web, o desenho do piloto foi confirmado, a aparência do protótipo entrou no app, e a trava do roteiro e a tela de espera foram implementadas).
 
 ## 1. Arquitetura "híbrida" no sentido correto do termo
 
@@ -332,9 +332,8 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Esperando o Tiago**
 
-- Integrar o pull request nº 10 (branch `feat/exportacao-e-acabamento`: Fase 9 e a parte da Fase 10 feita em 10/10), depois de a revisão automática terminar.
-- Ver as revisões no app em 13/10 e 17/10, na conta do Tiago, e o começo com o termo, na conta limpa.
-- Decidir a forma de distribuição (ver abaixo).
+- Ver as revisões no app em 13/10 e 17/10, na conta do Tiago.
+- Distribuição (item 32): cadastrar as seis variáveis `EXPO_PUBLIC_FIREBASE_*` na Vercel e no EAS (`npx eas-cli env:push preview --path .env`), incluir `maragames-app.vercel.app` nos domínios autorizados do Firebase Auth, e liberar o push e o pull request da branch `feat/termo-e-distribuicao`.
 
 **Fase 0 — Documentos e o que está aberto**
 
@@ -342,8 +341,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Fase 8 — Conteúdo**
 
-- O grupo revisar as 30 questões novas de diagnóstico e verificação (ids `_07` a `_12` de GDD, UX/UI, Efeitos sonoros, Playtest e Publicando na Steam), escritas pelo assistente.
-- O texto do termo, em `src/constants/termo.ts`, continua rascunho.
+- Nada pendente: as 30 questões seguem como estão e o termo foi reescrito (ver resolvidas).
 
 **Fase 7 — Revisão em intervalos crescentes**
 
@@ -353,8 +351,10 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - Conferir num aparelho de verdade, iPhone e Android, nos dois temas: home, lista, lição, fim de cada passo, Progresso e Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status. No iPhone, em tema escuro, o Tiago já viu a home, a lista e o Progresso em 10/10.
 - Conferir a troca de tema do sistema com o app aberto e logado (item 29).
-- Dados de teste: a conta de apelido Tiagopbc foi limpa em 11/10 (ver resolvidas). Resta a do Tiago, com 70 respostas e o termo aceito, mantida de propósito até as revisões de 13/10 e 17/10 serem vistas no app. Quando ela for limpa, zerar também o contador do termo, que está em 2 (`--zerar-contador`).
-- Forma de distribuição (Expo Go, build web na Vercel ou build EAS com APK/TestFlight): decisão do Tiago.
+- Dados de teste: a conta de apelido Tiagopbc está limpa (ver resolvidas). Resta a do Tiago, com 70 respostas e o termo aceito, mantida de propósito até as revisões de 13/10 e 17/10 serem vistas no app. Quando ela for limpa, zerar também o contador do termo, que está em 3 (`--zerar-contador`).
+- Distribuição (item 32): com as variáveis e o domínio no lugar e a branch no `main`, conferir a web publicada (login por e-mail e pelo Google, e uma rota aberta direto) e gerar o primeiro APK (`npx eas-cli build -p android --profile preview`).
+- A prova da fase: uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
+- Ver a tela do termo no app com o texto novo: coberto por teste, não visto.
 
 **Decisões em aberto**
 
@@ -371,6 +371,12 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 11/10**
 
+- Distribuição configurada no repositório (item 32): saída `single` na web, `vercel.json`, `android.package`, `eas.json` com o perfil de APK, e os projetos criados no EAS e na Vercel, com a aprovação do Tiago. Texto novo do termo aprovado por ele.
+- Forma de distribuição decidida pelo Tiago: web na Vercel e APK pelo EAS (item 32).
+- Texto do termo reescrito, a pedido do Tiago (`src/constants/termo.ts`): saiu a descrição do roteiro do piloto (sessão de 30 minutos, quatro tópicos, questionário aos 7 dias, um tópico novo por dia) e entrou o ciclo da lição, com os nomes da tela. O que fica gravado e o uso dos dados não mudaram, fora a menção à data do aceite. Com teste novo (`src/constants/__tests__/termo.test.ts`); `npm test` passa com 604.
+- As 30 questões novas de diagnóstico e verificação seguem como estão, por decisão do Tiago: a revisão do grupo deixa de ser pendência.
+- Pull request nº 10 integrado ao `main` pelo Tiago (Fase 9 e a parte de código da Fase 10). A revisão automática terminou sem apontamento. O trabalho novo parte do `main`, na branch `feat/termo-e-distribuicao`.
+- Começo com o termo percorrido no app, com a conta limpa (apelido Tiagopbc), no Chrome do Tiago, em `http://127.0.0.1:8081`, tema escuro e largura de computador. O "Para hoje" abriu só a página da lição Framework MDA, com o aviso do termo; `/licoes/mda_framework/diagnostico` e `/pratica`, pela URL, voltaram para a lição; no termo, "Aceitar e começar" não fez nada sem a caixa marcada e "Agora não" voltou para a lição; depois do aceite, a lição voltou sem o aviso e "Começar" abriu o diagnóstico, sem nenhum resultado por questão. Saindo pelo X depois da primeira resposta, a lição e a home mostraram "1 de 3" e "Continuar o diagnóstico", e a retomada abriu na questão 2. No fim, "Diagnóstico feito", sem número; a home passou a "Cartão e prática", com "Sequência: 1 dia" e sem selo de XP, o Progresso ficou em "Ainda não há respostas para mostrar" e a lista, em "Em andamento". Sem erro no console. No banco: `formaPre` A, `consentiuEm` gravado, contador de 2 para 3, 3 respostas de fase `pre` com os onze campos, as três da forma A do tópico, `correta` batendo com o gabarito, e uma tentativa concluída, ligada à lição. Em seguida o Tiago limpou a conta de novo, com `npm run limpar:teste`: saíram as 3 respostas, a tentativa e o aceite; o contador ficou em 3.
 - Push da branch `feat/exportacao-e-acabamento` e pull request nº 10 aberto contra o `main`, com a liberação do Tiago. Antes do envio: `npm test` com 598, `npx tsc --noEmit` sem erros e `npm run lint` sem erro nem aviso.
 - Pull request nº 9 integrado ao `main` pelo Tiago (o ciclo de quem já praticou, item 30). A revisão automática terminou sem apontamento.
 - Conta de teste de apelido Tiagopbc limpa pelo Tiago, com `npm run limpar:teste`: saíram as 40 respostas, as 6 tentativas e o aceite do termo. O login e o cadastro ficaram, então ela serve de conta nova para percorrer uma lição do zero.
@@ -651,3 +657,24 @@ Decidido com o Tiago em 10/10. O Perfil ganhou a seção "Aparência", com três
 - **Limitação registrada:** o teclado e os avisos nativos do aparelho continuam seguindo o tema do sistema.
 
 Nos testes, o AsyncStorage é trocado pela versão de teste da própria biblioteca, nos dois projetos do jest (`package.json`). Conferido na web, na tela de login, em 375×812: com "claro" guardado e o sistema em escuro, a tela abre clara; com "escuro" guardado e o sistema em claro, abre escura; sem erro no console. A seção no Perfil e a troca ao toque estão cobertas por teste e não foram vistas no app, porque o painel desta conversa não tem login. `npm test` passa com 613.
+
+## 32. Distribuição: web na Vercel e APK pelo EAS
+
+Decidido pelo Tiago em 11/10. O app chega a quem é de fora por dois caminhos: um endereço na web, hospedado na Vercel, que serve iPhone e Android sem instalar nada, e um APK gerado pelo EAS Build, que é a entrega de app instalado no Android. Ficaram de fora o Expo Go, em que a pessoa depende do computador do grupo ligado, e o TestFlight, que pede conta paga de desenvolvedor da Apple.
+
+O que o levantamento de 11/10 mostrou, antes de qualquer mudança:
+
+- **A exportação para a web funciona** (`npx expo export -p web`, 22 rotas). Com `web.output: "static"`, que é o do `app.json`, as rotas dinâmicas saem como arquivo de nome literal (`licoes/[topicId].html`): num servidor de arquivos, abrir ou recarregar `/licoes/mda_framework` não acha página, embora a navegação por dentro do app funcione. A documentação do Expo para a Vercel resolve com a saída `single` e uma reescrita de todos os endereços para `/`.
+- **O `.env` fica fora do git**, então as seis variáveis `EXPO_PUBLIC_FIREBASE_*` precisam ser cadastradas na Vercel e no EAS. São valores públicos por natureza: vão dentro do app.
+- **O login com Google usa `signInWithPopup`**, que o Firebase só oferece no navegador. As telas de login e de cadastro já só mostram o botão na web, então no APK a entrada é por e-mail e senha. A escolha está num `Platform.OS` em cada tela, e não em arquivo `.web`, como pede a regra do item 10.
+- **Faltam** o `android.package` no `app.json`, o `eas.json` com um perfil de APK, o projeto no EAS e o domínio da Vercel nos domínios autorizados do Firebase Auth.
+
+Revisto em 11/10 (desenho aprovado pelo Tiago e configuração feita). Escolhas:
+
+- **A web exporta uma página só** (`web.output: "single"`, no `app.json`), e o `vercel.json` é o da documentação do Expo: monta com `expo export -p web`, publica a pasta `dist` e reescreve qualquer endereço para `/`. O app fica inteiro atrás do login, então as páginas prontas da saída `static` não faziam falta. Conferido com a versão exportada servida localmente com a mesma reescrita: `/licoes/mda_framework` e `/sign-up` abrem direto, e um endereço que não existe cai na tela "Essa página não existe". O `npx expo serve` não reescreve endereços e, sozinho, responde "Not Found" nessas rotas: é o comportamento que o `vercel.json` corrige.
+- **O identificador do app no Android é `com.beastmaragames.app`** (`android.package`). Depois de um APK instalado, mudar o identificador faz o aparelho tratar como outro app.
+- **O `eas.json` tem um perfil só, `preview`**: distribuição interna, `android.buildType: "apk"` e as variáveis do ambiente `preview` do EAS. O perfil da loja fica para quando houver loja.
+- **Projetos criados em 11/10:** no EAS, `@tiagopbc/maragames-app` (o `projectId` e o `owner` foram para o `app.json`); na Vercel, `maragames-app`, ligado ao repositório, com o `main` como branch de produção e o domínio `maragames-app.vercel.app`. A Vercel publica a cada push no `main`; nenhuma publicação foi feita ainda.
+- **As variáveis do Firebase não foram cadastradas pelo assistente**, que não digita chave em serviço de fora: na Vercel e no EAS, são com o Tiago, assim como o domínio autorizado no Firebase Auth.
+
+`npm test` passa com 610 (`src/__tests__/distribuicao.test.js` amarra a configuração), `npx tsc --noEmit` sem erros e `npm run lint` limpo.

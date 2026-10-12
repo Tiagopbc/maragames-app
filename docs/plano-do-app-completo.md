@@ -210,7 +210,7 @@ Andamento em 10/10: fora por ora, por decisão do Tiago.
 Questões de diagnóstico e verificação (formas A e B) para os cinco tópicos que só têm prática; revisão das explicações que começam com "Correto."; conferência dos módulos.
 Prova: os nove tópicos fazem o ciclo completo.
 Depende de: nada; anda em paralelo desde a Fase 1.
-Andamento em 10/10: as 30 questões e os ajustes estão no repositório e no banco (seed rodado pelo Tiago, versão `ebaeb429b051`). Falta o grupo revisar as questões.
+Andamento em 10/10: as 30 questões e os ajustes estão no repositório e no banco (seed rodado pelo Tiago, versão `ebaeb429b051`). Em 11/10 o Tiago decidiu seguir com as questões como estão, e o texto do termo foi reescrito para o ciclo da lição.
 
 **Fase 9 — Exportação.**
 `npm run exportar` com ganho e retenção por tópico e por pessoa.
@@ -221,7 +221,7 @@ Andamento em 10/10: feita. Entrou `licoes.csv`, e o que sobrava do roteiro do pi
 **Fase 10 — Acabamento.**
 Conferência em iPhone e Android, nome de exibição do app, dependências sem uso, ESLint, limpeza dos dados de teste e forma de distribuição.
 Prova: uma pessoa de fora instala, cria conta e conclui uma lição sem ajuda.
-Andamento em 10/10: nome de exibição, dependências sem uso, ESLint e script de limpeza feitos. Faltam a conferência em aparelho de verdade, a limpeza das contas de teste (comando do Tiago) e a forma de distribuição.
+Andamento em 10/10: nome de exibição, dependências sem uso, ESLint e script de limpeza feitos. Em 11/10 a forma de distribuição foi decidida: web na Vercel e APK pelo EAS (item 32 das decisões). A configuração está no repositório e os projetos, criados no EAS e na Vercel. Faltam as variáveis do Firebase nos dois serviços, a primeira publicação e o primeiro APK, a conferência em aparelho de verdade e a limpeza da conta de teste que resta (comando do Tiago).
 
 ## 9. Para onde vão as pendências do item 24
 
