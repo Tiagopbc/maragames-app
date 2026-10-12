@@ -334,7 +334,6 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - Ver as revisões no app em 13/10 e 17/10, na conta do Tiago.
 - Entrar uma vez na web publicada (`maragames-app.vercel.app`), por e-mail e senha e pelo Google: o assistente não entra em conta, então o login em si não foi testado lá.
-- Opcional: marcar também Preview nas variáveis da Vercel, que hoje valem só em Production; sem isso, as prévias de pull request abrem sem Firebase.
 
 **Fase 0 — Documentos e o que está aberto**
 
@@ -690,7 +689,7 @@ Revisto em 11/10 (desenho aprovado pelo Tiago e configuração feita). Escolhas:
 Revisto em 12/10 (no ar). O que a primeira publicação mostrou:
 
 - **A Vercel promoveu a produção a primeira publicação do projeto**, que veio do push da branch, antes de haver variável cadastrada. O endereço ficou algumas horas com uma montagem sem Firebase. Numa próxima vez, cadastrar as variáveis antes do primeiro push.
-- **As variáveis `EXPO_PUBLIC_*` entram na montagem**, e não na hora de abrir a página: depois de cadastrar ou mudar uma, é preciso publicar de novo. Na Vercel elas estão só em Production; as prévias de pull request abrem sem Firebase enquanto Preview não for marcado.
+- **As variáveis `EXPO_PUBLIC_*` entram na montagem**, e não na hora de abrir a página: depois de cadastrar ou mudar uma, é preciso publicar de novo. Na Vercel elas estão só em Production, e ficam assim por decisão do Tiago: as prévias de pull request abrem sem Firebase, e ninguém de fora as usa. Mesmo com as variáveis, o login com Google não funcionaria nelas, porque cada prévia tem um endereço que não está nos domínios autorizados.
 - **A chave do Firebase para web é pública por natureza**: vai dentro do app que qualquer pessoa baixa. Ficou cadastrada como valor comum, e não como segredo; o que protege os dados são as regras do Firestore (item 9) e os domínios autorizados.
 - **O APK usa a chave de assinatura que o EAS criou no primeiro build.** Ela fica na conta do Expo; sem ela, um APK novo não atualiza o app já instalado.
 

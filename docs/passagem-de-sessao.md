@@ -77,7 +77,6 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 4. **Ver a tela do termo com o texto novo** (`src/constants/termo.ts`): está coberta por teste e não foi vista no app. A conta de apelido Tiagopbc, que está limpa, mostra o termo ao tocar em "Começar" numa lição.
 5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
 6. **O grupo:** confirmar a virada do projeto.
-7. **Opcional:** marcar Preview nas variáveis da Vercel, para as prévias de pull request abrirem com Firebase.
 
 ## Estado do repositório
 
@@ -86,7 +85,7 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 610 testes (606 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 69 (precisa de Java; rodado em 10/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
-- **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel (Production) e no ambiente `preview` do EAS.
+- **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
