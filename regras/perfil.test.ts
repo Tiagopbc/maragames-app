@@ -129,6 +129,19 @@ describe('o núcleo obrigatório do perfil (item 34)', () => {
         await assertSucceeds(criar({ ...sem('instituicao', 'curso'), situacaoDeEstudo }));
     });
 
+    // Os dois campos só existem para quem estuda: sobra de um perfil anterior não fica.
+    it.each(['ensino_medio', 'formado', 'nao_estudo'])('quem marca %s não pode guardar instituição nem curso', async (situacaoDeEstudo) => {
+        await assertFails(criar({ ...PERFIL, situacaoDeEstudo }));
+        await assertFails(criar({ ...sem('curso'), situacaoDeEstudo }));
+        await assertFails(criar({ ...sem('instituicao'), situacaoDeEstudo }));
+    });
+
+    it('quem deixa a graduação sem tirar os dois campos é recusado', async () => {
+        await criar(PERFIL);
+
+        await assertFails(setDoc(doc(db, 'users', 'u1'), { situacaoDeEstudo: 'formado', atualizadoEm: Date.now() }, { merge: true }));
+    });
+
     // Como o app faz quando a pessoa deixa de estudar: tira os dois campos na mesma gravação.
     it('quem deixa a graduação tira instituição e curso do perfil', async () => {
         await criar(PERFIL);
@@ -172,6 +185,10 @@ describe('as perguntas opcionais do perfil (item 34)', () => {
         );
     });
 
+    it('aceita "nenhuma" sozinha', async () => {
+        await assertSucceeds(responder({ engines: ['nenhuma'], linguagens: ['nenhuma'] }));
+    });
+
     it('aceita uma só, e as outras ficam sem resposta', async () => {
         await assertSucceeds(responder({ objetivo: 'hobby' }));
     });
@@ -187,6 +204,9 @@ describe('as perguntas opcionais do perfil (item 34)', () => {
         ['engine que não está na lista', { engines: ['godot', 'cryengine'] }],
         ['engines como texto, e não lista', { engines: 'godot' }],
         ['lista vazia', { linguagens: [] }],
+        // "Nenhuma" junto de outra é uma resposta que se contradiz.
+        ['"nenhuma" junto de uma engine', { engines: ['nenhuma', 'unity'] }],
+        ['"nenhuma" junto de uma linguagem', { linguagens: ['nenhuma', 'python'] }],
         ['interesse fora da lista', { interesses: ['marketing'] }],
         ['objetivo fora da lista', { objetivo: 'ficar rico' }],
         ['tempo por semana fora da lista', { tempoPorSemana: '10h' }],
@@ -209,7 +229,15 @@ describe('a autoavaliação por módulo (item 34)', () => {
         db = bancoDe('u1');
     });
 
-    const NOTAS = { fundamentos_de_game_design: 2, arte_pixel_art: 1, game_engines: 4 };
+    // Uma nota para cada um dos seis módulos do conteúdo, nem mais nem menos.
+    const NOTAS = {
+        fundamentos_de_game_design: 2,
+        arte_pixel_art: 1,
+        game_engines: 4,
+        programacao_para_jogos: 3,
+        audio_musica: 1,
+        publicacao_monetizacao: 5,
+    };
     const gravar = (banco: Firestore, uid: string, dados: Record<string, unknown>) =>
         setDoc(doc(banco, 'selfAssessments', uid), dados);
     const valida = () => ({ uid: 'u1', notas: NOTAS, respondidaEm: serverTimestamp() });
@@ -232,15 +260,22 @@ describe('a autoavaliação por módulo (item 34)', () => {
     });
 
     it.each([
-        ['nota acima de 5', { notas: { game_engines: 6 } }],
-        ['nota zero', { notas: { game_engines: 0 } }],
-        ['nota que não é número', { notas: { game_engines: 'muito' } }],
+        ['nota acima de 5', { notas: { ...NOTAS, game_engines: 6 } }],
+        ['nota zero', { notas: { ...NOTAS, game_engines: 0 } }],
+        ['nota que não é número', { notas: { ...NOTAS, game_engines: 'muito' } }],
         ['sem nota nenhuma', { notas: {} }],
+        // A gravação não se repete: uma área sem nota ficaria sem nota para sempre.
+        ['nota só para um módulo', { notas: { game_engines: 3 } }],
+        ['um módulo a menos', { notas: { ...NOTAS, publicacao_monetizacao: undefined } }],
+        ['um módulo que não existe', { notas: { ...NOTAS, culinaria: 3 } }],
         ['horário do aparelho, e não do servidor', { respondidaEm: 1_759_000_000_000 }],
         ['campo a mais', { comentario: 'sei tudo' }],
         ['uid de outra pessoa', { uid: 'u2' }],
     ])('%s é recusada', async (_caso, mudancas) => {
-        await assertFails(gravar(db, 'u1', { ...valida(), ...mudancas }));
+        // `undefined` num mapa não chega ao Firestore: a chave some, como no caso do módulo a menos.
+        const dados = JSON.parse(JSON.stringify({ uid: 'u1', notas: NOTAS, ...mudancas }));
+
+        await assertFails(gravar(db, 'u1', { respondidaEm: serverTimestamp(), ...dados }));
     });
 
     it('ninguém grava nem lê a autoavaliação de outra pessoa', async () => {

@@ -1,5 +1,7 @@
 import {
+    ENGINES,
     TOTAL_DE_EXTRAS,
+    alternarOpcao,
     UFS,
     extrasRespondidos,
     idDoModulo,
@@ -143,5 +145,32 @@ describe('os módulos da autoavaliação', () => {
             { id: 'fundamentos_de_game_design', nome: 'Fundamentos de Game Design' },
             { id: 'arte_pixel_art', nome: 'Arte & Pixel Art' },
         ]);
+    });
+});
+
+// Engines e linguagens têm a opção "nenhuma", que não combina com as outras.
+describe('alternarOpcao', () => {
+    it('marca a opção tocada e mantém as outras, na ordem da lista', () => {
+        expect(alternarOpcao(ENGINES, ['unity'], 'godot')).toEqual(['godot', 'unity']);
+    });
+
+    it('tocar na que está marcada desmarca', () => {
+        expect(alternarOpcao(ENGINES, ['godot', 'unity'], 'godot')).toEqual(['unity']);
+    });
+
+    it('marcar "nenhuma" desmarca todas as outras', () => {
+        expect(alternarOpcao(ENGINES, ['godot', 'unity'], 'nenhuma')).toEqual(['nenhuma']);
+    });
+
+    it('marcar qualquer outra desmarca "nenhuma"', () => {
+        expect(alternarOpcao(ENGINES, ['nenhuma'], 'unreal')).toEqual(['unreal']);
+    });
+
+    it('tocar em "nenhuma" marcada deixa a pergunta sem resposta', () => {
+        expect(alternarOpcao(ENGINES, ['nenhuma'], 'nenhuma')).toEqual([]);
+    });
+
+    it('numa lista sem "nenhuma", todas combinam', () => {
+        expect(alternarOpcao(['arte', 'audio', 'programacao'], ['arte'], 'programacao')).toEqual(['arte', 'programacao']);
     });
 });

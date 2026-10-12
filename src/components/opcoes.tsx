@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { alternarOpcao } from '@/lib/perfil';
 import type { Erro } from '@/lib/validacao';
 
 export type Opcao<V extends string> = { valor: V; rotulo: string };
@@ -81,14 +82,8 @@ export function OpcoesMultiplas<V extends string>({
                         rotulo={opcao.rotulo}
                         marcada={marcada}
                         desabilitado={desabilitado}
-                        // A ordem gravada é a da lista de opções, e não a dos toques.
-                        aoTocar={() =>
-                            aoMudar(
-                                opcoes
-                                    .map((o) => o.valor)
-                                    .filter((v) => (v === opcao.valor ? !marcada : valores.includes(v)))
-                            )
-                        }
+                        // "Nenhuma" e as outras não ficam marcadas juntas: a regra é `alternarOpcao`.
+                        aoTocar={() => aoMudar(alternarOpcao(opcoes.map((o) => o.valor), valores, opcao.valor))}
                     />
                 );
             })}
