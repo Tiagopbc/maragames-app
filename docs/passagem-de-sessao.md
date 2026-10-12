@@ -74,9 +74,8 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 1. **Entrar na web publicada**, por e-mail e senha e pelo Google: o assistente não entra em conta, então o login em si não foi testado em `maragames-app.vercel.app`.
 2. **Instalar o primeiro APK num Android** (build `d11d99c8`) e conferir o login por e-mail e uma lição.
 3. **Ver as revisões no app, em 13/10 e 17/10.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10 e uma em 17/10. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso a conta pode ser limpa, com o contador do termo (`--zerar-contador`).
-4. **Ver a tela do termo com o texto novo** (`src/constants/termo.ts`): está coberta por teste e não foi vista no app. A conta de apelido Tiagopbc, que está limpa, mostra o termo ao tocar em "Começar" numa lição.
-5. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil.
-6. **O grupo:** confirmar a virada do projeto.
+4. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo com o texto novo já foram vistas pelo Tiago, em 12/10.
+5. **O grupo:** confirmar a virada do projeto.
 
 ## Estado do repositório
 

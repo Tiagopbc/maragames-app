@@ -350,11 +350,9 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Fase 10 — Acabamento**
 
 - Conferir num aparelho de verdade, iPhone e Android, nos dois temas: home, lista, lição, fim de cada passo, Progresso e Perfil, com a troca de tema pela seção "Aparência" (item 31) e a barra de status. No iPhone, em tema escuro, o Tiago já viu a home, a lista e o Progresso em 10/10.
-- Conferir a troca de tema do sistema com o app aberto e logado (item 29).
 - Dados de teste: a conta de apelido Tiagopbc está limpa (ver resolvidas). Resta a do Tiago, com 70 respostas e o termo aceito, mantida de propósito até as revisões de 13/10 e 17/10 serem vistas no app. Quando ela for limpa, zerar também o contador do termo, que está em 3 (`--zerar-contador`).
 - Distribuição (item 32): instalar o primeiro APK num Android (build `d11d99c8`, de 12/10, no painel do Expo) e conferir o login por e-mail e uma lição. O APK foi gerado; ninguém o instalou ainda.
 - A prova da fase: uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
-- Ver a tela do termo no app com o texto novo: coberto por teste, não visto.
 
 **Decisões em aberto**
 
@@ -371,6 +369,8 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 12/10**
 
+- Troca de tema do sistema com o app aberto e logado (item 29): conferida pelo Tiago.
+- Tela do termo com o texto novo: vista no app pelo Tiago.
 - Web publicada (item 32): `maragames-app.vercel.app` serve a produção montada a partir do `main` (commit `bfd9ef1`). Conferido sem entrar em conta: o login abre, `/licoes/mda_framework` aberto direto cai no login, um endereço que não existe mostra "Essa página não existe", não há erro no console e a configuração do Firebase está dentro da montagem.
 - Variáveis do Firebase cadastradas pelo Tiago: as seis `EXPO_PUBLIC_FIREBASE_*` na Vercel (em Production) e no ambiente `preview` do EAS (`npx eas-cli env:push preview --path .env`). Domínio `maragames-app.vercel.app` incluído por ele nos autorizados do Firebase Auth.
 - Primeiro APK gerado, com a liberação do Tiago: build `d11d99c8`, perfil `preview`, versão 1.0.0, `versionCode` 1, a partir do commit `32a912d`; a montagem levou 19 minutos. O EAS criou a chave de assinatura do Android e a guarda na conta do Expo.
