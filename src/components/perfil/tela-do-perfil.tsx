@@ -10,14 +10,27 @@ import { Secao } from '@/components/perfil/secao';
 import { SeletorDeTema } from '@/components/perfil/seletor-de-tema';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { TEXTOS, TEXTOS_DO_PERFIL, extrasRespondidosDe, termoAceitoEm } from '@/constants/textos';
+import { LarguraDoFormulario, Spacing } from '@/constants/theme';
+import {
+    TEXTOS,
+    TEXTOS_DO_PERFIL,
+    TEXTOS_DO_SOBRE,
+    extrasRespondidosDe,
+    resumoDoPerfil,
+    termoAceitoEm,
+    versaoDoAppNoPerfil,
+} from '@/constants/textos';
 import { useTheme } from '@/hooks/use-theme';
 import { TOTAL_DE_EXTRAS, extrasRespondidos } from '@/lib/perfil';
 import type { DadosPerfil, Perfil } from '@/types/domain';
 
+// O XP total e as lições feitas, os mesmos da home. Null enquanto as lições não foram lidas.
+export type ResumoDoPerfil = { xp: number | null; feitas: number; total: number };
+
 type TelaDoPerfilProps = {
     perfil: Perfil;
+    resumo: ResumoDoPerfil | null;
+    versao: string; // a do app, para a seção Sobre
     aoSalvar: (dados: DadosPerfil) => Promise<void>;
     // Quem entra pelo Google não tem senha neste app, e não vê o botão de redefinir.
     entraComSenha: boolean;
@@ -32,10 +45,13 @@ type TelaDoPerfilProps = {
 type Envio = 'parado' | 'enviando' | 'enviado' | 'falhou';
 
 // O Perfil (Fase 6 do plano), em seções: os dados do cadastro, editáveis; as perguntas
-// opcionais; a conta, com o e-mail, a senha e o aceite de contato; o tema; o termo; e o Sair.
+// opcionais; a conta, com o e-mail, a senha e o aceite de contato; o tema; o termo; a versão e
+// o contato do grupo; e o Sair. No topo, quem é a pessoa e os números dela na home.
 // A validação é a do cadastro, e quem garante é a regra do Firestore (item 9).
 export function TelaDoPerfil({
     perfil,
+    resumo,
+    versao,
     aoSalvar,
     entraComSenha,
     aoRedefinirSenha,
@@ -97,6 +113,24 @@ export function TelaDoPerfil({
                 </View>
 
                 <ScrollView contentContainerStyle={styles.conteudo} keyboardShouldPersistTaps="handled">
+                    {/* Quem é a pessoa, de relance. O nome e o apelido são os salvos, e não o que
+                        está sendo digitado no formulário. */}
+                    <View style={styles.resumo}>
+                        <View style={[styles.inicial, { backgroundColor: theme.backgroundSelected }]}>
+                            <ThemedText type="subtitle" themeColor="primaria" testID="inicial-do-perfil">
+                                {perfil.apelido.trim().charAt(0).toUpperCase()}
+                            </ThemedText>
+                        </View>
+                        <View style={styles.quem}>
+                            <ThemedText type="smallBold" numberOfLines={1}>
+                                {perfil.nome}
+                            </ThemedText>
+                            <ThemedText type="small" themeColor="textSecondary" testID="resumo-do-perfil">
+                                {resumoDoPerfil(perfil.apelido, resumo)}
+                            </ThemedText>
+                        </View>
+                    </View>
+
                     <Secao titulo={TEXTOS.meusDados}>
                         <FormularioDoPerfil
                             inicial={perfil}
@@ -172,6 +206,15 @@ export function TelaDoPerfil({
                         <BotaoSecundario rotulo={TEXTOS.lerOTermo} onPress={aoLerOTermo} />
                     </Secao>
 
+                    <Secao titulo={TEXTOS_DO_SOBRE.titulo}>
+                        <ThemedText type="small" themeColor="textSecondary">
+                            {versaoDoAppNoPerfil(versao)}
+                        </ThemedText>
+                        <ThemedText type="small" themeColor="textSecondary" selectable>
+                            {TEXTOS_DO_SOBRE.contato}
+                        </ThemedText>
+                    </Secao>
+
                     <BotaoSecundario rotulo={TEXTOS.sair} onPress={aoSairDaConta} />
                 </ScrollView>
             </SafeAreaView>
@@ -181,7 +224,7 @@ export function TelaDoPerfil({
 
 const styles = StyleSheet.create({
     container: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
-    safeArea: { flex: 1, maxWidth: MaxContentWidth },
+    safeArea: { flex: 1, maxWidth: LarguraDoFormulario },
     cabecalho: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -190,6 +233,9 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.three,
     },
     titulo: { flex: 1 },
+    resumo: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+    inicial: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+    quem: { flex: 1, gap: Spacing.half },
     conteudo: { gap: Spacing.five, paddingHorizontal: Spacing.four, paddingBottom: Spacing.five },
     cartao: { gap: Spacing.half, padding: Spacing.three, borderRadius: 16, borderWidth: 1 },
 });

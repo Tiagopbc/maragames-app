@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { FormularioDoPerfil } from '@/components/perfil/formulario-do-perfil';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { LarguraDoFormulario, Spacing } from '@/constants/theme';
 import { TEXTOS_DO_PERFIL } from '@/constants/textos';
 import { useSession } from '@/lib/session';
 
@@ -45,6 +45,6 @@ export default function CompleteProfileScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     scroll: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four },
-    card: { width: '100%', maxWidth: 420, gap: Spacing.three },
+    card: { width: '100%', maxWidth: LarguraDoFormulario, gap: Spacing.three },
     sair: { textAlign: 'center' },
 });

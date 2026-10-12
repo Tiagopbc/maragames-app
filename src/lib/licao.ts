@@ -200,6 +200,12 @@ export const FASE_DO_PASSO: Record<PassoComQuestoes, Fase> = {
     revisao: 'reteste',
 };
 
+/** Feita é a lição que já passou da verificação (ou, no ciclo curto, da prática). */
+export function licaoFeita(licao: Pick<Licao, 'estado'>): boolean {
+    const { tipo } = licao.estado;
+    return tipo === 'aguardando_revisao' || tipo === 'revisao' || tipo === 'concluida';
+}
+
 export type DestinoDaLicao = { tipo: 'termo' } | { tipo: 'passo'; passo: PassoDaLicao };
 
 /**

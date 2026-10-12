@@ -22,7 +22,7 @@ import {
 import { useAoVoltarAoApp } from '@/hooks/use-ao-voltar-ao-app';
 import { useLicoes, type EstadoDasLicoes, type LicaoDoAluno } from '@/hooks/use-licoes';
 import { useTheme } from '@/hooks/use-theme';
-import { destinoDaLicao } from '@/lib/licao';
+import { destinoDaLicao, licaoFeita } from '@/lib/licao';
 import { participanteDoRoteiro } from '@/lib/participante';
 import { useSession } from '@/lib/session';
 
@@ -37,9 +37,6 @@ type Atalho = {
   resumo?: (licoes: LicoesProntas) => string;
 };
 
-// Feita é a lição que já passou da verificação (ou, no ciclo curto, da prática).
-const FEITA: readonly LicaoDoAluno['estado']['tipo'][] = ['aguardando_revisao', 'revisao', 'concluida'];
-
 // Os atalhos são dados: acrescentar ou reordenar é mexer nesta lista, sem tocar no layout (item 6).
 const ATALHOS: Atalho[] = [
   {
@@ -47,7 +44,7 @@ const ATALHOS: Atalho[] = [
     titulo: 'Lições',
     icone: 'book',
     rota: '/licoes',
-    resumo: ({ licoes }) => licoesFeitas(licoes.filter((l) => FEITA.includes(l.estado.tipo)).length, licoes.length),
+    resumo: ({ licoes }) => licoesFeitas(licoes.filter(licaoFeita).length, licoes.length),
   },
   { id: 'progresso', titulo: 'Progresso', icone: 'stats-chart', rota: '/progresso' },
   { id: 'perfil', titulo: 'Perfil', icone: 'person', rota: '/perfil' },

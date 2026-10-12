@@ -75,3 +75,6 @@ export const Spacing = {
 } as const;
 
 export const MaxContentWidth = 800;
+// As telas de formulário (o perfil) usam uma coluna mais estreita: num computador, um campo da
+// largura da tela inteira fica difícil de ler e de preencher.
+export const LarguraDoFormulario = 480;
