@@ -7,7 +7,7 @@ import type { Fase } from '../types/domain';
 const TENTATIVAS = 100;
 
 // FNV-1a de 32 bits: transforma a semente em texto num inteiro.
-function hash(texto: string): number {
+export function hash(texto: string): number {
     let h = 0x811c9dc5;
     for (let i = 0; i < texto.length; i++) {
         h ^= texto.charCodeAt(i);
@@ -17,7 +17,7 @@ function hash(texto: string): number {
 }
 
 // mulberry32: gerador determinístico de números em [0, 1) a partir de um inteiro.
-function gerador(semente: number): () => number {
+export function gerador(semente: number): () => number {
     let a = semente;
     return () => {
         a = (a + 0x6d2b79f5) | 0;

@@ -17,6 +17,7 @@ import type { Question, Topico } from '../types/domain';
 import type { Agregados, Exportacao, Linha } from './exportacao';
 import type { Quadrante } from './quadrante';
 import type { Taxa } from './resultado';
+import { CENARIOS, type Cenario } from './simulacao';
 
 /** Com menos respostas que isto, um percentual engana: a página mostra só a contagem. */
 export const AMOSTRA_MINIMA = 10;
@@ -194,6 +195,8 @@ export interface OpcoesDoRelatorio {
     geradoEm: string; // AAAA-MM-DD, o dia da rodada
     desde?: string; // AAAA-MM-DD, quando a rodada deixou de fora quem aceitou o termo antes
     amostraMinima?: number;
+    // Quando os dados são de alunos virtuais (src/lib/simulacao.ts): a página avisa no topo.
+    simulacao?: { alunos: number; cenario: Cenario };
 }
 
 /** Texto do conteúdo e dos rótulos vira texto na página, e nunca marcação. */
@@ -239,6 +242,10 @@ p{margin:0 0 12px}
 .pergunta{margin-bottom:16px}
 .nota{font-size:14px;margin-top:10px}
 section{padding:28px 0;border-top:1px solid var(--borda)}
+.aviso{margin:0 0 32px;padding:16px 20px;border:1px solid var(--borda);border-left:6px solid var(--marca);border-radius:8px;background:var(--elemento)}
+.aviso p{margin:0 0 8px}
+.aviso p:last-child{margin:0}
+.aviso a{color:var(--marca);font-weight:600}
 .cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .cartao{background:var(--elemento);border:1px solid var(--borda);border-radius:12px;padding:16px}
 .cartao .valor{font-size:28px;font-weight:600;line-height:1.2}
@@ -325,15 +332,27 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     const n = ind.participantes;
     const filtro = opcoes.desde ? ` · só quem aceitou o termo a partir de ${dia(opcoes.desde)}` : '';
 
+    const { simulacao } = opcoes;
+    const outroCenario = simulacao && CENARIOS[simulacao.cenario === 'confianca_preve' ? 'confianca_nao_preve' : 'confianca_preve'];
+    // O aviso vem antes de qualquer número: ninguém pode ler esta página como resultado.
+    const aviso = simulacao
+        ? `<div class="aviso"><p><strong>Dados simulados · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')}.</strong> ` +
+          `Esta página mostra como o relatório fica com uma turma usando o app. Nenhum número desta página veio de alunos de verdade.</p>` +
+          `<p><strong>${esc(CENARIOS[simulacao.cenario].titulo)}.</strong> ${esc(CENARIOS[simulacao.cenario].descricao)} ` +
+          `<a href="${outroCenario!.arquivo}">Ver o outro: ${esc(outroCenario!.titulo)}</a></p></div>`
+        : '';
+
     const cabecalho =
         `<header><p class="marca">Beast Maragames</p><h1>Relatório de aprendizagem</h1>` +
-        `<p class="meta">Dados de ${dia(opcoes.geradoEm)} · ${plural(n, 'participante', 'participantes')}${filtro}</p></header>`;
+        (simulacao
+            ? `<p class="meta">Simulação de ${dia(opcoes.geradoEm)} · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')}</p></header>${aviso}`
+            : `<p class="meta">Dados de ${dia(opcoes.geradoEm)} · ${plural(n, 'participante', 'participantes')}${filtro}</p></header>`);
 
     const pagina = (corpo: string) =>
         `<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n` +
         `<meta name="viewport" content="width=device-width, initial-scale=1">\n` +
         `<meta name="robots" content="noindex, nofollow">\n` +
-        `<title>Beast Maragames · Relatório de aprendizagem</title>\n<style>${ESTILO}</style>\n</head>\n` +
+        `<title>Beast Maragames · Relatório de aprendizagem${opcoes.simulacao ? ' (simulação)' : ''}</title>\n<style>${ESTILO}</style>\n</head>\n` +
         `<body>\n<main>\n${cabecalho}\n${corpo}\n` +
         `<footer>Feito pelo grupo Mobile Builders, na disciplina de Programação Mobile da UNDB.</footer>\n</main>\n</body>\n</html>\n`;
 
@@ -350,7 +369,7 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'Em resumo',
         '',
         `<div class="cartoes">` +
-            cartao('Participantes', String(n), 'aceitaram o termo') +
+            cartao('Participantes', String(n), simulacao ? 'alunos virtuais' : 'aceitaram o termo') +
             cartao('Lições verificadas', String(ind.verificadas), 'com o antes e o depois medidos') +
             cartao(
                 'Ganho médio',
@@ -501,7 +520,7 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     // 8. Quem respondeu
     const perfil = bloco(
         'Quem respondeu',
-        'O perfil de quem aceitou o termo, em contagem de pessoas.',
+        simulacao ? 'O perfil sorteado para a turma virtual, em contagem de pessoas.' : 'O perfil de quem aceitou o termo, em contagem de pessoas.',
         `<div class="colunas">` +
             ind.perfil
                 .map(
@@ -521,12 +540,15 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'Como ler estes números',
         '',
         `<ul class="ler">` +
-            `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>` +
+            (simulacao
+                ? `<li>Esta página foi gerada com alunos virtuais, sorteados por um programa a partir de suposições sobre como uma turma se comporta. Serve para mostrar o formato do relatório e conferir as contas: não é resultado de pesquisa.</li>` +
+                  `<li>Os dois cenários diferem só no esquecimento. A pergunta que eles ilustram, se a confiança declarada prevê o que vai ser esquecido, só os alunos de verdade respondem.</li>`
+                : `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>`) +
             `<li>Cada lição mede três vezes: 3 questões antes de estudar (diagnóstico), 3 questões equivalentes depois (verificação) e as mesmas da verificação 7 dias depois (revisão).</li>` +
             `<li>O ganho vai de zero a um: é a parte do que faltava acertar no diagnóstico que passou a ser acertada na verificação. Fica negativo se a verificação foi pior.</li>` +
             `<li>Onde há menos de ${minima} respostas, a página mostra só a contagem, e a barra aparece apagada e riscada: um percentual sobre tão pouco enganaria.</li>` +
             `<li>Nenhum dado de pessoa aparece aqui: nem nome, nem contato, nem resposta individual.</li>` +
-            `<li>A página é um retrato do dia ${dia(opcoes.geradoEm)}. Para atualizar, o grupo gera de novo.</li>` +
+            (simulacao ? '' : `<li>A página é um retrato do dia ${dia(opcoes.geradoEm)}. Para atualizar, o grupo gera de novo.</li>`) +
             `</ul>`
     );
 
