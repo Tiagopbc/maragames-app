@@ -1,4 +1,6 @@
-// Exporta os dados do piloto para a Mara Games e para o paper (M7, item 23).
+// Exporta os dados para a análise do grupo: o artigo, a apresentação e a conferência dos números
+// do app (M7, item 23). Os arquivos ficam com o grupo; o que vai para a Beast Maragames é o
+// relatório, de `npm run relatorio`.
 //
 // Só LÊ o Firestore, com a chave de serviço (serviceAccountKey.json, fora do git). As contas
 // são feitas por src/lib/exportacao.ts, com as mesmas funções que o app usa.
@@ -11,99 +13,18 @@
 // Sem --saida, grava em exportacao/AAAA-MM-DD, ou em exportacao/AAAA-MM-DD-desde-AAAA-MM-DD
 // quando há filtro. Se ninguém entra no filtro, avisa e não grava nada.
 //
-// Gera eventos.csv, participantes.csv, questoes.csv e resumo.md, que podem ser enviados, e
-// chave.csv, que liga cada código ao nome e NÃO sai do grupo.
+// Gera eventos.csv, participantes.csv, licoes.csv, questoes.csv, autoavaliacao.csv e resumo.md,
+// com um código no lugar do nome, e chave.csv, que liga cada código ao nome e NÃO sai do grupo.
 
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { cert, initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-
-import {
-    ordenarLicoes,
-    ordenarQuestoes,
-    paraAnswer,
-    paraLesson,
-    paraQuestion,
-    topicosDasLicoes,
-} from '../src/data/mapeadores';
-import { arquivosDaExportacao, exportarDados, pastaDaExportacao, type PerfilDoExport } from '../src/lib/exportacao';
-
-function argumento(nome: string): string | undefined {
-    const i = process.argv.indexOf(`--${nome}`);
-    return i === -1 ? undefined : process.argv[i + 1];
-}
+import { arquivosDaExportacao, exportarDados, pastaDaExportacao } from '../src/lib/exportacao';
+import { RAIZ, argumento, filtroDesde, hoje, lerDadosDoBanco } from './dados-do-banco';
 
 async function main() {
-    const desdeTexto = argumento('desde');
-    // Meia-noite em São Luís (UTC−3), o mesmo fuso do roteiro.
-    const desde = desdeTexto ? Date.parse(`${desdeTexto}T00:00:00-03:00`) : undefined;
-    if (desdeTexto && Number.isNaN(desde)) throw new Error(`Data inválida em --desde: ${desdeTexto} (use AAAA-MM-DD).`);
-
-    const raiz = join(__dirname, '..');
-    initializeApp({ credential: cert(JSON.parse(readFileSync(join(raiz, 'serviceAccountKey.json'), 'utf8'))) });
-    const db = getFirestore();
-
-    const [usuarios, respostas, questoes, licoes, tentativas, autoavaliacoes] = await Promise.all([
-        db.collection('users').get(),
-        db.collection('answers').get(),
-        db.collection('questions').get(),
-        db.collection('lessons').get(),
-        db.collection('attempts').get(),
-        db.collection('selfAssessments').get(),
-    ]);
-
-    const perfis: PerfilDoExport[] = usuarios.docs.map((d) => {
-        const u = d.data();
-        return {
-            uid: d.id,
-            nome: u.nome,
-            apelido: u.apelido,
-            email: u.email,
-            telefone: u.telefone,
-            faixaEtaria: u.faixaEtaria,
-            cidade: u.cidade,
-            uf: u.uf,
-            situacaoDeEstudo: u.situacaoDeEstudo,
-            instituicao: u.instituicao,
-            curso: u.curso,
-            experiencia: u.experiencia,
-            aceitaContato: u.aceitaContato,
-            ocupacao: u.ocupacao,
-            engines: u.engines,
-            linguagens: u.linguagens,
-            estudoDeGameDesign: u.estudoDeGameDesign,
-            interesses: u.interesses,
-            objetivo: u.objetivo,
-            tempoPorSemana: u.tempoPorSemana,
-            comoConheceu: u.comoConheceu,
-            alunoDoSite: u.alunoDoSite,
-            formaPre: u.formaPre ?? null,
-            consentiuEm: u.consentiuEm ? u.consentiuEm.toMillis() : null,
-        };
-    });
-
-    const exportado = exportarDados(
-        {
-            perfis,
-            respostas: respostas.docs.map((d) => paraAnswer(d.id, d.data())),
-            // Questão sem bloco é sobra de um seed antigo: não faz parte do conteúdo do piloto.
-            questoes: ordenarQuestoes(questoes.docs.map((d) => paraQuestion(d.id, d.data())).filter((q) => q.bloco)),
-            topicos: topicosDasLicoes(ordenarLicoes(licoes.docs.map((d) => paraLesson(d.id, d.data())))),
-            tentativas: tentativas.docs.map((d) => ({
-                id: d.id,
-                plataforma: d.data().plataforma,
-                versaoDoApp: d.data().versaoDoApp,
-            })),
-            autoavaliacoes: autoavaliacoes.docs.map((d) => ({
-                uid: d.id,
-                notas: d.data().notas,
-                respondidaEm: d.data().respondidaEm.toMillis(),
-            })),
-        },
-        { desde }
-    );
+    const { texto: desdeTexto, ms: desde } = filtroDesde();
+    const exportado = exportarDados(await lerDadosDoBanco(), { desde });
 
     const arquivos = arquivosDaExportacao(exportado);
     if (arquivos.length === 0) {
@@ -115,8 +36,7 @@ async function main() {
         return;
     }
 
-    const hoje = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const pasta = argumento('saida') ?? join(raiz, 'exportacao', pastaDaExportacao(hoje, desdeTexto));
+    const pasta = argumento('saida') ?? join(RAIZ, 'exportacao', pastaDaExportacao(hoje(), desdeTexto));
     mkdirSync(pasta, { recursive: true });
     for (const arquivo of arquivos) writeFileSync(join(pasta, arquivo.nome), arquivo.conteudo);
 

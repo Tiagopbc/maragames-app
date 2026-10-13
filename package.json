@@ -49,6 +49,7 @@
     "seed:conteudo": "node ./scripts/seed-conteudo.js",
     "seed:conteudo:check": "node ./scripts/seed-conteudo.js --dry-run",
     "exportar": "tsx ./scripts/exportar-piloto.ts",
+    "relatorio": "tsx ./scripts/gerar-relatorio.ts",
     "limpar:teste": "node ./scripts/limpar-dados-de-teste.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
