@@ -72,14 +72,14 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 ## O que está esperando resposta do Tiago
 
 1. **Ver no app o que entrou em 12/10**, que pede conta logada e não foi visto: completar o perfil (conta nova e conta antiga), o Perfil com o cabeçalho, as seções e o "Sobre", "Sobre você e os jogos", o aceite de contato, as notas por módulo antes do primeiro diagnóstico e o termo para reler. E confirmar que o link de redefinição troca a senha. As regras do Firestore estão publicadas, na versão do `main`.
-4. **Gerar mais um APK e instalar num Android**, depois de integrada a branch `feat/sobre-mobile-builders` (`npx eas-cli build -p android --profile preview`), e conferir o login por e-mail e uma lição. O build `ec22c321`, de 12/10 (`versionCode` 2), tem tudo menos a troca de "Beast Maragames" por "Mobile Builders" na seção "Sobre".
+4. **Instalar o APK num Android** e conferir o login por e-mail e uma lição. O build é o `b4cb6782`, de 13/10 (`versionCode` 3), gerado a partir do `main` com o pull request nº 18: tem tudo, inclusive "Mobile Builders" na seção "Sobre". O link para baixar está na página do build, no painel do Expo, ou em `npx eas-cli build:list --platform android --limit 1`, e vale até 27/10; depois disso, é gerar outro (`npx eas-cli build -p android --profile preview`).
 5. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. Ela vai cair antes na tela de completar o perfil, por causa do item 34. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
 6. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo já foram vistas pelo Tiago, em 12/10.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 17 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 12 e o nº 14, documentos.
-- **Branch atual:** `feat/sobre-mobile-builders`, em cima do `main` (que já tem o pull request nº 17), com a seção "Sobre" assinada pelo grupo e o registro do APK de 12/10, em pull request aberto em 13/10.
+- **`main`:** tem os pull requests nº 5 a nº 18 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 18, a seção "Sobre" assinada pelo grupo; o nº 12 e o nº 14, documentos.
+- **Branch atual:** `docs/apk-final-13-10`, em cima do `main` (que já tem o pull request nº 18), só com documentos: o registro do APK de 13/10. Sem push, até o Tiago liberar. Do código não há nada pendente.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 749 testes (745 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 120 (precisa de Java; rodado em 12/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
@@ -88,7 +88,7 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
-- **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 82 respostas, termo aceito, revisões para 13/10 e 17/10; fica até elas serem vistas no app. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: limpa. O contador do termo está em 4.
+- **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 82 respostas, termo aceito, revisões para 13/10, 17/10 e 19/10; fica até elas serem vistas no app. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: limpa. O contador do termo está em 4.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
@@ -99,7 +99,7 @@ Conferido no app de verdade: em 10/10, na web, em largura de computador e tema e
 
 ## O que falta
 
-Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo, só a Fase 10: o login testado na web publicada, o APK instalado num aparelho, as revisões de 13/10 e 17/10 vistas no app, a conferência em iPhone e Android nos dois temas, a limpeza da conta de teste que resta e a prova da fase, com uma pessoa de fora.
+Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo, só a Fase 10: o APK instalado num aparelho, as revisões de 13/10, 17/10 e 19/10 vistas no app, o que entrou em 12/10 e 13/10 visto com conta logada, o link de redefinição de senha, a conferência em iPhone e Android nos dois temas, a limpeza das contas de teste, com o contador do termo, e a prova da fase, com uma pessoa de fora.
 
 ## Limites do assistente nesta máquina
 
