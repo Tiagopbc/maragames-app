@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
+import { FundoDaPagina } from '@/components/fundo-da-pagina';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -49,6 +50,8 @@ export default function RootLayout() {
       {/* A barra do aparelho acompanha o tema escolhido no app, e não o do sistema: com o tema
           escuro forçado num aparelho em claro, os ícones escuros sumiriam no fundo. */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      {/* Na web, quem faz esse papel é a página: o navegador pinta as barras dele com o fundo dela. */}
+      <FundoDaPagina />
       <SessionProvider>
         <RootNavigator />
       </SessionProvider>
