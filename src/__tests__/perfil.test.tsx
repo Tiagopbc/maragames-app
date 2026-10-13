@@ -261,7 +261,9 @@ describe('a seção Sobre, no Perfil', () => {
         await abrirEm('/perfil');
 
         expect(await screen.findByRole('header', { name: 'Sobre' })).toBeOnTheScreen();
-        expect(screen.getByText(`Beast Maragames · versão ${versaoDoApp()}`)).toBeOnTheScreen();
+        // Quem assina o app é o grupo, e não a marca da cliente.
+        expect(screen.getByText(`Mobile Builders · versão ${versaoDoApp()}`)).toBeOnTheScreen();
+        expect(screen.queryByText(/Beast Maragames · versão/)).toBeNull();
         expect(screen.getByText(new RegExp(`escreva para ${CONTATO_DO_GRUPO.replace('.', '\\.')}`))).toBeOnTheScreen();
     });
 });
