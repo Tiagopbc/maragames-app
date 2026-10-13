@@ -16,6 +16,19 @@ export function inicioDoDia(dia: number): number {
     return dia * DIA_MS - FUSO_MS;
 }
 
+/**
+ * A meia-noite de um dia escrito como AAAA-MM-DD, em São Luís. Devolve null se o texto não está
+ * nesse formato ou se o dia não existe: o `Date` aceitaria 31 de fevereiro e devolveria 3 de março.
+ */
+export function meiaNoiteDe(data: string): number | null {
+    const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data);
+    if (!partes) return null;
+    const [ano, mes, dia] = partes.slice(1).map(Number);
+    const ms = Date.UTC(ano, mes - 1, dia) - FUSO_MS;
+    const lido = dataEmSaoLuis(ms);
+    return lido.ano === ano && lido.mes === mes && lido.dia === dia ? ms : null;
+}
+
 /** Dia da semana (0 = domingo), dia, mês e ano de um instante, no mesmo fuso fixo do app. */
 export function dataEmSaoLuis(ms: number): { diaDaSemana: number; dia: number; mes: number; ano: number } {
     const local = new Date(ms + FUSO_MS);

@@ -339,6 +339,14 @@ Revisto em 13/10 (relatório para a Beast Maragames). O Tiago perguntou como a m
 
 Teste antes do código (`src/lib/__tests__/relatorio.test.ts`, 47 testes): os totais, os blocos, o percentual com e sem amostra, a ausência de qualquer dado de pessoa e de endereço externo, e o texto do conteúdo entrando como texto. Gerado com os dados de 13/10, só lendo o banco, e visto no navegador, no claro e no escuro, em largura de computador e de celular, sem rolagem lateral e sem erro no console. Os números de 13/10 não querem dizer nada: são três contas de teste. `npm test` passa com 805, `npx tsc --noEmit` sem erros e `npm run lint` limpo.
 
+Revisto em 13/10 (revisão automática do pull request nº 21). Três apontamentos, os três aceitos:
+
+- **A autoavaliação conta todo diagnóstico concluído**, e não só o das lições com a verificação feita. A comparação usava o "antes" das lições com o par completo; quem tinha feito o diagnóstico e parado ficava de fora, e o bloco podia sair como "sem dados" com dado na mão. Agora vale o diagnóstico com todas as questões da forma da pessoa, tirado dos eventos; o diagnóstico pela metade e a lição feita no ciclo curto continuam de fora.
+- **Plataforma desconhecida vira "Outra".** O rótulo vinha do campo `plataforma` da tentativa, que as regras do banco não limitam: quem gravasse um nome ou um e-mail ali veria o texto publicado. O que não for web, Android ou iPhone entra num grupo só.
+- **`--desde` recusa o dia que não existe.** `2026-02-31` era lido como 3 de março, e a página dizia uma data enquanto o recorte usava outra. A conferência ficou em `meiaNoiteDe` (`src/lib/calendario.ts`), usada pelos dois scripts.
+
+`npm test` passa com 812.
+
 ## 24. Pendências, na ordem das fases do plano
 
 Revisto em 06/10: a lista passou a ser agrupada na ordem de ataque combinada com o grupo, e é atualizada a cada item resolvido.
@@ -390,6 +398,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 13/10**
 
+- Os três apontamentos da revisão automática do pull request nº 21 tratados (item 23): a autoavaliação conta todo diagnóstico concluído, plataforma desconhecida vira "Outra" e `--desde` recusa o dia que não existe. `npm test` passa com 812.
 - Relatório para a Beast Maragames (item 23), com o desenho aprovado pelo Tiago: `npm run relatorio` gera uma página só, com os números em conjunto e sem dado de pessoa nenhuma. Os CSVs deixam de ser enviados e ficam com o grupo. `npm test` passa com 805. Falta publicar.
 - Lição feita do começo ao fim num celular, e as notas por módulo enviadas pela primeira vez (item 34): o Tiago entrou no Expo Go, num iPhone, com a conta de e-mail e senha de apelido Tiagopbc, que estava limpa, em tema escuro. A home abriu sem selo de XP, com "Framework MDA", "Lição nova" e "0 de 9 feitas"; "Começar" levou ao termo, com o botão apagado enquanto a caixa não é marcada; depois do aceite vieram as notas e a página da lição, com os quatro passos. No fim, a home ficou com "XP: 0", "Sequência: 1 dia", "Pixel Art Básico" no Para hoje, a revisão do Framework MDA "em 7 dias" e "1 de 9 feita". Conferido no banco pelo assistente, só lendo: o perfil no formato novo; o aceite às 15:57, forma A, e o contador de 4 para 5; a autoavaliação às 15:59, com uma nota para cada um dos seis módulos, 16 segundos antes da primeira resposta do diagnóstico; 10 respostas com os onze campos (diagnóstico na forma A, 4 de prática, verificação na forma B), com o XP somando −12, que a home mostra como 0 por causa do piso; e três tentativas concluídas, ligadas à lição, com `plataforma` ios e `versaoDoApp` 1.0.0. São as primeiras tentativas gravadas fora da web.
 - App aberto no Expo Go, num iPhone, pelo Tiago, com o `main` do dia e a conta principal (item 32). Em tema escuro: a home ("XP: +45", "Tudo em dia", as duas revisões agendadas, "9 de 9 feitas"), a lista de lições por módulo, com a situação e o domínio de cada uma, o Progresso (XP total, sequência, "O que revisar primeiro" e os quadrantes) e o Perfil inteiro, do cabeçalho ao "Sair". No Perfil, "Claro" e "Escuro" trocam o app na hora, e a barra de status acompanha: ícones claros no escuro, escuros no claro. Os números são os mesmos da web. Era a primeira vez no Expo Go desde 08/10, antes de quase todas essas telas existirem.

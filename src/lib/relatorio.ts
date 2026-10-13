@@ -66,6 +66,7 @@ const soma = (linhas: readonly Linha[], campo: string) => linhas.reduce((total, 
 const ROTULO_DA_PLATAFORMA: Record<string, string> = { web: 'Web', ios: 'iPhone', android: 'Android' };
 const SEM_INFORMAR = 'Não informada';
 const SEM_PLATAFORMA = 'Não registrada';
+const OUTRA_PLATAFORMA = 'Outra';
 
 /** Quantas pessoas em cada opção, na ordem em que a tela as mostra; quem não respondeu vai no fim. */
 function contar(participantes: readonly Linha[], campo: string, rotulos: Record<string, string>): Contagem[] {
@@ -94,9 +95,30 @@ export function indicadoresDoRelatorio(
     const porPlataforma = new Map<string, number>();
     for (const evento of eventos) {
         const plataforma = texto(evento, 'plataforma');
-        const rotulo = plataforma === null ? SEM_PLATAFORMA : (ROTULO_DA_PLATAFORMA[plataforma] ?? plataforma);
+        // O campo não é limitado pelas regras do banco: o que não for uma plataforma conhecida entra
+        // num grupo só, e o texto gravado nunca vai para a página.
+        const rotulo = plataforma === null ? SEM_PLATAFORMA : (ROTULO_DA_PLATAFORMA[plataforma] ?? OUTRA_PLATAFORMA);
         porPlataforma.set(rotulo, (porPlataforma.get(rotulo) ?? 0) + 1);
     }
+
+    // Os diagnósticos concluídos, por pessoa e por lição, com ou sem a verificação feita: para a
+    // autoavaliação basta o "antes". Concluído é o que tem todas as questões da forma da pessoa;
+    // fica de fora a lição que ela faz no ciclo curto, em que a prática veio antes do diagnóstico.
+    const formaDe = new Map(participantes.map((p) => [p.codigo, texto(p, 'forma_pre')]));
+    const diagnosticosConcluidos = licoes
+        .filter((l) => l.ciclo === 'completo')
+        .flatMap((l) => {
+            const topico = String(l.topico);
+            const bloco = `forma_${formaDe.get(l.codigo)?.toLowerCase()}`;
+            const doBloco = new Set(conteudo.questoes.filter((q) => q.topicId === topico && q.bloco === bloco).map((q) => q.id));
+            const respondidas = new Map(
+                eventos
+                    .filter((e) => e.codigo === l.codigo && e.fase === 'pre' && doBloco.has(String(e.questao)))
+                    .map((e) => [e.questao, numero(e, 'correta')])
+            );
+            if (doBloco.size === 0 || respondidas.size < doBloco.size) return [];
+            return [{ codigo: l.codigo, topico, acertos: [...respondidas.values()].reduce((a, b) => a + b, 0), total: respondidas.size }];
+        });
 
     // A nota só serve de "antes" se veio antes de qualquer questão de diagnóstico.
     const notas = autoavaliacoes.filter((a) => a.antes_do_primeiro_diagnostico === 1);
@@ -106,13 +128,18 @@ export function indicadoresDoRelatorio(
         if (doModulo.length === 0) return [];
         const quemDeuNota = new Set(doModulo.map((a) => a.codigo));
         const topicosDoModulo = new Set(conteudo.topicos.filter((t) => t.modulo === modulo).map((t) => t.id));
-        const diagnosticos = licoes.filter((l) => quemDeuNota.has(l.codigo) && topicosDoModulo.has(String(l.topico)) && l.antes_total !== null);
+        const diagnostico = { acertos: 0, total: 0 };
+        for (const feito of diagnosticosConcluidos) {
+            if (!quemDeuNota.has(feito.codigo) || !topicosDoModulo.has(feito.topico)) continue;
+            diagnostico.acertos += feito.acertos;
+            diagnostico.total += feito.total;
+        }
         return [
             {
                 modulo,
                 notaMedia: soma(doModulo, 'nota') / doModulo.length,
                 pessoas: doModulo.length,
-                diagnostico: { acertos: soma(diagnosticos, 'antes_acertos'), total: soma(diagnosticos, 'antes_total') },
+                diagnostico,
             },
         ];
     });

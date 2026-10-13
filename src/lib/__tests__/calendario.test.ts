@@ -1,4 +1,4 @@
-import { dataEmSaoLuis } from '../calendario';
+import { dataEmSaoLuis, meiaNoiteDe } from '../calendario';
 
 /** Horário de São Luís (UTC−3) em milissegundos. Ex.: em('2026-10-30 20:00'). */
 function em(dataHora: string): number {
@@ -17,5 +17,28 @@ describe('dataEmSaoLuis', () => {
 
     it('à meia-noite já é o dia seguinte', () => {
         expect(dataEmSaoLuis(em('2026-11-01 00:00'))).toEqual({ diaDaSemana: 0, dia: 1, mes: 11, ano: 2026 });
+    });
+});
+
+describe('meiaNoiteDe', () => {
+    it('é o instante em que o dia começa em São Luís', () => {
+        expect(meiaNoiteDe('2026-10-30')).toBe(em('2026-10-30 00:00'));
+    });
+
+    it('recusa o dia que não existe, em vez de pular para o mês seguinte', () => {
+        // O `Date` transforma 31 de fevereiro em 3 de março sem avisar.
+        expect(meiaNoiteDe('2026-02-31')).toBeNull();
+        expect(meiaNoiteDe('2026-13-01')).toBeNull();
+    });
+
+    it('aceita 29 de fevereiro só em ano bissexto', () => {
+        expect(meiaNoiteDe('2028-02-29')).toBe(em('2028-02-29 00:00'));
+        expect(meiaNoiteDe('2026-02-29')).toBeNull();
+    });
+
+    it('recusa o que não está escrito como AAAA-MM-DD', () => {
+        expect(meiaNoiteDe('30/10/2026')).toBeNull();
+        expect(meiaNoiteDe('2026-10-30T12:00')).toBeNull();
+        expect(meiaNoiteDe('')).toBeNull();
     });
 });

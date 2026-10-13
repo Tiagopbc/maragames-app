@@ -283,6 +283,18 @@ describe('indicadoresDoRelatorio', () => {
         });
     });
 
+    it('plataforma que o app não conhece vira "Outra": o texto gravado não vai para a página', () => {
+        // As regras não limitam o que se grava nesse campo: alguém pode escrever o que quiser nele.
+        const dados = { ...DADOS, tentativas: [{ id: 'na-web', plataforma: 'Fulano de Tal <fulano@exemplo.com>', versaoDoApp: '1.0.0' }] };
+        const ind = indicadores(dados);
+
+        expect(ind.engajamento.plataformas).toEqual([
+            { rotulo: 'Outra', respostas: 10 },
+            { rotulo: 'Não registrada', respostas: 3 },
+        ]);
+        expect(pagina(ind)).not.toContain('Fulano');
+    });
+
     describe('autoavaliação por módulo', () => {
         const { autoavaliacao } = indicadores();
 
@@ -297,6 +309,31 @@ describe('indicadoresDoRelatorio', () => {
         it('ao lado, o acerto no diagnóstico das mesmas pessoas, nas lições daquele módulo', () => {
             expect(autoavaliacao[0].diagnostico).toEqual({ acertos: 1, total: 2 });
             expect(autoavaliacao[1].diagnostico).toEqual({ acertos: 0, total: 0 });
+        });
+
+        it('o diagnóstico concluído entra mesmo sem a verificação feita', () => {
+            // A Ana fez o diagnóstico de Pixel Art e parou aí: a lição não tem antes e depois, mas o
+            // diagnóstico dela já responde se a nota que ela se deu batia com o que sabia.
+            const comDiagnostico = indicadores({
+                ...DADOS,
+                respostas: [
+                    ...DADOS.respostas,
+                    r(ANA.uid, 'pre', 'pixel_a1', '2026-10-31 09:00', true, 2),
+                    r(ANA.uid, 'pre', 'pixel_a2', '2026-10-31 09:01', false, 1),
+                ],
+            }).autoavaliacao;
+
+            expect(comDiagnostico[1].modulo).toBe('Arte & Pixel Art');
+            expect(comDiagnostico[1].diagnostico).toEqual({ acertos: 1, total: 2 });
+        });
+
+        it('o diagnóstico pela metade não entra', () => {
+            const pelaMetade = indicadores({
+                ...DADOS,
+                respostas: [...DADOS.respostas, r(ANA.uid, 'pre', 'pixel_a1', '2026-10-31 09:00', true, 2)],
+            }).autoavaliacao;
+
+            expect(pelaMetade[1].diagnostico).toEqual({ acertos: 0, total: 0 });
         });
 
         it('sem nenhuma nota válida, a lista sai vazia', () => {

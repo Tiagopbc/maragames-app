@@ -18,6 +18,7 @@ import {
     paraQuestion,
     topicosDasLicoes,
 } from '../src/data/mapeadores';
+import { meiaNoiteDe } from '../src/lib/calendario';
 import type { DadosDaExportacao, PerfilDoExport } from '../src/lib/exportacao';
 
 export const RAIZ = join(__dirname, '..');
@@ -30,8 +31,10 @@ export function argumento(nome: string): string | undefined {
 /** O filtro `--desde AAAA-MM-DD`: o texto e a meia-noite desse dia em São Luís (UTC−3), em ms. */
 export function filtroDesde(): { texto?: string; ms?: number } {
     const texto = argumento('desde');
-    const ms = texto ? Date.parse(`${texto}T00:00:00-03:00`) : undefined;
-    if (texto && Number.isNaN(ms)) throw new Error(`Data inválida em --desde: ${texto} (use AAAA-MM-DD).`);
+    if (texto === undefined) return {};
+    // Dia que não existe é recusado: senão o recorte seria um, e a data escrita na página, outra.
+    const ms = meiaNoiteDe(texto);
+    if (ms === null) throw new Error(`Data inválida em --desde: ${texto} (use AAAA-MM-DD, com um dia que exista).`);
     return { texto, ms };
 }
 
