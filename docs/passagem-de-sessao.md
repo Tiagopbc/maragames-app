@@ -1,4 +1,4 @@
-# Passagem de sessão — 12/10/2026
+# Passagem de sessão — 13/10/2026
 
 Resumo para continuar o trabalho em outra conversa, sem depender do histórico da anterior. Em caso de conflito, vale `docs/decisoes-tecnicas.md` (as pendências vivem no item 24).
 
@@ -72,14 +72,14 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 ## O que está esperando resposta do Tiago
 
 1. **Ver no app o que entrou em 12/10**, que pede conta logada e não foi visto: completar o perfil (conta nova e conta antiga), o Perfil com o cabeçalho, as seções e o "Sobre", "Sobre você e os jogos", o aceite de contato, as notas por módulo antes do primeiro diagnóstico e o termo para reler. E confirmar que o link de redefinição troca a senha. As regras do Firestore estão publicadas, na versão do `main`.
-4. **Gerar um APK novo**, agora que o item 34 está no `main` e as regras estão publicadas (`npx eas-cli build -p android --profile preview`), instalar num Android e conferir o login por e-mail e uma lição. Os dois builds de 12/10 não têm o perfil novo.
+4. **Gerar mais um APK e instalar num Android**, depois de integrada a branch `feat/sobre-mobile-builders` (`npx eas-cli build -p android --profile preview`), e conferir o login por e-mail e uma lição. O build `ec22c321`, de 12/10 (`versionCode` 2), tem tudo menos a troca de "Beast Maragames" por "Mobile Builders" na seção "Sobre".
 5. **Ver as revisões no app.** A conta principal do Tiago tem quatro lições com a revisão abrindo em 13/10, uma em 17/10 e uma em 19/10. Ela vai cair antes na tela de completar o perfil, por causa do item 34. É a única parte do ciclo ainda não vista no app: o "Para hoje" deve sugerir a revisão, e o fim dela mostra "Na verificação X de 3 → Hoje Y de 3". Depois disso as contas de teste podem ser limpas, com o contador do termo (`--zerar-contador`).
 6. **Conferir no iPhone e num Android**, nos dois temas, com a seção "Aparência" do Perfil. A troca de tema do sistema com o app aberto e logado e a tela do termo já foram vistas pelo Tiago, em 12/10.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 16 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 12 e o nº 14, documentos.
-- **Branch atual:** `feat/perfil-resumo-e-sobre`, em cima do `main` (que já tem o pull request nº 16), com o cabeçalho do Perfil, a seção "Sobre", a coluna estreita e os documentos, em pull request aberto em 12/10. Não mexe nas regras do Firestore.
+- **`main`:** tem os pull requests nº 5 a nº 17 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 12 e o nº 14, documentos.
+- **Branch atual:** `feat/sobre-mobile-builders`, em cima do `main` (que já tem o pull request nº 17), com a seção "Sobre" assinada pelo grupo e o registro do APK de 12/10, em pull request aberto em 13/10.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 749 testes (745 no projeto "nativo" e 4 no "web"; o número caiu duas vezes porque os testes do roteiro antigo saíram com ele); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 120 (precisa de Java; rodado em 12/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
