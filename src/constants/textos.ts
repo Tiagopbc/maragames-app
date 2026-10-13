@@ -561,14 +561,17 @@ export function notaDoModulo(modulo: string, nota: number): string {
 // único contato de pessoa que fica no código, por decisão dele.
 export const CONTATO_DO_GRUPO = 'pereirabc1981@gmail.com';
 
+// Quem fez o app: o nome do grupo, que assina a seção Sobre no lugar da marca da cliente.
+export const NOME_DO_GRUPO = 'Mobile Builders';
+
 export const TEXTOS_DO_SOBRE = {
     titulo: 'Sobre',
     contato: `Dúvidas ou para sair do estudo, escreva para ${CONTATO_DO_GRUPO}.`,
 } as const;
 
-/** "Beast Maragames · versão 1.0.0" */
+/** "Mobile Builders · versão 1.0.0" */
 export function versaoDoAppNoPerfil(versao: string): string {
-    return `${TEXTOS_DO_LOGIN.marca} · versão ${versao}`;
+    return `${NOME_DO_GRUPO} · versão ${versao}`;
 }
 
 /**
