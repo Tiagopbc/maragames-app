@@ -5,9 +5,11 @@ const { join, relative } = require('path');
 
 // "Cores sempre do tema" (AGENTS.md): cor escrita à mão numa tela não acompanha o tema escuro
 // nem a troca de identidade. O único lugar onde uma cor pode nascer é src/constants/theme.ts.
+// A exceção é a página do relatório, gerada por um script no Node, onde theme.ts não carrega:
+// as cores dela ficam num arquivo próprio, amarrado ao tema por teste (relatorio.test.ts).
 
 const RAIZ = join(__dirname, '..');
-const TEMA = 'constants/theme.ts';
+const TEMA = ['constants/theme.ts', 'constants/cores-do-relatorio.ts'];
 
 const COR_FIXA = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/;
 
@@ -22,7 +24,7 @@ function arquivos(pasta) {
 it('nenhum arquivo fora do tema escreve cor à mão', () => {
     const comCorFixa = arquivos(RAIZ)
         .map((caminho) => relative(RAIZ, caminho))
-        .filter((caminho) => caminho !== TEMA)
+        .filter((caminho) => !TEMA.includes(caminho))
         .filter((caminho) =>
             readFileSync(join(RAIZ, caminho), 'utf8')
                 .split('\n')

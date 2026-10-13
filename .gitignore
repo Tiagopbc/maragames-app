@@ -83,3 +83,6 @@ tmp/
 
 # exportação do piloto: tem a chave que liga cada código ao nome
 exportacao/
+
+# relatório para a Beast Maragames: é publicado à parte, e não pelo repositório
+relatorio/

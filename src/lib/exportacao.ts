@@ -5,12 +5,12 @@
 // As contas são as mesmas que o aluno vê no app: o estado e o ciclo de cada lição, o quadrante,
 // o XP e a retenção vêm das funções de src/lib, e não de uma segunda versão delas.
 
-import type { Answer, Autoavaliacao, ExtrasDoPerfil, FormaPre, Question, Topico } from '../types/domain';
+import type { Answer, Autoavaliacao, Confianca, ExtrasDoPerfil, FormaPre, Question, Topico } from '../types/domain';
 import { questoesDaPratica, questoesDoBlocoMedido } from './bloco';
 import { FUSO_MS, diaDeCalendario } from './calendario';
 import { DIAS_ATE_A_REVISAO, licoesDoAluno } from './licao';
 import { idDoModulo } from './perfil';
-import { quadranteDe } from './quadrante';
+import { quadranteDe, type Quadrante } from './quadrante';
 import { resultadoDoBloco, type Taxa } from './resultado';
 import { retencao } from './retencao';
 import { xpDaResposta } from './xp';
@@ -65,7 +65,35 @@ export interface Exportacao {
     questoes: Linha[]; // uma linha por questão
     autoavaliacoes: Linha[]; // uma linha por pessoa e por módulo: a nota que ela se deu antes de estudar
     resumo: string; // os números agregados, em texto
+    agregados: Agregados; // os mesmos números do resumo, para o relatório (src/lib/relatorio.ts)
     chave: Linha[]; // código ↔ nome: fica só com o grupo, nunca é enviada
+}
+
+// Os números em conjunto, sem nada de pessoa nenhuma. O resumo em texto e o relatório da Beast
+// Maragames saem daqui, então não há como um dizer uma coisa e o outro, outra.
+export interface AgregadoDoTopico {
+    topicId: string;
+    titulo: string;
+    pre: Taxa;
+    pos: Taxa;
+    reteste: Taxa; // só de quem fez a revisão
+    pessoas: number;
+}
+
+export interface Agregados {
+    participantes: number;
+    verificadas: number; // lições com o diagnóstico e a verificação completos
+    revisadas: number;
+    antesDaHora: number; // revisões feitas antes dos 7 dias
+    pre: Taxa;
+    pos: Taxa;
+    reteste: Taxa;
+    ganhoMedio: number | null; // média do ganho normalizado de cada pessoa
+    porTopico: AgregadoDoTopico[]; // na ordem do conteúdo; só tópicos com a verificação feita
+    porConfianca: Record<Confianca, Taxa>; // na verificação
+    quadrantesNoPos: Record<Quadrante, number>;
+    firmes: Taxa; // acertos Firmes da verificação que continuaram certos na revisão
+    frageis: Taxa;
 }
 
 /**
@@ -99,6 +127,7 @@ function maiorSequencia(dias: readonly number[]): number {
 const porcento = (taxa: Taxa) => (taxa.total === 0 ? 'sem respostas' : `${Math.round((taxa.acertos / taxa.total) * 100)}%`);
 const fracao = (taxa: Taxa) => `${taxa.acertos} de ${taxa.total}`;
 const zero = (): Taxa => ({ acertos: 0, total: 0 });
+const QUADRANTES: readonly Quadrante[] = ['firme', 'fragil', 'lacuna', 'ponto_cego'];
 const somar = (em: Taxa, taxa: Taxa) => {
     em.acertos += taxa.acertos;
     em.total += taxa.total;
@@ -141,13 +170,14 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
         firmes: zero(),
         frageis: zero(),
         porConfianca: { 1: zero(), 2: zero(), 3: zero() },
+        quadrantesNoPos: { firme: 0, fragil: 0, lacuna: 0, ponto_cego: 0 } as Record<Quadrante, number>,
         pontosCegosNoPos: 0,
         verificadas: 0,
         revisadas: 0,
         antesDaHora: 0,
         ganhos: [] as number[],
     };
-    const porTopico = new Map<string, { pre: Taxa; pos: Taxa; pessoas: number }>();
+    const porTopico = new Map<string, { pre: Taxa; pos: Taxa; reteste: Taxa; pessoas: number }>();
 
     for (const { perfil, codigo } of participantes) {
         const respostas = respostasDe(perfil.uid);
@@ -267,7 +297,8 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             somar(daPessoa.pos, pos);
             daPessoa.pontosCegosNoPos += pos.quadrantes.ponto_cego;
             for (const nivel of [1, 2, 3] as const) somar(total.porConfianca[nivel], pos.porConfianca[nivel]);
-            const doTopico = porTopico.get(topicId) ?? { pre: zero(), pos: zero(), pessoas: 0 };
+            for (const quadrante of QUADRANTES) total.quadrantesNoPos[quadrante] += pos.quadrantes[quadrante];
+            const doTopico = porTopico.get(topicId) ?? { pre: zero(), pos: zero(), reteste: zero(), pessoas: 0 };
             somar(doTopico.pre, pre);
             somar(doTopico.pos, pos);
             doTopico.pessoas += 1;
@@ -294,6 +325,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
                 revisao_antes_da_hora: dias < DIAS_ATE_A_REVISAO ? 1 : 0,
             });
             daPessoa.revisadas += 1;
+            somar(doTopico.reteste, reteste);
             somar(daPessoa.reteste, reteste);
             somar(daPessoa.firmes, retido.mantidas.firme);
             somar(daPessoa.frageis, retido.mantidas.fragil);
@@ -450,6 +482,21 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
         questoes: linhasDeQuestao,
         autoavaliacoes: linhasDeAutoavaliacao,
         resumo,
+        agregados: {
+            participantes: n,
+            verificadas: total.verificadas,
+            revisadas: total.revisadas,
+            antesDaHora: total.antesDaHora,
+            pre: total.pre,
+            pos: total.pos,
+            reteste: total.reteste,
+            ganhoMedio,
+            porTopico: topicos.filter((t) => porTopico.has(t.id)).map((t) => ({ topicId: t.id, titulo: t.titulo, ...porTopico.get(t.id)! })),
+            porConfianca: total.porConfianca,
+            quadrantesNoPos: total.quadrantesNoPos,
+            firmes: total.firmes,
+            frageis: total.frageis,
+        },
         chave: participantes.map(({ perfil, codigo }) => ({
             codigo,
             uid: perfil.uid,
