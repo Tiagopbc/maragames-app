@@ -85,7 +85,7 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 2. **Instalar o APK num Android** (build `b4cb6782`) e conferir o login por e-mail e uma lição.
 3. **Conferir num Android, nos dois temas,** pelo Expo Go ou pelo APK, e fazer uma lição do começo ao fim num celular. No iPhone, o Tiago já viu em 13/10, pelo Expo Go, a home, a lista, o Progresso e o Perfil em tema escuro e o Perfil em tema claro, com a barra de status acompanhando; e, na web publicada, a home e o Perfil nos dois temas.
 4. **A prova da fase:** uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
-5. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`). O Tiago decide se espera as revisões de 17/10 e 19/10 ou limpa antes: o caminho delas é o das quatro já vistas.
+5. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`). Só depois das revisões de 17/10 e 19/10: o Tiago decidiu em 13/10 que elas continuam.
 
 ## Estado do repositório
 
