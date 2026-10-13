@@ -76,29 +76,30 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 - **Revisões vistas no app pelo Tiago**, com a conta principal, num iPhone, pelo navegador, na web publicada e em tema claro: as quatro que abriam em 13/10. O "Para hoje" sugeriu a revisão, o fim dela mostra "Na verificação X de 3 → Hoje Y de 3", e a home voltou a "Tudo em dia". Conferido no banco: 12 respostas de fase `reteste` e quatro tentativas, com a plataforma e a versão. Era a única parte do ciclo ainda não vista no app.
 - **Redefinição de senha:** o Tiago confirmou que o link do e-mail troca a senha.
 - **Faixas brancas do navegador do iPhone em tema escuro, corrigidas** (item 31, pull request nº 19): a página da web passou a ter a cor de fundo do tema e o `theme-color`. Vista pelo Tiago no aparelho, na web publicada, com "Escuro", "Do sistema" e "Claro".
+- **App conferido no Expo Go, num iPhone, pelo Tiago**, com o `main` do dia: home, lista de lições, Progresso e Perfil, com a troca de tema e a barra de status. A disciplina pede Expo, e o projeto é Expo inteiro; o Expo Go fica para demonstrar, e a web e o APK, para entregar (item 32).
+- **Lição feita do começo ao fim no Expo Go, num iPhone, pelo Tiago**, com a conta de e-mail e senha de apelido Tiagopbc: completar o perfil, termo, notas por módulo, diagnóstico, cartão, prática e verificação. Conferido no banco: as notas dos seis módulos, gravadas pela primeira vez, as 10 respostas e as três tentativas, com `plataforma` ios. Com isso, tudo o que entrou com o item 34 foi visto no app.
 - **Telas de 12/10 e 13/10 vistas pelo Tiago com conta logada:** completar o perfil (conta antiga), o Perfil com o cabeçalho, as seções e o "Sobre", "Sobre você e os jogos" e o aceite de contato.
 
 ## O que está esperando resposta do Tiago
 
-1. **As notas por módulo antes do primeiro diagnóstico.** O Tiago deu a tela como vista, mas o banco não tem nenhuma autoavaliação gravada e o contador do termo segue em 4. A tela só aparece para quem aceita o termo e vai começar uma lição nova de ciclo completo; a conta principal já tem as nove lições feitas. Confirmar com ele como foi vista. O envio das notas ainda não aconteceu com conta nenhuma: a conta limpa de apelido Tiagopbc ou a pessoa de fora, na prova da fase, cobrem isso.
-2. **Instalar o APK num Android** (build `b4cb6782`) e conferir o login por e-mail e uma lição.
-3. **Conferir num Android, nos dois temas,** e o que falta do iPhone: a lista e o Progresso em tema claro, e a lição e o fim de cada passo em tema escuro. O Perfil e a home já foram vistos nos dois temas, com a troca pela seção "Aparência".
-4. **A prova da fase:** uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
-5. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`). O Tiago decide se espera as revisões de 17/10 e 19/10 ou limpa antes: o caminho delas é o das quatro já vistas.
+1. **Conferir num Android, nos dois temas,** pelo Expo Go ou pelo APK (build `b4cb6782`), com o login por e-mail e uma lição. Nenhum dos cinco APKs foi instalado ainda. O iPhone já foi visto em 13/10: pelo Expo Go, as telas principais e uma lição do começo ao fim; na web publicada, a home e o Perfil nos dois temas.
+2. **Fazer as revisões que faltam**, quando abrirem: 17/10 e 19/10 na conta principal, 19/10 na conta do Google e 20/10 na conta de e-mail e senha de apelido Tiagopbc. O Tiago decidiu em 13/10 que elas continuam.
+3. **A prova da fase:** uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
+4. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`), só depois das revisões.
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 19 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 18, a seção "Sobre" assinada pelo grupo; o nº 19, o fundo da página na web e os registros de 13/10; o nº 12 e o nº 14, documentos.
-- **Branch atual:** `docs/correcao-vista-no-iphone`, em cima do `main` (que já tem o pull request nº 19), só com documentos, em pull request aberto em 13/10. Do código não há nada pendente. As branches `docs/apk-final-13-10` e `fix/fundo-da-pagina-na-web` já estão no `main` e podem ser apagadas.
+- **`main`:** tem os pull requests nº 5 a nº 20 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 18, a seção "Sobre" assinada pelo grupo; o nº 19, o fundo da página na web e os registros de 13/10; o nº 12, o nº 14 e o nº 20, documentos.
+- **Branch atual:** `docs/expo-go-no-iphone`, em cima do `main` (que já tem o pull request nº 20), só com documentos, em commit local e sem push. Do código não há nada pendente. As branches `docs/apk-final-13-10`, `fix/fundo-da-pagina-na-web` e `docs/correcao-vista-no-iphone` já estão no `main` e podem ser apagadas.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
 - **Verificação:** `npm test` passa com 758 testes (747 no projeto "nativo" e 11 no "web"); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 120 (precisa de Java; rodado em 12/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
-- **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`.
+- **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`, com o QR code lido pelo Expo Go. É o caminho para demonstrar o app; a entrega a quem é de fora é pela web e pelo APK (item 32).
 - **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
-- **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 94 respostas, termo aceito, perfil já no formato novo, as quatro revisões de 13/10 feitas e outras duas para 17/10 e 19/10. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: limpa. O contador do termo está em 4.
+- **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 94 respostas, termo aceito, perfil já no formato novo, as quatro revisões de 13/10 feitas e outras duas para 17/10 e 19/10. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: perfil no formato novo, termo aceito em 13/10, notas por módulo gravadas, 10 respostas (a lição Framework MDA, feita no Expo Go) e a revisão para 20/10. O contador do termo está em 5.
 - **Acesso:** `serviceAccountKey.json` (fora do git) permite ler pelo Admin SDK. O assistente só lê; apagar dados é com o Tiago.
 
 ## O que já funciona
@@ -109,7 +110,7 @@ Conferido no app de verdade: em 10/10, na web, em largura de computador e tema e
 
 ## O que falta
 
-Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo, só a Fase 10: o APK instalado num aparelho, as notas por módulo enviadas por alguma conta, a conferência em Android e o resto do iPhone nos dois temas, a limpeza das contas de teste, com o contador do termo, e a prova da fase, com uma pessoa de fora.
+Está no item 24 de `docs/decisoes-tecnicas.md`, na ordem das fases do plano. Em resumo, só a Fase 10: a conferência num Android, pelo Expo Go ou pelo APK, as revisões que faltam, a limpeza das contas de teste, com o contador do termo, e a prova da fase, com uma pessoa de fora.
 
 ## Limites do assistente nesta máquina
 
