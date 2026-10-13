@@ -81,9 +81,10 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 1. **As notas por módulo antes do primeiro diagnóstico.** O Tiago deu a tela como vista, mas o banco não tem nenhuma autoavaliação gravada e o contador do termo segue em 4. A tela só aparece para quem aceita o termo e vai começar uma lição nova de ciclo completo; a conta principal já tem as nove lições feitas. Confirmar com ele como foi vista. O envio das notas ainda não aconteceu com conta nenhuma: a conta limpa de apelido Tiagopbc ou a pessoa de fora, na prova da fase, cobrem isso.
 2. **Instalar o APK num Android** (build `b4cb6782`) e conferir o login por e-mail e uma lição.
-3. **Conferir num Android, nos dois temas,** e o que falta do iPhone: a lista, o Progresso e o Perfil em tema claro, e a lição e o fim de cada passo em tema escuro, com a seção "Aparência" do Perfil.
+3. **Conferir num Android, nos dois temas,** e o que falta do iPhone: a lista e o Progresso em tema claro, e a lição e o fim de cada passo em tema escuro. O Perfil e a home já foram vistos nos dois temas, com a troca pela seção "Aparência".
 4. **A prova da fase:** uma pessoa de fora instala ou abre o endereço, cria conta e conclui uma lição sem ajuda.
-5. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`). O Tiago decide se espera as revisões de 17/10 e 19/10 ou limpa antes: o caminho delas é o das quatro já vistas.
+5. **Aprovar a correção das faixas brancas no navegador do iPhone.** Com "Escuro" escolhido no Perfil e o aparelho em claro, a faixa do relógio e a barra de baixo do navegador ficam brancas: a página da web não tem cor de fundo própria nem `theme-color`. O desenho foi apresentado em 13/10 (pintar o fundo da página e o `theme-color` com a cor do tema, num arquivo `.web.ts`); nada foi codado.
+6. **Limpar as contas de teste e zerar o contador do termo** (`npm run limpar:teste`, com `--zerar-contador`). O Tiago decide se espera as revisões de 17/10 e 19/10 ou limpa antes: o caminho delas é o das quatro já vistas.
 
 ## Estado do repositório
 
