@@ -375,7 +375,6 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Esperando o Tiago**
 
 - Publicar as regras do Firestore depois de integrar o pull request do item 35: a regra nova exige o sexo no perfil, então vai depois do app no ar (`firebase deploy --only firestore:rules`).
-- Publicar de novo a página sintética depois deste último ajuste (o ganho da turma): `npm run relatorio -- --simulado 100 --semente 1250808581` e `npx vercel deploy relatorio/simulado --prod --yes`.
 - Mandar à Beast Maragames o link da página simulada (item 23), e decidir onde a página dos dados de verdade vai ser publicada quando houver participantes.
 - Fazer as revisões que faltam, quando abrirem: Playtest e iteração em 17/10 e Publicando na Steam em 19/10, na conta principal; Framework MDA em 19/10, na conta do Google, e em 20/10, na conta de e-mail e senha de apelido Tiagopbc. Decidido pelo Tiago em 13/10: as revisões continuam, e a limpeza das contas fica para depois delas.
 
@@ -420,7 +419,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Resolvidas em 14/10**
 
 - O ganho da turma, de Hake sobre as médias, é o indicador principal do paper e do relatório, por decisão do Tiago (item 35).
-- Página sintética publicada de novo pelo Tiago, com a base nova (semente 1250808581). O endereço público abre sem login; só os endereços de cada publicação pedem a conta da Vercel.
+- Página sintética publicada de novo pelo Tiago, com a base nova (semente 1250808581) e, em seguida, com o ganho da turma; conferida no ar, idêntica à gerada. O endereço público abre sem login; só os endereços de cada publicação pedem a conta da Vercel.
 - Base sintética refeita (item 35): sete tipos de aluno, com proporções e traços sorteados, e nada plantado no resultado; sexo no núcleo do perfil, com "Prefiro não informar"; perfis de resposta e resultados por perfil no relatório. `npm test` passa com 884 e `npm run test:regras` com 123.
 - Pull request nº 21 integrado ao `main` pelo Tiago (relatório para a Beast Maragames).
 
