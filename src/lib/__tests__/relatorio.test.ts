@@ -2,7 +2,7 @@ import { CoresDoRelatorio } from '../../constants/cores-do-relatorio';
 import { Colors } from '../../constants/theme';
 import type { Answer, BlocoQuestao, Confianca, Fase, Question, Topico } from '../../types/domain';
 import { exportarDados, type DadosDaExportacao, type PerfilDoExport } from '../exportacao';
-import { AMOSTRA_MINIMA, indicadoresDoRelatorio, relatorioHtml, type Indicadores } from '../relatorio';
+import { AMOSTRA_MINIMA, MINIMO_DE_PESSOAS_POR_GRUPO, indicadoresDoRelatorio, relatorioHtml, type GrupoDoRelatorio, type Indicadores } from '../relatorio';
 
 // O relatório é a página que vai para a Beast Maragames (item 23): só números em conjunto,
 // tirados das mesmas contas da exportação. Estes testes montam três pessoas e conferem as
@@ -172,8 +172,9 @@ const DADOS: DadosDaExportacao = {
 const AGORA = em('2026-11-10 12:00');
 const CONTEUDO = { topicos: TOPICOS, questoes: QUESTOES };
 
-function indicadores(dados: DadosDaExportacao = DADOS, minimoPorQuestao?: number): Indicadores {
-    return indicadoresDoRelatorio(exportarDados(dados, { agora: AGORA }), CONTEUDO, { minimoPorQuestao });
+// Os exemplos têm três pessoas: os grupos só mostram números com o mínimo de pessoas baixado a um.
+function indicadores(dados: DadosDaExportacao = DADOS, minimoPorQuestao?: number, minimoDePessoas = 1): Indicadores {
+    return indicadoresDoRelatorio(exportarDados(dados, { agora: AGORA }), CONTEUDO, { minimoPorQuestao, minimoDePessoas });
 }
 
 function pagina(ind: Indicadores = indicadores(), amostraMinima?: number, desde?: string): string {
@@ -435,10 +436,11 @@ describe('indicadoresDoRelatorio', () => {
     });
 
     describe('por perfil', () => {
+        // Com o mínimo de pessoas em um, nenhum grupo destes exemplos é ocultado.
         const grupo = (variavel: string, rotulo: string) =>
             indicadores()
                 .porGrupo.find((v) => v.titulo === variavel)!
-                .grupos.find((g) => g.rotulo === rotulo)!;
+                .grupos.find((g) => g.rotulo === rotulo) as Extract<GrupoDoRelatorio, { oculto: false }>;
 
         it('separa os resultados por sexo, faixa etária, experiência e aluno do site', () => {
             expect(indicadores().porGrupo.map((v) => v.titulo)).toEqual(['Sexo', 'Faixa etária', 'Experiência em criar jogos', 'Aluno do site']);
@@ -448,6 +450,7 @@ describe('indicadoresDoRelatorio', () => {
             expect(grupo('Sexo', 'Feminino')).toEqual({
                 rotulo: 'Feminino',
                 pessoas: 2,
+                oculto: false,
                 pre: { acertos: 1, total: 4 },
                 pos: { acertos: 3, total: 4 },
                 ganho: expect.closeTo(2 / 3),
@@ -471,6 +474,38 @@ describe('indicadoresDoRelatorio', () => {
             const rotulos = ind.porGrupo.find((v) => v.titulo === 'Sexo')!.grupos.map((g) => g.rotulo);
 
             expect(rotulos).toEqual(['Feminino', 'Prefiro não informar', 'Não informado']);
+        });
+
+        describe('grupo pequeno não mostra números, para não apontar uma pessoa', () => {
+            const sexo = (ind: Indicadores) => ind.porGrupo.find((v) => v.titulo === 'Sexo')!.grupos;
+
+            it('por padrão, grupo com menos de cinco pessoas fica só com a contagem', () => {
+                const grupos = sexo(indicadoresDoRelatorio(exportarDados(DADOS, { agora: AGORA }), CONTEUDO));
+
+                expect(MINIMO_DE_PESSOAS_POR_GRUPO).toBe(5);
+                expect(grupos).toEqual([
+                    { rotulo: 'Feminino', pessoas: 2, oculto: true },
+                    { rotulo: 'Não informado', pessoas: 1, oculto: true },
+                ]);
+            });
+
+            it('oculta também o menor grupo visível, para o pequeno não sair da diferença com a turma', () => {
+                // Feminino 2, Masculino 2 e Não informado 1: com mínimo 2, o grupo de uma pessoa
+                // some e leva junto um dos de duas; sobra um só grupo com números.
+                const DUDA: PerfilDoExport = { ...CAIO, uid: 'uid-da-duda', nome: 'Duda', apelido: 'Duda', sexo: 'masculino' };
+                const EDU: PerfilDoExport = { ...CAIO, uid: 'uid-do-edu', nome: 'Edu', apelido: 'Edu', sexo: 'masculino' };
+                const grupos = sexo(indicadores({ ...DADOS, perfis: [...DADOS.perfis, DUDA, EDU] }, undefined, 2));
+
+                expect(grupos.map((g) => [g.rotulo, g.pessoas, g.oculto])).toEqual([
+                    ['Feminino', 2, false],
+                    ['Masculino', 2, true],
+                    ['Não informado', 1, true],
+                ]);
+            });
+
+            it('com todos os grupos no mínimo, nada é ocultado', () => {
+                expect(sexo(indicadores()).every((g) => !g.oculto)).toBe(true);
+            });
         });
 
         it('o aluno do site separa quem já é aluno de quem não é e de quem não respondeu', () => {
@@ -674,6 +709,22 @@ describe('relatorioHtml', () => {
         expect(bloco).toContain('Não informado');
         expect(bloco.match(/<table>/g)).toHaveLength(4);
         expect(bloco).toContain('acaso');
+    });
+
+    it('no bloco por perfil, o grupo oculto mostra só quantas pessoas tem', () => {
+        const html = pagina(indicadoresDoRelatorio(exportarDados(DADOS, { agora: AGORA }), CONTEUDO), 1);
+        const bloco = html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(bloco).toContain('menos de 5 pessoas');
+        expect(bloco).not.toMatch(/\d+%/);
+        expect(bloco).not.toContain('0,67');
+    });
+
+    it('no bloco por perfil, o ganho segue a amostra: com poucas respostas, não aparece', () => {
+        const porPerfil = (html: string) => html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(porPerfil(pagina())).not.toContain('0,67');
+        expect(porPerfil(pagina(indicadores(), 1))).toContain('0,67');
     });
 
     it('o bloco de perfis de resposta diz o critério de cada perfil', () => {

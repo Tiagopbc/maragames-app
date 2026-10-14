@@ -23,6 +23,12 @@ import type { Taxa } from './resultado';
 /** Com menos respostas que isto, um percentual engana: a página mostra só a contagem. */
 export const AMOSTRA_MINIMA = 10;
 
+/**
+ * Com menos pessoas que isto, um grupo do bloco "Por perfil" mostra só a contagem: com uma ou duas
+ * pessoas, os números do grupo são os delas.
+ */
+export const MINIMO_DE_PESSOAS_POR_GRUPO = 5;
+
 /** Com menos respostas que isto, uma questão não é julgada no bloco de conteúdo. */
 export const MINIMO_POR_QUESTAO = 5;
 
@@ -41,16 +47,20 @@ export interface QuestaoARever {
     distrator: string | null;
 }
 
-// Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas.
-export interface GrupoDoRelatorio {
-    rotulo: string;
-    pessoas: number;
-    pre: Taxa; // das lições com o diagnóstico e a verificação completos, como no resto da página
-    pos: Taxa;
-    ganho: number | null; // o de Hake sobre o acerto do grupo, como o ganho da turma (item 35)
-    retencao: Taxa;
-    pontoCego: Taxa; // erro com certeza, sobre as respostas da verificação
-}
+// Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas. O grupo
+// oculto leva só a contagem: os números nem chegam à página.
+export type GrupoDoRelatorio =
+    | { rotulo: string; pessoas: number; oculto: true }
+    | {
+          rotulo: string;
+          pessoas: number;
+          oculto: false;
+          pre: Taxa; // das lições com o diagnóstico e a verificação completos, como no resto da página
+          pos: Taxa;
+          ganho: number | null; // o de Hake sobre o acerto do grupo, como o ganho da turma (item 35)
+          retencao: Taxa;
+          pontoCego: Taxa; // erro com certeza, sobre as respostas da verificação
+      };
 
 export interface Indicadores extends Agregados {
     retencao: Taxa; // dos acertos da verificação, os que continuaram certos na revisão
@@ -118,6 +128,7 @@ function numerosDoGrupo(rotulo: string, pessoas: readonly Linha[]): GrupoDoRelat
     return {
         rotulo,
         pessoas: pessoas.length,
+        oculto: false,
         pre,
         pos,
         ganho: ganhoNormalizado(pre, pos),
@@ -127,6 +138,23 @@ function numerosDoGrupo(rotulo: string, pessoas: readonly Linha[]): GrupoDoRelat
         },
         pontoCego: { acertos: soma(pessoas, 'pontos_cegos_no_pos'), total: soma(pessoas, 'pos_total') },
     };
+}
+
+/**
+ * Os grupos de uma variável, com os pequenos ocultos. Ocultar só o pequeno não basta: o total da
+ * turma menos os grupos visíveis daria os números dele. Por isso, enquanto os ocultos somarem
+ * menos que o mínimo, o menor grupo visível é ocultado junto (no empate, o que vem depois).
+ */
+function ocultarGruposPequenos(grupos: readonly GrupoDoRelatorio[], minimo: number): GrupoDoRelatorio[] {
+    const ocultos = new Set(grupos.filter((g) => g.pessoas < minimo).map((g) => g.rotulo));
+    const somaDosOcultos = () => grupos.filter((g) => ocultos.has(g.rotulo)).reduce((total, g) => total + g.pessoas, 0);
+    while (somaDosOcultos() > 0 && somaDosOcultos() < minimo) {
+        const visiveis = grupos.filter((g) => !ocultos.has(g.rotulo));
+        if (visiveis.length === 0) break;
+        const menor = visiveis.reduce((menor, g) => (g.pessoas <= menor.pessoas ? g : menor));
+        ocultos.add(menor.rotulo);
+    }
+    return grupos.map((g) => (ocultos.has(g.rotulo) ? { rotulo: g.rotulo, pessoas: g.pessoas, oculto: true } : g));
 }
 
 // As variáveis do perfil pelas quais o relatório separa os resultados.
@@ -144,7 +172,7 @@ const VARIAVEIS_DOS_GRUPOS = [
 export function indicadoresDoRelatorio(
     exportado: Exportacao,
     conteudo: ConteudoDoRelatorio,
-    opcoes: { minimoPorQuestao?: number } = {}
+    opcoes: { minimoPorQuestao?: number; minimoDePessoas?: number } = {}
 ): Indicadores {
     const { agregados, participantes, licoes, eventos, questoes, autoavaliacoes } = exportado;
     const minimo = opcoes.minimoPorQuestao ?? MINIMO_POR_QUESTAO;
@@ -267,7 +295,10 @@ export function indicadoresDoRelatorio(
         })),
         porGrupo: VARIAVEIS_DOS_GRUPOS.map((v) => ({
             titulo: v.titulo,
-            grupos: agrupar(participantes, v.campo, v.rotulos, v.semResposta).map((g) => numerosDoGrupo(g.rotulo, g.pessoas)),
+            grupos: ocultarGruposPequenos(
+                agrupar(participantes, v.campo, v.rotulos, v.semResposta).map((g) => numerosDoGrupo(g.rotulo, g.pessoas)),
+                opcoes.minimoDePessoas ?? MINIMO_DE_PESSOAS_POR_GRUPO
+            ),
         })),
     };
 }
@@ -387,7 +418,7 @@ function pecas(minima: number) {
         (taxa.acertos === 0 ? '' : `<div class="fill c-${cor}${pequena(taxa) ? ' pequena' : ''}" style="width:${largura(taxa.acertos, taxa.total)}%"></div>`) +
         `</div><div class="val">${leitura(taxa)}</div></div>`;
 
-    return { leitura, destaque, barra };
+    return { leitura, destaque, barra, pequena };
 }
 
 /** Uma barra de contagem: o comprimento é em relação à maior da lista. */
@@ -412,7 +443,7 @@ const bloco = (titulo: string, pergunta: string, corpo: string) =>
 /** A página do relatório, pronta para gravar: um arquivo só, que não busca nada fora dele. */
 export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): string {
     const minima = opcoes.amostraMinima ?? AMOSTRA_MINIMA;
-    const { leitura, destaque, barra } = pecas(minima);
+    const { leitura, destaque, barra, pequena } = pecas(minima);
     const n = ind.participantes;
     const filtro = opcoes.desde ? ` · só quem aceitou o termo a partir de ${dia(opcoes.desde)}` : '';
 
@@ -563,7 +594,10 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     );
 
     // Por perfil
-    const ganho = (g: GrupoDoRelatorio) => (g.ganho === null ? 'sem dados' : decimal(g.ganho, 2));
+    // O ganho sai do diagnóstico e da verificação: com amostra pequena em um deles, ele também não aparece.
+    const ganho = (g: Extract<GrupoDoRelatorio, { oculto: false }>) =>
+        g.ganho === null ? 'sem dados' : pequena(g.pre) || pequena(g.pos) ? '<span class="n">amostra pequena</span>' : decimal(g.ganho, 2);
+    const minimoDePessoas = ind.porGrupo.flatMap((v) => v.grupos).some((g) => g.oculto) ? MINIMO_DE_PESSOAS_POR_GRUPO : null;
     const porGrupo = bloco(
         'Por perfil',
         'Os resultados mudam com o perfil de quem responde? Cada tabela separa as mesmas pessoas por uma variável do cadastro.',
@@ -574,14 +608,20 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                     v.grupos
                         .map(
                             (g) =>
-                                `<tr><td>${esc(g.rotulo)}</td><td class="num">${g.pessoas}</td><td>${leitura(g.pre)}</td><td>${leitura(g.pos)}</td>` +
-                                `<td class="num">${ganho(g)}</td><td>${leitura(g.retencao)}</td><td>${leitura(g.pontoCego)}</td></tr>`
+                                `<tr><td>${esc(g.rotulo)}</td><td class="num">${g.pessoas}</td>` +
+                                (g.oculto
+                                    ? `<td colspan="5"><span class="n">números ocultos</span></td></tr>`
+                                    : `<td>${leitura(g.pre)}</td><td>${leitura(g.pos)}</td>` +
+                                      `<td class="num">${ganho(g)}</td><td>${leitura(g.retencao)}</td><td>${leitura(g.pontoCego)}</td></tr>`)
                         )
                         .join('') +
                     `</tbody></table></div>`
             )
             .join('') +
             `<p class="nota">Grupo pequeno engana: uma diferença entre poucas pessoas pode ser só acaso. Olhe a contagem antes de comparar.` +
+            (minimoDePessoas === null
+                ? ''
+                : ` Grupo com menos de ${minimoDePessoas} pessoas mostra só a contagem, porque os números dele seriam os de uma ou duas pessoas; quando preciso, outro grupo é ocultado junto, para o pequeno não sair da diferença com o total.`) +
             (simulacao ? ' Na base sintética, sexo e faixa etária não influenciam o desempenho, por construção.' : '') +
             `</p>`
     );
