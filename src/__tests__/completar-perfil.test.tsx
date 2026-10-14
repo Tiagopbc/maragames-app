@@ -217,4 +217,28 @@ describe('a tela de completar o perfil', () => {
         expect(opcao('Intermediário')).toBeChecked();
         expect(campo('Cidade').props.value).toBe('');
     });
+
+    // Quem volta só para responder o sexo não pode perder, sem ver, o aceite que já tinha dado.
+    it('a conta que já tinha aceitado o contato encontra a caixa marcada, e o aceite continua', async () => {
+        mockSessao.perfil = {
+            uid: 'u1',
+            nome: 'Ana Souza',
+            apelido: 'Ana',
+            telefone: '98987654321',
+            faixaEtaria: '18_24',
+            cidade: 'São Luís',
+            uf: 'MA',
+            situacaoDeEstudo: 'nao_estudo',
+            experiencia: 'iniciante',
+            aceitaContato: true,
+        };
+        const user = await abrir();
+
+        expect(screen.getByRole('checkbox', { name: 'Aceito receber mensagens da Beast Maragames' })).toBeChecked();
+
+        await user.press(opcao('Feminino'));
+        await user.press(salvar());
+
+        expect(mockSalvar).toHaveBeenCalledWith(expect.objectContaining({ sexo: 'feminino' }), { aceitaContato: true });
+    });
 });

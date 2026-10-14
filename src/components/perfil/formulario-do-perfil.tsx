@@ -56,6 +56,8 @@ type FormularioDoPerfilProps = {
     // No primeiro preenchimento, a caixa do aceite de contato vai junto. Na edição ela fica na
     // seção Conta do Perfil.
     comAceiteDeContato?: boolean;
+    // O aceite já salvo, para a conta antiga que volta aqui não perdê-lo sem ver.
+    aceiteInicial?: boolean;
 };
 
 function camposDe(inicial: Partial<DadosPerfil>): Campos {
@@ -118,11 +120,12 @@ export function FormularioDoPerfil({
     soComMudanca = false,
     mensagemDeSucesso,
     comAceiteDeContato = false,
+    aceiteInicial = false,
 }: FormularioDoPerfilProps) {
     const [campos, setCampos] = useState<Campos>(() => camposDe(inicial));
     // O que está salvo: na edição, é com isto que se compara para saber se algo mudou.
     const [salvo, setSalvo] = useState<Partial<DadosPerfil>>(() => dadosDe(camposDe(inicial)));
-    const [aceitaContato, setAceitaContato] = useState(false);
+    const [aceitaContato, setAceitaContato] = useState(aceiteInicial);
     const [erros, setErros] = useState<Record<string, Erro>>({});
     const [erroGeral, setErroGeral] = useState<string | null>(null);
     const [salvando, setSalvando] = useState(false);
