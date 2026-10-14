@@ -375,8 +375,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 **Esperando o Tiago**
 
 - Publicar as regras do Firestore depois de integrar o pull request do item 35: a regra nova exige o sexo no perfil, então vai depois do app no ar (`firebase deploy --only firestore:rules`).
-- Decidir qual ganho vai para o paper como indicador principal: a média do ganho de cada pessoa (hoje no relatório) ou o ganho da turma, calculado sobre as médias do antes e do depois, como em Hake (item 35).
-- Publicar de novo a página sintética, com a base nova: `npx vercel deploy relatorio/simulado --prod --yes`.
+- Publicar de novo a página sintética depois deste último ajuste (o ganho da turma): `npm run relatorio -- --simulado 100 --semente 1250808581` e `npx vercel deploy relatorio/simulado --prod --yes`.
 - Mandar à Beast Maragames o link da página simulada (item 23), e decidir onde a página dos dados de verdade vai ser publicada quando houver participantes.
 - Fazer as revisões que faltam, quando abrirem: Playtest e iteração em 17/10 e Publicando na Steam em 19/10, na conta principal; Framework MDA em 19/10, na conta do Google, e em 20/10, na conta de e-mail e senha de apelido Tiagopbc. Decidido pelo Tiago em 13/10: as revisões continuam, e a limpeza das contas fica para depois delas.
 
@@ -420,6 +419,8 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 14/10**
 
+- O ganho da turma, de Hake sobre as médias, é o indicador principal do paper e do relatório, por decisão do Tiago (item 35).
+- Página sintética publicada de novo pelo Tiago, com a base nova (semente 1250808581). O endereço público abre sem login; só os endereços de cada publicação pedem a conta da Vercel.
 - Base sintética refeita (item 35): sete tipos de aluno, com proporções e traços sorteados, e nada plantado no resultado; sexo no núcleo do perfil, com "Prefiro não informar"; perfis de resposta e resultados por perfil no relatório. `npm test` passa com 884 e `npm run test:regras` com 123.
 - Pull request nº 21 integrado ao `main` pelo Tiago (relatório para a Beast Maragames).
 
@@ -890,7 +891,9 @@ A página sintética diz no topo "Dados sintéticos para validação do aplicati
 
 **O que a base sintética já mostrou sobre o instrumento:**
 
-- **O ganho médio por pessoa é instável com 3 questões por lição.** Na turma de 14/10 o acerto sobe de 51% para 66%, mas a média do ganho de cada pessoa é 0,15, e um grupo chega a ficar negativo (masculino, −0,02, contra 0,24 do feminino), sem o gerador ter posto diferença nenhuma por sexo. Com poucas questões, uma pessoa que cai de 2 para 1 acerto tem ganho −1. O ganho calculado sobre a turma, que é a definição original de Hake (médias do antes e do depois), dá 0,30. Decisão em aberto para o paper: qual dos dois vai como indicador principal.
+- **O ganho médio por pessoa é instável com 3 questões por lição.** Na turma de 14/10 o acerto sobe de 51% para 66%, mas a média do ganho de cada pessoa é 0,15, e um grupo chega a ficar negativo (masculino, −0,02, contra 0,24 do feminino), sem o gerador ter posto diferença nenhuma por sexo. Com poucas questões, uma pessoa que cai de 2 para 1 acerto tem ganho −1. O ganho calculado sobre a turma, que é a definição original de Hake (médias do antes e do depois), dá 0,30.
+
+Revisto em 14/10 (qual ganho vai para o paper). Decidido pelo Tiago, conforme a recomendação: **o indicador principal é o ganho da turma**, o de Hake sobre o acerto médio antes e depois. Motivos: é a definição original, sobre a qual a literatura monta as faixas de ganho baixo, médio e alto, então é o número que se compara com outros estudos; com 3 questões por lição, o ganho de uma pessoa oscila sem limite para baixo (de 2 para 1 acerto dá −1) e puxa a média; quem acerta tudo no diagnóstico não tem ganho definido e sai da média por pessoa, que fica viesada para quem começou pior; e entre grupos ele é mais estável (na turma de 14/10, feminino 0,33 e masculino 0,21, contra 0,24 e −0,02 na média por pessoa, sem efeito de sexo no gerador). No relatório, o "Em resumo" mostra o ganho da turma, com a média por pessoa ao lado, e cada grupo do "Por perfil" mostra o ganho calculado sobre o acerto do grupo (`ganhoDaTurma`, em `agregados`, e `ganho`, em cada grupo). O `resumo.md` ganhou a linha do ganho da turma, e os CSVs continuam com o ganho de cada pessoa, para a análise individual do artigo. Para essa análise, a recomendação registrada é usar só quem tem duas lições completas ou mais, preferir a mediana, ou trocar pela mudança normalizada de Marx e Cummings (2007). Referências citadas de memória, a conferir antes da bibliografia: Hake (1998), Bao (2006) e Marx e Cummings (2007), as três no *American Journal of Physics*. `npm test` passa com 887.
 - **Diferença entre grupos pequenos engana**: os 4 que preferiram não informar o sexo tiveram 19% no diagnóstico. A página mostra a contagem ao lado, como prevê a regra de amostra.
 
 Teste antes do código: 10 do classificador, 12 dos blocos novos do relatório, 37 do gerador e os do campo novo, nas regras puras, nas telas, na exportação, no termo e no emulador (os dois de regra que recusam o perfil sem sexo ou com sexo fora da lista falham com a regra antiga). `npm test` passa com 884, `npm run test:regras` com 123, `npx tsc --noEmit` sem erros e `npm run lint` limpo. Visto no navegador: a página sintética da semente 1250808581.
