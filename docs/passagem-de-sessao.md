@@ -4,7 +4,7 @@ Resumo para continuar o trabalho em outra conversa, sem depender do histórico d
 
 ## Como retomar
 
-Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 30, 31, 32, 33 e 34 de `docs/decisoes-tecnicas.md`.
+Leia nesta ordem: `AGENTS.md`, este arquivo, `docs/plano-do-app-completo.md` e os itens 24, 23, 30, 31, 32, 33, 34 e 35 de `docs/decisoes-tecnicas.md`.
 
 Combinados com o Tiago, que valem para toda sessão:
 
@@ -94,14 +94,16 @@ Limites que valeram: o assistente não cria conta nem apaga dado em definitivo. 
 
 ## Estado do repositório
 
-- **`main`:** tem os pull requests nº 5 a nº 20 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 18, a seção "Sobre" assinada pelo grupo; o nº 19, o fundo da página na web e os registros de 13/10; o nº 12, o nº 14 e o nº 20, documentos.
-- **Branches:** `feat/relatorio-da-exportacao`, com o relatório e os registros de 13/10, está no pull request nº 21, com os três apontamentos da revisão já tratados e enviados. `feat/relatorio-simulado` parte dela, com a turma de alunos virtuais, em commits locais e sem push: o pull request dela só faz sentido depois de o nº 21 ser integrado. As branches `docs/apk-final-13-10`, `fix/fundo-da-pagina-na-web`, `docs/correcao-vista-no-iphone` e `docs/expo-go-no-iphone` já estão no `main` ou dentro dessas e podem ser apagadas.
+- **`main`:** tem os pull requests nº 5 a nº 21 integrados. O nº 8 trouxe o app do ciclo da lição; o nº 9, a correção do ciclo de quem já praticou; o nº 10, a Fase 9 e o acabamento de código da Fase 10; o nº 11, o termo novo e a configuração da distribuição; o nº 13, o olho na senha, a redefinição, o Perfil em seções e o termo para reler; o nº 15, os dados do perfil (item 34); o nº 16, as correções da revisão do nº 15; o nº 17, o cabeçalho, o "Sobre" e a coluna estreita do Perfil; o nº 18, a seção "Sobre" assinada pelo grupo; o nº 19, o fundo da página na web e os registros de 13/10; o nº 21, o relatório para a Beast Maragames e a primeira turma simulada; o nº 12, o nº 14 e o nº 20, documentos.
+- **Branch atual:** `feat/relatorio-simulado`, em cima do `main` (com o nº 21), em commits locais e sem push: a turma sintética variada, o sexo no núcleo do perfil, os perfis de resposta, os resultados por perfil, o ganho da turma como indicador principal e os documentos (item 35). Pedir ao Tiago antes de dar push e abrir o pull request. As branches `docs/apk-final-13-10`, `fix/fundo-da-pagina-na-web`, `docs/correcao-vista-no-iphone`, `docs/expo-go-no-iphone` e `feat/relatorio-da-exportacao` já estão no `main` ou dentro desta e podem ser apagadas.
 - **Cópia de trabalho da correção do tema:** em `.claude/worktrees/pensive-williamson-7d726f`, na branch `fix/tema-na-web`, já integrada. Pode ser apagada pelo Tiago.
-- **Verificação:** `npm test` passa com 849 testes (839 no projeto "nativo" e 10 no "web"); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 120 (precisa de Java; rodado em 12/10). Na primeira rodada depois de mudar a configuração do jest, 4 testes falharam e passaram na rodada seguinte, sem mudança de código; a causa provável é o cache frio estourando o tempo do primeiro teste de cada suíte, mas isso não foi confirmado.
+- **Verificação:** `npm test` passa com 887 testes (877 no projeto "nativo" e 10 no "web"); `npx tsc --noEmit` sem erros; `npm run lint` sem erro nem aviso; `npm run test:regras` passa com 123 (precisa de Java; rodado em 14/10).
 - **Para rodar:** `npm run web` (porta 8081; depois da troca de `web.output` no `app.json`, reiniciar o servidor) e, para o celular, `npx expo start --port 8082`, com o QR code lido pelo Expo Go. É o caminho para demonstrar o app; a entrega a quem é de fora é pela web e pelo APK (item 32).
 - **Distribuição:** a Vercel (projeto `maragames-app`) publica a produção a cada push no `main` e uma prévia a cada push de branch. O APK sai com `npx eas-cli build -p android --profile preview`, do projeto `@tiagopbc/maragames-app`. As variáveis `EXPO_PUBLIC_FIREBASE_*` ficam fora do git: na Vercel, só em Production (as prévias abrem sem Firebase, de propósito), e no ambiente `preview` do EAS.
 
 ## Estado do Firebase (projeto `maragames-mobile`)
+
+- **Regras:** as publicadas são as do `main`, sem o sexo. A regra nova (item 35) exige o sexo no perfil: publicar só depois de o app com o campo estar no ar (Vercel, pelo `main`). Depois disso, o APK `b4cb6782`, que não tem o campo, não consegue salvar perfil: é preciso gerar outro APK.
 
 - **Conteúdo no banco:** seed rodado em 10/10, versão `ebaeb429b051`: 9 lições e 100 questões, as mesmas do repositório. As 3 questões antigas saíram em 11/10, com `--prune`.
 - **Dados de teste:** três contas a tratar. A principal do Tiago (apelido Tiago): 94 respostas, termo aceito, perfil já no formato novo, as quatro revisões de 13/10 feitas e outras duas para 17/10 e 19/10. A que entra pelo Google (apelido Tiagopbc), criada em 12/10 na web publicada: 10 respostas, termo aceito, revisão do Framework MDA para 19/10. A que entra por e-mail e senha, também de apelido Tiagopbc: perfil no formato novo, termo aceito em 13/10, notas por módulo gravadas, 10 respostas (a lição Framework MDA, feita no Expo Go) e a revisão para 20/10. O contador do termo está em 5.
