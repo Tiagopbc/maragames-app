@@ -50,6 +50,7 @@ async function preencherOQueNaoMuda(user: ReturnType<typeof userEvent.setup>) {
     await user.type(campo('Apelido'), 'Ana');
     await user.type(campo('Telefone'), '98987654321');
     await user.press(opcao('18 a 24'));
+    await user.press(opcao('Feminino'));
     await user.type(campo('Cidade'), ' São Luís ');
     await user.type(campo('Estado (UF)'), 'ma');
 }
@@ -70,12 +71,31 @@ describe('a tela de completar o perfil', () => {
         expect(screen.queryByRole('radio', { name: /17/ })).toBeNull();
     });
 
+    it('o sexo tem três opções, uma delas para quem não quer informar', async () => {
+        await abrir();
+
+        expect(screen.getByText('Sexo')).toBeOnTheScreen();
+        for (const sexo of ['Feminino', 'Masculino', 'Prefiro não informar']) expect(opcao(sexo)).toBeOnTheScreen();
+    });
+
+    it('"Prefiro não informar" é uma resposta: o perfil é salvo com ela', async () => {
+        const user = await abrir();
+
+        await preencherOQueNaoMuda(user);
+        await user.press(opcao('Prefiro não informar'));
+        await user.press(opcao('Não estudo'));
+        await user.press(salvar());
+
+        expect(mockSalvar).toHaveBeenCalledWith(expect.objectContaining({ sexo: 'nao_informado' }), { aceitaContato: false });
+    });
+
     it('sem preencher, mostra o que falta e não salva', async () => {
         const user = await abrir();
 
         await user.press(salvar());
 
         expect(await screen.findByText('Escolha a faixa etária.')).toBeOnTheScreen();
+        expect(screen.getByText('Escolha uma das opções de sexo.')).toBeOnTheScreen();
         expect(screen.getByText('Informe a cidade.')).toBeOnTheScreen();
         expect(screen.getByText('Informe o estado.')).toBeOnTheScreen();
         expect(screen.getByText('Escolha a situação de estudo.')).toBeOnTheScreen();
@@ -121,6 +141,7 @@ describe('a tela de completar o perfil', () => {
                 apelido: 'Ana',
                 telefone: '98987654321',
                 faixaEtaria: '18_24',
+                sexo: 'feminino',
                 cidade: 'São Luís',
                 uf: 'MA',
                 situacaoDeEstudo: 'nao_estudo',

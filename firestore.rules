@@ -23,6 +23,7 @@ service cloud.firestore {
           && d.apelido is string && d.apelido.size() >= 2 && d.apelido.size() <= 20
           && d.telefone is string && d.telefone.size() >= 10 && d.telefone.size() <= 11
           && d.faixaEtaria in ['18_24', '25_34', '35_44', '45_mais']
+          && d.sexo in ['feminino', 'masculino', 'nao_informado']
           && d.cidade is string && d.cidade.size() >= 2 && d.cidade.size() <= 60
           && d.uf in ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
                       'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']

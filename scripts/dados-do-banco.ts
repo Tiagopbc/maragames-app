@@ -65,6 +65,7 @@ export async function lerDadosDoBanco(): Promise<DadosDaExportacao> {
             email: u.email,
             telefone: u.telefone,
             faixaEtaria: u.faixaEtaria,
+            sexo: u.sexo,
             cidade: u.cidade,
             uf: u.uf,
             situacaoDeEstudo: u.situacaoDeEstudo,

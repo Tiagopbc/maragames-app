@@ -24,6 +24,7 @@ export interface PerfilDoExport extends ExtrasDoPerfil {
     email?: string;
     telefone?: string;
     faixaEtaria?: string;
+    sexo?: string;
     cidade?: string;
     uf?: string;
     situacaoDeEstudo?: string;
@@ -344,6 +345,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             experiencia: perfil.experiencia ?? null,
             // O perfil de 12/10/2026 em diante (item 34). A cidade não entra: fica na chave.
             faixa_etaria: perfil.faixaEtaria ?? null,
+            sexo: perfil.sexo ?? null,
             uf: perfil.uf ?? null,
             situacao_de_estudo: perfil.situacaoDeEstudo ?? null,
             instituicao: perfil.instituicao ?? null,

@@ -15,6 +15,7 @@ const naRegra = (lista) => `[${lista.map((valor) => (typeof valor === 'number' ?
 
 const LISTAS = {
     'faixas etárias': perfil.FAIXAS_ETARIAS,
+    sexos: perfil.SEXOS,
     'siglas dos estados': perfil.UFS,
     'situações de estudo': perfil.SITUACOES_DE_ESTUDO,
     'níveis de experiência': perfil.EXPERIENCIAS,

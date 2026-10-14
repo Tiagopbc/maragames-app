@@ -34,7 +34,7 @@ export const TERMO: readonly SecaoDoTermo[] = [
         texto:
             'De cada resposta: a alternativa escolhida, se estava certa, a confiança que você declarou, ' +
             'o tempo que levou, o horário e se você estava no navegador ou no celular. Do seu perfil: ' +
-            'nome, apelido, e-mail, telefone, faixa etária, cidade e estado, situação de estudo, ' +
+            'nome, apelido, e-mail, telefone, faixa etária, sexo, cidade e estado, situação de estudo, ' +
             'instituição e curso (se você estuda) e experiência em criar jogos. Se você responder, ' +
             'também as perguntas opcionais de "Sobre você e os jogos". Ficam gravadas ainda a nota que ' +
             'você se dá em cada área e a data em que você aceitou este termo.',
