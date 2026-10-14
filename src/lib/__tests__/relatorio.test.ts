@@ -62,6 +62,7 @@ const ANA: PerfilDoExport = {
     cidade: 'Imperatriz',
     uf: 'MA',
     faixaEtaria: '18_24',
+    sexo: 'feminino',
     situacaoDeEstudo: 'graduacao',
     instituicao: 'Faculdade Exemplo',
     curso: 'Curso Exemplo',
@@ -79,6 +80,7 @@ const BIA: PerfilDoExport = {
     cidade: 'Caxias',
     uf: 'MA',
     faixaEtaria: '18_24',
+    sexo: 'feminino',
     situacaoDeEstudo: 'formado',
     experiencia: 'avancado',
     formaPre: 'B',
@@ -385,6 +387,92 @@ describe('indicadoresDoRelatorio', () => {
         });
     });
 
+    describe('perfis de resposta', () => {
+        // O Davi fez o diagnóstico, a prática e a verificação do MDA e começou o de Pixel Art:
+        // seis respostas, todas certas e com certeza.
+        const DAVI: PerfilDoExport = { ...CAIO, uid: 'uid-do-davi-321', nome: 'Davi Rocha', apelido: 'Davi', consentiuEm: em('2026-10-30 19:20') };
+        const DO_DAVI: Answer[] = [
+            r(DAVI.uid, 'pre', 'mda_a1', '2026-10-31 10:00', true, 3),
+            r(DAVI.uid, 'pre', 'mda_a2', '2026-10-31 10:01', true, 3),
+            r(DAVI.uid, 'pratica', 'mda_p1', '2026-10-31 10:05', true, 3),
+            r(DAVI.uid, 'pos', 'mda_b1', '2026-10-31 10:10', true, 3),
+            r(DAVI.uid, 'pos', 'mda_b2', '2026-10-31 10:11', true, 3),
+            r(DAVI.uid, 'pre', 'pixel_a1', '2026-10-31 10:20', true, 3),
+        ];
+        const comODavi = () => indicadores({ ...DADOS, perfis: [...DADOS.perfis, DAVI], respostas: [...DADOS.respostas, ...DO_DAVI] });
+        const contagem = (ind: Indicadores) => Object.fromEntries(ind.perfisDeResposta.map((p) => [p.perfil, p.pessoas]));
+
+        it('conta as pessoas de cada perfil, pelas respostas de cada uma', () => {
+            expect(contagem(comODavi())).toEqual({
+                domina: 1,
+                em_progresso: 0,
+                inseguro: 0,
+                com_dificuldade: 0,
+                confiante_demais: 0,
+                chuta: 0,
+                poucas_respostas: 3,
+            });
+        });
+
+        it('a revisão não entra: ela repete as questões da verificação', () => {
+            // Com a revisão, a Ana teria 7 respostas; sem ela, 5, abaixo do mínimo.
+            expect(contagem(indicadores()).poucas_respostas).toBe(3);
+        });
+
+        it('cada perfil leva o nome e o critério, para a página dizer como ele foi reconhecido', () => {
+            const [primeiro] = comODavi().perfisDeResposta;
+
+            expect(primeiro.rotulo).toBe('Domina o conteúdo');
+            expect(primeiro.criterio).toContain('três de cada quatro');
+        });
+    });
+
+    describe('por perfil', () => {
+        const grupo = (variavel: string, rotulo: string) =>
+            indicadores()
+                .porGrupo.find((v) => v.titulo === variavel)!
+                .grupos.find((g) => g.rotulo === rotulo)!;
+
+        it('separa os resultados por sexo, faixa etária, experiência e aluno do site', () => {
+            expect(indicadores().porGrupo.map((v) => v.titulo)).toEqual(['Sexo', 'Faixa etária', 'Experiência em criar jogos', 'Aluno do site']);
+        });
+
+        it('em cada grupo: pessoas, diagnóstico, verificação, ganho, retenção e ponto cego', () => {
+            expect(grupo('Sexo', 'Feminino')).toEqual({
+                rotulo: 'Feminino',
+                pessoas: 2,
+                pre: { acertos: 1, total: 4 },
+                pos: { acertos: 3, total: 4 },
+                ganhoMedio: 0.75,
+                retencao: { acertos: 1, total: 2 },
+                pontoCego: { acertos: 1, total: 4 },
+            });
+        });
+
+        it('quem não tem o campo fica num grupo à parte, e não some', () => {
+            // O Caio é de antes de o perfil pedir o sexo; ele não fez a verificação.
+            expect(grupo('Sexo', 'Não informado')).toMatchObject({ pessoas: 1, pos: { acertos: 0, total: 0 }, ganhoMedio: null });
+        });
+
+        it('"Prefiro não informar" é um grupo, diferente de quem não tem o campo', () => {
+            const ind = indicadores({ ...DADOS, perfis: [{ ...ANA, sexo: 'nao_informado' }, BIA, CAIO] });
+            const rotulos = ind.porGrupo.find((v) => v.titulo === 'Sexo')!.grupos.map((g) => g.rotulo);
+
+            expect(rotulos).toEqual(['Feminino', 'Prefiro não informar', 'Não informado']);
+        });
+
+        it('o aluno do site separa quem já é aluno de quem não é e de quem não respondeu', () => {
+            const ind = indicadores({ ...DADOS, perfis: [{ ...ANA, alunoDoSite: true }, { ...BIA, alunoDoSite: false }, CAIO] });
+            const rotulos = ind.porGrupo.find((v) => v.titulo === 'Aluno do site')!.grupos.map((g) => [g.rotulo, g.pessoas]);
+
+            expect(rotulos).toEqual([
+                ['Já é aluno', 1],
+                ['Ainda não é', 1],
+                ['Não respondeu', 1],
+            ]);
+        });
+    });
+
     describe('quem respondeu', () => {
         const { perfil } = indicadores();
 
@@ -395,6 +483,13 @@ describe('indicadoresDoRelatorio', () => {
                     itens: [
                         { rotulo: '18 a 24', pessoas: 2 },
                         { rotulo: 'Não informada', pessoas: 1 },
+                    ],
+                },
+                {
+                    titulo: 'Sexo',
+                    itens: [
+                        { rotulo: 'Feminino', pessoas: 2 },
+                        { rotulo: 'Não informado', pessoas: 1 },
                     ],
                 },
                 {
@@ -411,6 +506,10 @@ describe('indicadoresDoRelatorio', () => {
                         { rotulo: 'Já me formei', pessoas: 1 },
                         { rotulo: 'Não informada', pessoas: 1 },
                     ],
+                },
+                {
+                    titulo: 'Aluno do site',
+                    itens: [{ rotulo: 'Não respondeu', pessoas: 3 }],
                 },
             ]);
         });
@@ -440,7 +539,7 @@ describe('relatorioHtml', () => {
         expect(pagina()).not.toContain('a partir de');
     });
 
-    it('tem os nove blocos, na ordem do desenho', () => {
+    it('tem os onze blocos, na ordem do desenho', () => {
         const html = pagina();
         const titulos = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map((m) => m[1]);
 
@@ -449,7 +548,9 @@ describe('relatorioHtml', () => {
             'Aprendizagem',
             'Consciência do próprio saber',
             'Retenção',
+            'Perfis de resposta',
             'Autoavaliação',
+            'Por perfil',
             'Engajamento',
             'Conteúdo',
             'Quem respondeu',
@@ -551,6 +652,25 @@ describe('relatorioHtml', () => {
         const html = pagina(indicadores({ ...DADOS, perfis: [] }));
 
         expect(html).toContain('Ninguém aceitou o termo ainda');
+    });
+
+    it('o bloco por perfil mostra uma tabela por variável, com o aviso de que grupo pequeno engana', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(bloco).toContain('Feminino');
+        expect(bloco).toContain('Não informado');
+        expect(bloco.match(/<table>/g)).toHaveLength(4);
+        expect(bloco).toContain('acaso');
+    });
+
+    it('o bloco de perfis de resposta diz o critério de cada perfil', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Perfis de resposta</h2>'), html.indexOf('<h2>Autoavaliação</h2>'));
+
+        expect(bloco).toContain('Poucas respostas');
+        expect(bloco).toContain('ainda não dá para dizer');
+        expect(bloco).toContain('Domina o conteúdo');
     });
 
     it('acompanha o tema do aparelho', () => {

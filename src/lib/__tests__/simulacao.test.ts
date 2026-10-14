@@ -5,12 +5,13 @@ import { ordemDasAlternativas } from '../embaralhar';
 import { exportarDados } from '../exportacao';
 import { DIAS_ATE_A_REVISAO } from '../licao';
 import { modulosDosTopicos } from '../perfil';
+import { perfilDeResposta } from '../perfis-de-resposta';
 import { indicadoresDoRelatorio, relatorioHtml } from '../relatorio';
-import { CENARIOS, conteudoDoRepositorio, simularTurma, type Cenario, type Turma } from '../simulacao';
+import { TIPOS_DE_ALUNO, conteudoDoRepositorio, sementeAleatoria, simularTurma, type TipoDeAluno, type Turma } from '../simulacao';
 
-// A turma simulada serve para mostrar à Beast Maragames como o relatório fica com gente
-// respondendo (item 23). São alunos virtuais: nada disto vem do banco nem vai para ele, e a
-// página diz que os dados são simulados.
+// A turma simulada é a base sintética para validar o app (itens 23 e 35): alunos virtuais de
+// perfis variados, sorteados sem proporção fixa, respondendo às lições. Nada disto vem do banco
+// nem vai para ele, e a página diz que os dados são sintéticos.
 
 const topicosDoRepositorio = require('../../../content/topicos.json');
 const questoesDoRepositorio = require('../../../content/questoes.json');
@@ -18,8 +19,8 @@ const questoesDoRepositorio = require('../../../content/questoes.json');
 const CONTEUDO = conteudoDoRepositorio(topicosDoRepositorio, questoesDoRepositorio);
 const INICIO = Date.parse('2026-09-01T00:00:00-03:00');
 
-function turma(alunos: number, cenario: Cenario = 'confianca_preve', semente = 7): Turma {
-    return simularTurma(CONTEUDO, { alunos, cenario, semente, inicio: INICIO });
+function turma(alunos: number, semente = 7, sementeDoPerfil?: number): Turma {
+    return simularTurma(CONTEUDO, { alunos, semente, sementeDoPerfil, inicio: INICIO });
 }
 
 function indicadoresDa(t: Turma) {
@@ -61,7 +62,7 @@ describe('simularTurma', () => {
 
     it('a mesma semente dá a mesma turma, e outra semente, outra turma', () => {
         expect(turma(20)).toEqual(turma(20));
-        expect(turma(20, 'confianca_preve', 8).dados.respostas).not.toEqual(turma(20).dados.respostas);
+        expect(turma(20, 8).dados.respostas).not.toEqual(turma(20).dados.respostas);
     });
 
     it('os alunos são virtuais: sem nome de gente, sem contato e sem cidade', () => {
@@ -74,8 +75,9 @@ describe('simularTurma', () => {
         }
     });
 
-    it('todo aluno tem o perfil do núcleo: faixa etária, experiência e situação de estudo', () => {
-        expect(dados.perfis.every((p) => p.faixaEtaria && p.experiencia && p.situacaoDeEstudo)).toBe(true);
+    it('todo aluno tem o perfil do núcleo: faixa etária, sexo, experiência e situação de estudo', () => {
+        expect(dados.perfis.every((p) => p.faixaEtaria && p.sexo && p.experiencia && p.situacaoDeEstudo)).toBe(true);
+        expect(new Set(dados.perfis.map((p) => p.sexo)).size).toBeGreaterThan(1);
         // Uma turma de verdade não é toda igual.
         expect(new Set(dados.perfis.map((p) => p.experiencia)).size).toBe(3);
         expect(new Set(dados.perfis.map((p) => p.faixaEtaria)).size).toBeGreaterThan(2);
@@ -221,8 +223,8 @@ describe('simularTurma', () => {
         });
 
         it('a turma aprende: acerta mais na verificação do que no diagnóstico', () => {
-            expect(taxa(ind.pos)).toBeGreaterThan(taxa(ind.pre) + 0.1);
-            expect(ind.ganhoMedio).toBeGreaterThan(0.15);
+            expect(taxa(ind.pos)).toBeGreaterThan(taxa(ind.pre));
+            expect(ind.ganhoMedio).toBeGreaterThan(0);
         });
 
         it('a confiança acompanha o acerto: quem marca certeza acerta mais do que quem marca palpite', () => {
@@ -249,62 +251,148 @@ describe('simularTurma', () => {
         });
     });
 
-    describe('os dois cenários da pergunta central', () => {
-        // Com 300 alunos, a diferença plantada não se confunde com o acaso do sorteio.
-        const preve = indicadoresDa(turma(300, 'confianca_preve'));
-        const naoPreve = indicadoresDa(turma(300, 'confianca_nao_preve'));
+    describe('a variedade da turma', () => {
+        const grande = turma(300);
+        const tipoDe = (uid: string) => grande.tipos[uid];
+        const respostasDoTipo = (tipo: TipoDeAluno) =>
+            grande.dados.respostas.filter((r) => tipoDe(r.uid) === tipo && r.fase !== 'reteste');
+        const taxaDe = (respostas: Answer[], conta: (r: Answer) => boolean) => respostas.filter(conta).length / respostas.length;
 
-        it('num, quem acertou com certeza esquece bem menos do que quem acertou sem certeza', () => {
-            expect(taxa(preve.firmes) - taxa(preve.frageis)).toBeGreaterThan(0.2);
+        it('todo aluno tem um tipo, e a turma mistura vários', () => {
+            expect(Object.keys(grande.tipos)).toHaveLength(300);
+            expect(new Set(Object.values(grande.tipos)).size).toBeGreaterThanOrEqual(5);
         });
 
-        it('no outro, Firmes e Frágeis esquecem igual', () => {
-            expect(Math.abs(taxa(naoPreve.firmes) - taxa(naoPreve.frageis))).toBeLessThan(0.08);
+        it('as proporções dos tipos são sorteadas: mudam de uma turma para outra', () => {
+            expect(turma(300, 7).proporcoes).not.toEqual(turma(300, 8).proporcoes);
+            const soma = Object.values(grande.proporcoes).reduce((a, b) => a + b, 0);
+            expect(soma).toBeCloseTo(1);
         });
 
-        it('o resto da turma é o mesmo nos dois: só o esquecimento muda', () => {
-            expect(naoPreve.pre).toEqual(preve.pre);
-            expect(naoPreve.pos).toEqual(preve.pos);
-            expect(naoPreve.engajamento.licoes.verificadas).toBe(preve.engajamento.licoes.verificadas);
+        it('cada tipo tem um nome e uma frase que diz como ele responde', () => {
+            expect(Object.keys(TIPOS_DE_ALUNO)).toEqual([
+                'domina',
+                'aluno_do_curso',
+                'com_dificuldade',
+                'chutador',
+                'confiante_demais',
+                'inseguro',
+                'desiste_cedo',
+            ]);
+            for (const tipo of Object.values(TIPOS_DE_ALUNO)) expect(tipo.descricao.length).toBeGreaterThan(15);
         });
 
-        it('cada cenário tem um título, uma frase que o explica e o arquivo em que a página é gravada', () => {
-            expect(Object.keys(CENARIOS).sort()).toEqual(['confianca_nao_preve', 'confianca_preve']);
-            expect(CENARIOS.confianca_preve.arquivo).toBe('index.html');
-            expect(CENARIOS.confianca_nao_preve.arquivo).toBe('confianca-nao-preve.html');
-            for (const cenario of Object.values(CENARIOS)) {
-                expect(cenario.titulo.length).toBeGreaterThan(10);
-                expect(cenario.descricao.length).toBeGreaterThan(30);
-            }
+        it('há alunos que acertam quase tudo e alunos que acertam quase nada', () => {
+            const acertoDe = (uid: string) => {
+                const delas = grande.dados.respostas.filter((r) => r.uid === uid && r.fase !== 'reteste');
+                return delas.length >= 6 ? taxaDe(delas, (r) => r.correta) : null;
+            };
+            const acertos = grande.dados.perfis.map((p) => acertoDe(p.uid)).filter((a): a is number => a !== null);
+
+            expect(Math.max(...acertos)).toBeGreaterThan(0.85);
+            expect(Math.min(...acertos)).toBeLessThan(0.25);
         });
+
+        it('quem domina acerta mais do que quem tem dificuldade', () => {
+            const correta = (r: Answer) => r.correta;
+            expect(taxaDe(respostasDoTipo('domina'), correta)).toBeGreaterThan(taxaDe(respostasDoTipo('com_dificuldade'), correta) + 0.3);
+        });
+
+        it('quem chuta responde rápido e acerta perto do acaso', () => {
+            const doChute = respostasDoTipo('chutador');
+            const tempoMedio = (rs: Answer[]) => rs.reduce((s, r) => s + r.tempoMs, 0) / rs.length;
+
+            expect(taxaDe(doChute, (r) => r.correta)).toBeLessThan(0.4);
+            expect(tempoMedio(doChute)).toBeLessThan(tempoMedio(respostasDoTipo('domina')) / 2);
+        });
+
+        it('quem é confiante demais erra com certeza muito mais do que quem domina', () => {
+            const pontoCego = (r: Answer) => !r.correta && r.confianca === 3;
+            expect(taxaDe(respostasDoTipo('confiante_demais'), pontoCego)).toBeGreaterThan(taxaDe(respostasDoTipo('domina'), pontoCego) + 0.2);
+        });
+
+        it('quem duvida do que sabe acerta bem, mas quase não marca certeza', () => {
+            const doInseguro = respostasDoTipo('inseguro');
+            expect(taxaDe(doInseguro, (r) => r.correta)).toBeGreaterThan(0.55);
+            expect(taxaDe(doInseguro, (r) => r.confianca === 3)).toBeLessThan(0.2);
+        });
+
+        it('quem desiste cedo para antes da prática da primeira lição', () => {
+            const desistentes = grande.dados.perfis.filter((p) => tipoDe(p.uid) === 'desiste_cedo');
+            for (const p of desistentes) expect(grande.dados.respostas.filter((r) => r.uid === p.uid).length).toBeLessThan(6);
+        });
+
+        it('a retenção não é plantada: sai de quem sabe de verdade, e muda de turma para turma', () => {
+            const diferenca = (t: Turma) => {
+                const ind = indicadoresDa(t);
+                return taxa(ind.firmes) - taxa(ind.frageis);
+            };
+            // Acerto dado com certeza costuma ser de quem sabe, e o que se sabe tende a ficar.
+            expect(diferenca(grande)).toBeGreaterThan(0);
+            expect(diferenca(turma(300, 8))).not.toBeCloseTo(diferenca(grande), 2);
+        });
+
+        it('o perfil de resposta, tirado só das respostas, reconhece a maior parte dos tipos sorteados', () => {
+            const esperado: Record<TipoDeAluno, string> = {
+                domina: 'domina',
+                aluno_do_curso: 'em_progresso',
+                com_dificuldade: 'com_dificuldade',
+                chutador: 'chuta',
+                confiante_demais: 'confiante_demais',
+                inseguro: 'inseguro',
+                desiste_cedo: 'poucas_respostas',
+            };
+            const acertos = grande.dados.perfis.filter((p) => {
+                const delas = grande.dados.respostas.filter((r) => r.uid === p.uid && r.fase !== 'reteste');
+                return perfilDeResposta(delas) === esperado[tipoDe(p.uid)];
+            });
+            expect(acertos.length / grande.dados.perfis.length).toBeGreaterThan(0.6);
+        });
+
+        it('o sexo e a faixa etária não entram no desempenho: trocar o sorteio do perfil não muda resposta nenhuma', () => {
+            const outra = turma(100, 7, 99);
+            const base = turma(100, 7);
+
+            expect(outra.dados.perfis.map((p) => p.sexo)).not.toEqual(base.dados.perfis.map((p) => p.sexo));
+            expect(outra.dados.respostas).toEqual(base.dados.respostas);
+        });
+    });
+});
+
+describe('sementeAleatoria', () => {
+    it('dá um inteiro positivo, e outro a cada chamada', () => {
+        const a = sementeAleatoria();
+        const b = sementeAleatoria();
+
+        expect(Number.isInteger(a) && a > 0).toBe(true);
+        expect(a).not.toBe(b);
     });
 });
 
 describe('a página do relatório com dados simulados', () => {
     const t = turma(100);
     const ind = indicadoresDa(t);
-    const simulada = relatorioHtml(ind, { geradoEm: '2026-10-13', simulacao: { alunos: 100, cenario: 'confianca_preve' } });
+    const simulada = relatorioHtml(ind, { geradoEm: '2026-10-13', simulacao: { alunos: 100, semente: 7 } });
     const real = relatorioHtml(ind, { geradoEm: '2026-10-13' });
 
-    it('diz, logo no topo, que os dados são simulados e de quantos alunos virtuais', () => {
+    it('diz, logo no topo, que os dados são sintéticos, para validar o app, e não evidência de retenção', () => {
         const topo = simulada.slice(simulada.indexOf('<body>'), simulada.indexOf('<h2'));
 
-        expect(topo).toContain('Dados simulados');
+        expect(topo).toContain('Dados sintéticos para validação do aplicativo');
         expect(topo).toContain('100 alunos virtuais');
-        expect(topo).toContain('Nenhum número desta página veio de alunos de verdade');
+        expect(topo).toContain('semente 7');
+        expect(topo).toContain('nenhum é evidência sobre a retenção de conteúdo');
     });
 
-    it('diz qual é o cenário e leva ao outro', () => {
-        expect(simulada).toContain(CENARIOS.confianca_preve.titulo);
-        expect(simulada).toContain(CENARIOS.confianca_preve.descricao);
-        expect(simulada).toContain(`href="${CENARIOS.confianca_nao_preve.arquivo}"`);
+    it('avisa que sexo e idade não influenciam o desempenho no gerador', () => {
+        expect(simulada).toContain('sexo e faixa etária não influenciam o desempenho');
     });
 
     it('o título da aba também avisa', () => {
         expect(simulada).toContain('<title>Beast Maragames · Relatório de aprendizagem (simulação)</title>');
     });
 
-    it('em "Como ler", explica o que é a simulação e o que ela não prova', () => {
+    it('em "Como ler", explica o que é a base sintética e o que ela não prova', () => {
         const comoLer = simulada.slice(simulada.indexOf('Como ler estes números'));
 
         expect(comoLer).toContain('alunos virtuais');
@@ -330,7 +418,7 @@ describe('conteúdo pequeno demais', () => {
     it('tópico sem as duas formas fica de fora da simulação, que só faz lição de ciclo completo', () => {
         const topicos: Topico[] = [...CONTEUDO.topicos];
         const semFormaB = CONTEUDO.questoes.filter((q) => !(q.topicId === 'mda_framework' && q.bloco === 'forma_b'));
-        const { dados } = simularTurma({ topicos, questoes: semFormaB }, { alunos: 30, cenario: 'confianca_preve', semente: 7, inicio: INICIO });
+        const { dados } = simularTurma({ topicos, questoes: semFormaB }, { alunos: 30, semente: 7, inicio: INICIO });
 
         expect(dados.respostas.some((r) => r.topicId === 'mda_framework')).toBe(false);
         expect(dados.respostas.length).toBeGreaterThan(0);

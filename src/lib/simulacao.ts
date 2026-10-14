@@ -1,11 +1,15 @@
-// Turma simulada (item 23): alunos virtuais respondendo às lições, para mostrar à Beast Maragames
-// como o relatório fica com gente usando o app. Função pura: sem React, sem Firebase, sem
-// estado, e sem Math.random, para a mesma semente dar sempre a mesma turma.
+// Base sintética para validar o app (itens 23 e 35): uma turma de alunos virtuais, de perfis
+// variados, respondendo às lições. Função pura: sem React, sem Firebase, sem estado, e sem
+// Math.random fora de `sementeAleatoria`, para a mesma semente dar sempre a mesma turma.
 //
 // Nada disto vem do banco nem vai para ele. O que sai daqui tem o mesmo formato do que o script
 // lê do Firestore, então passa pelas mesmas contas da exportação e do relatório, sem atalho. A
-// página gerada diz, no topo, que os dados são simulados: isto mostra o formato do relatório e
-// valida as contas, e não é resultado de pesquisa.
+// página gerada diz, no topo, que os dados são sintéticos: servem para testar o que a ferramenta
+// mede, e não são evidência sobre a retenção de ninguém.
+//
+// Nada é plantado no resultado. Cada aluno tem um tipo, sorteado com proporções que também são
+// sorteadas a cada turma, e traços sorteados dentro de faixas largas. O acerto, a confiança, o
+// ganho e o que se mantém na revisão saem do que cada aluno sabe de verdade em cada momento.
 
 import type {
     Answer,
@@ -17,6 +21,7 @@ import type {
     Fase,
     FormaPre,
     Question,
+    Sexo,
     SituacaoDeEstudo,
     Topico,
 } from '../types/domain';
@@ -27,31 +32,149 @@ import type { DadosDaExportacao, PerfilDoExport, TentativaDoExport } from './exp
 import { DIAS_ATE_A_REVISAO } from './licao';
 import { modulosDosTopicos } from './perfil';
 
-// A pergunta central do estudo é se a confiança declarada prevê o esquecimento. A simulação não
-// responde isso: ela mostra como o relatório fica em cada uma das duas respostas possíveis.
-export type Cenario = 'confianca_preve' | 'confianca_nao_preve';
+export type TipoDeAluno = 'domina' | 'aluno_do_curso' | 'com_dificuldade' | 'chutador' | 'confiante_demais' | 'inseguro' | 'desiste_cedo';
 
-export const CENARIOS: Record<Cenario, { titulo: string; descricao: string; arquivo: string }> = {
-    confianca_preve: {
-        titulo: 'Cenário 1: a confiança prevê o esquecimento',
-        descricao: 'Nesta turma virtual, quem acertou com certeza esquece bem menos, em 7 dias, do que quem acertou sem certeza.',
-        arquivo: 'index.html',
+export const TIPOS_DE_ALUNO: Record<TipoDeAluno, { rotulo: string; descricao: string }> = {
+    domina: { rotulo: 'Domina o assunto', descricao: 'sabe muito do conteúdo e declara a confiança certa' },
+    aluno_do_curso: { rotulo: 'Aluno do curso', descricao: 'parte de um conhecimento médio e aprende bem com a lição' },
+    com_dificuldade: { rotulo: 'Com dificuldade', descricao: 'sabe pouco, aprende devagar e esquece mais' },
+    chutador: { rotulo: 'Chutador', descricao: 'responde em poucos segundos, sem ler, com qualquer confiança' },
+    confiante_demais: { rotulo: 'Confiante demais', descricao: 'marca certeza também quando não sabe' },
+    inseguro: { rotulo: 'Inseguro', descricao: 'sabe boa parte, mas quase nunca marca certeza' },
+    desiste_cedo: { rotulo: 'Desiste cedo', descricao: 'para no meio do primeiro diagnóstico ou logo depois dele' },
+};
+
+const TIPOS = Object.keys(TIPOS_DE_ALUNO) as TipoDeAluno[];
+
+type Faixa = readonly [minimo: number, maximo: number];
+
+// Os traços de cada tipo, como faixas: cada aluno sorteia o seu valor dentro delas.
+interface Tracos {
+    saber: Faixa; // chance de saber uma questão básica antes de estudar
+    aprender: Faixa; // do que faltava saber, quanto a lição ensina
+    esquecer: Faixa; // do que sabia na verificação, quanto some em 7 dias
+    certezaSabendo: Faixa; // chance de marcar "Tenho certeza" quando sabe
+    certezaSemSaber: Faixa; // chance de marcar "Tenho certeza" quando não sabe
+    tempoSegundos: Faixa;
+    segue: Faixa; // chance de começar mais uma lição depois de terminar uma
+    abandona: Faixa; // chance de parar no meio de uma lição, a cada passo
+    volta: Faixa; // chance de voltar para a revisão
+    viesDaNota: Faixa; // o quanto a nota que se dá fica acima (ou abaixo) do que sabe
+}
+
+const TRACOS: Record<TipoDeAluno, Tracos> = {
+    domina: {
+        saber: [0.72, 0.97],
+        aprender: [0.3, 0.7],
+        esquecer: [0.02, 0.15],
+        certezaSabendo: [0.75, 0.95],
+        certezaSemSaber: [0.02, 0.12],
+        tempoSegundos: [6, 20],
+        segue: [0.65, 0.95],
+        abandona: [0, 0.03],
+        volta: [0.5, 0.95],
+        viesDaNota: [-0.1, 0.1],
     },
-    confianca_nao_preve: {
-        titulo: 'Cenário 2: a confiança não faz diferença',
-        descricao: 'Nesta turma virtual, quem acertou com certeza e quem acertou sem certeza esquecem na mesma medida.',
-        arquivo: 'confianca-nao-preve.html',
+    aluno_do_curso: {
+        saber: [0.3, 0.6],
+        aprender: [0.4, 0.8],
+        esquecer: [0.05, 0.25],
+        certezaSabendo: [0.45, 0.8],
+        certezaSemSaber: [0.05, 0.2],
+        tempoSegundos: [8, 35],
+        segue: [0.6, 0.95],
+        abandona: [0, 0.05],
+        volta: [0.4, 0.9],
+        viesDaNota: [-0.1, 0.2],
+    },
+    com_dificuldade: {
+        saber: [0, 0.2],
+        aprender: [0.05, 0.3],
+        esquecer: [0.15, 0.45],
+        certezaSabendo: [0.2, 0.5],
+        certezaSemSaber: [0.03, 0.15],
+        tempoSegundos: [10, 45],
+        segue: [0.3, 0.8],
+        abandona: [0.02, 0.1],
+        volta: [0.2, 0.7],
+        viesDaNota: [0, 0.3],
+    },
+    chutador: {
+        saber: [0, 0.15],
+        aprender: [0, 0.15],
+        esquecer: [0.3, 0.7],
+        certezaSabendo: [0.1, 0.7], // a mesma com e sem saber: a confiança não diz nada
+        certezaSemSaber: [0.1, 0.7],
+        tempoSegundos: [1.5, 5],
+        segue: [0.2, 0.7],
+        abandona: [0.02, 0.1],
+        volta: [0.1, 0.5],
+        viesDaNota: [-0.2, 0.4],
+    },
+    confiante_demais: {
+        saber: [0.1, 0.45],
+        aprender: [0.15, 0.5],
+        esquecer: [0.1, 0.35],
+        certezaSabendo: [0.85, 0.98],
+        certezaSemSaber: [0.55, 0.9],
+        tempoSegundos: [5, 20],
+        segue: [0.4, 0.9],
+        abandona: [0, 0.06],
+        volta: [0.3, 0.8],
+        viesDaNota: [0.25, 0.5],
+    },
+    inseguro: {
+        saber: [0.5, 0.85],
+        aprender: [0.3, 0.7],
+        esquecer: [0.05, 0.25],
+        certezaSabendo: [0.02, 0.15],
+        certezaSemSaber: [0, 0.05],
+        tempoSegundos: [12, 45],
+        segue: [0.5, 0.9],
+        abandona: [0, 0.05],
+        volta: [0.4, 0.9],
+        viesDaNota: [-0.35, -0.1],
+    },
+    desiste_cedo: {
+        saber: [0.05, 0.6],
+        aprender: [0.1, 0.6],
+        esquecer: [0.1, 0.4],
+        certezaSabendo: [0.3, 0.7],
+        certezaSemSaber: [0.05, 0.3],
+        tempoSegundos: [6, 30],
+        segue: [0, 0],
+        abandona: [1, 1],
+        volta: [0, 0.2],
+        viesDaNota: [-0.2, 0.3],
     },
 };
 
-// A chance de um acerto da verificação continuar certo na revisão. É a única coisa que muda de
-// um cenário para o outro: o resto da turma é igual.
-const RETENCAO: Record<Cenario, { firme: number; fragil: number }> = {
-    confianca_preve: { firme: 0.88, fragil: 0.52 },
-    confianca_nao_preve: { firme: 0.72, fragil: 0.72 },
+// O que o tipo puxa no cadastro: quem domina tende a ter mais experiência, e o aluno do curso
+// tende a estar na graduação e a já ser aluno do site. Sexo e idade ficam de fora de propósito.
+const EXPERIENCIA_DO_TIPO: Record<TipoDeAluno, readonly [number, number, number]> = {
+    domina: [0.1, 0.4, 0.5],
+    aluno_do_curso: [0.5, 0.4, 0.1],
+    com_dificuldade: [0.85, 0.13, 0.02],
+    chutador: [0.6, 0.3, 0.1],
+    confiante_demais: [0.4, 0.4, 0.2],
+    inseguro: [0.4, 0.45, 0.15],
+    desiste_cedo: [0.6, 0.3, 0.1],
 };
-// Quem errou na verificação às vezes acerta na revisão, por sorte ou por ter pensado no assunto.
-const ACERTO_NA_REVISAO_DE_QUEM_ERROU = 0.3;
+const ALUNO_DO_SITE_DO_TIPO: Record<TipoDeAluno, number> = {
+    domina: 0.5,
+    aluno_do_curso: 0.85,
+    com_dificuldade: 0.25,
+    chutador: 0.2,
+    confiante_demais: 0.3,
+    inseguro: 0.35,
+    desiste_cedo: 0.2,
+};
+
+// Quem sabe acerta quase sempre; quem não sabe acerta no chute, uma em quatro.
+const ACERTO_SABENDO = 0.96;
+const ACERTO_NO_CHUTE = 0.25;
+// Quem não sabia na verificação às vezes aprende depois, por conta própria.
+const APRENDE_ATE_A_REVISAO = 0.08;
 
 const MINUTO = 60 * 1000;
 const HORA = 60 * MINUTO;
@@ -61,14 +184,18 @@ const DIAS_DA_SIMULACAO = 60; // tempo para todas as revisões abrirem
 
 export interface OpcoesDaSimulacao {
     alunos: number;
-    cenario: Cenario;
     inicio: number; // ms; o dia em que os primeiros alunos chegam
-    semente?: number;
+    semente: number; // a turma: tipos, traços e respostas
+    // Só o sorteio de sexo, faixa etária, estado e aceite de contato. Por padrão, a mesma semente.
+    // Separado para provar que esses campos não entram no desempenho.
+    sementeDoPerfil?: number;
 }
 
 export interface Turma {
     dados: DadosDaExportacao;
     agora: number; // o instante em que a turma é "fotografada", depois de todas as revisões
+    tipos: Record<string, TipoDeAluno>; // o tipo sorteado para cada aluno, pelo uid: só para validar
+    proporcoes: Record<TipoDeAluno, number>; // as proporções sorteadas para esta turma
 }
 
 // O que os arquivos de content/ trazem. O seed acrescenta o resto ao gravar no banco.
@@ -91,7 +218,15 @@ export function conteudoDoRepositorio(
     };
 }
 
+/** Uma semente nova, para cada rodada sortear uma turma diferente. É o único sorteio sem semente. */
+export function sementeAleatoria(): number {
+    const valores = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(valores);
+    return (valores[0] % 2_000_000_000) + 1;
+}
+
 const limitar = (valor: number, minimo: number, maximo: number) => Math.min(maximo, Math.max(minimo, valor));
+const dentro = (sorteio: () => number, [minimo, maximo]: Faixa) => minimo + sorteio() * (maximo - minimo);
 
 /** Sorteia uma opção com os pesos dados. */
 function escolher<T>(sorteio: () => number, opcoes: readonly (readonly [T, number])[]): T {
@@ -104,41 +239,71 @@ function escolher<T>(sorteio: () => number, opcoes: readonly (readonly [T, numbe
     return opcoes[opcoes.length - 1][0];
 }
 
+/**
+ * Proporções sorteadas para uma lista de opções, somando 1: qualquer divisão é igualmente
+ * provável, de uma bem equilibrada a uma em que uma opção quase some.
+ */
+function proporcoesSorteadas(sorteio: () => number, quantas: number): number[] {
+    const pesos = Array.from({ length: quantas }, () => -Math.log(1 - sorteio()));
+    const total = pesos.reduce((a, b) => a + b, 0);
+    return pesos.map((p) => p / total);
+}
+
+/** Pesos de referência puxados para cima ou para baixo, ao acaso, a cada turma. */
+function pesosVariados(sorteio: () => number, base: readonly number[]): number[] {
+    return base.map((p) => p * (0.25 + sorteio() * 1.5));
+}
+
 // Questão mais difícil é sabida por menos gente e rende menos numa lição só.
 const PESO_DA_DIFICULDADE: Record<Dificuldade, number> = { basico: 1, intermediario: 0.85, avancado: 0.7 };
-const CONHECIMENTO_POR_EXPERIENCIA: Record<Experiencia, number> = { iniciante: 0.22, intermediario: 0.45, avancado: 0.68 };
+const EXPERIENCIAS: readonly Experiencia[] = ['iniciante', 'intermediario', 'avancado'];
+const SITUACOES: readonly SituacaoDeEstudo[] = ['ensino_medio', 'graduacao', 'pos', 'formado', 'nao_estudo'];
+const FAIXAS: readonly FaixaEtaria[] = ['18_24', '25_34', '35_44', '45_mais'];
+const UFS_DA_TURMA = ['MA', 'PI', 'PA', 'CE', 'SP'] as const;
 
 /**
- * Uma turma de alunos virtuais, com o que cada um responderia. Cada aluno tem um perfil, um
- * conhecimento prévio por área, um jeito de declarar confiança, um ritmo de aprender e uma
- * disposição para continuar e para voltar. Só faz lição de ciclo completo.
+ * Uma turma de alunos virtuais e o que cada um responderia. Só faz lição de ciclo completo: sem as
+ * duas formas não há diagnóstico nem verificação.
  */
 export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: readonly Question[] }, opcoes: OpcoesDaSimulacao): Turma {
-    const { questoes } = conteudo;
-    const semente = opcoes.semente ?? 1;
+    const { questoes, topicos: todos } = conteudo;
+    const { semente } = opcoes;
+    const sementeDoPerfil = opcoes.sementeDoPerfil ?? semente;
     const agora = opcoes.inicio + DIAS_DA_SIMULACAO * DIA;
-    const modulos = modulosDosTopicos(conteudo.topicos);
-    // Só lição de ciclo completo: sem as duas formas não há diagnóstico nem verificação.
-    const topicos = conteudo.topicos.filter((t) =>
+    const modulos = modulosDosTopicos(todos);
+    const topicos = todos.filter((t) =>
         (['forma_a', 'forma_b'] as const).every((bloco) => questoes.some((q) => q.topicId === t.id && q.bloco === bloco))
     );
+
+    // O que vale para a turma inteira: a mistura de tipos e a de perfis.
+    const daTurma = gerador(hash(`${semente}|turma`));
+    const proporcoes = Object.fromEntries(proporcoesSorteadas(daTurma, TIPOS.length).map((p, i) => [TIPOS[i], p])) as Record<TipoDeAluno, number>;
+    const doPerfilDaTurma = gerador(hash(`${sementeDoPerfil}|turma-perfil`));
+    const semSexo = 0.03 + doPerfilDaTurma() * 0.1;
+    const feminino = (1 - semSexo) * (0.3 + doPerfilDaTurma() * 0.4);
+    const pesosDoSexo: readonly (readonly [Sexo, number])[] = [
+        ['feminino', feminino],
+        ['masculino', 1 - semSexo - feminino],
+        ['nao_informado', semSexo],
+    ];
+    const pesosDaFaixa = pesosVariados(doPerfilDaTurma, [0.45, 0.33, 0.16, 0.06]);
+    const pesosDaUf = pesosVariados(doPerfilDaTurma, [0.7, 0.1, 0.08, 0.07, 0.05]);
 
     const perfis: PerfilDoExport[] = [];
     const respostas: Answer[] = [];
     const tentativas: TentativaDoExport[] = [];
     const autoavaliacoes: Autoavaliacao[] = [];
+    const tipos: Record<string, TipoDeAluno> = {};
 
     for (let i = 0; i < opcoes.alunos; i++) {
-        const uid = `virtual-${String(i + 1).padStart(3, '0')}`;
-        const sorteio = gerador(hash(`${semente}|${uid}|aluno`));
-        // O esquecimento tem o seu próprio sorteio: trocar de cenário não mexe em mais nada.
-        const esquecimento = gerador(hash(`${semente}|${uid}|revisao`));
+        const numeroDoAluno = String(i + 1).padStart(3, '0');
+        const uid = `virtual-${numeroDoAluno}`;
+        const sorteio = gerador(hash(`${semente}|${uid}|desempenho`));
+        const doPerfil = gerador(hash(`${sementeDoPerfil}|${uid}|perfil`));
 
-        const experiencia = escolher<Experiencia>(sorteio, [
-            ['iniciante', 0.55],
-            ['intermediario', 0.33],
-            ['avancado', 0.12],
-        ]);
+        const tipo = escolher(sorteio, TIPOS.map((t) => [t, proporcoes[t]] as const));
+        tipos[uid] = tipo;
+        const tracos = TRACOS[tipo];
         const formaPre: FormaPre = i % 2 === 0 ? 'A' : 'B';
         const plataforma = escolher(sorteio, [
             ['web', 0.55],
@@ -146,68 +311,69 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             ['ios', 0.12],
         ] as const);
         const consentiuEm = Math.round(opcoes.inicio + Math.floor(sorteio() * DIAS_DE_ENTRADA) * DIA + (8 + sorteio() * 13) * HORA);
+        const experiencia = escolher(sorteio, EXPERIENCIAS.map((e, k) => [e, EXPERIENCIA_DO_TIPO[tipo][k]] as const));
+        const situacaoDeEstudo = escolher(
+            sorteio,
+            SITUACOES.map((s, k) => [s, (tipo === 'aluno_do_curso' ? [0.05, 0.7, 0.1, 0.1, 0.05] : [0.1, 0.5, 0.08, 0.22, 0.1])[k]] as const)
+        );
+        // A pergunta é opcional no app: três em cada dez não respondem.
+        const alunoDoSite = sorteio() < 0.7 ? sorteio() < ALUNO_DO_SITE_DO_TIPO[tipo] : undefined;
 
         perfis.push({
             uid,
-            nome: `Aluno virtual ${String(i + 1).padStart(3, '0')}`,
+            nome: `Aluno virtual ${numeroDoAluno}`,
             apelido: `Virtual ${i + 1}`,
-            faixaEtaria: escolher<FaixaEtaria>(sorteio, [
-                ['18_24', 0.45],
-                ['25_34', 0.33],
-                ['35_44', 0.16],
-                ['45_mais', 0.06],
-            ]),
-            uf: escolher(sorteio, [
-                ['MA', 0.7],
-                ['PI', 0.1],
-                ['PA', 0.08],
-                ['CE', 0.07],
-                ['SP', 0.05],
-            ] as const),
-            situacaoDeEstudo: escolher<SituacaoDeEstudo>(sorteio, [
-                ['ensino_medio', 0.1],
-                ['graduacao', 0.5],
-                ['pos', 0.08],
-                ['formado', 0.22],
-                ['nao_estudo', 0.1],
-            ]),
+            faixaEtaria: escolher(doPerfil, FAIXAS.map((f, k) => [f, pesosDaFaixa[k]] as const)),
+            sexo: escolher(doPerfil, pesosDoSexo),
+            uf: escolher(doPerfil, UFS_DA_TURMA.map((u, k) => [u, pesosDaUf[k]] as const)),
+            aceitaContato: doPerfil() < 0.6,
+            situacaoDeEstudo,
             experiencia,
-            aceitaContato: sorteio() < 0.6,
+            ...(alunoDoSite === undefined ? {} : { alunoDoSite }),
             formaPre,
             consentiuEm,
         });
 
-        // Os traços do aluno. Quem tem mais experiência sabe mais; o resto varia de pessoa para pessoa.
-        const base = limitar(CONHECIMENTO_POR_EXPERIENCIA[experiencia] + (sorteio() - 0.5) * 0.24, 0.03, 0.95);
-        const excessoDeConfianca = sorteio() * 0.5 - 0.05;
-        const aprendizado = 0.35 + sorteio() * 0.4;
-        const persistencia = 0.55 + sorteio() * 0.4;
-        const voltaParaRevisar = 0.35 + sorteio() * 0.5;
-        const conhecimentoPorModulo = new Map(modulos.map((m) => [m.nome, limitar(base + (sorteio() - 0.5) * 0.3, 0.02, 0.95)]));
+        // Os traços deste aluno, cada um sorteado dentro da faixa do tipo.
+        const saber = dentro(sorteio, tracos.saber);
+        const aprender = dentro(sorteio, tracos.aprender);
+        const esquecer = dentro(sorteio, tracos.esquecer);
+        const certezaSabendo = dentro(sorteio, tracos.certezaSabendo);
+        // No chute, a confiança não depende de saber: é a mesma nos dois casos.
+        const certezaSemSaber = tipo === 'chutador' ? certezaSabendo : dentro(sorteio, tracos.certezaSemSaber);
+        const duvidaEmVezDePalpite = 0.3 + sorteio() * 0.4;
+        const tempoSegundos = dentro(sorteio, tracos.tempoSegundos);
+        const segue = dentro(sorteio, tracos.segue);
+        const abandona = dentro(sorteio, tracos.abandona);
+        const volta = dentro(sorteio, tracos.volta);
+        const viesDaNota = dentro(sorteio, tracos.viesDaNota);
+        const saberPorModulo = new Map(modulos.map((m) => [m.nome, limitar(saber + (sorteio() - 0.5) * 0.25, 0, 0.98)]));
 
-        // A nota que a pessoa se dá: perto do que sabe, puxada para cima por quem se superestima,
-        // e mais ainda por quem sabe pouco.
         const notas: Record<string, number> = {};
         for (const modulo of modulos) {
-            const sabe = conhecimentoPorModulo.get(modulo.nome)!;
-            const percebido = limitar(sabe + excessoDeConfianca + (0.5 - sabe) * 0.35 + (sorteio() - 0.5) * 0.2, 0, 1);
-            notas[modulo.id] = 1 + Math.round(percebido * 4);
+            const sabe = saberPorModulo.get(modulo.nome)!;
+            notas[modulo.id] = 1 + Math.round(limitar(sabe + viesDaNota + (sorteio() - 0.5) * 0.2, 0, 1) * 4);
         }
         autoavaliacoes.push({ uid, notas, respondidaEm: consentiuEm + 2 * MINUTO });
 
         let relogio = consentiuEm + 4 * MINUTO;
         let numero = 0;
 
-        const gravar = (questao: Question, fase: Fase, correta: boolean, confianca: Confianca, fonte: () => number) => {
-            const ids = questao.alternativas.map((a) => a.id);
+        const abrirTentativa = (topicId: string, fase: Fase) => tentativas.push({ id: `${uid}-${topicId}-${fase}`, plataforma, versaoDoApp: '1.0.0' });
+
+        /** Uma resposta, de quem sabe ou não a questão: o acerto e a confiança saem juntos. */
+        const responder = (questao: Question, fase: Fase, sabe: boolean) => {
+            const correta = sorteio() < (sabe ? ACERTO_SABENDO : ACERTO_NO_CHUTE);
+            const certeza = sabe ? certezaSabendo : certezaSemSaber;
+            const confianca: Confianca = sorteio() < certeza ? 3 : sorteio() < duvidaEmVezDePalpite ? 2 : 1;
             const erradas = questao.alternativas.filter((a) => !a.correta);
             // Os distratores não atraem igual: o primeiro engana mais gente.
             const errada = escolher(
-                fonte,
+                sorteio,
                 erradas.map((a, k) => [a.id, [0.5, 0.3, 0.2][k] ?? 0.1] as const)
             );
-            const tempoMs = Math.round(6000 + fonte() * 30000);
-            relogio += tempoMs + Math.round(3000 + fonte() * 7000);
+            const tempoMs = Math.max(800, Math.round(tempoSegundos * 1000 * (0.6 + sorteio() * 0.8)));
+            relogio += tempoMs + Math.round(2000 + sorteio() * 6000);
             numero += 1;
             const resposta: Answer = {
                 id: `${uid}-r${numero}`,
@@ -217,7 +383,7 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
                 attemptId: `${uid}-${questao.topicId}-${fase}`,
                 fase,
                 escolha: correta ? questao.alternativas.find((a) => a.correta)!.id : errada,
-                ordemExibida: ordemDasAlternativas(uid, questao.id, fase, ids),
+                ordemExibida: ordemDasAlternativas(uid, questao.id, fase, questao.alternativas.map((a) => a.id)),
                 correta,
                 confianca,
                 tempoMs,
@@ -225,24 +391,6 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             };
             respostas.push(resposta);
             return resposta;
-        };
-
-        const abrirTentativa = (topicId: string, fase: Fase) => tentativas.push({ id: `${uid}-${topicId}-${fase}`, plataforma, versaoDoApp: '1.0.0' });
-
-        /** Uma resposta de quem sabe a questão com a chance dada: o acerto e a confiança saem juntos. */
-        const responder = (questao: Question, fase: Fase, chanceDeSaber: number) => {
-            const sabe = sorteio() < chanceDeSaber;
-            const correta = sabe ? sorteio() < 0.95 : sorteio() < 0.25;
-            // Quem sabe tende a marcar certeza; quem não sabe, palpite. Quem se superestima marca
-            // certeza também quando não sabe, e é daí que sai o ponto cego.
-            const certeza = sabe ? limitar(0.55 + excessoDeConfianca * 0.6, 0.05, 0.95) : limitar(0.08 + excessoDeConfianca * 0.7, 0.02, 0.6);
-            const duvida = (1 - certeza) * (sabe ? 0.75 : 0.45);
-            const confianca = escolher<Confianca>(sorteio, [
-                [3, certeza],
-                [2, duvida],
-                [1, 1 - certeza - duvida],
-            ]);
-            return gravar(questao, fase, correta, confianca, sorteio);
         };
 
         // A maioria segue a ordem sugerida; os outros escolhem por onde começar, como o app deixa.
@@ -254,77 +402,55 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             }
         }
 
-        const revisoes: { topicId: string; quando: number; daVerificacao: Answer[] }[] = [];
+        const revisoes: { topicId: string; quando: number; daVerificacao: { questao: Question; sabia: boolean }[] }[] = [];
 
         for (let k = 0; k < ordem.length; k++) {
-            if (k > 0 && sorteio() >= persistencia) break;
+            if (k > 0 && sorteio() >= segue) break;
             const topico = ordem[k];
             if (k > 0) relogio += Math.round(Math.floor(sorteio() * 4) * DIA + (10 + sorteio() * 180) * MINUTO);
 
-            const sabeAntes = (q: Question) => (conhecimentoPorModulo.get(topico.modulo ?? '') ?? base) * PESO_DA_DIFICULDADE[q.dificuldade];
-            const sabeDepois = (q: Question, quanto: number) => {
-                const antes = sabeAntes(q);
-                return antes + (1 - antes) * aprendizado * PESO_DA_DIFICULDADE[q.dificuldade] * quanto;
-            };
+            const antes = (q: Question) => (saberPorModulo.get(topico.modulo ?? '') ?? saber) * PESO_DA_DIFICULDADE[q.dificuldade];
+            const depois = (q: Question, quanto: number) => antes(q) + (1 - antes(q)) * aprender * PESO_DA_DIFICULDADE[q.dificuldade] * quanto;
 
-            // Diagnóstico. Uma parte pequena desiste no meio dele.
+            // Diagnóstico. Quem desiste cedo para no meio dele ou logo depois.
             const doDiagnostico = questoesDoBlocoMedido(questoes, 'pre', [topico.id], formaPre);
             abrirTentativa(topico.id, 'pre');
-            if (sorteio() < 0.04) {
-                responder(doDiagnostico[0], 'pre', sabeAntes(doDiagnostico[0]));
-                break;
-            }
-            for (const q of doDiagnostico) responder(q, 'pre', sabeAntes(q));
-            if (sorteio() >= 0.9) break;
+            const noDiagnostico = tipo === 'desiste_cedo' ? 1 + Math.floor(sorteio() * doDiagnostico.length) : doDiagnostico.length;
+            for (const q of doDiagnostico.slice(0, noDiagnostico)) responder(q, 'pre', sorteio() < antes(q));
+            if (tipo === 'desiste_cedo' || sorteio() < abandona) break;
 
             // Cartão e prática: a pessoa já leu o conceito, mas ainda está aprendendo.
             relogio += Math.round((2 + sorteio() * 6) * MINUTO);
             const daPratica = questoesDaPratica(questoes, topico.id);
             if (daPratica.length > 0) abrirTentativa(topico.id, 'pratica');
-            for (const q of daPratica) responder(q, 'pratica', sabeDepois(q, 0.7));
-            if (sorteio() >= 0.92) break;
+            for (const q of daPratica) responder(q, 'pratica', sorteio() < depois(q, 0.6));
+            if (sorteio() < abandona) break;
 
-            // Verificação.
+            // Verificação: o que a pessoa sabe agora é o que ela leva para a revisão.
             relogio += Math.round((1 + sorteio() * 4) * MINUTO);
             abrirTentativa(topico.id, 'pos');
-            const daVerificacao = questoesDoBlocoMedido(questoes, 'pos', [topico.id], formaPre).map((q) => responder(q, 'pos', sabeDepois(q, 1)));
+            const daVerificacao = questoesDoBlocoMedido(questoes, 'pos', [topico.id], formaPre).map((questao) => {
+                const sabia = sorteio() < depois(questao, 1);
+                responder(questao, 'pos', sabia);
+                return { questao, sabia };
+            });
 
             // A revisão abre 7 dias depois; nem todo mundo volta, e quem volta não volta no primeiro dia.
-            if (sorteio() < voltaParaRevisar) {
+            if (sorteio() < volta) {
                 const dia = diaDeCalendario(relogio) + DIAS_ATE_A_REVISAO + Math.floor(sorteio() * 5);
                 revisoes.push({ topicId: topico.id, quando: Math.round(inicioDoDia(dia) + (8 + sorteio() * 12) * HORA), daVerificacao });
             }
         }
 
-        // As revisões, cada uma no seu dia. Aqui entra o cenário: o que foi esquecido.
-        const retencao = RETENCAO[opcoes.cenario];
+        // As revisões, cada uma no seu dia. O que se sabia pode ter sido esquecido; o que não se
+        // sabia raramente foi aprendido no meio-tempo.
         for (const revisao of revisoes.sort((a, b) => a.quando - b.quando)) {
             relogio = Math.max(relogio + 5 * MINUTO, revisao.quando);
             if (relogio + HORA > agora) continue;
             abrirTentativa(revisao.topicId, 'reteste');
-            for (const naVerificacao of revisao.daVerificacao) {
-                const questao = questoes.find((q) => q.id === naVerificacao.questionId)!;
-                const chance = !naVerificacao.correta
-                    ? ACERTO_NA_REVISAO_DE_QUEM_ERROU
-                    : naVerificacao.confianca === 3
-                      ? retencao.firme
-                      : retencao.fragil;
-                const correta = esquecimento() < chance;
-                const confianca = escolher<Confianca>(
-                    esquecimento,
-                    correta
-                        ? [
-                              [3, 0.6],
-                              [2, 0.3],
-                              [1, 0.1],
-                          ]
-                        : [
-                              [3, 0.2],
-                              [2, 0.35],
-                              [1, 0.45],
-                          ]
-                );
-                gravar(questao, 'reteste', correta, confianca, esquecimento);
+            for (const { questao, sabia } of revisao.daVerificacao) {
+                const sabeAinda = sabia ? sorteio() >= esquecer : sorteio() < APRENDE_ATE_A_REVISAO;
+                responder(questao, 'reteste', sabeAinda);
             }
         }
     }
@@ -333,5 +459,5 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
     const ordemDoAluno = new Map(perfis.map((p, i) => [p.uid, i]));
     respostas.sort((a, b) => ordemDoAluno.get(a.uid)! - ordemDoAluno.get(b.uid)! || a.respondidaEm - b.respondidaEm);
 
-    return { dados: { perfis, respostas, questoes, topicos: conteudo.topicos, tentativas, autoavaliacoes }, agora };
+    return { dados: { perfis, respostas, questoes, topicos: todos, tentativas, autoavaliacoes }, agora, tipos, proporcoes };
 }

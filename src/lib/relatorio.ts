@@ -11,13 +11,14 @@ import {
     ROTULO_DA_EXPERIENCIA,
     ROTULO_DA_FAIXA_ETARIA,
     ROTULO_DA_SITUACAO_DE_ESTUDO,
+    ROTULO_DO_SEXO,
     ROTULO_QUADRANTE,
 } from '../constants/textos';
 import type { Question, Topico } from '../types/domain';
 import type { Agregados, Exportacao, Linha } from './exportacao';
+import { PERFIS_DE_RESPOSTA, perfilDeResposta, type PerfilDeResposta } from './perfis-de-resposta';
 import type { Quadrante } from './quadrante';
 import type { Taxa } from './resultado';
-import { CENARIOS, type Cenario } from './simulacao';
 
 /** Com menos respostas que isto, um percentual engana: a página mostra só a contagem. */
 export const AMOSTRA_MINIMA = 10;
@@ -40,6 +41,17 @@ export interface QuestaoARever {
     distrator: string | null;
 }
 
+// Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas.
+export interface GrupoDoRelatorio {
+    rotulo: string;
+    pessoas: number;
+    pre: Taxa; // das lições com o diagnóstico e a verificação completos, como no resto da página
+    pos: Taxa;
+    ganhoMedio: number | null;
+    retencao: Taxa;
+    pontoCego: Taxa; // erro com certeza, sobre as respostas da verificação
+}
+
 export interface Indicadores extends Agregados {
     retencao: Taxa; // dos acertos da verificação, os que continuaram certos na revisão
     pontosCegos: Taxa; // das respostas da verificação, as que foram erro com certeza
@@ -53,6 +65,8 @@ export interface Indicadores extends Agregados {
     autoavaliacao: { modulo: string; notaMedia: number; pessoas: number; diagnostico: Taxa }[];
     conteudo: { minimo: number; total: number; avaliadas: number; aRever: QuestaoARever[] };
     perfil: { titulo: string; itens: Contagem[] }[];
+    perfisDeResposta: { perfil: PerfilDeResposta; rotulo: string; criterio: string; pessoas: number }[];
+    porGrupo: { titulo: string; grupos: GrupoDoRelatorio[] }[];
 }
 
 export interface ConteudoDoRelatorio {
@@ -66,17 +80,61 @@ const soma = (linhas: readonly Linha[], campo: string) => linhas.reduce((total, 
 
 const ROTULO_DA_PLATAFORMA: Record<string, string> = { web: 'Web', ios: 'iPhone', android: 'Android' };
 const SEM_INFORMAR = 'Não informada';
+const SEM_SEXO = 'Não informado'; // conta de antes de o perfil pedir o sexo; "Prefiro não informar" é outra coisa
+// Em lista, e não em objeto: num objeto, as chaves '0' e '1' sairiam em ordem numérica.
+const ROTULO_DO_ALUNO_DO_SITE: readonly (readonly [string, string])[] = [
+    ['1', 'Já é aluno'],
+    ['0', 'Ainda não é'],
+];
+const SEM_RESPOSTA_DO_ALUNO_DO_SITE = 'Não respondeu';
 const SEM_PLATAFORMA = 'Não registrada';
 const OUTRA_PLATAFORMA = 'Outra';
 
-/** Quantas pessoas em cada opção, na ordem em que a tela as mostra; quem não respondeu vai no fim. */
-function contar(participantes: readonly Linha[], campo: string, rotulos: Record<string, string>): Contagem[] {
-    const itens = Object.entries(rotulos)
-        .map(([valor, rotulo]) => ({ rotulo, pessoas: participantes.filter((p) => p[campo] === valor).length }))
-        .filter((item) => item.pessoas > 0);
-    const semResposta = participantes.filter((p) => !(String(p[campo]) in rotulos)).length;
-    return semResposta > 0 ? [...itens, { rotulo: SEM_INFORMAR, pessoas: semResposta }] : itens;
+/**
+ * As pessoas de cada opção, na ordem em que a tela as mostra; quem não respondeu vai no fim, num
+ * grupo à parte. Opção sem ninguém não aparece.
+ */
+type Rotulos = Readonly<Record<string, string>> | readonly (readonly [string, string])[];
+
+function agrupar(participantes: readonly Linha[], campo: string, rotulos: Rotulos, semResposta = SEM_INFORMAR) {
+    const opcoes = Array.isArray(rotulos) ? rotulos : Object.entries(rotulos);
+    const conhecidos = new Set(opcoes.map(([valor]) => valor));
+    const grupos = opcoes
+        .map(([valor, rotulo]) => ({ rotulo, pessoas: participantes.filter((p) => String(p[campo]) === valor) }))
+        .filter((g) => g.pessoas.length > 0);
+    const sem = participantes.filter((p) => !conhecidos.has(String(p[campo])));
+    return sem.length > 0 ? [...grupos, { rotulo: semResposta, pessoas: sem }] : grupos;
 }
+
+/** Quantas pessoas em cada opção. */
+function contar(participantes: readonly Linha[], campo: string, rotulos: Rotulos, semResposta = SEM_INFORMAR): Contagem[] {
+    return agrupar(participantes, campo, rotulos, semResposta).map((g) => ({ rotulo: g.rotulo, pessoas: g.pessoas.length }));
+}
+
+/** Os números principais de um grupo de pessoas, das colunas que a exportação dá a cada uma. */
+function numerosDoGrupo(rotulo: string, pessoas: readonly Linha[]): GrupoDoRelatorio {
+    const ganhos = pessoas.flatMap((p) => (typeof p.ganho_normalizado === 'number' ? [p.ganho_normalizado] : []));
+    return {
+        rotulo,
+        pessoas: pessoas.length,
+        pre: { acertos: soma(pessoas, 'pre_acertos'), total: soma(pessoas, 'pre_total') },
+        pos: { acertos: soma(pessoas, 'pos_acertos'), total: soma(pessoas, 'pos_total') },
+        ganhoMedio: ganhos.length === 0 ? null : ganhos.reduce((a, b) => a + b, 0) / ganhos.length,
+        retencao: {
+            acertos: soma(pessoas, 'firmes_mantidos') + soma(pessoas, 'frageis_mantidos'),
+            total: soma(pessoas, 'firmes_no_pos') + soma(pessoas, 'frageis_no_pos'),
+        },
+        pontoCego: { acertos: soma(pessoas, 'pontos_cegos_no_pos'), total: soma(pessoas, 'pos_total') },
+    };
+}
+
+// As variáveis do perfil pelas quais o relatório separa os resultados.
+const VARIAVEIS_DOS_GRUPOS = [
+    { titulo: 'Sexo', campo: 'sexo', rotulos: ROTULO_DO_SEXO, semResposta: SEM_SEXO },
+    { titulo: 'Faixa etária', campo: 'faixa_etaria', rotulos: ROTULO_DA_FAIXA_ETARIA, semResposta: SEM_INFORMAR },
+    { titulo: 'Experiência em criar jogos', campo: 'experiencia', rotulos: ROTULO_DA_EXPERIENCIA, semResposta: SEM_INFORMAR },
+    { titulo: 'Aluno do site', campo: 'aluno_do_site', rotulos: ROTULO_DO_ALUNO_DO_SITE, semResposta: SEM_RESPOSTA_DO_ALUNO_DO_SITE },
+] as const;
 
 /**
  * Os números do relatório: os que a exportação já soma (`agregados`) e os que só o relatório
@@ -159,6 +217,19 @@ export function indicadoresDoRelatorio(
             distrator: texto(q, 'distrator_mais_escolhido'),
         }));
 
+    // O perfil de resposta de cada pessoa, pelas respostas dela. A revisão fica de fora: repete as
+    // questões da verificação, e contá-la daria peso dobrado a quem voltou.
+    const perfilDe = new Map(
+        participantes.map((p) => [
+            p.codigo,
+            perfilDeResposta(
+                eventos
+                    .filter((e) => e.codigo === p.codigo && e.fase !== 'reteste')
+                    .map((e) => ({ correta: e.correta === 1, confianca: numero(e, 'confianca') as 1 | 2 | 3, tempoMs: numero(e, 'tempo_ms') }))
+            ),
+        ])
+    );
+
     const n = participantes.length;
     return {
         ...agregados,
@@ -183,9 +254,20 @@ export function indicadoresDoRelatorio(
         conteudo: { minimo, total: questoes.length, avaliadas: avaliadas.length, aRever },
         perfil: [
             { titulo: 'Faixa etária', itens: contar(participantes, 'faixa_etaria', ROTULO_DA_FAIXA_ETARIA) },
+            { titulo: 'Sexo', itens: contar(participantes, 'sexo', ROTULO_DO_SEXO, SEM_SEXO) },
             { titulo: 'Experiência em criar jogos', itens: contar(participantes, 'experiencia', ROTULO_DA_EXPERIENCIA) },
             { titulo: 'Situação de estudo', itens: contar(participantes, 'situacao_de_estudo', ROTULO_DA_SITUACAO_DE_ESTUDO) },
+            { titulo: 'Aluno do site', itens: contar(participantes, 'aluno_do_site', ROTULO_DO_ALUNO_DO_SITE, SEM_RESPOSTA_DO_ALUNO_DO_SITE) },
         ],
+        perfisDeResposta: (Object.keys(PERFIS_DE_RESPOSTA) as PerfilDeResposta[]).map((perfil) => ({
+            perfil,
+            ...PERFIS_DE_RESPOSTA[perfil],
+            pessoas: participantes.filter((p) => perfilDe.get(p.codigo) === perfil).length,
+        })),
+        porGrupo: VARIAVEIS_DOS_GRUPOS.map((v) => ({
+            titulo: v.titulo,
+            grupos: agrupar(participantes, v.campo, v.rotulos, v.semResposta).map((g) => numerosDoGrupo(g.rotulo, g.pessoas)),
+        })),
     };
 }
 
@@ -196,7 +278,7 @@ export interface OpcoesDoRelatorio {
     desde?: string; // AAAA-MM-DD, quando a rodada deixou de fora quem aceitou o termo antes
     amostraMinima?: number;
     // Quando os dados são de alunos virtuais (src/lib/simulacao.ts): a página avisa no topo.
-    simulacao?: { alunos: number; cenario: Cenario };
+    simulacao?: { alunos: number; semente: number };
 }
 
 /** Texto do conteúdo e dos rótulos vira texto na página, e nunca marcação. */
@@ -271,6 +353,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;vertical-align:top;padding:8px 12px 8px 0;border-bottom:1px solid var(--borda)}
 th{color:var(--texto2);font-weight:600}
 td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.tabela{overflow-x:auto;margin:0 0 8px}
 ul.ler{margin:0;padding-left:20px}
 ul.ler li{margin-bottom:8px}
 .colunas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 32px}
@@ -303,7 +386,7 @@ function pecas(minima: number) {
         (taxa.acertos === 0 ? '' : `<div class="fill c-${cor}${pequena(taxa) ? ' pequena' : ''}" style="width:${largura(taxa.acertos, taxa.total)}%"></div>`) +
         `</div><div class="val">${leitura(taxa)}</div></div>`;
 
-    return { destaque, barra };
+    return { leitura, destaque, barra };
 }
 
 /** Uma barra de contagem: o comprimento é em relação à maior da lista. */
@@ -328,18 +411,16 @@ const bloco = (titulo: string, pergunta: string, corpo: string) =>
 /** A página do relatório, pronta para gravar: um arquivo só, que não busca nada fora dele. */
 export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): string {
     const minima = opcoes.amostraMinima ?? AMOSTRA_MINIMA;
-    const { destaque, barra } = pecas(minima);
+    const { leitura, destaque, barra } = pecas(minima);
     const n = ind.participantes;
     const filtro = opcoes.desde ? ` · só quem aceitou o termo a partir de ${dia(opcoes.desde)}` : '';
 
     const { simulacao } = opcoes;
-    const outroCenario = simulacao && CENARIOS[simulacao.cenario === 'confianca_preve' ? 'confianca_nao_preve' : 'confianca_preve'];
-    // O aviso vem antes de qualquer número: ninguém pode ler esta página como resultado.
+    // O aviso vem antes de qualquer número: ninguém pode ler esta página como resultado de pesquisa.
     const aviso = simulacao
-        ? `<div class="aviso"><p><strong>Dados simulados · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')}.</strong> ` +
-          `Esta página mostra como o relatório fica com uma turma usando o app. Nenhum número desta página veio de alunos de verdade.</p>` +
-          `<p><strong>${esc(CENARIOS[simulacao.cenario].titulo)}.</strong> ${esc(CENARIOS[simulacao.cenario].descricao)} ` +
-          `<a href="${outroCenario!.arquivo}">Ver o outro: ${esc(outroCenario!.titulo)}</a></p></div>`
+        ? `<div class="aviso"><p><strong>Dados sintéticos para validação do aplicativo · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')} · semente ${simulacao.semente}.</strong></p>` +
+          `<p>Os perfis foram sorteados por um gerador aleatório, para testar o que a ferramenta consegue medir a partir das respostas. ` +
+          `Nenhum número desta página veio de alunos de verdade, e nenhum é evidência sobre a retenção de conteúdo.</p></div>`
         : '';
 
     const cabecalho =
@@ -445,6 +526,16 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             `</p>`
     );
 
+    // Perfis de resposta
+    const maisDeUmPerfil = Math.max(1, ...ind.perfisDeResposta.map((p) => p.pessoas));
+    const perfisDeResposta = bloco(
+        'Perfis de resposta',
+        'Que tipo de respondente cada pessoa é? O perfil sai só das respostas dela: quanto acerta, com que certeza, quanto erra achando que sabe e em quanto tempo responde.',
+        ind.perfisDeResposta.map((p) => contagem(p.rotulo, p.pessoas, maisDeUmPerfil, plural(p.pessoas, 'pessoa', 'pessoas'))).join('') +
+            `<ul class="ler nota">${ind.perfisDeResposta.map((p) => `<li><strong>${esc(p.rotulo)}:</strong> ${esc(p.criterio)}.</li>`).join('')}</ul>` +
+            `<p class="nota">A revisão não entra nesta conta, porque repete as questões da verificação. Os limites de cada perfil são escolhas do grupo, a revisar com dados de verdade.</p>`
+    );
+
     // 5. Autoavaliação
     const autoavaliacao = bloco(
         'Autoavaliação',
@@ -467,6 +558,30 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                   )
                   .join('') +
               `<p class="nota">As duas barras estão na mesma régua: a nota 1 é a barra vazia e a nota 5, a barra cheia. Nota alta com acerto baixo é área em que as pessoas se superestimam.</p>`
+    );
+
+    // Por perfil
+    const ganho = (g: GrupoDoRelatorio) => (g.ganhoMedio === null ? 'sem dados' : decimal(g.ganhoMedio, 2));
+    const porGrupo = bloco(
+        'Por perfil',
+        'Os resultados mudam com o perfil de quem responde? Cada tabela separa as mesmas pessoas por uma variável do cadastro.',
+        ind.porGrupo
+            .map(
+                (v) =>
+                    `<h3>${esc(v.titulo)}</h3><div class="tabela"><table><thead><tr><th>Grupo</th><th>Pessoas</th><th>Diagnóstico</th><th>Verificação</th><th>Ganho médio</th><th>Retenção</th><th>Ponto cego</th></tr></thead><tbody>` +
+                    v.grupos
+                        .map(
+                            (g) =>
+                                `<tr><td>${esc(g.rotulo)}</td><td class="num">${g.pessoas}</td><td>${leitura(g.pre)}</td><td>${leitura(g.pos)}</td>` +
+                                `<td class="num">${ganho(g)}</td><td>${leitura(g.retencao)}</td><td>${leitura(g.pontoCego)}</td></tr>`
+                        )
+                        .join('') +
+                    `</tbody></table></div>`
+            )
+            .join('') +
+            `<p class="nota">Grupo pequeno engana: uma diferença entre poucas pessoas pode ser só acaso. Olhe a contagem antes de comparar.` +
+            (simulacao ? ' Na base sintética, sexo e faixa etária não influenciam o desempenho, por construção.' : '') +
+            `</p>`
     );
 
     // 6. Engajamento
@@ -541,8 +656,8 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         '',
         `<ul class="ler">` +
             (simulacao
-                ? `<li>Esta página foi gerada com alunos virtuais, sorteados por um programa a partir de suposições sobre como uma turma se comporta. Serve para mostrar o formato do relatório e conferir as contas: não é resultado de pesquisa.</li>` +
-                  `<li>Os dois cenários diferem só no esquecimento. A pergunta que eles ilustram, se a confiança declarada prevê o que vai ser esquecido, só os alunos de verdade respondem.</li>`
+                ? `<li>Esta página foi gerada com alunos virtuais de perfis sorteados: quem domina, quem tem dificuldade, quem chuta, quem se acha mais sabido do que é, quem duvida do que sabe e quem desiste. As proporções também são sorteadas. Serve para testar a ferramenta: não é resultado de pesquisa.</li>` +
+                  `<li>No gerador, o sexo e a faixa etária não influenciam o desempenho: qualquer diferença entre esses grupos é acaso da amostra.</li>`
                 : `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>`) +
             `<li>Cada lição mede três vezes: 3 questões antes de estudar (diagnóstico), 3 questões equivalentes depois (verificação) e as mesmas da verificação 7 dias depois (revisão).</li>` +
             `<li>O ganho vai de zero a um: é a parte do que faltava acertar no diagnóstico que passou a ser acertada na verificação. Fica negativo se a verificação foi pior.</li>` +
@@ -552,5 +667,7 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             `</ul>`
     );
 
-    return pagina([resumo, aprendizagem, consciencia, retencaoBloco, autoavaliacao, engajamento, conteudoBloco, perfil, comoLer].join('\n'));
+    return pagina(
+        [resumo, aprendizagem, consciencia, retencaoBloco, perfisDeResposta, autoavaliacao, porGrupo, engajamento, conteudoBloco, perfil, comoLer].join('\n')
+    );
 }
