@@ -89,7 +89,11 @@ export interface Agregados {
     pre: Taxa;
     pos: Taxa;
     reteste: Taxa;
-    ganhoMedio: number | null; // média do ganho normalizado de cada pessoa
+    // O indicador principal (item 35): o ganho de Hake sobre o acerto da turma antes e depois.
+    ganhoDaTurma: number | null;
+    // A média do ganho de cada pessoa. Com 3 questões por lição ela oscila: quem cai de 2 para 1
+    // acerto tem ganho −1, e quem acerta tudo no diagnóstico fica de fora.
+    ganhoMedio: number | null;
     porTopico: AgregadoDoTopico[]; // na ordem do conteúdo; só tópicos com a verificação feita
     porConfianca: Record<Confianca, Taxa>; // na verificação
     quadrantesNoPos: Record<Quadrante, number>;
@@ -433,6 +437,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
     const n = participantes.length;
     const media = (valores: number[]) => (valores.length === 0 ? null : valores.reduce((a, b) => a + b, 0) / valores.length);
     const ganhoMedio = media(total.ganhos);
+    const ganhoDaTurma = ganhoNormalizado(total.pre, total.pos);
     const resumo = [
         '# Beast Maragames: resumo dos dados',
         '',
@@ -448,6 +453,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
         `Acerto no diagnóstico: ${porcento(total.pre)} (${fracao(total.pre)})`,
         `Acerto na verificação: ${porcento(total.pos)} (${fracao(total.pos)})`,
         `Acerto na revisão: ${porcento(total.reteste)} (${fracao(total.reteste)})`,
+        `Ganho normalizado da turma: ${ganhoDaTurma === null ? 'sem dados' : ganhoDaTurma.toFixed(2).replace('.', ',')}`,
         `Ganho normalizado médio, por pessoa: ${ganhoMedio === null ? 'sem dados' : ganhoMedio.toFixed(2).replace('.', ',')}`,
         '',
         '## Por tópico',
@@ -492,6 +498,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             pre: total.pre,
             pos: total.pos,
             reteste: total.reteste,
+            ganhoDaTurma,
             ganhoMedio,
             porTopico: topicos.filter((t) => porTopico.has(t.id)).map((t) => ({ topicId: t.id, titulo: t.titulo, ...porTopico.get(t.id)! })),
             porConfianca: total.porConfianca,

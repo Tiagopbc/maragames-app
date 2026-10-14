@@ -201,6 +201,11 @@ describe('os números em conjunto que a exportação entrega', () => {
         expect(agregados.ganhoMedio).toBeCloseTo(0.75);
     });
 
+    it('o ganho da turma é o de Hake, calculado sobre o acerto da turma antes e depois', () => {
+        // Antes 1 de 4 (25%), depois 3 de 4 (75%): do que faltava, 50 pontos de 75.
+        expect(agregados.ganhoDaTurma).toBeCloseTo(2 / 3);
+    });
+
     it('por tópico, na ordem do conteúdo, com o título e a revisão', () => {
         expect(agregados.porTopico).toEqual([
             {
@@ -233,6 +238,7 @@ describe('os números em conjunto que a exportação entrega', () => {
 
         expect(resumo).toContain('Acerto na verificação: 75% (3 de 4)');
         expect(resumo).toContain('Lições com a revisão feita: 1 de 2');
+        expect(resumo).toContain('Ganho normalizado da turma: 0,67');
     });
 
     it('sem ninguém, tudo fica em zero e o ganho, sem valor', () => {
@@ -241,6 +247,7 @@ describe('os números em conjunto que a exportação entrega', () => {
         expect(vazio.participantes).toBe(0);
         expect(vazio.pos).toEqual({ acertos: 0, total: 0 });
         expect(vazio.ganhoMedio).toBeNull();
+        expect(vazio.ganhoDaTurma).toBeNull();
         expect(vazio.porTopico).toEqual([]);
     });
 });
@@ -443,15 +450,20 @@ describe('indicadoresDoRelatorio', () => {
                 pessoas: 2,
                 pre: { acertos: 1, total: 4 },
                 pos: { acertos: 3, total: 4 },
-                ganhoMedio: 0.75,
+                ganho: expect.closeTo(2 / 3),
                 retencao: { acertos: 1, total: 2 },
                 pontoCego: { acertos: 1, total: 4 },
             });
         });
 
+        it('o ganho do grupo sai do acerto do grupo, e não da média do ganho de cada pessoa', () => {
+            // Ana sozinha teria ganho 1 e Bia 0,5 (média 0,75); o grupo, de 25% para 75%, tem 0,67.
+            expect(grupo('Sexo', 'Feminino').ganho).not.toBeCloseTo(0.75);
+        });
+
         it('quem não tem o campo fica num grupo à parte, e não some', () => {
             // O Caio é de antes de o perfil pedir o sexo; ele não fez a verificação.
-            expect(grupo('Sexo', 'Não informado')).toMatchObject({ pessoas: 1, pos: { acertos: 0, total: 0 }, ganhoMedio: null });
+            expect(grupo('Sexo', 'Não informado')).toMatchObject({ pessoas: 1, pos: { acertos: 0, total: 0 }, ganho: null });
         });
 
         it('"Prefiro não informar" é um grupo, diferente de quem não tem o campo', () => {
@@ -671,6 +683,15 @@ describe('relatorioHtml', () => {
         expect(bloco).toContain('Poucas respostas');
         expect(bloco).toContain('ainda não dá para dizer');
         expect(bloco).toContain('Domina o conteúdo');
+    });
+
+    it('o resumo traz o ganho da turma como número principal, com a média por pessoa ao lado', () => {
+        const html = pagina();
+        const resumo = html.slice(html.indexOf('<h2>Em resumo</h2>'), html.indexOf('<h2>Aprendizagem</h2>'));
+
+        expect(resumo).toContain('Ganho da turma');
+        expect(resumo).toContain('0,67');
+        expect(resumo).toContain('média por pessoa: 0,75');
     });
 
     it('acompanha o tema do aparelho', () => {

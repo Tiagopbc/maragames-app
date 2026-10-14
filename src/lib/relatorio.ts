@@ -15,7 +15,7 @@ import {
     ROTULO_QUADRANTE,
 } from '../constants/textos';
 import type { Question, Topico } from '../types/domain';
-import type { Agregados, Exportacao, Linha } from './exportacao';
+import { ganhoNormalizado, type Agregados, type Exportacao, type Linha } from './exportacao';
 import { PERFIS_DE_RESPOSTA, perfilDeResposta, type PerfilDeResposta } from './perfis-de-resposta';
 import type { Quadrante } from './quadrante';
 import type { Taxa } from './resultado';
@@ -47,7 +47,7 @@ export interface GrupoDoRelatorio {
     pessoas: number;
     pre: Taxa; // das lições com o diagnóstico e a verificação completos, como no resto da página
     pos: Taxa;
-    ganhoMedio: number | null;
+    ganho: number | null; // o de Hake sobre o acerto do grupo, como o ganho da turma (item 35)
     retencao: Taxa;
     pontoCego: Taxa; // erro com certeza, sobre as respostas da verificação
 }
@@ -113,13 +113,14 @@ function contar(participantes: readonly Linha[], campo: string, rotulos: Rotulos
 
 /** Os números principais de um grupo de pessoas, das colunas que a exportação dá a cada uma. */
 function numerosDoGrupo(rotulo: string, pessoas: readonly Linha[]): GrupoDoRelatorio {
-    const ganhos = pessoas.flatMap((p) => (typeof p.ganho_normalizado === 'number' ? [p.ganho_normalizado] : []));
+    const pre = { acertos: soma(pessoas, 'pre_acertos'), total: soma(pessoas, 'pre_total') };
+    const pos = { acertos: soma(pessoas, 'pos_acertos'), total: soma(pessoas, 'pos_total') };
     return {
         rotulo,
         pessoas: pessoas.length,
-        pre: { acertos: soma(pessoas, 'pre_acertos'), total: soma(pessoas, 'pre_total') },
-        pos: { acertos: soma(pessoas, 'pos_acertos'), total: soma(pessoas, 'pos_total') },
-        ganhoMedio: ganhos.length === 0 ? null : ganhos.reduce((a, b) => a + b, 0) / ganhos.length,
+        pre,
+        pos,
+        ganho: ganhoNormalizado(pre, pos),
         retencao: {
             acertos: soma(pessoas, 'firmes_mantidos') + soma(pessoas, 'frageis_mantidos'),
             total: soma(pessoas, 'firmes_no_pos') + soma(pessoas, 'frageis_no_pos'),
@@ -453,9 +454,10 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             cartao('Participantes', String(n), simulacao ? 'alunos virtuais' : 'aceitaram o termo') +
             cartao('Lições verificadas', String(ind.verificadas), 'com o antes e o depois medidos') +
             cartao(
-                'Ganho médio',
-                ind.ganhoMedio === null ? 'sem dados' : decimal(ind.ganhoMedio, 2),
-                'do que faltava acertar, a parte que passou a ser acertada'
+                'Ganho da turma',
+                ind.ganhoDaTurma === null ? 'sem dados' : decimal(ind.ganhoDaTurma, 2),
+                'do que faltava acertar, a parte que passou a ser acertada' +
+                    (ind.ganhoMedio === null ? '' : ` · média por pessoa: ${decimal(ind.ganhoMedio, 2)}`)
             ) +
             cartao('Retenção', retencao.valor, `${retencao.contagem}acertos que continuaram certos 7 dias depois`) +
             cartao('Ponto cego', pontosCegos.valor, `${pontosCegos.contagem}respostas erradas com certeza`) +
@@ -561,14 +563,14 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     );
 
     // Por perfil
-    const ganho = (g: GrupoDoRelatorio) => (g.ganhoMedio === null ? 'sem dados' : decimal(g.ganhoMedio, 2));
+    const ganho = (g: GrupoDoRelatorio) => (g.ganho === null ? 'sem dados' : decimal(g.ganho, 2));
     const porGrupo = bloco(
         'Por perfil',
         'Os resultados mudam com o perfil de quem responde? Cada tabela separa as mesmas pessoas por uma variável do cadastro.',
         ind.porGrupo
             .map(
                 (v) =>
-                    `<h3>${esc(v.titulo)}</h3><div class="tabela"><table><thead><tr><th>Grupo</th><th>Pessoas</th><th>Diagnóstico</th><th>Verificação</th><th>Ganho médio</th><th>Retenção</th><th>Ponto cego</th></tr></thead><tbody>` +
+                    `<h3>${esc(v.titulo)}</h3><div class="tabela"><table><thead><tr><th>Grupo</th><th>Pessoas</th><th>Diagnóstico</th><th>Verificação</th><th>Ganho</th><th>Retenção</th><th>Ponto cego</th></tr></thead><tbody>` +
                     v.grupos
                         .map(
                             (g) =>
@@ -660,7 +662,7 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                   `<li>No gerador, o sexo e a faixa etária não influenciam o desempenho: qualquer diferença entre esses grupos é acaso da amostra.</li>`
                 : `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>`) +
             `<li>Cada lição mede três vezes: 3 questões antes de estudar (diagnóstico), 3 questões equivalentes depois (verificação) e as mesmas da verificação 7 dias depois (revisão).</li>` +
-            `<li>O ganho vai de zero a um: é a parte do que faltava acertar no diagnóstico que passou a ser acertada na verificação. Fica negativo se a verificação foi pior.</li>` +
+            `<li>O ganho é o de Hake: do que faltava acertar no diagnóstico, a parte que passou a ser acertada na verificação, calculado sobre o acerto de todo o grupo. Vai até um e fica negativo se a verificação foi pior. A média do ganho de cada pessoa aparece ao lado, no resumo: com poucas questões por pessoa ela oscila mais.</li>` +
             `<li>Onde há menos de ${minima} respostas, a página mostra só a contagem, e a barra aparece apagada e riscada: um percentual sobre tão pouco enganaria.</li>` +
             `<li>Nenhum dado de pessoa aparece aqui: nem nome, nem contato, nem resposta individual.</li>` +
             (simulacao ? '' : `<li>A página é um retrato do dia ${dia(opcoes.geradoEm)}. Para atualizar, o grupo gera de novo.</li>`) +
