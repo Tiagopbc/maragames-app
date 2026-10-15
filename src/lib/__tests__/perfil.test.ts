@@ -1,5 +1,6 @@
 import {
     ENGINES,
+    SEXOS,
     TOTAL_DE_EXTRAS,
     alternarOpcao,
     UFS,
@@ -15,6 +16,7 @@ const NUCLEO = {
     apelido: 'Ana',
     telefone: '98987654321',
     faixaEtaria: '18_24',
+    sexo: 'feminino',
     cidade: 'São Luís',
     uf: 'MA',
     situacaoDeEstudo: 'nao_estudo',
@@ -30,12 +32,23 @@ describe('perfilCompleto', () => {
         expect(perfilCompleto(NUCLEO)).toBe(true);
     });
 
-    it.each(['nome', 'apelido', 'telefone', 'faixaEtaria', 'cidade', 'uf', 'situacaoDeEstudo', 'experiencia'] as const)(
+    it.each(['nome', 'apelido', 'telefone', 'faixaEtaria', 'sexo', 'cidade', 'uf', 'situacaoDeEstudo', 'experiencia'] as const)(
         'sem %s, não está completo',
         (campo) => {
             expect(perfilCompleto({ ...NUCLEO, [campo]: undefined })).toBe(false);
         }
     );
+
+    // O sexo entrou em 14/10/2026: quem tem o resto do núcleo volta à tela de completar só por ele.
+    it('o perfil sem sexo, de antes de 14/10/2026, não está completo', () => {
+        const { sexo: _sexo, ...semSexo } = NUCLEO;
+        expect(perfilCompleto(semSexo)).toBe(false);
+    });
+
+    it('o sexo tem três opções, e "Prefiro não informar" é uma delas', () => {
+        expect(SEXOS).toEqual(['feminino', 'masculino', 'nao_informado']);
+        expect(perfilCompleto({ ...NUCLEO, sexo: 'nao_informado' })).toBe(true);
+    });
 
     // As contas criadas antes de 12/10/2026 têm só os campos antigos: voltam à tela de completar.
     it('o perfil antigo, sem faixa etária, cidade, estado e situação, não está completo', () => {

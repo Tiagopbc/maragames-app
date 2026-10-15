@@ -47,6 +47,7 @@ describe('o termo de participação', () => {
             /curso/i,
             /experiência/i,
             /faixa etária/i,
+            /sexo/i,
             /cidade/i,
             /estado/i,
             /situação de estudo/i,

@@ -97,6 +97,9 @@ export type Experiencia = 'iniciante' | 'intermediario' | 'avancado';
 
 // O app é para maiores de 18 (item 34): não há faixa abaixo disso.
 export type FaixaEtaria = '18_24' | '25_34' | '35_44' | '45_mais';
+// Pedido para as análises por grupo (item 35). "Prefiro não informar" é uma resposta: ninguém é
+// barrado nem obrigado a declarar.
+export type Sexo = 'feminino' | 'masculino' | 'nao_informado';
 export type SituacaoDeEstudo = 'ensino_medio' | 'graduacao' | 'pos' | 'formado' | 'nao_estudo';
 
 export type Ocupacao = 'estudo' | 'tecnologia' | 'outra_area';
@@ -128,6 +131,7 @@ export interface Perfil extends ExtrasDoPerfil {
     email: string;
     telefone: string; // só dígitos, ex.: '11987654321'
     faixaEtaria: FaixaEtaria;
+    sexo: Sexo;
     cidade: string;
     uf: string; // sigla do estado, ex.: 'MA'
     situacaoDeEstudo: SituacaoDeEstudo;
@@ -151,6 +155,7 @@ export type DadosPerfil = Pick<
     | 'apelido'
     | 'telefone'
     | 'faixaEtaria'
+    | 'sexo'
     | 'cidade'
     | 'uf'
     | 'situacaoDeEstudo'

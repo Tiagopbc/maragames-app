@@ -2,7 +2,7 @@ import { CoresDoRelatorio } from '../../constants/cores-do-relatorio';
 import { Colors } from '../../constants/theme';
 import type { Answer, BlocoQuestao, Confianca, Fase, Question, Topico } from '../../types/domain';
 import { exportarDados, type DadosDaExportacao, type PerfilDoExport } from '../exportacao';
-import { AMOSTRA_MINIMA, indicadoresDoRelatorio, relatorioHtml, type Indicadores } from '../relatorio';
+import { AMOSTRA_MINIMA, MINIMO_DE_PESSOAS_POR_GRUPO, indicadoresDoRelatorio, relatorioHtml, type GrupoDoRelatorio, type Indicadores } from '../relatorio';
 
 // O relatório é a página que vai para a Beast Maragames (item 23): só números em conjunto,
 // tirados das mesmas contas da exportação. Estes testes montam três pessoas e conferem as
@@ -62,6 +62,7 @@ const ANA: PerfilDoExport = {
     cidade: 'Imperatriz',
     uf: 'MA',
     faixaEtaria: '18_24',
+    sexo: 'feminino',
     situacaoDeEstudo: 'graduacao',
     instituicao: 'Faculdade Exemplo',
     curso: 'Curso Exemplo',
@@ -79,6 +80,7 @@ const BIA: PerfilDoExport = {
     cidade: 'Caxias',
     uf: 'MA',
     faixaEtaria: '18_24',
+    sexo: 'feminino',
     situacaoDeEstudo: 'formado',
     experiencia: 'avancado',
     formaPre: 'B',
@@ -170,8 +172,9 @@ const DADOS: DadosDaExportacao = {
 const AGORA = em('2026-11-10 12:00');
 const CONTEUDO = { topicos: TOPICOS, questoes: QUESTOES };
 
-function indicadores(dados: DadosDaExportacao = DADOS, minimoPorQuestao?: number): Indicadores {
-    return indicadoresDoRelatorio(exportarDados(dados, { agora: AGORA }), CONTEUDO, { minimoPorQuestao });
+// Os exemplos têm três pessoas: os grupos só mostram números com o mínimo de pessoas baixado a um.
+function indicadores(dados: DadosDaExportacao = DADOS, minimoDePessoas = 1): Indicadores {
+    return indicadoresDoRelatorio(exportarDados(dados, { agora: AGORA }), CONTEUDO, { minimoDePessoas });
 }
 
 function pagina(ind: Indicadores = indicadores(), amostraMinima?: number, desde?: string): string {
@@ -197,6 +200,11 @@ describe('os números em conjunto que a exportação entrega', () => {
     it('o ganho médio é a média do ganho de cada pessoa', () => {
         // Ana: de 50% para 100%, ganho 1. Bia: de 0% para 50%, ganho 0,5.
         expect(agregados.ganhoMedio).toBeCloseTo(0.75);
+    });
+
+    it('o ganho da turma é o de Hake, calculado sobre o acerto da turma antes e depois', () => {
+        // Antes 1 de 4 (25%), depois 3 de 4 (75%): do que faltava, 50 pontos de 75.
+        expect(agregados.ganhoDaTurma).toBeCloseTo(2 / 3);
     });
 
     it('por tópico, na ordem do conteúdo, com o título e a revisão', () => {
@@ -231,6 +239,7 @@ describe('os números em conjunto que a exportação entrega', () => {
 
         expect(resumo).toContain('Acerto na verificação: 75% (3 de 4)');
         expect(resumo).toContain('Lições com a revisão feita: 1 de 2');
+        expect(resumo).toContain('Ganho normalizado da turma: 0,67');
     });
 
     it('sem ninguém, tudo fica em zero e o ganho, sem valor', () => {
@@ -239,6 +248,7 @@ describe('os números em conjunto que a exportação entrega', () => {
         expect(vazio.participantes).toBe(0);
         expect(vazio.pos).toEqual({ acertos: 0, total: 0 });
         expect(vazio.ganhoMedio).toBeNull();
+        expect(vazio.ganhoDaTurma).toBeNull();
         expect(vazio.porTopico).toEqual([]);
     });
 });
@@ -298,17 +308,14 @@ describe('indicadoresDoRelatorio', () => {
     describe('autoavaliação por módulo', () => {
         const { autoavaliacao } = indicadores();
 
-        it('só entra a nota dada antes do primeiro diagnóstico', () => {
-            // A nota da Bia veio depois de ela estudar: não serve de "antes".
-            expect(autoavaliacao.map((a) => [a.modulo, a.notaMedia, a.pessoas])).toEqual([
-                ['Fundamentos de Game Design', 4, 1],
-                ['Arte & Pixel Art', 2, 1],
-            ]);
+        it('a nota e o acerto são das mesmas pessoas: quem deu a nota antes e fez o diagnóstico do módulo', () => {
+            // A nota da Bia veio depois de ela estudar: não serve de "antes". A Ana não fez o
+            // diagnóstico de Pixel Art: a nota dela nessa área não tem com que comparar.
+            expect(autoavaliacao.map((a) => [a.modulo, a.notaMedia, a.pessoas])).toEqual([['Fundamentos de Game Design', 4, 1]]);
         });
 
         it('ao lado, o acerto no diagnóstico das mesmas pessoas, nas lições daquele módulo', () => {
             expect(autoavaliacao[0].diagnostico).toEqual({ acertos: 1, total: 2 });
-            expect(autoavaliacao[1].diagnostico).toEqual({ acertos: 0, total: 0 });
         });
 
         it('o diagnóstico concluído entra mesmo sem a verificação feita', () => {
@@ -323,8 +330,7 @@ describe('indicadoresDoRelatorio', () => {
                 ],
             }).autoavaliacao;
 
-            expect(comDiagnostico[1].modulo).toBe('Arte & Pixel Art');
-            expect(comDiagnostico[1].diagnostico).toEqual({ acertos: 1, total: 2 });
+            expect(comDiagnostico[1]).toMatchObject({ modulo: 'Arte & Pixel Art', notaMedia: 2, pessoas: 1, diagnostico: { acertos: 1, total: 2 } });
         });
 
         it('o diagnóstico pela metade não entra', () => {
@@ -333,7 +339,7 @@ describe('indicadoresDoRelatorio', () => {
                 respostas: [...DADOS.respostas, r(ANA.uid, 'pre', 'pixel_a1', '2026-10-31 09:00', true, 2)],
             }).autoavaliacao;
 
-            expect(pelaMetade[1].diagnostico).toEqual({ acertos: 0, total: 0 });
+            expect(pelaMetade.map((a) => a.modulo)).toEqual(['Fundamentos de Game Design']);
         });
 
         it('sem nenhuma nota válida, a lista sai vazia', () => {
@@ -342,46 +348,194 @@ describe('indicadoresDoRelatorio', () => {
     });
 
     describe('conteúdo: as questões a rever', () => {
-        it('só entra questão com o mínimo de respostas, da pior para a melhor', () => {
-            const { conteudo } = indicadores(DADOS, 2);
+        it('só a verificação julga a questão, e a prática nunca entra', () => {
+            const { conteudo } = indicadores();
 
-            // Com duas respostas ou mais: mda_a1 (2 de 2), mda_a2 (0 de 2), mda_b1 (1 de 2),
-            // mda_b2 (1 de 2) e mda_p1 (1 de 2). No empate de acerto, vem antes a de mais ponto cego.
-            expect(conteudo.minimo).toBe(2);
-            expect(conteudo.total).toBe(10);
-            expect(conteudo.avaliadas).toBe(5);
-            expect(conteudo.aRever.map((q) => q.enunciado)).toEqual([
-                'Enunciado de mda_a2',
-                'Enunciado de mda_b1',
-                'Enunciado de mda_b2',
-                'Enunciado de mda_p1',
-            ]);
+            // Das 8 questões das formas, 4 têm resposta na verificação; só mda_a2 teve erro nela.
+            expect(conteudo.total).toBe(8);
+            expect(conteudo.avaliadas).toBe(4);
+            expect(conteudo.aRever.map((q) => q.enunciado)).toEqual(['Enunciado de mda_a2']);
         });
 
-        it('cada uma traz o tópico pelo título, o acerto, os pontos cegos e o distrator mais escolhido', () => {
-            const [pior] = indicadores(DADOS, 2).conteudo.aRever;
+        it('cada uma traz o tópico, o acerto e os pontos cegos da verificação, o distrator dela e, à parte, o acerto no diagnóstico', () => {
+            const [pior] = indicadores().conteudo.aRever;
 
             expect(pior).toEqual({
                 enunciado: 'Enunciado de mda_a2',
                 topico: 'Framework MDA',
-                acerto: { acertos: 0, total: 2 },
-                pontosCegos: 2,
-                distrator: 'O distrator B',
+                acerto: { acertos: 0, total: 1 },
+                pontosCegos: 1,
+                distrator: 'O distrator C',
+                diagnostico: { acertos: 0, total: 1 },
             });
         });
 
-        it('questão que todo mundo acertou não precisa de revisão', () => {
-            const enunciados = indicadores(DADOS, 2).conteudo.aRever.map((q) => q.enunciado);
+        it('questão que todo mundo acertou na verificação não precisa de revisão', () => {
+            const enunciados = indicadores().conteudo.aRever.map((q) => q.enunciado);
 
             expect(enunciados).not.toContain('Enunciado de mda_a1');
         });
+    });
 
-        it('por padrão, pede cinco respostas: com menos que isso, uma questão não é julgada', () => {
-            const { conteudo } = indicadores();
+    describe('cobertura por tópico', () => {
+        it('quantas pessoas começaram cada lição, e em que forma', () => {
+            expect(indicadores().cobertura).toEqual([
+                { titulo: 'Framework MDA', pessoas: 2, formaA: 1, formaB: 1, verificadas: 2 },
+                { titulo: 'Pixel Art Básico', pessoas: 1, formaA: 1, formaB: 0, verificadas: 0 },
+            ]);
+        });
+    });
 
-            expect(conteudo.minimo).toBe(5);
-            expect(conteudo.avaliadas).toBe(0);
-            expect(conteudo.aRever).toEqual([]);
+    describe('incerteza', () => {
+        const { incerteza } = indicadores();
+
+        it('o ganho da turma vem com o intervalo, reamostrando pessoas', () => {
+            expect(incerteza.ganhoDaTurma!.estimativa).toBeCloseTo(2 / 3);
+            expect(incerteza.ganhoDaTurma!.inferior).toBeLessThanOrEqual(incerteza.ganhoDaTurma!.estimativa);
+            expect(incerteza.ganhoDaTurma!.superior).toBeGreaterThanOrEqual(incerteza.ganhoDaTurma!.estimativa);
+        });
+
+        it('a retenção e a diferença entre Firmes e Frágeis também', () => {
+            expect(incerteza.retencao!.estimativa).toBeCloseTo(0.5);
+            // A Ana manteve o Firme (1 de 1) e perdeu o Frágil (0 de 1).
+            expect(incerteza.firmesMenosFrageis!.estimativa).toBeCloseTo(1);
+        });
+
+        it('o Firme contra o Frágil pareado, dentro da mesma pessoa, de quem tem os dois', () => {
+            expect(incerteza.pareado).toMatchObject({ pessoas: 1, intervalo: { estimativa: 1 } });
+        });
+
+        it('sem revisão, não há intervalo de retenção', () => {
+            const semRevisao = indicadores({ ...DADOS, respostas: DADOS.respostas.filter((r) => r.fase !== 'reteste') }).incerteza;
+
+            expect(semRevisao.retencao).toBeNull();
+            expect(semRevisao.firmesMenosFrageis).toBeNull();
+            expect(semRevisao.pareado).toBeNull();
+        });
+    });
+
+    describe('perfis de resposta', () => {
+        // O Davi fez o diagnóstico, a prática e a verificação do MDA e começou o de Pixel Art:
+        // seis respostas, todas certas e com certeza.
+        const DAVI: PerfilDoExport = { ...CAIO, uid: 'uid-do-davi-321', nome: 'Davi Rocha', apelido: 'Davi', consentiuEm: em('2026-10-30 19:20') };
+        const DO_DAVI: Answer[] = [
+            r(DAVI.uid, 'pre', 'mda_a1', '2026-10-31 10:00', true, 3),
+            r(DAVI.uid, 'pre', 'mda_a2', '2026-10-31 10:01', true, 3),
+            r(DAVI.uid, 'pratica', 'mda_p1', '2026-10-31 10:05', true, 3),
+            r(DAVI.uid, 'pos', 'mda_b1', '2026-10-31 10:10', true, 3),
+            r(DAVI.uid, 'pos', 'mda_b2', '2026-10-31 10:11', true, 3),
+            r(DAVI.uid, 'pre', 'pixel_a1', '2026-10-31 10:20', true, 3),
+        ];
+        const comODavi = () => indicadores({ ...DADOS, perfis: [...DADOS.perfis, DAVI], respostas: [...DADOS.respostas, ...DO_DAVI] });
+        const contagem = (ind: Indicadores) => Object.fromEntries(ind.perfisDeResposta.map((p) => [p.perfil, p.pessoas]));
+
+        it('conta as pessoas de cada perfil, pelas respostas de cada uma', () => {
+            expect(contagem(comODavi())).toEqual({
+                domina: 1,
+                em_progresso: 0,
+                inseguro: 0,
+                com_dificuldade: 0,
+                confiante_demais: 0,
+                chuta: 0,
+                poucas_respostas: 3,
+            });
+        });
+
+        it('a revisão não entra: ela repete as questões da verificação', () => {
+            // Com a revisão, a Ana teria 7 respostas; sem ela, 5, abaixo do mínimo.
+            expect(contagem(indicadores()).poucas_respostas).toBe(3);
+        });
+
+        it('cada perfil leva o nome e o critério, para a página dizer como ele foi reconhecido', () => {
+            const [primeiro] = comODavi().perfisDeResposta;
+
+            expect(primeiro.rotulo).toBe('Domina o conteúdo');
+            expect(primeiro.criterio).toContain('três de cada quatro');
+        });
+    });
+
+    describe('por perfil', () => {
+        // Com o mínimo de pessoas em um, nenhum grupo destes exemplos é ocultado.
+        const grupo = (variavel: string, rotulo: string) =>
+            indicadores()
+                .porGrupo.find((v) => v.titulo === variavel)!
+                .grupos.find((g) => g.rotulo === rotulo) as Extract<GrupoDoRelatorio, { oculto: false }>;
+
+        it('separa os resultados por sexo, faixa etária, experiência e aluno do site', () => {
+            expect(indicadores().porGrupo.map((v) => v.titulo)).toEqual(['Sexo', 'Faixa etária', 'Experiência em criar jogos', 'Aluno do site']);
+        });
+
+        it('em cada grupo: pessoas, diagnóstico, verificação, ganho, retenção e ponto cego', () => {
+            expect(grupo('Sexo', 'Feminino')).toEqual({
+                rotulo: 'Feminino',
+                pessoas: 2,
+                oculto: false,
+                pre: { acertos: 1, total: 4 },
+                pos: { acertos: 3, total: 4 },
+                ganho: expect.closeTo(2 / 3),
+                retencao: { acertos: 1, total: 2 },
+                pontoCego: { acertos: 1, total: 4 },
+            });
+        });
+
+        it('o ganho do grupo sai do acerto do grupo, e não da média do ganho de cada pessoa', () => {
+            // Ana sozinha teria ganho 1 e Bia 0,5 (média 0,75); o grupo, de 25% para 75%, tem 0,67.
+            expect(grupo('Sexo', 'Feminino').ganho).not.toBeCloseTo(0.75);
+        });
+
+        it('quem não tem o campo fica num grupo à parte, e não some', () => {
+            // O Caio é de antes de o perfil pedir o sexo; ele não fez a verificação.
+            expect(grupo('Sexo', 'Não informado')).toMatchObject({ pessoas: 1, pos: { acertos: 0, total: 0 }, ganho: null });
+        });
+
+        it('"Prefiro não informar" é um grupo, diferente de quem não tem o campo', () => {
+            const ind = indicadores({ ...DADOS, perfis: [{ ...ANA, sexo: 'nao_informado' }, BIA, CAIO] });
+            const rotulos = ind.porGrupo.find((v) => v.titulo === 'Sexo')!.grupos.map((g) => g.rotulo);
+
+            expect(rotulos).toEqual(['Feminino', 'Prefiro não informar', 'Não informado']);
+        });
+
+        describe('grupo pequeno não mostra números, para não apontar uma pessoa', () => {
+            const sexo = (ind: Indicadores) => ind.porGrupo.find((v) => v.titulo === 'Sexo')!.grupos;
+
+            it('por padrão, grupo com menos de cinco pessoas fica só com a contagem', () => {
+                const grupos = sexo(indicadoresDoRelatorio(exportarDados(DADOS, { agora: AGORA }), CONTEUDO));
+
+                expect(MINIMO_DE_PESSOAS_POR_GRUPO).toBe(5);
+                expect(grupos).toEqual([
+                    { rotulo: 'Feminino', pessoas: 2, oculto: true },
+                    { rotulo: 'Não informado', pessoas: 1, oculto: true },
+                ]);
+            });
+
+            it('oculta também o menor grupo visível, para o pequeno não sair da diferença com a turma', () => {
+                // Feminino 2, Masculino 2 e Não informado 1: com mínimo 2, o grupo de uma pessoa
+                // some e leva junto um dos de duas; sobra um só grupo com números.
+                const DUDA: PerfilDoExport = { ...CAIO, uid: 'uid-da-duda', nome: 'Duda', apelido: 'Duda', sexo: 'masculino' };
+                const EDU: PerfilDoExport = { ...CAIO, uid: 'uid-do-edu', nome: 'Edu', apelido: 'Edu', sexo: 'masculino' };
+                const grupos = sexo(indicadores({ ...DADOS, perfis: [...DADOS.perfis, DUDA, EDU] }, 2));
+
+                expect(grupos.map((g) => [g.rotulo, g.pessoas, g.oculto])).toEqual([
+                    ['Feminino', 2, false],
+                    ['Masculino', 2, true],
+                    ['Não informado', 1, true],
+                ]);
+            });
+
+            it('com todos os grupos no mínimo, nada é ocultado', () => {
+                expect(sexo(indicadores()).every((g) => !g.oculto)).toBe(true);
+            });
+        });
+
+        it('o aluno do site separa quem já é aluno de quem não é e de quem não respondeu', () => {
+            const ind = indicadores({ ...DADOS, perfis: [{ ...ANA, alunoDoSite: true }, { ...BIA, alunoDoSite: false }, CAIO] });
+            const rotulos = ind.porGrupo.find((v) => v.titulo === 'Aluno do site')!.grupos.map((g) => [g.rotulo, g.pessoas]);
+
+            expect(rotulos).toEqual([
+                ['Já é aluno', 1],
+                ['Ainda não é', 1],
+                ['Não respondeu', 1],
+            ]);
         });
     });
 
@@ -398,6 +552,13 @@ describe('indicadoresDoRelatorio', () => {
                     ],
                 },
                 {
+                    titulo: 'Sexo',
+                    itens: [
+                        { rotulo: 'Feminino', pessoas: 2 },
+                        { rotulo: 'Não informado', pessoas: 1 },
+                    ],
+                },
+                {
                     titulo: 'Experiência em criar jogos',
                     itens: [
                         { rotulo: 'Iniciante', pessoas: 2 },
@@ -411,6 +572,10 @@ describe('indicadoresDoRelatorio', () => {
                         { rotulo: 'Já me formei', pessoas: 1 },
                         { rotulo: 'Não informada', pessoas: 1 },
                     ],
+                },
+                {
+                    titulo: 'Aluno do site',
+                    itens: [{ rotulo: 'Não respondeu', pessoas: 3 }],
                 },
             ]);
         });
@@ -440,7 +605,7 @@ describe('relatorioHtml', () => {
         expect(pagina()).not.toContain('a partir de');
     });
 
-    it('tem os nove blocos, na ordem do desenho', () => {
+    it('tem os onze blocos, na ordem do desenho', () => {
         const html = pagina();
         const titulos = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map((m) => m[1]);
 
@@ -449,7 +614,9 @@ describe('relatorioHtml', () => {
             'Aprendizagem',
             'Consciência do próprio saber',
             'Retenção',
+            'Perfis de resposta',
             'Autoavaliação',
+            'Por perfil',
             'Engajamento',
             'Conteúdo',
             'Quem respondeu',
@@ -530,15 +697,77 @@ describe('relatorioHtml', () => {
         expect(html).not.toContain('<b>&');
     });
 
-    it('as questões a rever aparecem com o enunciado e o distrator', () => {
-        const html = pagina(indicadores(DADOS, 2), 1);
+    it('as questões a rever aparecem com o enunciado e o distrator escolhido na verificação', () => {
+        const html = pagina(indicadores(), 1);
 
         expect(html).toContain('Enunciado de mda_a2');
-        expect(html).toContain('O distrator B');
+        expect(html).toContain('O distrator C');
     });
 
-    it('sem questão com respostas suficientes, o bloco de conteúdo explica por quê', () => {
-        expect(pagina()).toContain('Nenhuma questão tem 5 respostas ainda');
+    it('sem verificação feita, o bloco de conteúdo diz que não há o que julgar', () => {
+        const semVerificacao = indicadores({ ...DADOS, respostas: DADOS.respostas.filter((r) => r.fase === 'pre') });
+
+        expect(pagina(semVerificacao)).toContain('Nenhuma questão foi respondida na verificação ainda');
+    });
+
+    it('o bloco de conteúdo traz o diagnóstico à parte e avisa que serve para casos gritantes, e não para ranking', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Conteúdo</h2>'), html.indexOf('<h2>Quem respondeu</h2>'));
+
+        expect(bloco).toContain('<th>Diagnóstico</th>');
+        expect(bloco).toContain('casos gritantes');
+        expect(bloco).toContain('não é ranking');
+    });
+
+    it('a autoavaliação mostra o n e usa a régua que começa no acaso', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Autoavaliação</h2>'), html.indexOf('<h2>Por perfil</h2>'));
+
+        expect(bloco).toContain('1 pessoa');
+        expect(bloco).toContain('acaso');
+        expect(bloco).toContain('25%');
+    });
+
+    it('por tópico, a cobertura e o aviso de que o ganho por tópico mistura a lição com quem a escolheu', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Aprendizagem</h2>'), html.indexOf('<h2>Consciência'));
+
+        expect(bloco).toContain('<th>Forma A</th>');
+        expect(bloco).toContain('quem escolheu');
+        expect(bloco).toContain('ganho de cada pessoa');
+    });
+
+    describe('intervalos', () => {
+        it('o resumo mostra o intervalo de 95% do ganho da turma', () => {
+            const resumo = pagina().slice(0, pagina().indexOf('<h2>Aprendizagem</h2>'));
+
+            expect(resumo).toContain('IC 95%');
+        });
+
+        it('quando o intervalo do ganho cruza o zero, a página diz que não há evidência de ganho', () => {
+            const ind = indicadores();
+            const semEvidencia = { ...ind, incerteza: { ...ind.incerteza, ganhoDaTurma: { estimativa: 0.05, inferior: -0.1, superior: 0.2 } } };
+
+            expect(pagina(semEvidencia)).toContain('sem evidência de ganho');
+            expect(pagina(ind)).not.toContain('sem evidência de ganho');
+        });
+
+        it('o cartão da mesma pessoa também avisa quando o intervalo cruza o zero', () => {
+            const ind = indicadores();
+            const cruza = { ...ind, incerteza: { ...ind.incerteza, pareado: { pessoas: 30, intervalo: { estimativa: 0.1, inferior: -0.05, superior: 0.25 } } } };
+            const bloco = (html: string) => html.slice(html.indexOf('Na mesma pessoa'), html.indexOf('<h2>Perfis de resposta</h2>'));
+
+            expect(bloco(pagina(cruza))).toContain('sem evidência de diferença');
+        });
+
+        it('a retenção traz Firmes menos Frágeis com o intervalo, a comparação pareada e o aviso de composição', () => {
+            const html = pagina();
+            const bloco = html.slice(html.indexOf('<h2>Retenção</h2>'), html.indexOf('<h2>Perfis de resposta</h2>'));
+
+            expect(bloco).toContain('Firmes menos Frágeis');
+            expect(bloco).toContain('mesma pessoa');
+            expect(bloco).toContain('chute');
+        });
     });
 
     it('sem autoavaliação, o bloco diz que ninguém deu as notas ainda', () => {
@@ -551,6 +780,50 @@ describe('relatorioHtml', () => {
         const html = pagina(indicadores({ ...DADOS, perfis: [] }));
 
         expect(html).toContain('Ninguém aceitou o termo ainda');
+    });
+
+    it('o bloco por perfil mostra uma tabela por variável, com o aviso de que grupo pequeno engana', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(bloco).toContain('Feminino');
+        expect(bloco).toContain('Não informado');
+        expect(bloco.match(/<table>/g)).toHaveLength(4);
+        expect(bloco).toContain('acaso');
+    });
+
+    it('no bloco por perfil, o grupo oculto mostra só quantas pessoas tem', () => {
+        const html = pagina(indicadoresDoRelatorio(exportarDados(DADOS, { agora: AGORA }), CONTEUDO), 1);
+        const bloco = html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(bloco).toContain('menos de 5 pessoas');
+        expect(bloco).not.toMatch(/\d+%/);
+        expect(bloco).not.toContain('0,67');
+    });
+
+    it('no bloco por perfil, o ganho segue a amostra: com poucas respostas, não aparece', () => {
+        const porPerfil = (html: string) => html.slice(html.indexOf('<h2>Por perfil</h2>'), html.indexOf('<h2>Engajamento</h2>'));
+
+        expect(porPerfil(pagina())).not.toContain('0,67');
+        expect(porPerfil(pagina(indicadores(), 1))).toContain('0,67');
+    });
+
+    it('o bloco de perfis de resposta diz o critério de cada perfil', () => {
+        const html = pagina();
+        const bloco = html.slice(html.indexOf('<h2>Perfis de resposta</h2>'), html.indexOf('<h2>Autoavaliação</h2>'));
+
+        expect(bloco).toContain('Poucas respostas');
+        expect(bloco).toContain('ainda não dá para dizer');
+        expect(bloco).toContain('Domina o conteúdo');
+    });
+
+    it('o resumo traz o ganho da turma como número principal, com a média por pessoa ao lado', () => {
+        const html = pagina();
+        const resumo = html.slice(html.indexOf('<h2>Em resumo</h2>'), html.indexOf('<h2>Aprendizagem</h2>'));
+
+        expect(resumo).toContain('Ganho da turma');
+        expect(resumo).toContain('0,67');
+        expect(resumo).toContain('média por pessoa: 0,75');
     });
 
     it('acompanha o tema do aparelho', () => {

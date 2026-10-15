@@ -11,33 +11,76 @@ import {
     ROTULO_DA_EXPERIENCIA,
     ROTULO_DA_FAIXA_ETARIA,
     ROTULO_DA_SITUACAO_DE_ESTUDO,
+    ROTULO_DO_SEXO,
     ROTULO_QUADRANTE,
 } from '../constants/textos';
 import type { Question, Topico } from '../types/domain';
-import type { Agregados, Exportacao, Linha } from './exportacao';
+import { ganhoNormalizado, type Agregados, type Exportacao, type Linha } from './exportacao';
+import { PERFIS_DE_RESPOSTA, perfilDeResposta, type PerfilDeResposta } from './perfis-de-resposta';
 import type { Quadrante } from './quadrante';
 import type { Taxa } from './resultado';
+import { intervaloPorReamostragem, incluiZero, type Intervalo } from './estatistica';
 
 /** Com menos respostas que isto, um percentual engana: a página mostra só a contagem. */
 export const AMOSTRA_MINIMA = 10;
 
-/** Com menos respostas que isto, uma questão não é julgada no bloco de conteúdo. */
-export const MINIMO_POR_QUESTAO = 5;
+/**
+ * Com menos pessoas que isto, um grupo do bloco "Por perfil" mostra só a contagem: com uma ou duas
+ * pessoas, os números do grupo são os delas.
+ */
+export const MINIMO_DE_PESSOAS_POR_GRUPO = 5;
 
 const MAXIMO_DE_QUESTOES_A_REVER = 10;
+const ACASO = 0.25; // uma de quatro alternativas
 
 export interface Contagem {
     rotulo: string;
     pessoas: number;
 }
 
+// Uma questão que pede revisão. Acerto, pontos cegos e distrator são da verificação, depois da
+// lição; o diagnóstico, antes dela, diz só o quanto a questão é difícil e vem à parte.
 export interface QuestaoARever {
     enunciado: string;
     topico: string;
     acerto: Taxa;
     pontosCegos: number;
     distrator: string | null;
+    diagnostico: Taxa;
 }
+
+// Quantas pessoas começaram cada lição, em que forma, e quantas chegaram à verificação.
+export interface CoberturaDoTopico {
+    titulo: string;
+    pessoas: number;
+    formaA: number;
+    formaB: number;
+    verificadas: number;
+}
+
+// Os intervalos de 95%, reamostrando pessoas (src/lib/estatistica.ts).
+export interface Incerteza {
+    ganhoDaTurma: Intervalo | null;
+    retencao: Intervalo | null;
+    firmesMenosFrageis: Intervalo | null;
+    // A diferença entre Firmes e Frágeis dentro da mesma pessoa, em média, de quem tem os dois.
+    pareado: { intervalo: Intervalo; pessoas: number } | null;
+}
+
+// Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas. O grupo
+// oculto leva só a contagem: os números nem chegam à página.
+export type GrupoDoRelatorio =
+    | { rotulo: string; pessoas: number; oculto: true }
+    | {
+          rotulo: string;
+          pessoas: number;
+          oculto: false;
+          pre: Taxa; // das lições com o diagnóstico e a verificação completos, como no resto da página
+          pos: Taxa;
+          ganho: number | null; // o de Hake sobre o acerto do grupo, como o ganho da turma (item 35)
+          retencao: Taxa;
+          pontoCego: Taxa; // erro com certeza, sobre as respostas da verificação
+      };
 
 export interface Indicadores extends Agregados {
     retencao: Taxa; // dos acertos da verificação, os que continuaram certos na revisão
@@ -50,8 +93,12 @@ export interface Indicadores extends Agregados {
         plataformas: { rotulo: string; respostas: number }[];
     };
     autoavaliacao: { modulo: string; notaMedia: number; pessoas: number; diagnostico: Taxa }[];
-    conteudo: { minimo: number; total: number; avaliadas: number; aRever: QuestaoARever[] };
+    conteudo: { total: number; avaliadas: number; aRever: QuestaoARever[] };
+    cobertura: CoberturaDoTopico[];
+    incerteza: Incerteza;
     perfil: { titulo: string; itens: Contagem[] }[];
+    perfisDeResposta: { perfil: PerfilDeResposta; rotulo: string; criterio: string; pessoas: number }[];
+    porGrupo: { titulo: string; grupos: GrupoDoRelatorio[] }[];
 }
 
 export interface ConteudoDoRelatorio {
@@ -65,17 +112,80 @@ const soma = (linhas: readonly Linha[], campo: string) => linhas.reduce((total, 
 
 const ROTULO_DA_PLATAFORMA: Record<string, string> = { web: 'Web', ios: 'iPhone', android: 'Android' };
 const SEM_INFORMAR = 'Não informada';
+const SEM_SEXO = 'Não informado'; // conta de antes de o perfil pedir o sexo; "Prefiro não informar" é outra coisa
+// Em lista, e não em objeto: num objeto, as chaves '0' e '1' sairiam em ordem numérica.
+const ROTULO_DO_ALUNO_DO_SITE: readonly (readonly [string, string])[] = [
+    ['1', 'Já é aluno'],
+    ['0', 'Ainda não é'],
+];
+const SEM_RESPOSTA_DO_ALUNO_DO_SITE = 'Não respondeu';
 const SEM_PLATAFORMA = 'Não registrada';
 const OUTRA_PLATAFORMA = 'Outra';
 
-/** Quantas pessoas em cada opção, na ordem em que a tela as mostra; quem não respondeu vai no fim. */
-function contar(participantes: readonly Linha[], campo: string, rotulos: Record<string, string>): Contagem[] {
-    const itens = Object.entries(rotulos)
-        .map(([valor, rotulo]) => ({ rotulo, pessoas: participantes.filter((p) => p[campo] === valor).length }))
-        .filter((item) => item.pessoas > 0);
-    const semResposta = participantes.filter((p) => !(String(p[campo]) in rotulos)).length;
-    return semResposta > 0 ? [...itens, { rotulo: SEM_INFORMAR, pessoas: semResposta }] : itens;
+/**
+ * As pessoas de cada opção, na ordem em que a tela as mostra; quem não respondeu vai no fim, num
+ * grupo à parte. Opção sem ninguém não aparece.
+ */
+type Rotulos = Readonly<Record<string, string>> | readonly (readonly [string, string])[];
+
+function agrupar(participantes: readonly Linha[], campo: string, rotulos: Rotulos, semResposta = SEM_INFORMAR) {
+    const opcoes = Array.isArray(rotulos) ? rotulos : Object.entries(rotulos);
+    const conhecidos = new Set(opcoes.map(([valor]) => valor));
+    const grupos = opcoes
+        .map(([valor, rotulo]) => ({ rotulo, pessoas: participantes.filter((p) => String(p[campo]) === valor) }))
+        .filter((g) => g.pessoas.length > 0);
+    const sem = participantes.filter((p) => !conhecidos.has(String(p[campo])));
+    return sem.length > 0 ? [...grupos, { rotulo: semResposta, pessoas: sem }] : grupos;
 }
+
+/** Quantas pessoas em cada opção. */
+function contar(participantes: readonly Linha[], campo: string, rotulos: Rotulos, semResposta = SEM_INFORMAR): Contagem[] {
+    return agrupar(participantes, campo, rotulos, semResposta).map((g) => ({ rotulo: g.rotulo, pessoas: g.pessoas.length }));
+}
+
+/** Os números principais de um grupo de pessoas, das colunas que a exportação dá a cada uma. */
+function numerosDoGrupo(rotulo: string, pessoas: readonly Linha[]): GrupoDoRelatorio {
+    const pre = { acertos: soma(pessoas, 'pre_acertos'), total: soma(pessoas, 'pre_total') };
+    const pos = { acertos: soma(pessoas, 'pos_acertos'), total: soma(pessoas, 'pos_total') };
+    return {
+        rotulo,
+        pessoas: pessoas.length,
+        oculto: false,
+        pre,
+        pos,
+        ganho: ganhoNormalizado(pre, pos),
+        retencao: {
+            acertos: soma(pessoas, 'firmes_mantidos') + soma(pessoas, 'frageis_mantidos'),
+            total: soma(pessoas, 'firmes_no_pos') + soma(pessoas, 'frageis_no_pos'),
+        },
+        pontoCego: { acertos: soma(pessoas, 'pontos_cegos_no_pos'), total: soma(pessoas, 'pos_total') },
+    };
+}
+
+/**
+ * Os grupos de uma variável, com os pequenos ocultos. Ocultar só o pequeno não basta: o total da
+ * turma menos os grupos visíveis daria os números dele. Por isso, enquanto os ocultos somarem
+ * menos que o mínimo, o menor grupo visível é ocultado junto (no empate, o que vem depois).
+ */
+function ocultarGruposPequenos(grupos: readonly GrupoDoRelatorio[], minimo: number): GrupoDoRelatorio[] {
+    const ocultos = new Set(grupos.filter((g) => g.pessoas < minimo).map((g) => g.rotulo));
+    const somaDosOcultos = () => grupos.filter((g) => ocultos.has(g.rotulo)).reduce((total, g) => total + g.pessoas, 0);
+    while (somaDosOcultos() > 0 && somaDosOcultos() < minimo) {
+        const visiveis = grupos.filter((g) => !ocultos.has(g.rotulo));
+        if (visiveis.length === 0) break;
+        const menor = visiveis.reduce((menor, g) => (g.pessoas <= menor.pessoas ? g : menor));
+        ocultos.add(menor.rotulo);
+    }
+    return grupos.map((g) => (ocultos.has(g.rotulo) ? { rotulo: g.rotulo, pessoas: g.pessoas, oculto: true } : g));
+}
+
+// As variáveis do perfil pelas quais o relatório separa os resultados.
+const VARIAVEIS_DOS_GRUPOS = [
+    { titulo: 'Sexo', campo: 'sexo', rotulos: ROTULO_DO_SEXO, semResposta: SEM_SEXO },
+    { titulo: 'Faixa etária', campo: 'faixa_etaria', rotulos: ROTULO_DA_FAIXA_ETARIA, semResposta: SEM_INFORMAR },
+    { titulo: 'Experiência em criar jogos', campo: 'experiencia', rotulos: ROTULO_DA_EXPERIENCIA, semResposta: SEM_INFORMAR },
+    { titulo: 'Aluno do site', campo: 'aluno_do_site', rotulos: ROTULO_DO_ALUNO_DO_SITE, semResposta: SEM_RESPOSTA_DO_ALUNO_DO_SITE },
+] as const;
 
 /**
  * Os números do relatório: os que a exportação já soma (`agregados`) e os que só o relatório
@@ -84,10 +194,9 @@ function contar(participantes: readonly Linha[], campo: string, rotulos: Record<
 export function indicadoresDoRelatorio(
     exportado: Exportacao,
     conteudo: ConteudoDoRelatorio,
-    opcoes: { minimoPorQuestao?: number } = {}
+    opcoes: { minimoDePessoas?: number } = {}
 ): Indicadores {
     const { agregados, participantes, licoes, eventos, questoes, autoavaliacoes } = exportado;
-    const minimo = opcoes.minimoPorQuestao ?? MINIMO_POR_QUESTAO;
     const tituloDoTopico = new Map(conteudo.topicos.map((t) => [t.id, t.titulo]));
     const enunciadoDaQuestao = new Map(conteudo.questoes.map((q) => [q.id, q.enunciado]));
 
@@ -123,14 +232,18 @@ export function indicadoresDoRelatorio(
     // A nota só serve de "antes" se veio antes de qualquer questão de diagnóstico.
     const notas = autoavaliacoes.filter((a) => a.antes_do_primeiro_diagnostico === 1);
     const modulos = [...new Set([...conteudo.topicos.flatMap((t) => (t.modulo ? [t.modulo] : [])), ...notas.map((a) => texto(a, 'modulo') ?? '')])];
+    // A nota e o acerto são das mesmas pessoas: quem deu a nota antes e fez o diagnóstico de alguma
+    // lição do módulo. Comparar a nota de todos com o acerto de poucos misturaria gente diferente.
     const autoavaliacao = modulos.flatMap((modulo) => {
-        const doModulo = notas.filter((a) => a.modulo === modulo);
+        const topicosDoModulo = new Set(conteudo.topicos.filter((t) => t.modulo === modulo).map((t) => t.id));
+        const feitosNoModulo = diagnosticosConcluidos.filter((d) => topicosDoModulo.has(d.topico));
+        const quemFez = new Set(feitosNoModulo.map((d) => d.codigo));
+        const doModulo = notas.filter((a) => a.modulo === modulo && quemFez.has(a.codigo));
         if (doModulo.length === 0) return [];
         const quemDeuNota = new Set(doModulo.map((a) => a.codigo));
-        const topicosDoModulo = new Set(conteudo.topicos.filter((t) => t.modulo === modulo).map((t) => t.id));
         const diagnostico = { acertos: 0, total: 0 };
-        for (const feito of diagnosticosConcluidos) {
-            if (!quemDeuNota.has(feito.codigo) || !topicosDoModulo.has(feito.topico)) continue;
+        for (const feito of feitosNoModulo) {
+            if (!quemDeuNota.has(feito.codigo)) continue;
             diagnostico.acertos += feito.acertos;
             diagnostico.total += feito.total;
         }
@@ -144,19 +257,86 @@ export function indicadoresDoRelatorio(
         ];
     });
 
-    // A questão que mais pede revisão vem primeiro: menor acerto e, no empate, mais ponto cego.
-    const avaliadas = questoes.filter((q) => numero(q, 'respostas') >= minimo);
+    // Só a verificação julga a questão: no diagnóstico ninguém estudou ainda, e a prática é treino.
+    // A que mais pede revisão vem primeiro: menor acerto e, no empate, mais ponto cego. Sem corte de
+    // respostas: com poucas por questão, a lista serve para casos gritantes, e não para ranking.
+    const dasFormas = questoes.filter((q) => q.bloco === 'forma_a' || q.bloco === 'forma_b');
+    const avaliadas = dasFormas.filter((q) => numero(q, 'verificacao_respostas') > 0);
+    const taxaNaVerificacao = (q: Linha) => numero(q, 'verificacao_acertos') / numero(q, 'verificacao_respostas');
+    const cegosNaVerificacao = (q: Linha) => numero(q, 'verificacao_pontos_cegos') / numero(q, 'verificacao_respostas');
     const aRever = avaliadas
-        .filter((q) => numero(q, 'acertos') < numero(q, 'respostas'))
-        .sort((a, b) => numero(a, 'taxa_de_acerto') - numero(b, 'taxa_de_acerto') || numero(b, 'taxa_de_ponto_cego') - numero(a, 'taxa_de_ponto_cego'))
+        .filter((q) => numero(q, 'verificacao_acertos') < numero(q, 'verificacao_respostas'))
+        .sort((a, b) => taxaNaVerificacao(a) - taxaNaVerificacao(b) || cegosNaVerificacao(b) - cegosNaVerificacao(a))
         .slice(0, MAXIMO_DE_QUESTOES_A_REVER)
         .map((q) => ({
             enunciado: enunciadoDaQuestao.get(String(q.questao)) ?? String(q.questao),
             topico: tituloDoTopico.get(String(q.topico)) ?? String(q.topico),
-            acerto: { acertos: numero(q, 'acertos'), total: numero(q, 'respostas') },
-            pontosCegos: numero(q, 'pontos_cegos'),
-            distrator: texto(q, 'distrator_mais_escolhido'),
+            acerto: { acertos: numero(q, 'verificacao_acertos'), total: numero(q, 'verificacao_respostas') },
+            pontosCegos: numero(q, 'verificacao_pontos_cegos'),
+            distrator: texto(q, 'verificacao_distrator_mais_escolhido'),
+            diagnostico: { acertos: numero(q, 'diagnostico_acertos'), total: numero(q, 'diagnostico_respostas') },
         }));
+
+    // Quem começou cada lição de ciclo completo, e em que forma. Com escolha livre, cada tópico tem
+    // a sua gente: a cobertura diz de quantas pessoas sai cada número por tópico.
+    const cobertura = conteudo.topicos.flatMap((t) => {
+        const daLicao = licoes.filter((l) => l.topico === t.id && l.ciclo === 'completo');
+        if (daLicao.length === 0) return [];
+        const naForma = (forma: string) => daLicao.filter((l) => formaDe.get(l.codigo) === forma).length;
+        return [
+            {
+                titulo: t.titulo,
+                pessoas: daLicao.length,
+                formaA: naForma('A'),
+                formaB: naForma('B'),
+                verificadas: daLicao.filter((l) => l.antes_total !== null).length,
+            },
+        ];
+    });
+
+    // Os intervalos, reamostrando pessoas. Cada conta usa as colunas que a exportação dá a cada uma.
+    const taxaDe = (acertos: number, total: number) => (total === 0 ? null : acertos / total);
+    const somaDe = (amostra: readonly Linha[], campo: string) => soma(amostra, campo);
+    const ganhoDe = (amostra: readonly Linha[]) =>
+        ganhoNormalizado(
+            { acertos: somaDe(amostra, 'pre_acertos'), total: somaDe(amostra, 'pre_total') },
+            { acertos: somaDe(amostra, 'pos_acertos'), total: somaDe(amostra, 'pos_total') }
+        );
+    const retencaoDe = (amostra: readonly Linha[]) =>
+        taxaDe(
+            somaDe(amostra, 'firmes_mantidos') + somaDe(amostra, 'frageis_mantidos'),
+            somaDe(amostra, 'firmes_no_pos') + somaDe(amostra, 'frageis_no_pos')
+        );
+    const diferencaDe = (amostra: readonly Linha[]) => {
+        const firmes = taxaDe(somaDe(amostra, 'firmes_mantidos'), somaDe(amostra, 'firmes_no_pos'));
+        const frageis = taxaDe(somaDe(amostra, 'frageis_mantidos'), somaDe(amostra, 'frageis_no_pos'));
+        return firmes === null || frageis === null ? null : firmes - frageis;
+    };
+    // Pareado: só quem tem Firmes e Frágeis na revisão; a diferença de cada um, e a média delas.
+    const diferencasPorPessoa = participantes
+        .filter((p) => numero(p, 'firmes_no_pos') > 0 && numero(p, 'frageis_no_pos') > 0)
+        .map((p) => numero(p, 'firmes_mantidos') / numero(p, 'firmes_no_pos') - numero(p, 'frageis_mantidos') / numero(p, 'frageis_no_pos'));
+    const mediaDe = (xs: readonly number[]) => (xs.length === 0 ? null : xs.reduce((a, b) => a + b, 0) / xs.length);
+    const intervaloPareado = intervaloPorReamostragem(diferencasPorPessoa, mediaDe);
+    const incerteza: Incerteza = {
+        ganhoDaTurma: intervaloPorReamostragem(participantes, ganhoDe),
+        retencao: intervaloPorReamostragem(participantes, retencaoDe),
+        firmesMenosFrageis: intervaloPorReamostragem(participantes, diferencaDe),
+        pareado: intervaloPareado === null ? null : { intervalo: intervaloPareado, pessoas: diferencasPorPessoa.length },
+    };
+
+    // O perfil de resposta de cada pessoa, pelas respostas dela. A revisão fica de fora: repete as
+    // questões da verificação, e contá-la daria peso dobrado a quem voltou.
+    const perfilDe = new Map(
+        participantes.map((p) => [
+            p.codigo,
+            perfilDeResposta(
+                eventos
+                    .filter((e) => e.codigo === p.codigo && e.fase !== 'reteste')
+                    .map((e) => ({ correta: e.correta === 1, confianca: numero(e, 'confianca') as 1 | 2 | 3, tempoMs: numero(e, 'tempo_ms') }))
+            ),
+        ])
+    );
 
     const n = participantes.length;
     return {
@@ -179,12 +359,28 @@ export function indicadoresDoRelatorio(
             plataformas: [...porPlataforma].map(([rotulo, respostas]) => ({ rotulo, respostas })).sort((a, b) => b.respostas - a.respostas),
         },
         autoavaliacao,
-        conteudo: { minimo, total: questoes.length, avaliadas: avaliadas.length, aRever },
+        conteudo: { total: dasFormas.length, avaliadas: avaliadas.length, aRever },
+        cobertura,
+        incerteza,
         perfil: [
             { titulo: 'Faixa etária', itens: contar(participantes, 'faixa_etaria', ROTULO_DA_FAIXA_ETARIA) },
+            { titulo: 'Sexo', itens: contar(participantes, 'sexo', ROTULO_DO_SEXO, SEM_SEXO) },
             { titulo: 'Experiência em criar jogos', itens: contar(participantes, 'experiencia', ROTULO_DA_EXPERIENCIA) },
             { titulo: 'Situação de estudo', itens: contar(participantes, 'situacao_de_estudo', ROTULO_DA_SITUACAO_DE_ESTUDO) },
+            { titulo: 'Aluno do site', itens: contar(participantes, 'aluno_do_site', ROTULO_DO_ALUNO_DO_SITE, SEM_RESPOSTA_DO_ALUNO_DO_SITE) },
         ],
+        perfisDeResposta: (Object.keys(PERFIS_DE_RESPOSTA) as PerfilDeResposta[]).map((perfil) => ({
+            perfil,
+            ...PERFIS_DE_RESPOSTA[perfil],
+            pessoas: participantes.filter((p) => perfilDe.get(p.codigo) === perfil).length,
+        })),
+        porGrupo: VARIAVEIS_DOS_GRUPOS.map((v) => ({
+            titulo: v.titulo,
+            grupos: ocultarGruposPequenos(
+                agrupar(participantes, v.campo, v.rotulos, v.semResposta).map((g) => numerosDoGrupo(g.rotulo, g.pessoas)),
+                opcoes.minimoDePessoas ?? MINIMO_DE_PESSOAS_POR_GRUPO
+            ),
+        })),
     };
 }
 
@@ -194,6 +390,16 @@ export interface OpcoesDoRelatorio {
     geradoEm: string; // AAAA-MM-DD, o dia da rodada
     desde?: string; // AAAA-MM-DD, quando a rodada deixou de fora quem aceitou o termo antes
     amostraMinima?: number;
+    // Quando os dados são de alunos virtuais (src/lib/simulacao.ts): a página avisa no topo, e o
+    // rodapé diz como repetir a turma.
+    simulacao?: {
+        alunos: number;
+        semente: number;
+        versaoConteudo?: string;
+        cenario?: { rotulo: string; descricao: string };
+        // O tipo sorteado contra o perfil lido, para conferir o classificador.
+        matriz?: { tipos: { rotulo: string; contagens: number[] }[]; perfis: string[] };
+    };
 }
 
 /** Texto do conteúdo e dos rótulos vira texto na página, e nunca marcação. */
@@ -203,6 +409,9 @@ function esc(valor: string): string {
 
 const dia = (data: string) => data.split('-').reverse().join('/');
 const decimal = (valor: number, casas = 1) => valor.toFixed(casas).replace('.', ',');
+const pontos = (valor: number) => `${valor > 0 ? '+' : valor < 0 ? '−' : ''}${Math.round(Math.abs(valor) * 100)} pontos`;
+/** "IC 95%: 0,21 a 0,38", para ler embaixo de um número. */
+const textoDoIntervalo = (i: Intervalo, formato: (v: number) => string) => `IC 95%: ${formato(i.inferior)} a ${formato(i.superior)}`;
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 const fracao = (taxa: Taxa) => `${taxa.acertos} de ${taxa.total}`;
 const largura = (parte: number, todo: number) => (todo <= 0 ? 0 : Math.round((Math.min(parte, todo) / todo) * 100));
@@ -239,6 +448,10 @@ p{margin:0 0 12px}
 .pergunta{margin-bottom:16px}
 .nota{font-size:14px;margin-top:10px}
 section{padding:28px 0;border-top:1px solid var(--borda)}
+.aviso{margin:0 0 32px;padding:16px 20px;border:1px solid var(--borda);border-left:6px solid var(--marca);border-radius:8px;background:var(--elemento)}
+.aviso p{margin:0 0 8px}
+.aviso p:last-child{margin:0}
+.aviso a{color:var(--marca);font-weight:600}
 .cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .cartao{background:var(--elemento);border:1px solid var(--borda);border-radius:12px;padding:16px}
 .cartao .valor{font-size:28px;font-weight:600;line-height:1.2}
@@ -264,6 +477,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;vertical-align:top;padding:8px 12px 8px 0;border-bottom:1px solid var(--borda)}
 th{color:var(--texto2);font-weight:600}
 td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.tabela{overflow-x:auto;margin:0 0 8px}
 ul.ler{margin:0;padding-left:20px}
 ul.ler li{margin-bottom:8px}
 .colunas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 32px}
@@ -296,7 +510,7 @@ function pecas(minima: number) {
         (taxa.acertos === 0 ? '' : `<div class="fill c-${cor}${pequena(taxa) ? ' pequena' : ''}" style="width:${largura(taxa.acertos, taxa.total)}%"></div>`) +
         `</div><div class="val">${leitura(taxa)}</div></div>`;
 
-    return { destaque, barra };
+    return { leitura, destaque, barra, pequena };
 }
 
 /** Uma barra de contagem: o comprimento é em relação à maior da lista. */
@@ -321,21 +535,40 @@ const bloco = (titulo: string, pergunta: string, corpo: string) =>
 /** A página do relatório, pronta para gravar: um arquivo só, que não busca nada fora dele. */
 export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): string {
     const minima = opcoes.amostraMinima ?? AMOSTRA_MINIMA;
-    const { destaque, barra } = pecas(minima);
+    const { leitura, destaque, barra, pequena } = pecas(minima);
     const n = ind.participantes;
     const filtro = opcoes.desde ? ` · só quem aceitou o termo a partir de ${dia(opcoes.desde)}` : '';
 
+    const { simulacao } = opcoes;
+    // O aviso vem antes de qualquer número: ninguém pode ler esta página como resultado de pesquisa.
+    const aviso = simulacao
+        ? `<div class="aviso"><p><strong>Dados sintéticos para validação do aplicativo · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')} · semente ${simulacao.semente}` +
+          (simulacao.cenario ? ` · cenário ${esc(simulacao.cenario.rotulo)}` : '') +
+          `.</strong></p>` +
+          (simulacao.cenario && simulacao.cenario.rotulo !== 'Base' ? `<p>Neste cenário, ${esc(simulacao.cenario.descricao)}.</p>` : '') +
+          `<p>Os perfis foram sorteados por um gerador aleatório, para testar o que a ferramenta consegue medir a partir das respostas. ` +
+          `Nenhum número desta página veio de alunos de verdade, e nenhum é evidência sobre a retenção de conteúdo.</p></div>`
+        : '';
+
     const cabecalho =
         `<header><p class="marca">Beast Maragames</p><h1>Relatório de aprendizagem</h1>` +
-        `<p class="meta">Dados de ${dia(opcoes.geradoEm)} · ${plural(n, 'participante', 'participantes')}${filtro}</p></header>`;
+        (simulacao
+            ? `<p class="meta">Simulação de ${dia(opcoes.geradoEm)} · ${plural(simulacao.alunos, 'aluno virtual', 'alunos virtuais')}</p></header>${aviso}`
+            : `<p class="meta">Dados de ${dia(opcoes.geradoEm)} · ${plural(n, 'participante', 'participantes')}${filtro}</p></header>`);
 
     const pagina = (corpo: string) =>
         `<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n` +
         `<meta name="viewport" content="width=device-width, initial-scale=1">\n` +
         `<meta name="robots" content="noindex, nofollow">\n` +
-        `<title>Beast Maragames · Relatório de aprendizagem</title>\n<style>${ESTILO}</style>\n</head>\n` +
+        `<title>Beast Maragames · Relatório de aprendizagem${opcoes.simulacao ? ' (simulação)' : ''}</title>\n<style>${ESTILO}</style>\n</head>\n` +
         `<body>\n<main>\n${cabecalho}\n${corpo}\n` +
-        `<footer>Feito pelo grupo Mobile Builders, na disciplina de Programação Mobile da UNDB.</footer>\n</main>\n</body>\n</html>\n`;
+        `<footer>Feito pelo grupo Mobile Builders, na disciplina de Programação Mobile da UNDB.` +
+        (simulacao
+            ? `<br>Dados sintéticos · semente ${simulacao.semente}` +
+              (simulacao.versaoConteudo ? ` · versão do conteúdo ${esc(simulacao.versaoConteudo)}` : '') +
+              (simulacao.cenario ? ` · cenário ${esc(simulacao.cenario.rotulo)}` : '')
+            : '') +
+        `</footer>\n</main>\n</body>\n</html>\n`;
 
     if (n === 0) {
         return pagina(
@@ -350,12 +583,17 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'Em resumo',
         '',
         `<div class="cartoes">` +
-            cartao('Participantes', String(n), 'aceitaram o termo') +
+            cartao('Participantes', String(n), simulacao ? 'alunos virtuais' : 'aceitaram o termo') +
             cartao('Lições verificadas', String(ind.verificadas), 'com o antes e o depois medidos') +
             cartao(
-                'Ganho médio',
-                ind.ganhoMedio === null ? 'sem dados' : decimal(ind.ganhoMedio, 2),
-                'do que faltava acertar, a parte que passou a ser acertada'
+                'Ganho da turma',
+                ind.ganhoDaTurma === null ? 'sem dados' : decimal(ind.ganhoDaTurma, 2),
+                'do que faltava acertar, a parte que passou a ser acertada' +
+                    (ind.incerteza.ganhoDaTurma
+                        ? ` · ${textoDoIntervalo(ind.incerteza.ganhoDaTurma, (v) => decimal(v, 2))}` +
+                          (incluiZero(ind.incerteza.ganhoDaTurma) ? ' · sem evidência de ganho' : '')
+                        : '') +
+                    (ind.ganhoMedio === null ? '' : ` · média por pessoa: ${decimal(ind.ganhoMedio, 2)}`)
             ) +
             cartao('Retenção', retencao.valor, `${retencao.contagem}acertos que continuaram certos 7 dias depois`) +
             cartao('Ponto cego', pontosCegos.valor, `${pontosCegos.contagem}respostas erradas com certeza`) +
@@ -377,6 +615,17 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             barra('Revisão', ind.reteste, 'revisao') +
             `<p class="nota">Só entram as lições com o diagnóstico e a verificação completos. A revisão conta quem voltou: ${ind.revisadas} de ${ind.verificadas} ${ind.verificadas === 1 ? 'lição' : 'lições'}.</p>` +
             `<h3>Por tópico</h3>` +
+            (ind.cobertura.length === 0
+                ? ''
+                : `<div class="tabela"><table><thead><tr><th>Tópico</th><th>Começaram</th><th>Forma A</th><th>Forma B</th><th>Verificaram</th></tr></thead><tbody>` +
+                  ind.cobertura
+                      .map(
+                          (c) =>
+                              `<tr><td>${esc(c.titulo)}</td><td class="num">${c.pessoas}</td><td class="num">${c.formaA}</td><td class="num">${c.formaB}</td><td class="num">${c.verificadas}</td></tr>`
+                      )
+                      .join('') +
+                  `</tbody></table></div>` +
+                  `<p class="nota">Cada pessoa escolhe que lições faz, então cada tópico tem a sua gente: o número de um tópico mistura o efeito da lição com quem escolheu fazê-la, e um tópico não se compara com outro como se fossem a mesma turma. A comparação justa é o ganho de cada pessoa, que compara a pessoa com ela mesma. A forma A e a B se alternam entre as pessoas; num tópico com poucas, uma forma pode pesar mais.</p>`) +
             (ind.porTopico.length === 0
                 ? `<p>Nenhuma lição com a verificação feita.</p>`
                 : ind.porTopico
@@ -423,10 +672,50 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             barra('Frágeis que continuaram certos', ind.frageis, 'fragil') +
             `<p class="nota">Se os Firmes resistem mais que os Frágeis, a confiança prevê o esquecimento, e o app sabe o que cada pessoa precisa rever.` +
             (ind.antesDaHora > 0 ? ` Revisões feitas antes dos 7 dias: ${ind.antesDaHora}.` : '') +
-            `</p>`
+            `</p>` +
+            (ind.incerteza.firmesMenosFrageis === null
+                ? ''
+                : `<div class="cartoes">` +
+                  cartao(
+                      'Firmes menos Frágeis',
+                      pontos(ind.incerteza.firmesMenosFrageis.estimativa),
+                      `na turma · ${textoDoIntervalo(ind.incerteza.firmesMenosFrageis, pontos)}` +
+                          (incluiZero(ind.incerteza.firmesMenosFrageis) ? ' · sem evidência de diferença' : '')
+                  ) +
+                  (ind.incerteza.pareado === null
+                      ? ''
+                      : cartao(
+                            'Na mesma pessoa',
+                            pontos(ind.incerteza.pareado.intervalo.estimativa),
+                            `média de ${plural(ind.incerteza.pareado.pessoas, 'pessoa', 'pessoas')} com Firmes e Frágeis · ${textoDoIntervalo(ind.incerteza.pareado.intervalo, pontos)}` +
+                                (incluiZero(ind.incerteza.pareado.intervalo) ? ' · sem evidência de diferença' : '')
+                        )) +
+                  `</div>` +
+                  `<p class="nota">A diferença na turma mistura duas coisas além da confiança: os Frágeis incluem acertos no chute, que não têm o que reter, e quem marca certeza costuma ser quem sabe mais. A comparação na mesma pessoa tira a segunda; a primeira continua. Os intervalos reamostram pessoas, e não respostas.</p>`)
+    );
+
+    // Perfis de resposta
+    const maisDeUmPerfil = Math.max(1, ...ind.perfisDeResposta.map((p) => p.pessoas));
+    const perfisDeResposta = bloco(
+        'Perfis de resposta',
+        'Que tipo de respondente cada pessoa é? O perfil sai só das respostas dela: quanto acerta, com que certeza, quanto erra achando que sabe e em quanto tempo responde.',
+        ind.perfisDeResposta.map((p) => contagem(p.rotulo, p.pessoas, maisDeUmPerfil, plural(p.pessoas, 'pessoa', 'pessoas'))).join('') +
+            `<ul class="ler nota">${ind.perfisDeResposta.map((p) => `<li><strong>${esc(p.rotulo)}:</strong> ${esc(p.criterio)}.</li>`).join('')}</ul>` +
+            `<p class="nota">A revisão não entra nesta conta, porque repete as questões da verificação. Os limites de cada perfil são escolhas do grupo, a revisar com dados de verdade.</p>`
     );
 
     // 5. Autoavaliação
+    // O acerto no diagnóstico numa régua que começa no acaso: chutando, acerta-se uma de quatro.
+    const acimaDoAcaso = (taxa: Taxa) => {
+        if (taxa.total === 0 || pequena(taxa)) return barra('Diagnóstico', taxa, 'depois');
+        const acerto = taxa.acertos / taxa.total;
+        const preenchido = Math.round(Math.max(0, (acerto - ACASO) / (1 - ACASO)) * 100);
+        return (
+            `<div class="linha"><div class="rot">Diagnóstico</div>` +
+            `<div class="trilho" title="Diagnóstico: ${largura(taxa.acertos, taxa.total)}%, numa régua de 25% a 100%"><div class="fill c-depois" style="width:${preenchido}%"></div></div>` +
+            `<div class="val">${leitura(taxa)}</div></div>`
+        );
+    };
     const autoavaliacao = bloco(
         'Autoavaliação',
         'Em que área as pessoas acham que sabem mais do que sabem? Antes da primeira lição, cada uma se dá uma nota de 1 a 5 por área.',
@@ -443,11 +732,44 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                           `<div class="linha"><div class="rot">Nota média</div>` +
                           `<div class="trilho" title="Nota média: ${decimal(a.notaMedia)} de 5"><div class="fill c-antes" style="width:${largura(a.notaMedia - 1, 4)}%"></div></div>` +
                           `<div class="val">${decimal(a.notaMedia)} de 5</div></div>` +
-                          barra('Diagnóstico', a.diagnostico, 'depois') +
+                          acimaDoAcaso(a.diagnostico) +
                           `</div>`
                   )
                   .join('') +
-              `<p class="nota">As duas barras estão na mesma régua: a nota 1 é a barra vazia e a nota 5, a barra cheia. Nota alta com acerto baixo é área em que as pessoas se superestimam.</p>`
+              `<p class="nota">As duas barras estão na mesma régua: a nota 1 é a barra vazia e a nota 5, a barra cheia. Na barra do diagnóstico, a vazia é o acaso (25%, chutando uma de quatro) e a cheia, 100%. Entram só as pessoas que deram a nota antes do primeiro diagnóstico e fizeram o diagnóstico de alguma lição da área. Nota alta com acerto baixo é área em que as pessoas se superestimam.</p>`
+    );
+
+    // Por perfil
+    // O ganho sai do diagnóstico e da verificação: com amostra pequena em um deles, ele também não aparece.
+    const ganho = (g: Extract<GrupoDoRelatorio, { oculto: false }>) =>
+        g.ganho === null ? 'sem dados' : pequena(g.pre) || pequena(g.pos) ? '<span class="n">amostra pequena</span>' : decimal(g.ganho, 2);
+    const minimoDePessoas = ind.porGrupo.flatMap((v) => v.grupos).some((g) => g.oculto) ? MINIMO_DE_PESSOAS_POR_GRUPO : null;
+    const porGrupo = bloco(
+        'Por perfil',
+        'Os resultados mudam com o perfil de quem responde? Cada tabela separa as mesmas pessoas por uma variável do cadastro.',
+        ind.porGrupo
+            .map(
+                (v) =>
+                    `<h3>${esc(v.titulo)}</h3><div class="tabela"><table><thead><tr><th>Grupo</th><th>Pessoas</th><th>Diagnóstico</th><th>Verificação</th><th>Ganho</th><th>Retenção</th><th>Ponto cego</th></tr></thead><tbody>` +
+                    v.grupos
+                        .map(
+                            (g) =>
+                                `<tr><td>${esc(g.rotulo)}</td><td class="num">${g.pessoas}</td>` +
+                                (g.oculto
+                                    ? `<td colspan="5"><span class="n">números ocultos</span></td></tr>`
+                                    : `<td>${leitura(g.pre)}</td><td>${leitura(g.pos)}</td>` +
+                                      `<td class="num">${ganho(g)}</td><td>${leitura(g.retencao)}</td><td>${leitura(g.pontoCego)}</td></tr>`)
+                        )
+                        .join('') +
+                    `</tbody></table></div>`
+            )
+            .join('') +
+            `<p class="nota">Grupo pequeno engana: uma diferença entre poucas pessoas pode ser só acaso. Olhe a contagem antes de comparar.` +
+            (minimoDePessoas === null
+                ? ''
+                : ` Grupo com menos de ${minimoDePessoas} pessoas mostra só a contagem, porque os números dele seriam os de uma ou duas pessoas; quando preciso, outro grupo é ocultado junto, para o pequeno não sair da diferença com o total.`) +
+            (simulacao ? ' Na base sintética, nada do cadastro (sexo, faixa etária, experiência, estudo, aluno do site) influencia o desempenho, por construção.' : '') +
+            `</p>`
     );
 
     // 6. Engajamento
@@ -482,26 +804,41 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'Conteúdo',
         'Que questões pedem revisão? Acerto baixo pode ser conteúdo mal explicado ou questão mal escrita.',
         conteudo.avaliadas === 0
-            ? `<p>Nenhuma questão tem ${conteudo.minimo} respostas ainda: com menos que isso, uma questão não é julgada.</p>`
-            : `<p class="nota">${conteudo.avaliadas} de ${conteudo.total} questões têm ${conteudo.minimo} respostas ou mais. A revisão não entra na conta, porque repete as questões da verificação.</p>` +
+            ? `<p>Nenhuma questão foi respondida na verificação ainda.</p>`
+            : `<p class="nota">${conteudo.avaliadas} de ${conteudo.total} questões de diagnóstico e verificação já foram respondidas na verificação. A questão é julgada só na verificação, depois da lição; o acerto no diagnóstico, antes de estudar, vem à parte e mede só o quanto ela é difícil. Com poucas respostas por questão, esta lista serve para casos gritantes (ninguém acerta na verificação, ou quase todos caem na mesma alternativa errada): não é ranking.</p>` +
               (conteudo.aRever.length === 0
-                  ? `<p>Todas as questões avaliadas foram acertadas por todo mundo.</p>`
-                  : `<table><thead><tr><th>Questão</th><th>Acerto</th><th>Pontos cegos</th><th>Alternativa errada mais escolhida</th></tr></thead><tbody>` +
+                  ? `<p>Todas as questões foram acertadas por todo mundo na verificação.</p>`
+                  : `<div class="tabela"><table><thead><tr><th>Questão</th><th>Verificação</th><th>Pontos cegos</th><th>Alternativa errada mais escolhida</th><th>Diagnóstico</th></tr></thead><tbody>` +
                     conteudo.aRever
                         .map(
                             (q) =>
                                 `<tr><td>${esc(q.enunciado)}<br><span class="n">${esc(q.topico)}</span></td>` +
                                 `<td class="num">${fracao(q.acerto)}</td><td class="num">${q.pontosCegos}</td>` +
-                                `<td>${q.distrator === null ? '—' : esc(q.distrator)}</td></tr>`
+                                `<td>${q.distrator === null ? '—' : esc(q.distrator)}</td><td class="num">${q.diagnostico.total === 0 ? '—' : fracao(q.diagnostico)}</td></tr>`
                         )
                         .join('') +
-                    `</tbody></table>`)
+                    `</tbody></table></div>`)
     );
+
+    // Conferência do classificador: só na página simulada, quando o script passa a matriz.
+    const conferencia =
+        simulacao?.matriz === undefined
+            ? ''
+            : bloco(
+                  'Conferência do classificador',
+                  'O perfil de resposta lido das respostas bate com o tipo que o gerador sorteou para cada aluno virtual?',
+                  `<div class="tabela"><table><thead><tr><th>Tipo sorteado</th>${simulacao.matriz.perfis.map((p) => `<th>${esc(p)}</th>`).join('')}</tr></thead><tbody>` +
+                      simulacao.matriz.tipos
+                          .map((t) => `<tr><td>${esc(t.rotulo)}</td>${t.contagens.map((c) => `<td class="num">${c === 0 ? '·' : c}</td>`).join('')}</tr>`)
+                          .join('') +
+                      `</tbody></table></div>` +
+                      `<p class="nota">Os tipos do gerador foram desenhados junto com os perfis, então acertar a diagonal não prova que o classificador funciona com gente de verdade. O que esta tabela mostra são as confusões: que tipo é lido como qual perfil.</p>`
+              );
 
     // 8. Quem respondeu
     const perfil = bloco(
         'Quem respondeu',
-        'O perfil de quem aceitou o termo, em contagem de pessoas.',
+        simulacao ? 'O perfil sorteado para a turma virtual, em contagem de pessoas.' : 'O perfil de quem aceitou o termo, em contagem de pessoas.',
         `<div class="colunas">` +
             ind.perfil
                 .map(
@@ -521,14 +858,21 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'Como ler estes números',
         '',
         `<ul class="ler">` +
-            `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>` +
+            (simulacao
+                ? `<li>Esta página foi gerada com alunos virtuais de perfis sorteados: quem domina, quem tem dificuldade, quem chuta, quem se acha mais sabido do que é, quem duvida do que sabe e quem desiste. As proporções também são sorteadas. Serve para testar a ferramenta: não é resultado de pesquisa.</li>` +
+                  `<li>No gerador, nada do cadastro (sexo, faixa etária, experiência, estudo, aluno do site) influencia o desempenho: qualquer diferença entre esses grupos é acaso da amostra.</li>`
+                : `<li>Com ${plural(n, 'participante', 'participantes')} e sem grupo de controle, estes números descrevem e não provam causa.</li>`) +
             `<li>Cada lição mede três vezes: 3 questões antes de estudar (diagnóstico), 3 questões equivalentes depois (verificação) e as mesmas da verificação 7 dias depois (revisão).</li>` +
-            `<li>O ganho vai de zero a um: é a parte do que faltava acertar no diagnóstico que passou a ser acertada na verificação. Fica negativo se a verificação foi pior.</li>` +
+            `<li>O ganho é o de Hake: do que faltava acertar no diagnóstico, a parte que passou a ser acertada na verificação, calculado sobre o acerto de todo o grupo. Vai até um e fica negativo se a verificação foi pior. A média do ganho de cada pessoa aparece ao lado, no resumo: com poucas questões por pessoa ela oscila mais.</li>` +
             `<li>Onde há menos de ${minima} respostas, a página mostra só a contagem, e a barra aparece apagada e riscada: um percentual sobre tão pouco enganaria.</li>` +
             `<li>Nenhum dado de pessoa aparece aqui: nem nome, nem contato, nem resposta individual.</li>` +
-            `<li>A página é um retrato do dia ${dia(opcoes.geradoEm)}. Para atualizar, o grupo gera de novo.</li>` +
+            (simulacao ? '' : `<li>A página é um retrato do dia ${dia(opcoes.geradoEm)}. Para atualizar, o grupo gera de novo.</li>`) +
             `</ul>`
     );
 
-    return pagina([resumo, aprendizagem, consciencia, retencaoBloco, autoavaliacao, engajamento, conteudoBloco, perfil, comoLer].join('\n'));
+    return pagina(
+        [resumo, aprendizagem, consciencia, retencaoBloco, perfisDeResposta, autoavaliacao, porGrupo, engajamento, conteudoBloco, perfil, conferencia, comoLer]
+            .filter((b) => b !== '')
+            .join('\n')
+    );
 }

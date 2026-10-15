@@ -9,6 +9,7 @@ import type {
     EstudoDeGameDesign,
     Experiencia,
     FaixaEtaria,
+    Sexo,
     Fase,
     Interesse,
     Linguagem,
@@ -412,6 +413,12 @@ export const ROTULO_DA_FAIXA_ETARIA: Record<FaixaEtaria, string> = {
     '45_mais': '45 ou mais',
 };
 
+export const ROTULO_DO_SEXO: Record<Sexo, string> = {
+    feminino: 'Feminino',
+    masculino: 'Masculino',
+    nao_informado: 'Prefiro não informar',
+};
+
 export const ROTULO_DA_SITUACAO_DE_ESTUDO: Record<SituacaoDeEstudo, string> = {
     ensino_medio: 'Ensino médio',
     graduacao: 'Graduação',
@@ -503,6 +510,7 @@ export const TEXTOS_DO_PERFIL = {
     dicaDoApelido: 'como você aparece no ranking',
     telefone: 'Telefone',
     faixaEtaria: 'Faixa etária',
+    sexo: 'Sexo',
     cidade: 'Cidade',
     uf: 'Estado (UF)',
     dicaDaUf: 'MA',
@@ -512,6 +520,7 @@ export const TEXTOS_DO_PERFIL = {
     experiencia: 'Experiência em criar jogos',
     aceitaContato: 'Aceito receber mensagens da Beast Maragames',
     escolhaAFaixaEtaria: 'Escolha a faixa etária.',
+    escolhaOSexo: 'Escolha uma das opções de sexo.',
     escolhaASituacao: 'Escolha a situação de estudo.',
     salvarEComecar: 'Salvar e começar',
     servidorRecusou: 'O servidor recusou o perfil. As regras do Firestore foram publicadas?',

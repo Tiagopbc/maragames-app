@@ -9,6 +9,13 @@
 //   npm run exportar                         todo mundo que aceitou o termo
 //   npm run exportar -- --desde 2026-10-30   só quem aceitou a partir desse dia (sem as contas de teste)
 //   npm run exportar -- --saida pasta        escolhe a pasta
+//   npm run exportar -- --simulado 100 --semente 1250808581
+//                                            o banco fictício: a turma de alunos virtuais, sem ler o banco
+//
+// Com --simulado, o Firestore não é lido nem tocado: a turma é a mesma que `npm run relatorio`
+// sorteia com a mesma semente (e as mesmas --cenario, --limite-diario e --dias-de-estudo). Grava em
+// exportacao/simulado-<semente>/ os mesmos arquivos da exportação real e dados-brutos.json, com as
+// quatro coleções (users, selfAssessments, attempts, answers) no formato do app (item 36).
 //
 // Sem --saida, grava em exportacao/AAAA-MM-DD, ou em exportacao/AAAA-MM-DD-desde-AAAA-MM-DD
 // quando há filtro. Se ninguém entra no filtro, avisa e não grava nada.
@@ -20,9 +27,39 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { arquivosDaExportacao, exportarDados, pastaDaExportacao } from '../src/lib/exportacao';
+import { bancoFicticio } from '../src/lib/simulacao';
 import { RAIZ, argumento, filtroDesde, hoje, lerDadosDoBanco } from './dados-do-banco';
+import { conteudoComVersao, opcoesDaLinhaDeComando, turmaSimulada } from './turma-simulada';
+
+/** O banco fictício: a turma virtual em arquivos, para o grupo trabalhar em cima. */
+function exportarSimulado(alunosTexto: string) {
+    const { alunos, semente, cenarioPedido, diasDeEstudo, limiteDiario } = opcoesDaLinhaDeComando(alunosTexto, 100);
+    const cenario = cenarioPedido ?? 'base';
+    const { versao, conteudo } = conteudoComVersao();
+    const turma = turmaSimulada(conteudo, { alunos, semente, cenario, limiteDiario, diasDeEstudo });
+    const exportado = exportarDados(turma.dados, { agora: turma.agora });
+    const banco = bancoFicticio(turma);
+
+    const nome = `simulado-${semente}${cenario === 'base' ? '' : `-${cenario}`}`;
+    const pasta = argumento('saida') ?? join(RAIZ, 'exportacao', nome);
+    mkdirSync(pasta, { recursive: true });
+    for (const arquivo of arquivosDaExportacao(exportado)) writeFileSync(join(pasta, arquivo.nome), arquivo.conteudo);
+    writeFileSync(
+        join(pasta, 'dados-brutos.json'),
+        JSON.stringify({ sintetico: true, alunos, semente, cenario, versaoConteudo: versao, ...banco }, null, 2)
+    );
+
+    console.log(`Banco fictício gravado em ${pasta}`);
+    console.log(`  ${alunos} alunos virtuais · semente ${semente} · cenário ${cenario} · versão do conteúdo ${versao}. O Firestore não foi lido.`);
+    console.log(`  dados-brutos.json: ${Object.keys(banco.users).length} users · ${Object.keys(banco.selfAssessments).length} selfAssessments · ${banco.attempts.length} attempts · ${banco.answers.length} answers`);
+    console.log(`  tabelas: ${exportado.participantes.length} participantes · ${exportado.licoes.length} lições · ${exportado.eventos.length} eventos · ${exportado.questoes.length} questões`);
+    console.log('  Dados sintéticos: não são de gente e não vão para o Firestore.');
+}
 
 async function main() {
+    const simulado = argumento('simulado');
+    if (simulado !== undefined) return exportarSimulado(simulado);
+
     const { texto: desdeTexto, ms: desde } = filtroDesde();
     const exportado = exportarDados(await lerDadosDoBanco(), { desde });
 

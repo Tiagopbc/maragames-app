@@ -15,12 +15,14 @@ import type {
     Objetivo,
     Ocupacao,
     Perfil,
+    Sexo,
     SituacaoDeEstudo,
     TempoPorSemana,
     Topico,
 } from '../types/domain';
 
 export const FAIXAS_ETARIAS: readonly FaixaEtaria[] = ['18_24', '25_34', '35_44', '45_mais'];
+export const SEXOS: readonly Sexo[] = ['feminino', 'masculino', 'nao_informado'];
 export const SITUACOES_DE_ESTUDO: readonly SituacaoDeEstudo[] = ['ensino_medio', 'graduacao', 'pos', 'formado', 'nao_estudo'];
 export const EXPERIENCIAS: readonly Experiencia[] = ['iniciante', 'intermediario', 'avancado'];
 
@@ -68,7 +70,15 @@ export function pedeInstituicaoECurso(situacao: SituacaoDeEstudo | null | undefi
 export function perfilCompleto(p: Partial<Perfil> | null): boolean {
     if (!p) return false;
     const nucleo =
-        !!p.nome && !!p.apelido && !!p.telefone && !!p.faixaEtaria && !!p.cidade && !!p.uf && !!p.situacaoDeEstudo && !!p.experiencia;
+        !!p.nome &&
+        !!p.apelido &&
+        !!p.telefone &&
+        !!p.faixaEtaria &&
+        !!p.sexo &&
+        !!p.cidade &&
+        !!p.uf &&
+        !!p.situacaoDeEstudo &&
+        !!p.experiencia;
     if (!nucleo) return false;
     return !pedeInstituicaoECurso(p.situacaoDeEstudo) || (!!p.instituicao && !!p.curso);
 }

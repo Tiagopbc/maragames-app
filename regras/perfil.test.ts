@@ -37,6 +37,7 @@ const PERFIL = {
     email: 'u1@exemplo.com',
     telefone: '98987654321',
     faixaEtaria: '18_24',
+    sexo: 'masculino',
     cidade: 'São Luís',
     uf: 'MA',
     situacaoDeEstudo: 'graduacao',
@@ -77,6 +78,7 @@ describe('a edição do perfil', () => {
         ['curso vazio', { curso: '' }],
         ['experiência fora da lista', { experiencia: 'mestre' }],
         ['faixa etária fora da lista', { faixaEtaria: 'ate_17' }],
+        ['sexo fora da lista', { sexo: 'outro' }],
         ['cidade vazia', { cidade: '' }],
         ['estado que não existe', { uf: 'XX' }],
         ['estado em minúsculas', { uf: 'ma' }],
@@ -110,7 +112,11 @@ describe('o núcleo obrigatório do perfil (item 34)', () => {
         await assertSucceeds(criar(PERFIL));
     });
 
-    it.each(['faixaEtaria', 'cidade', 'uf', 'situacaoDeEstudo'])('sem %s, o perfil é recusado', async (campo) => {
+    it('"Prefiro não informar" é uma resposta válida para o sexo', async () => {
+        await assertSucceeds(criar({ ...PERFIL, sexo: 'nao_informado' }));
+    });
+
+    it.each(['faixaEtaria', 'sexo', 'cidade', 'uf', 'situacaoDeEstudo'])('sem %s, o perfil é recusado', async (campo) => {
         await assertFails(criar(sem(campo)));
     });
 

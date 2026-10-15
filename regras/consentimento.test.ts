@@ -57,6 +57,7 @@ function perfilDe(uid: string) {
         email: `${uid}@exemplo.com`,
         telefone: '98987654321',
         faixaEtaria: '18_24',
+        sexo: 'feminino',
         cidade: 'São Luís',
         uf: 'MA',
         situacaoDeEstudo: 'graduacao',

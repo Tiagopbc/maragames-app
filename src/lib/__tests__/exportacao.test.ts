@@ -424,6 +424,21 @@ describe('questoes: a qualidade do conteúdo', () => {
         expect(semRespostas).toMatchObject({ respostas: 0, taxa_de_acerto: null, distrator_mais_escolhido: null });
     });
 
+    it('separa as fases: a dificuldade sai do diagnóstico, e a qualidade, só da verificação', () => {
+        // mda_a2: a Ana errou no diagnóstico (marcou b); a Bia errou com certeza na verificação (marcou c).
+        expect(linha('mda_a2')).toMatchObject({
+            diagnostico_respostas: 1,
+            diagnostico_acertos: 0,
+            verificacao_respostas: 1,
+            verificacao_acertos: 0,
+            verificacao_pontos_cegos: 1,
+            verificacao_distrator_mais_escolhido: 'O distrator C',
+            verificacao_vezes_no_distrator: 1,
+        });
+        // A prática não é diagnóstico nem verificação.
+        expect(linha('mda_p1')).toMatchObject({ diagnostico_respostas: 0, verificacao_respostas: 0, verificacao_distrator_mais_escolhido: null });
+    });
+
     it('traz a dificuldade prevista ao lado da observada', () => {
         expect(linha('mda_a1')).toMatchObject({ topico: 'mda', bloco: 'forma_a', dificuldade_prevista: 'basico' });
     });
@@ -521,6 +536,7 @@ describe('os dados novos do perfil na exportação', () => {
     const ANA_COMPLETA: PerfilDoExport = {
         ...ANA,
         faixaEtaria: '18_24',
+        sexo: 'feminino',
         cidade: 'São Luís',
         uf: 'MA',
         situacaoDeEstudo: 'graduacao',
@@ -545,6 +561,7 @@ describe('os dados novos do perfil na exportação', () => {
     it('o núcleo vai para os participantes, com o código no lugar do nome', () => {
         expect(daAna()).toMatchObject({
             faixa_etaria: '18_24',
+            sexo: 'feminino',
             uf: 'MA',
             situacao_de_estudo: 'graduacao',
             instituicao: 'UNDB',
@@ -570,6 +587,7 @@ describe('os dados novos do perfil na exportação', () => {
     it('quem não respondeu sai com os campos vazios, e não com zero', () => {
         expect(daBia()).toMatchObject({
             faixa_etaria: null,
+            sexo: null,
             uf: null,
             ocupacao: null,
             engines: null,

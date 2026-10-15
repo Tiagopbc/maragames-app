@@ -29,6 +29,7 @@ export default function CompleteProfileScreen() {
                         // O aceite de contato vai junto, na mesma gravação.
                         aoSalvar={(dados, aceitaContato) => salvarPerfil(dados, { aceitaContato: aceitaContato ?? false })}
                         comAceiteDeContato
+                        aceiteInicial={perfil?.aceitaContato ?? false}
                     />
 
                     <Pressable onPress={sair}>

@@ -11,9 +11,10 @@ import {
     ROTULO_DA_EXPERIENCIA,
     ROTULO_DA_FAIXA_ETARIA,
     ROTULO_DA_SITUACAO_DE_ESTUDO,
+    ROTULO_DO_SEXO,
     TEXTOS_DO_PERFIL,
 } from '@/constants/textos';
-import { EXPERIENCIAS, FAIXAS_ETARIAS, SITUACOES_DE_ESTUDO, pedeInstituicaoECurso } from '@/lib/perfil';
+import { EXPERIENCIAS, FAIXAS_ETARIAS, SEXOS, SITUACOES_DE_ESTUDO, pedeInstituicaoECurso } from '@/lib/perfil';
 import {
     formatarTelefone,
     somenteDigitos,
@@ -24,7 +25,7 @@ import {
     validarUf,
     type Erro,
 } from '@/lib/validacao';
-import type { DadosPerfil, Experiencia, FaixaEtaria, SituacaoDeEstudo } from '@/types/domain';
+import type { DadosPerfil, Experiencia, FaixaEtaria, Sexo, SituacaoDeEstudo } from '@/types/domain';
 
 // O que a pessoa vê e mexe. As escolhas começam sem valor, e os textos, vazios.
 type Campos = {
@@ -32,6 +33,7 @@ type Campos = {
     apelido: string;
     telefone: string;
     faixaEtaria: FaixaEtaria | null;
+    sexo: Sexo | null;
     cidade: string;
     uf: string;
     situacaoDeEstudo: SituacaoDeEstudo | null;
@@ -54,6 +56,8 @@ type FormularioDoPerfilProps = {
     // No primeiro preenchimento, a caixa do aceite de contato vai junto. Na edição ela fica na
     // seção Conta do Perfil.
     comAceiteDeContato?: boolean;
+    // O aceite já salvo, para a conta antiga que volta aqui não perdê-lo sem ver.
+    aceiteInicial?: boolean;
 };
 
 function camposDe(inicial: Partial<DadosPerfil>): Campos {
@@ -62,6 +66,7 @@ function camposDe(inicial: Partial<DadosPerfil>): Campos {
         apelido: inicial.apelido ?? '',
         telefone: formatarTelefone(inicial.telefone ?? ''),
         faixaEtaria: inicial.faixaEtaria ?? null,
+        sexo: inicial.sexo ?? null,
         cidade: inicial.cidade ?? '',
         uf: inicial.uf ?? '',
         situacaoDeEstudo: inicial.situacaoDeEstudo ?? null,
@@ -83,6 +88,7 @@ function dadosDe(c: Campos): Partial<DadosPerfil> {
         experiencia: c.experiencia,
     };
     if (c.faixaEtaria) dados.faixaEtaria = c.faixaEtaria;
+    if (c.sexo) dados.sexo = c.sexo;
     if (c.situacaoDeEstudo) dados.situacaoDeEstudo = c.situacaoDeEstudo;
     if (pedeInstituicaoECurso(c.situacaoDeEstudo)) {
         dados.instituicao = c.instituicao.trim();
@@ -96,6 +102,7 @@ const CAMPOS_DOS_DADOS: readonly (keyof DadosPerfil)[] = [
     'apelido',
     'telefone',
     'faixaEtaria',
+    'sexo',
     'cidade',
     'uf',
     'situacaoDeEstudo',
@@ -113,11 +120,12 @@ export function FormularioDoPerfil({
     soComMudanca = false,
     mensagemDeSucesso,
     comAceiteDeContato = false,
+    aceiteInicial = false,
 }: FormularioDoPerfilProps) {
     const [campos, setCampos] = useState<Campos>(() => camposDe(inicial));
     // O que está salvo: na edição, é com isto que se compara para saber se algo mudou.
     const [salvo, setSalvo] = useState<Partial<DadosPerfil>>(() => dadosDe(camposDe(inicial)));
-    const [aceitaContato, setAceitaContato] = useState(false);
+    const [aceitaContato, setAceitaContato] = useState(aceiteInicial);
     const [erros, setErros] = useState<Record<string, Erro>>({});
     const [erroGeral, setErroGeral] = useState<string | null>(null);
     const [salvando, setSalvando] = useState(false);
@@ -130,6 +138,7 @@ export function FormularioDoPerfil({
         apelido: () => validarTexto(campos.apelido, 'o apelido', 2, 20),
         telefone: () => validarTelefone(campos.telefone),
         faixaEtaria: () => validarEscolha(campos.faixaEtaria, TEXTOS_DO_PERFIL.escolhaAFaixaEtaria),
+        sexo: () => validarEscolha(campos.sexo, TEXTOS_DO_PERFIL.escolhaOSexo),
         cidade: () => validarTexto(campos.cidade, 'a cidade', 2, 60),
         uf: () => validarUf(campos.uf),
         situacaoDeEstudo: () => validarEscolha(campos.situacaoDeEstudo, TEXTOS_DO_PERFIL.escolhaASituacao),
@@ -145,7 +154,7 @@ export function FormularioDoPerfil({
     }
 
     // Uma escolha feita tira o erro dela na hora: não há "sair do campo" num botão.
-    function escolher<C extends 'faixaEtaria' | 'situacaoDeEstudo'>(campo: C, valor: Campos[C]) {
+    function escolher<C extends 'faixaEtaria' | 'sexo' | 'situacaoDeEstudo'>(campo: C, valor: Campos[C]) {
         mudar(campo, valor);
         setErros((e) => ({ ...e, [campo]: null }));
     }
@@ -224,6 +233,15 @@ export function FormularioDoPerfil({
                 valor={campos.faixaEtaria}
                 aoEscolher={(valor) => escolher('faixaEtaria', valor)}
                 erro={erros.faixaEtaria}
+                desabilitado={salvando}
+            />
+
+            <Opcoes
+                rotulo={TEXTOS_DO_PERFIL.sexo}
+                opcoes={SEXOS.map((valor) => ({ valor, rotulo: ROTULO_DO_SEXO[valor] }))}
+                valor={campos.sexo}
+                aoEscolher={(valor) => escolher('sexo', valor)}
+                erro={erros.sexo}
                 desabilitado={salvando}
             />
 

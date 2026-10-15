@@ -79,6 +79,7 @@ export function paraPerfil(d: Dados): Perfil {
         email: d.email,
         telefone: d.telefone,
         faixaEtaria: d.faixaEtaria,
+        sexo: d.sexo,
         cidade: d.cidade,
         uf: d.uf,
         situacaoDeEstudo: d.situacaoDeEstudo,

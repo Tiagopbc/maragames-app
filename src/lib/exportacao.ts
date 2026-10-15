@@ -24,6 +24,7 @@ export interface PerfilDoExport extends ExtrasDoPerfil {
     email?: string;
     telefone?: string;
     faixaEtaria?: string;
+    sexo?: string;
     cidade?: string;
     uf?: string;
     situacaoDeEstudo?: string;
@@ -88,7 +89,11 @@ export interface Agregados {
     pre: Taxa;
     pos: Taxa;
     reteste: Taxa;
-    ganhoMedio: number | null; // média do ganho normalizado de cada pessoa
+    // O indicador principal (item 35): o ganho de Hake sobre o acerto da turma antes e depois.
+    ganhoDaTurma: number | null;
+    // A média do ganho de cada pessoa. Com 3 questões por lição ela oscila: quem cai de 2 para 1
+    // acerto tem ganho −1, e quem acerta tudo no diagnóstico fica de fora.
+    ganhoMedio: number | null;
     porTopico: AgregadoDoTopico[]; // na ordem do conteúdo; só tópicos com a verificação feita
     porConfianca: Record<Confianca, Taxa>; // na verificação
     quadrantesNoPos: Record<Quadrante, number>;
@@ -344,6 +349,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             experiencia: perfil.experiencia ?? null,
             // O perfil de 12/10/2026 em diante (item 34). A cidade não entra: fica na chave.
             faixa_etaria: perfil.faixaEtaria ?? null,
+            sexo: perfil.sexo ?? null,
             uf: perfil.uf ?? null,
             situacao_de_estudo: perfil.situacaoDeEstudo ?? null,
             instituicao: perfil.instituicao ?? null,
@@ -405,12 +411,20 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             .map((q) => {
                 const respostas = validas.filter((r) => r.questionId === q.id);
                 const acertos = respostas.filter((r) => r.correta).length;
-                const pontosCegos = respostas.filter((r) => quadranteDe(r.correta, r.confianca) === 'ponto_cego').length;
+                const pontosCegosEm = (rs: Answer[]) => rs.filter((r) => quadranteDe(r.correta, r.confianca) === 'ponto_cego').length;
+                const pontosCegos = pontosCegosEm(respostas);
                 // No empate, fica o primeiro na ordem das alternativas do conteúdo.
-                const distrator = q.alternativas
-                    .filter((a) => !a.correta)
-                    .map((a) => ({ texto: a.texto, vezes: respostas.filter((r) => r.escolha === a.id).length }))
-                    .reduce<{ texto: string; vezes: number } | null>((maior, d) => (d.vezes > (maior?.vezes ?? 0) ? d : maior), null);
+                const distratorEm = (rs: Answer[]) =>
+                    q.alternativas
+                        .filter((a) => !a.correta)
+                        .map((a) => ({ texto: a.texto, vezes: rs.filter((r) => r.escolha === a.id).length }))
+                        .reduce<{ texto: string; vezes: number } | null>((maior, d) => (d.vezes > (maior?.vezes ?? 0) ? d : maior), null);
+                const distrator = distratorEm(respostas);
+                // Por fase: o diagnóstico diz quão difícil a questão é antes de estudar; a
+                // verificação, depois da lição, é onde acerto baixo aponta questão ou lição a rever.
+                const noDiagnostico = respostas.filter((r) => r.fase === 'pre');
+                const naVerificacao = respostas.filter((r) => r.fase === 'pos');
+                const distratorNaVerificacao = distratorEm(naVerificacao);
 
                 return {
                     questao: q.id,
@@ -424,6 +438,13 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
                     taxa_de_ponto_cego: respostas.length === 0 ? null : pontosCegos / respostas.length,
                     distrator_mais_escolhido: distrator?.texto ?? null,
                     vezes_no_distrator: distrator?.vezes ?? null,
+                    diagnostico_respostas: noDiagnostico.length,
+                    diagnostico_acertos: noDiagnostico.filter((r) => r.correta).length,
+                    verificacao_respostas: naVerificacao.length,
+                    verificacao_acertos: naVerificacao.filter((r) => r.correta).length,
+                    verificacao_pontos_cegos: pontosCegosEm(naVerificacao),
+                    verificacao_distrator_mais_escolhido: distratorNaVerificacao?.texto ?? null,
+                    verificacao_vezes_no_distrator: distratorNaVerificacao?.vezes ?? null,
                 };
             })
     );
@@ -431,6 +452,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
     const n = participantes.length;
     const media = (valores: number[]) => (valores.length === 0 ? null : valores.reduce((a, b) => a + b, 0) / valores.length);
     const ganhoMedio = media(total.ganhos);
+    const ganhoDaTurma = ganhoNormalizado(total.pre, total.pos);
     const resumo = [
         '# Beast Maragames: resumo dos dados',
         '',
@@ -446,6 +468,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
         `Acerto no diagnóstico: ${porcento(total.pre)} (${fracao(total.pre)})`,
         `Acerto na verificação: ${porcento(total.pos)} (${fracao(total.pos)})`,
         `Acerto na revisão: ${porcento(total.reteste)} (${fracao(total.reteste)})`,
+        `Ganho normalizado da turma: ${ganhoDaTurma === null ? 'sem dados' : ganhoDaTurma.toFixed(2).replace('.', ',')}`,
         `Ganho normalizado médio, por pessoa: ${ganhoMedio === null ? 'sem dados' : ganhoMedio.toFixed(2).replace('.', ',')}`,
         '',
         '## Por tópico',
@@ -490,6 +513,7 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             pre: total.pre,
             pos: total.pos,
             reteste: total.reteste,
+            ganhoDaTurma,
             ganhoMedio,
             porTopico: topicos.filter((t) => porTopico.has(t.id)).map((t) => ({ topicId: t.id, titulo: t.titulo, ...porTopico.get(t.id)! })),
             porConfianca: total.porConfianca,

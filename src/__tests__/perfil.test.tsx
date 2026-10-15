@@ -16,6 +16,7 @@ const PERFIL = {
     email: 'tiago@exemplo.com',
     telefone: '98987654321',
     faixaEtaria: '25_34',
+    sexo: 'masculino',
     cidade: 'São Luís',
     uf: 'MA',
     situacaoDeEstudo: 'graduacao',
@@ -145,6 +146,7 @@ describe('a tela de Perfil', () => {
             apelido: 'Tiagão',
             telefone: '98987654321',
             faixaEtaria: '25_34',
+            sexo: 'masculino',
             cidade: 'São Luís',
             uf: 'MA',
             situacaoDeEstudo: 'graduacao',
@@ -269,11 +271,12 @@ describe('a seção Sobre, no Perfil', () => {
 });
 
 describe('o núcleo do perfil, na edição (item 34)', () => {
-    it('mostra a faixa etária, a cidade, o estado e a situação de estudo que estão gravados', async () => {
+    it('mostra a faixa etária, o sexo, a cidade, o estado e a situação de estudo que estão gravados', async () => {
         await abrirEm('/perfil');
         await screen.findByDisplayValue('Tiago Cavalcanti');
 
         expect(screen.getByRole('radio', { name: '25 a 34' })).toBeChecked();
+        expect(screen.getByRole('radio', { name: 'Masculino' })).toBeChecked();
         expect(campo('Cidade').props.value).toBe('São Luís');
         expect(campo('Estado (UF)').props.value).toBe('MA');
         expect(screen.getByRole('radio', { name: 'Graduação' })).toBeChecked();
@@ -295,6 +298,7 @@ describe('o núcleo do perfil, na edição (item 34)', () => {
             apelido: 'Tiago',
             telefone: '98987654321',
             faixaEtaria: '25_34',
+            sexo: 'masculino',
             cidade: 'São Luís',
             uf: 'MA',
             situacaoDeEstudo: 'formado',
