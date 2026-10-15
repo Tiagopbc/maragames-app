@@ -424,6 +424,21 @@ describe('questoes: a qualidade do conteúdo', () => {
         expect(semRespostas).toMatchObject({ respostas: 0, taxa_de_acerto: null, distrator_mais_escolhido: null });
     });
 
+    it('separa as fases: a dificuldade sai do diagnóstico, e a qualidade, só da verificação', () => {
+        // mda_a2: a Ana errou no diagnóstico (marcou b); a Bia errou com certeza na verificação (marcou c).
+        expect(linha('mda_a2')).toMatchObject({
+            diagnostico_respostas: 1,
+            diagnostico_acertos: 0,
+            verificacao_respostas: 1,
+            verificacao_acertos: 0,
+            verificacao_pontos_cegos: 1,
+            verificacao_distrator_mais_escolhido: 'O distrator C',
+            verificacao_vezes_no_distrator: 1,
+        });
+        // A prática não é diagnóstico nem verificação.
+        expect(linha('mda_p1')).toMatchObject({ diagnostico_respostas: 0, verificacao_respostas: 0, verificacao_distrator_mais_escolhido: null });
+    });
+
     it('traz a dificuldade prevista ao lado da observada', () => {
         expect(linha('mda_a1')).toMatchObject({ topico: 'mda', bloco: 'forma_a', dificuldade_prevista: 'basico' });
     });

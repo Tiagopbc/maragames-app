@@ -411,12 +411,20 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             .map((q) => {
                 const respostas = validas.filter((r) => r.questionId === q.id);
                 const acertos = respostas.filter((r) => r.correta).length;
-                const pontosCegos = respostas.filter((r) => quadranteDe(r.correta, r.confianca) === 'ponto_cego').length;
+                const pontosCegosEm = (rs: Answer[]) => rs.filter((r) => quadranteDe(r.correta, r.confianca) === 'ponto_cego').length;
+                const pontosCegos = pontosCegosEm(respostas);
                 // No empate, fica o primeiro na ordem das alternativas do conteúdo.
-                const distrator = q.alternativas
-                    .filter((a) => !a.correta)
-                    .map((a) => ({ texto: a.texto, vezes: respostas.filter((r) => r.escolha === a.id).length }))
-                    .reduce<{ texto: string; vezes: number } | null>((maior, d) => (d.vezes > (maior?.vezes ?? 0) ? d : maior), null);
+                const distratorEm = (rs: Answer[]) =>
+                    q.alternativas
+                        .filter((a) => !a.correta)
+                        .map((a) => ({ texto: a.texto, vezes: rs.filter((r) => r.escolha === a.id).length }))
+                        .reduce<{ texto: string; vezes: number } | null>((maior, d) => (d.vezes > (maior?.vezes ?? 0) ? d : maior), null);
+                const distrator = distratorEm(respostas);
+                // Por fase: o diagnóstico diz quão difícil a questão é antes de estudar; a
+                // verificação, depois da lição, é onde acerto baixo aponta questão ou lição a rever.
+                const noDiagnostico = respostas.filter((r) => r.fase === 'pre');
+                const naVerificacao = respostas.filter((r) => r.fase === 'pos');
+                const distratorNaVerificacao = distratorEm(naVerificacao);
 
                 return {
                     questao: q.id,
@@ -430,6 +438,13 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
                     taxa_de_ponto_cego: respostas.length === 0 ? null : pontosCegos / respostas.length,
                     distrator_mais_escolhido: distrator?.texto ?? null,
                     vezes_no_distrator: distrator?.vezes ?? null,
+                    diagnostico_respostas: noDiagnostico.length,
+                    diagnostico_acertos: noDiagnostico.filter((r) => r.correta).length,
+                    verificacao_respostas: naVerificacao.length,
+                    verificacao_acertos: naVerificacao.filter((r) => r.correta).length,
+                    verificacao_pontos_cegos: pontosCegosEm(naVerificacao),
+                    verificacao_distrator_mais_escolhido: distratorNaVerificacao?.texto ?? null,
+                    verificacao_vezes_no_distrator: distratorNaVerificacao?.vezes ?? null,
                 };
             })
     );
