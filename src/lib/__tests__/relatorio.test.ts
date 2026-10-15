@@ -474,6 +474,13 @@ describe('indicadoresDoRelatorio', () => {
             expect(soDiagnostico.testePareado).toBeNull();
             expect(soDiagnostico.calibracao).toBeNull();
         });
+
+        // Apontado na revisão do pull request nº 25: cada intervalo sai de quem contribuiu para ele,
+        // e não de todo mundo que aceitou o termo.
+        it('de quantas pessoas sai cada intervalo: as com verificação e as com revisão', () => {
+            // A Ana e a Bia fizeram a verificação; só a Ana, a revisão. O Caio parou no diagnóstico.
+            expect(incerteza.pessoas).toEqual({ verificacao: 2, revisao: 1 });
+        });
     });
 
     describe('perfis de resposta', () => {
@@ -852,9 +859,36 @@ describe('relatorioHtml', () => {
         });
 
         it('com menos de 30 pessoas, o intervalo é dito aproximado', () => {
-            expect(pagina(indicadores(), 1)).toContain('intervalo aproximado');
-            const muitos = { ...indicadores(), participantes: 30 };
+            const ind = indicadores();
+            expect(pagina(ind, 1)).toContain('intervalo aproximado');
+            const muitos = { ...ind, incerteza: { ...ind.incerteza, pessoas: { verificacao: 30, revisao: 30 } } };
             expect(pagina(muitos, 1)).not.toContain('intervalo aproximado');
+        });
+
+        it('o aviso conta quem contribuiu para o número, e não quem aceitou o termo', () => {
+            const ind = indicadores();
+            // 100 aceitaram, 40 verificaram, só 5 revisaram: o da retenção é aproximado; o do ganho, não.
+            const poucosRevisaram = { ...ind, participantes: 100, incerteza: { ...ind.incerteza, pessoas: { verificacao: 40, revisao: 5 } } };
+            const html = pagina(poucosRevisaram, 1);
+            const resumo = html.slice(0, html.indexOf('<h2>Aprendizagem</h2>'));
+            const retencao = html.slice(html.indexOf('<h2>Retenção</h2>'), html.indexOf('<h2>Perfis de resposta</h2>'));
+
+            expect(resumo).not.toContain('intervalo aproximado');
+            expect(retencao).toContain('intervalo aproximado');
+        });
+
+        it('os cartões ficam em três colunas no computador e em duas no celular: seis cartões, duas linhas', () => {
+            const html = pagina();
+
+            expect(html).toContain('.cartoes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))');
+            expect(html).toMatch(/@media \(max-width:560px\)\{.*?\.cartoes\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}\}/);
+        });
+
+        it('a diferença em pontos não quebra o número grande: "pontos" vai no texto de baixo', () => {
+            const html = pagina(indicadores(), 1);
+
+            expect(html).toContain('<div class="valor">−33</div><div class="rotulo">Calibração</div><div class="sub">pontos ·');
+            expect(html).not.toMatch(/<div class="valor">[^<]*pontos<\/div>/);
         });
 
         it('o ganho do resumo obedece ao corte de amostra, como os outros cartões', () => {

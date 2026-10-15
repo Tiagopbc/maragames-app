@@ -95,6 +95,10 @@ export interface Incerteza {
     calibracao: Intervalo | null;
     // De cada pessoa, o acerto na verificação menos o do diagnóstico, nas lições com os dois.
     testePareado: (TesteDeSinais & { pessoas: number }) | null;
+    // De quantas pessoas sai cada intervalo: o ganho e a calibração, de quem verificou alguma lição;
+    // a retenção, de quem revisou. É por elas, e não por quem aceitou o termo, que um intervalo é
+    // dito aproximado.
+    pessoas: { verificacao: number; revisao: number };
 }
 
 // Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas. O grupo
@@ -407,6 +411,10 @@ export function indicadoresDoRelatorio(
         },
         calibracao: intervaloPorReamostragem(participantes, calibracaoDe),
         testePareado: teste === null ? null : { pessoas: diferencasPorPessoa.length, ...teste },
+        pessoas: {
+            verificacao: participantes.filter((p) => numero(p, 'licoes_verificadas') > 0).length,
+            revisao: participantes.filter((p) => numero(p, 'licoes_revisadas') > 0).length,
+        },
     };
 
     // O perfil de resposta de cada pessoa, pelas respostas dela. A revisão fica de fora: repete as
@@ -548,7 +556,7 @@ section{padding:28px 0;border-top:1px solid var(--borda)}
 .aviso p{margin:0 0 8px}
 .aviso p:last-child{margin:0}
 .aviso a{color:var(--marca);font-weight:600}
-.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.cartoes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .cartao{background:var(--elemento);border:1px solid var(--borda);border-radius:12px;padding:16px}
 .cartao .valor{font-size:28px;font-weight:600;line-height:1.2}
 .cartao .rotulo{font-weight:600}
@@ -579,7 +587,7 @@ ul.ler li{margin-bottom:8px}
 .colunas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 32px}
 .colunas .linha{grid-template-columns:minmax(90px,40%) 1fr auto}
 footer{margin-top:32px;color:var(--texto2);font-size:14px}
-@media (max-width:560px){.linha{grid-template-columns:1fr;gap:2px;margin-bottom:10px}h1{font-size:26px}}
+@media (max-width:560px){.linha{grid-template-columns:1fr;gap:2px;margin-bottom:10px}h1{font-size:26px}.cartoes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 `;
 
 /** Um gerador de trechos da página, com a amostra mínima daquela rodada. */
@@ -675,7 +683,10 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     // 1. Em resumo
     const retencao = destaque(ind.retencao);
     const pontosCegos = destaque(ind.pontosCegos);
-    const ic = (i: Intervalo, formato: (v: number) => string) => textoDoIntervalo(i, formato, n);
+    const { pessoas } = ind.incerteza;
+    const ic = (i: Intervalo, formato: (v: number) => string, contribuiram: number) => textoDoIntervalo(i, formato, contribuiram);
+    // A diferença em pontos: o número vai grande, e a palavra, no texto de baixo, para não quebrar.
+    const emPontos = (valor: number) => pontos(valor).replace(' pontos', '');
     // O ganho segue o corte de amostra, como os outros cartões: sobre poucas respostas, não é número.
     const ganhoPequeno = pequena(ind.pre) || pequena(ind.pos);
     const { testePareado, calibracao, retencaoCorrigida: corrigida } = ind.incerteza;
@@ -694,7 +705,7 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                       ind.ganhoDaTurma === null ? 'sem dados' : decimal(ind.ganhoDaTurma, 2),
                       'do que faltava acertar, a parte que passou a ser acertada' +
                           (ind.incerteza.ganhoDaTurma
-                              ? ` · ${ic(ind.incerteza.ganhoDaTurma, (v) => decimal(v, 2))}` +
+                              ? ` · ${ic(ind.incerteza.ganhoDaTurma, (v) => decimal(v, 2), pessoas.verificacao)}` +
                                 (incluiZero(ind.incerteza.ganhoDaTurma) ? ' · sem evidência de ganho' : '')
                               : '') +
                           (testePareado === null
@@ -708,8 +719,8 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                   ? cartao('Calibração', 'poucos dados', 'amostra pequena · acerto com certeza menos acerto sem certeza, na verificação')
                   : cartao(
                       'Calibração',
-                      pontos(calibracao.estimativa),
-                      `acerto com certeza menos acerto sem certeza, na verificação · ${ic(calibracao, pontos)}` +
+                      emPontos(calibracao.estimativa),
+                      `pontos · acerto com certeza menos acerto sem certeza, na verificação · ${ic(calibracao, pontos, pessoas.verificacao)}` +
                           (incluiZero(calibracao) ? ' · sem evidência de que a certeza diga algo' : '')
                   )) +
             cartao('Retenção', retencao.valor, `${retencao.contagem}acertos que continuaram certos 7 dias depois`) +
@@ -800,15 +811,15 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                           const rotulo = nivel === 'alta' ? 'Do que se sabia, com certeza' : 'Do que se sabia, sem certeza';
                           if (intervalo === null) return '';
                           if (poucas(corrigida.respostas[nivel])) return cartao(rotulo, 'poucos dados', 'amostra pequena · continuou sabido na revisão');
-                          return cartao(rotulo, porcento(intervalo.estimativa), `continuou sabido na revisão · ${ic(intervalo, porcento)}`);
+                          return cartao(rotulo, porcento(intervalo.estimativa), `continuou sabido na revisão · ${ic(intervalo, porcento, pessoas.revisao)}`);
                       })
                       .join('') +
                   (poucas(corrigida.respostas.alta) || poucas(corrigida.respostas.baixa)
                       ? cartao('Diferença', 'poucos dados', 'amostra pequena · com certeza menos sem certeza')
                       : cartao(
                             'Diferença',
-                            pontos(corrigida.diferenca.estimativa),
-                            `com certeza menos sem certeza · ${ic(corrigida.diferenca, pontos)}` +
+                            emPontos(corrigida.diferenca.estimativa),
+                            `pontos · com certeza menos sem certeza · ${ic(corrigida.diferenca, pontos, pessoas.revisao)}` +
                                 (incluiZero(corrigida.diferenca) ? ' · sem evidência de diferença' : '')
                         )) +
                   `</div>` +

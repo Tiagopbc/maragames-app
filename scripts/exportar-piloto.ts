@@ -28,7 +28,7 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { arquivosDaExportacao, exportarDados, pastaDaExportacao } from '../src/lib/exportacao';
-import { bancoFicticio } from '../src/lib/simulacao';
+import { bancoFicticio, nomeDaTurma } from '../src/lib/simulacao';
 import { RAIZ, argumento, filtroDesde, hoje, lerDadosDoBanco } from './dados-do-banco';
 import { conteudoComVersao, opcoesDaLinhaDeComando, turmaSimulada } from './turma-simulada';
 
@@ -41,17 +41,23 @@ function exportarSimulado(alunosTexto: string) {
     const exportado = exportarDados(turma.dados, { agora: turma.agora });
     const banco = bancoFicticio(turma);
 
-    const nome = `simulado-${semente}${cenario === 'base' ? '' : `-${cenario}`}`;
+    const opcoes = { cenario, limiteDiario, diasDeEstudo: diasDeEstudo ?? null, defeitos };
+    const nome = nomeDaTurma({ semente, ...opcoes, diasDeEstudo });
     const pasta = argumento('saida') ?? join(RAIZ, 'exportacao', nome);
     mkdirSync(pasta, { recursive: true });
     for (const arquivo of arquivosDaExportacao(exportado)) writeFileSync(join(pasta, arquivo.nome), arquivo.conteudo);
     writeFileSync(
         join(pasta, 'dados-brutos.json'),
-        JSON.stringify({ sintetico: true, alunos, semente, cenario, versaoConteudo: versao, ...banco }, null, 2)
+        // As opções e os defeitos plantados vão junto: o arquivo diz sozinho que turma é.
+        JSON.stringify({ sintetico: true, alunos, semente, versaoConteudo: versao, opcoes, defeitosPlantados: turma.defeitos, ...banco }, null, 2)
     );
 
     console.log(`Banco fictício gravado em ${pasta}`);
-    console.log(`  ${alunos} alunos virtuais · semente ${semente} · cenário ${cenario} · versão do conteúdo ${versao}. O Firestore não foi lido.`);
+    console.log(
+        `  ${alunos} alunos virtuais · semente ${semente} · cenário ${cenario}` +
+            `${limiteDiario ? ' · limite diário' : ''}${diasDeEstudo ? ` · ${diasDeEstudo} dias de estudo` : ''}${defeitos ? ' · defeitos plantados' : ''}` +
+            ` · versão do conteúdo ${versao}. O Firestore não foi lido.`
+    );
     console.log(`  dados-brutos.json: ${Object.keys(banco.users).length} users · ${Object.keys(banco.selfAssessments).length} selfAssessments · ${banco.attempts.length} attempts · ${banco.answers.length} answers`);
     console.log(`  tabelas: ${exportado.participantes.length} participantes · ${exportado.licoes.length} lições · ${exportado.eventos.length} eventos · ${exportado.questoes.length} questões`);
     console.log('  Dados sintéticos: não são de gente e não vão para o Firestore.');

@@ -2333,7 +2333,7 @@
         "id": "c",
         "texto": "A lista de quem já comprou o jogo",
         "correta": false,
-        "explicacao": "Antes do lançamento, ninguém comprou o jogo ainda."
+        "explicacao": "A página mostra o jogo, e não quem o comprou."
       },
       {
         "id": "d",
@@ -2444,7 +2444,7 @@
         "id": "d",
         "texto": "Mais gente recebe o aviso no dia do lançamento",
         "correta": true,
-        "explicacao": "Cada lista de desejos vira um aviso por e-mail quando o jogo sai."
+        "explicacao": "Mais gente na lista de desejos é mais gente para a Steam avisar quando o jogo sai."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
