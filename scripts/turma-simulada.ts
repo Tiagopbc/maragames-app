@@ -56,6 +56,7 @@ export function opcoesDaLinhaDeComando(alunosTexto: string | undefined, alunosPa
         cenarioPedido: cenarioPedido as Cenario | undefined,
         diasDeEstudo: inteiro('dias-de-estudo', 1, DIAS_DA_SIMULACAO - 14),
         limiteDiario: marcado('limite-diario'),
+        defeitos: marcado('defeitos'),
     };
 }
 

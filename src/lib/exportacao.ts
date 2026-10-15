@@ -234,6 +234,9 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             reteste: zero(),
             firmes: zero(),
             frageis: zero(),
+            // Respostas da verificação das lições revisadas, certas ou não, por confiança (item 37).
+            altasNoPos: 0,
+            baixasNoPos: 0,
             acertosNoPosComPar: 0,
             acertosNoRetesteComPar: 0,
             pontosCegosNoPos: 0,
@@ -334,6 +337,8 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             somar(daPessoa.reteste, reteste);
             somar(daPessoa.firmes, retido.mantidas.firme);
             somar(daPessoa.frageis, retido.mantidas.fragil);
+            daPessoa.altasNoPos += pos.porConfianca[3].total;
+            daPessoa.baixasNoPos += pos.porConfianca[1].total + pos.porConfianca[2].total;
             daPessoa.acertosNoPosComPar += retido.acertosNoPos;
             daPessoa.acertosNoRetesteComPar += retido.acertosNoReteste;
             if (dias < DIAS_ATE_A_REVISAO) total.antesDaHora += 1;
@@ -385,6 +390,8 @@ export function exportarDados(dados: DadosDaExportacao, opcoes: OpcoesDaExportac
             firmes_mantidos: revisou ? daPessoa.firmes.acertos : null,
             frageis_no_pos: revisou ? daPessoa.frageis.total : null,
             frageis_mantidos: revisou ? daPessoa.frageis.acertos : null,
+            confianca_alta_no_pos: revisou ? daPessoa.altasNoPos : null,
+            confianca_baixa_no_pos: revisou ? daPessoa.baixasNoPos : null,
             pontos_cegos_no_pos: daPessoa.pontosCegosNoPos,
             dias_ativos: new Set(dias).size,
             maior_sequencia: maiorSequencia(dias),

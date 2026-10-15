@@ -502,6 +502,19 @@ describe('o gerador para medir o instrumento', () => {
             expect(Math.abs(taxa(cega.firmes) - taxa(cega.frageis))).toBeLessThan(0.06);
         });
 
+        // Item 37: sem o chute dentro, a diferença entre certeza e dúvida na revisão não acusa efeito
+        // onde não há.
+        it('nulo e confiança cega: a retenção corrigida não acusa diferença entre certeza e dúvida', () => {
+            for (const cenario of ['nulo', 'confianca_cega'] as const) {
+                expect(incluiZero(ind(turma(300, 11, undefined, { cenario })).incerteza.retencaoCorrigida.diferenca!)).toBe(true);
+            }
+        });
+
+        it('o teste pareado acusa o ganho na base, e não no nulo', () => {
+            expect(ind(base).incerteza.testePareado!.p).toBeLessThan(0.05);
+            expect(ind(turma(300, 11, undefined, { cenario: 'nulo' })).incerteza.testePareado!.p).toBeGreaterThan(0.05);
+        });
+
         it('o intervalo do ganho exclui o zero na base e inclui no nulo, e a página diz isso', () => {
             const naBase = ind(turma(100, 11)).incerteza.ganhoDaTurma!;
             const doNulo = ind(turma(100, 11, undefined, { cenario: 'nulo' }));
@@ -521,6 +534,37 @@ describe('o gerador para medir o instrumento', () => {
 
             expect(acertoNaForma(dificil, 'forma_a') - acertoNaForma(dificil, 'forma_b')).toBeGreaterThan(0.05);
             expect(Math.abs(ind(dificil).ganhoDaTurma! - ind(base).ganhoDaTurma!)).toBeLessThan(0.06);
+        });
+    });
+
+    // O poder da ferramenta (item 37): sem um cenário em que a confiança proteja de verdade, só
+    // daria para ver que ela não inventa efeito, e não que ela o encontra quando ele existe.
+    describe('certeza protege', () => {
+        const base = turma(300, 11);
+        const protege = turma(300, 11, undefined, { cenario: 'certeza_protege' });
+        const ind = (t: Turma) => indicadoresDa(t);
+
+        it('muda só a revisão: o diagnóstico, a prática e a verificação são os da base', () => {
+            const semRevisao = (t: Turma) => t.dados.respostas.filter((r) => r.fase !== 'reteste');
+
+            expect(protege.cenario).toBe('certeza_protege');
+            expect(CENARIOS.certeza_protege.rotulo).toBe('Certeza protege');
+            expect(semRevisao(protege)).toEqual(semRevisao(base));
+            expect(protege.dados.respostas.filter((r) => r.fase === 'reteste').map((r) => r.correta)).not.toEqual(
+                base.dados.respostas.filter((r) => r.fase === 'reteste').map((r) => r.correta)
+            );
+        });
+
+        it('a retenção corrigida da confiança alta sobe, e a diferença fica acima da da base', () => {
+            const corrigida = (t: Turma) => ind(t).incerteza.retencaoCorrigida;
+
+            expect(corrigida(protege).alta!.estimativa).toBeGreaterThan(corrigida(base).alta!.estimativa + 0.03);
+            expect(corrigida(protege).diferenca!.estimativa).toBeGreaterThan(corrigida(base).diferenca!.estimativa);
+        });
+
+        it('o que se sabia com certeza se mantém mais na revisão do que na base', () => {
+            expect(taxa(ind(protege).firmes)).toBeGreaterThan(taxa(ind(base).firmes) + 0.03);
+            expect(taxa(ind(protege).frageis)).toBeCloseTo(taxa(ind(base).frageis), 1);
         });
     });
 
@@ -650,6 +694,22 @@ describe('a página do relatório com dados simulados', () => {
         expect(real).not.toContain('Conferência do classificador');
     });
 
+    it('com os defeitos plantados, mostra onde cada um ficou na tabela de conteúdo; sem eles, não', () => {
+        const defeitos = [
+            { rotulo: 'Gabarito trocado', descricao: 'quem sabe marca sempre o mesmo distrator', enunciado: 'Qual é a mecânica?', topico: 'Framework MDA', posicao: 1 },
+            { rotulo: 'Distrator irresistível', descricao: 'quase todo mundo que não sabe vai nele', enunciado: 'Qual engine?', topico: 'Escolha de engine', posicao: null },
+        ];
+        const comDefeitos = relatorioHtml(ind, { geradoEm: '2026-10-13', simulacao: { alunos: 100, semente: 7, defeitos } });
+        const bloco = comDefeitos.slice(comDefeitos.indexOf('<h2>Conferência dos defeitos plantados</h2>'));
+
+        expect(bloco).toContain('Gabarito trocado');
+        expect(bloco).toContain('Qual é a mecânica?');
+        expect(bloco).toContain('1ª');
+        expect(bloco).toContain('fora da lista');
+        expect(simulada).not.toContain('Conferência dos defeitos plantados');
+        expect(real).not.toContain('Conferência dos defeitos plantados');
+    });
+
     it('o título da aba também avisa', () => {
         expect(simulada).toContain('<title>Beast Maragames · Relatório de aprendizagem (simulação)</title>');
     });
@@ -684,5 +744,53 @@ describe('conteúdo pequeno demais', () => {
 
         expect(dados.respostas.some((r) => r.topicId === 'mda_framework')).toBe(false);
         expect(dados.respostas.length).toBeGreaterThan(0);
+    });
+});
+
+// Questões com defeito plantado (item 37): a tabela de conteúdo do relatório tem de achá-las.
+describe('os defeitos plantados', () => {
+    const limpa = turma(100, 1250808581);
+    const comDefeitos = turma(100, 1250808581, undefined, { defeitos: true });
+    const questaoDe = new Map(CONTEUDO.questoes.map((q) => [q.id, q]));
+
+    it('sem a opção, não há defeito nenhum', () => {
+        expect(limpa.defeitos).toEqual([]);
+    });
+
+    it('são três questões medidas, uma de cada defeito, em tópicos diferentes, cada uma com um distrator dela', () => {
+        expect(comDefeitos.defeitos.map((d) => d.tipo).sort()).toEqual(['ambigua', 'distrator_irresistivel', 'gabarito_trocado']);
+        const questoes = comDefeitos.defeitos.map((d) => questaoDe.get(d.questaoId)!);
+        expect(new Set(questoes.map((q) => q.topicId)).size).toBe(3);
+        for (const [i, q] of questoes.entries()) {
+            expect(['forma_a', 'forma_b']).toContain(q.bloco);
+            expect(q.alternativas.find((a) => a.id === comDefeitos.defeitos[i].distrator)?.correta).toBe(false);
+        }
+    });
+
+    it('a mesma semente planta os mesmos defeitos', () => {
+        expect(turma(100, 1250808581, undefined, { defeitos: true }).defeitos).toEqual(comDefeitos.defeitos);
+    });
+
+    it('só as respostas das três questões mudam: o resto da turma é o mesmo', () => {
+        const comDefeito = new Set(comDefeitos.defeitos.map((d) => d.questaoId));
+        const fora = (t: Turma) => t.dados.respostas.filter((r) => !comDefeito.has(r.questionId));
+
+        expect(fora(comDefeitos)).toEqual(fora(limpa));
+        expect(comDefeitos.dados.respostas.filter((r) => comDefeito.has(r.questionId))).not.toEqual(
+            limpa.dados.respostas.filter((r) => comDefeito.has(r.questionId))
+        );
+    });
+
+    // O distrator irresistível pesa em quem não sabe, e na verificação quase todos sabem: pelo
+    // acerto, ele não chega ao topo. Fica de fora até o Tiago decidir como a tabela o mostra.
+    it('a tabela de conteúdo do relatório põe o gabarito trocado e a ambígua entre as questões a rever, com o distrator plantado', () => {
+        const aRever = indicadoresDa(comDefeitos).conteudo.aRever;
+        for (const defeito of comDefeitos.defeitos.filter((d) => d.tipo !== 'distrator_irresistivel')) {
+            const questao = questaoDe.get(defeito.questaoId)!;
+            const linha = aRever.find((q) => q.enunciado === questao.enunciado);
+
+            expect({ tipo: defeito.tipo, achada: linha !== undefined }).toEqual({ tipo: defeito.tipo, achada: true });
+            expect(linha!.distrator).toBe(questao.alternativas.find((a) => a.id === defeito.distrator)!.texto);
+        }
     });
 });

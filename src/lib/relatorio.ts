@@ -19,7 +19,14 @@ import { ganhoNormalizado, type Agregados, type Exportacao, type Linha } from '.
 import { PERFIS_DE_RESPOSTA, perfilDeResposta, type PerfilDeResposta } from './perfis-de-resposta';
 import type { Quadrante } from './quadrante';
 import type { Taxa } from './resultado';
-import { intervaloPorReamostragem, incluiZero, type Intervalo } from './estatistica';
+import {
+    intervaloPorReamostragem,
+    incluiZero,
+    retencaoCorrigida,
+    testePorPermutacaoDeSinais,
+    type Intervalo,
+    type TesteDeSinais,
+} from './estatistica';
 
 /** Com menos respostas que isto, um percentual engana: a página mostra só a contagem. */
 export const AMOSTRA_MINIMA = 10;
@@ -31,6 +38,8 @@ export const AMOSTRA_MINIMA = 10;
 export const MINIMO_DE_PESSOAS_POR_GRUPO = 5;
 
 const MAXIMO_DE_QUESTOES_A_REVER = 10;
+/** Abaixo disto, o intervalo por reamostragem sai estreito demais: a página o chama de aproximado. */
+const PESSOAS_PARA_INTERVALO_CONFIAVEL = 30;
 const ACASO = 0.25; // uma de quatro alternativas
 
 export interface Contagem {
@@ -58,13 +67,18 @@ export interface CoberturaDoTopico {
     verificadas: number;
 }
 
-// Os intervalos de 95%, reamostrando pessoas (src/lib/estatistica.ts).
+// Os intervalos de 95%, reamostrando pessoas, e o teste pareado (src/lib/estatistica.ts).
 export interface Incerteza {
     ganhoDaTurma: Intervalo | null;
     retencao: Intervalo | null;
-    firmesMenosFrageis: Intervalo | null;
-    // A diferença entre Firmes e Frágeis dentro da mesma pessoa, em média, de quem tem os dois.
-    pareado: { intervalo: Intervalo; pessoas: number } | null;
+    // Item 37: a retenção só do que se sabia, descontado o chute, pela confiança da verificação.
+    // Substitui "Firmes menos Frágeis", que o chute dentro dos Frágeis inflava.
+    // `respostas`: de cada nível, as respostas da verificação revisada, para o corte de amostra.
+    retencaoCorrigida: { alta: Intervalo | null; baixa: Intervalo | null; diferenca: Intervalo | null; respostas: { alta: number; baixa: number } };
+    // O acerto com confiança alta menos o com baixa, na verificação: a confiança diz alguma coisa?
+    calibracao: Intervalo | null;
+    // De cada pessoa, o acerto na verificação menos o do diagnóstico, nas lições com os dois.
+    testePareado: (TesteDeSinais & { pessoas: number }) | null;
 }
 
 // Um grupo de pessoas (por sexo, idade, experiência...) com os números principais delas. O grupo
@@ -307,22 +321,59 @@ export function indicadoresDoRelatorio(
             somaDe(amostra, 'firmes_mantidos') + somaDe(amostra, 'frageis_mantidos'),
             somaDe(amostra, 'firmes_no_pos') + somaDe(amostra, 'frageis_no_pos')
         );
-    const diferencaDe = (amostra: readonly Linha[]) => {
-        const firmes = taxaDe(somaDe(amostra, 'firmes_mantidos'), somaDe(amostra, 'firmes_no_pos'));
-        const frageis = taxaDe(somaDe(amostra, 'frageis_mantidos'), somaDe(amostra, 'frageis_no_pos'));
-        return firmes === null || frageis === null ? null : firmes - frageis;
+    // A retenção corrigida de um nível de confiança, somando as pessoas da amostra.
+    const corrigidaDe = (amostra: readonly Linha[], nivel: 'alta' | 'baixa') => {
+        const [noPos, mantidos] = nivel === 'alta' ? ['firmes_no_pos', 'firmes_mantidos'] : ['frageis_no_pos', 'frageis_mantidos'];
+        return retencaoCorrigida({
+            respostas: somaDe(amostra, `confianca_${nivel}_no_pos`),
+            acertos: somaDe(amostra, noPos),
+            mantidos: somaDe(amostra, mantidos),
+        });
     };
-    // Pareado: só quem tem Firmes e Frágeis na revisão; a diferença de cada um, e a média delas.
+    const diferencaCorrigidaDe = (amostra: readonly Linha[]) => {
+        const alta = corrigidaDe(amostra, 'alta');
+        const baixa = corrigidaDe(amostra, 'baixa');
+        return alta === null || baixa === null ? null : alta - baixa;
+    };
+
+    // A calibração, das respostas da verificação das lições com o antes e o depois completos, as
+    // mesmas das barras de acerto por confiança.
+    const verificadas = new Set(licoes.filter((l) => l.antes_total !== null).map((l) => `${l.codigo}|${l.topico}`));
+    const porConfiancaDe = new Map<unknown, { alta: Taxa; baixa: Taxa }>(
+        participantes.map((p) => [p.codigo, { alta: { acertos: 0, total: 0 }, baixa: { acertos: 0, total: 0 } }])
+    );
+    for (const e of eventos) {
+        if (e.fase !== 'pos' || !verificadas.has(`${e.codigo}|${e.topico}`)) continue;
+        const daPessoa = porConfiancaDe.get(e.codigo);
+        if (!daPessoa) continue;
+        const nivel = numero(e, 'confianca') === 3 ? daPessoa.alta : daPessoa.baixa;
+        nivel.total += 1;
+        nivel.acertos += numero(e, 'correta');
+    }
+    const calibracaoDe = (amostra: readonly Linha[]) => {
+        const somaDo = (nivel: 'alta' | 'baixa', campo: keyof Taxa) =>
+            amostra.reduce((total, p) => total + (porConfiancaDe.get(p.codigo)?.[nivel][campo] ?? 0), 0);
+        const alta = taxaDe(somaDo('alta', 'acertos'), somaDo('alta', 'total'));
+        const baixa = taxaDe(somaDo('baixa', 'acertos'), somaDo('baixa', 'total'));
+        return alta === null || baixa === null ? null : alta - baixa;
+    };
+
+    // O teste pareado: a diferença de cada pessoa, da verificação menos o diagnóstico.
     const diferencasPorPessoa = participantes
-        .filter((p) => numero(p, 'firmes_no_pos') > 0 && numero(p, 'frageis_no_pos') > 0)
-        .map((p) => numero(p, 'firmes_mantidos') / numero(p, 'firmes_no_pos') - numero(p, 'frageis_mantidos') / numero(p, 'frageis_no_pos'));
-    const mediaDe = (xs: readonly number[]) => (xs.length === 0 ? null : xs.reduce((a, b) => a + b, 0) / xs.length);
-    const intervaloPareado = intervaloPorReamostragem(diferencasPorPessoa, mediaDe);
+        .filter((p) => numero(p, 'pre_total') > 0 && numero(p, 'pos_total') > 0)
+        .map((p) => numero(p, 'pos_acertos') / numero(p, 'pos_total') - numero(p, 'pre_acertos') / numero(p, 'pre_total'));
+    const teste = testePorPermutacaoDeSinais(diferencasPorPessoa);
     const incerteza: Incerteza = {
         ganhoDaTurma: intervaloPorReamostragem(participantes, ganhoDe),
         retencao: intervaloPorReamostragem(participantes, retencaoDe),
-        firmesMenosFrageis: intervaloPorReamostragem(participantes, diferencaDe),
-        pareado: intervaloPareado === null ? null : { intervalo: intervaloPareado, pessoas: diferencasPorPessoa.length },
+        retencaoCorrigida: {
+            alta: intervaloPorReamostragem(participantes, (a) => corrigidaDe(a, 'alta')),
+            baixa: intervaloPorReamostragem(participantes, (a) => corrigidaDe(a, 'baixa')),
+            diferenca: intervaloPorReamostragem(participantes, diferencaCorrigidaDe),
+            respostas: { alta: soma(participantes, 'confianca_alta_no_pos'), baixa: soma(participantes, 'confianca_baixa_no_pos') },
+        },
+        calibracao: intervaloPorReamostragem(participantes, calibracaoDe),
+        testePareado: teste === null ? null : { pessoas: diferencasPorPessoa.length, ...teste },
     };
 
     // O perfil de resposta de cada pessoa, pelas respostas dela. A revisão fica de fora: repete as
@@ -399,6 +450,9 @@ export interface OpcoesDoRelatorio {
         cenario?: { rotulo: string; descricao: string };
         // O tipo sorteado contra o perfil lido, para conferir o classificador.
         matriz?: { tipos: { rotulo: string; contagens: number[] }[]; perfis: string[] };
+        // Os defeitos plantados (item 37) e a posição de cada questão na tabela de conteúdo; null
+        // quando ela ficou fora da lista.
+        defeitos?: { rotulo: string; descricao: string; enunciado: string; topico: string; posicao: number | null }[];
     };
 }
 
@@ -409,9 +463,18 @@ function esc(valor: string): string {
 
 const dia = (data: string) => data.split('-').reverse().join('/');
 const decimal = (valor: number, casas = 1) => valor.toFixed(casas).replace('.', ',');
-const pontos = (valor: number) => `${valor > 0 ? '+' : valor < 0 ? '−' : ''}${Math.round(Math.abs(valor) * 100)} pontos`;
-/** "IC 95%: 0,21 a 0,38", para ler embaixo de um número. */
-const textoDoIntervalo = (i: Intervalo, formato: (v: number) => string) => `IC 95%: ${formato(i.inferior)} a ${formato(i.superior)}`;
+const pontos = (valor: number) => {
+    const arredondado = Math.round(valor * 100);
+    return `${arredondado > 0 ? '+' : arredondado < 0 ? '−' : ''}${Math.abs(arredondado)} pontos`;
+};
+/**
+ * "IC 95%: 0,21 a 0,38", para ler embaixo de um número. Com poucas pessoas, a reamostragem dá um
+ * intervalo estreito demais, e o texto diz que ele é aproximado.
+ */
+const textoDoIntervalo = (i: Intervalo, formato: (v: number) => string, pessoas: number) =>
+    `IC 95%: ${formato(i.inferior)} a ${formato(i.superior)}` + (pessoas < PESSOAS_PARA_INTERVALO_CONFIAVEL ? ' · intervalo aproximado' : '');
+const porcento = (valor: number) => `${Math.round(valor * 100) + 0}%`.replace('-', '−');
+const valorP = (p: number) => (p < 0.001 ? 'p < 0,001' : `p = ${decimal(p, p < 0.01 ? 3 : 2)}`);
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 const fracao = (taxa: Taxa) => `${taxa.acertos} de ${taxa.total}`;
 const largura = (parte: number, todo: number) => (todo <= 0 ? 0 : Math.round((Math.min(parte, todo) / todo) * 100));
@@ -579,22 +642,43 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     // 1. Em resumo
     const retencao = destaque(ind.retencao);
     const pontosCegos = destaque(ind.pontosCegos);
+    const ic = (i: Intervalo, formato: (v: number) => string) => textoDoIntervalo(i, formato, n);
+    // O ganho segue o corte de amostra, como os outros cartões: sobre poucas respostas, não é número.
+    const ganhoPequeno = pequena(ind.pre) || pequena(ind.pos);
+    const { testePareado, calibracao, retencaoCorrigida: corrigida } = ind.incerteza;
+    const poucas = (respostas: number) => respostas < minima;
+    const calibracaoPequena = poucas(ind.porConfianca[3].total) || poucas(ind.porConfianca[1].total + ind.porConfianca[2].total);
     const resumo = bloco(
         'Em resumo',
         '',
         `<div class="cartoes">` +
             cartao('Participantes', String(n), simulacao ? 'alunos virtuais' : 'aceitaram o termo') +
             cartao('Lições verificadas', String(ind.verificadas), 'com o antes e o depois medidos') +
-            cartao(
-                'Ganho da turma',
-                ind.ganhoDaTurma === null ? 'sem dados' : decimal(ind.ganhoDaTurma, 2),
-                'do que faltava acertar, a parte que passou a ser acertada' +
-                    (ind.incerteza.ganhoDaTurma
-                        ? ` · ${textoDoIntervalo(ind.incerteza.ganhoDaTurma, (v) => decimal(v, 2))}` +
-                          (incluiZero(ind.incerteza.ganhoDaTurma) ? ' · sem evidência de ganho' : '')
-                        : '') +
-                    (ind.ganhoMedio === null ? '' : ` · média por pessoa: ${decimal(ind.ganhoMedio, 2)}`)
-            ) +
+            (ind.ganhoDaTurma !== null && ganhoPequeno
+                ? cartao('Ganho da turma', 'poucos dados', `amostra pequena · ${plural(ind.pre.total, 'resposta', 'respostas')} no diagnóstico`)
+                : cartao(
+                      'Ganho da turma',
+                      ind.ganhoDaTurma === null ? 'sem dados' : decimal(ind.ganhoDaTurma, 2),
+                      'do que faltava acertar, a parte que passou a ser acertada' +
+                          (ind.incerteza.ganhoDaTurma
+                              ? ` · ${ic(ind.incerteza.ganhoDaTurma, (v) => decimal(v, 2))}` +
+                                (incluiZero(ind.incerteza.ganhoDaTurma) ? ' · sem evidência de ganho' : '')
+                              : '') +
+                          (testePareado === null
+                              ? ''
+                              : ` · teste pareado: ${valorP(testePareado.p)}, ${plural(testePareado.pessoas, 'pessoa', 'pessoas')}`) +
+                          (ind.ganhoMedio === null ? '' : ` · média por pessoa: ${decimal(ind.ganhoMedio, 2)}`)
+                  )) +
+            (calibracao === null
+                ? ''
+                : calibracaoPequena
+                  ? cartao('Calibração', 'poucos dados', 'amostra pequena · acerto com certeza menos acerto sem certeza, na verificação')
+                  : cartao(
+                      'Calibração',
+                      pontos(calibracao.estimativa),
+                      `acerto com certeza menos acerto sem certeza, na verificação · ${ic(calibracao, pontos)}` +
+                          (incluiZero(calibracao) ? ' · sem evidência de que a certeza diga algo' : '')
+                  )) +
             cartao('Retenção', retencao.valor, `${retencao.contagem}acertos que continuaram certos 7 dias depois`) +
             cartao('Ponto cego', pontosCegos.valor, `${pontosCegos.contagem}respostas erradas com certeza`) +
             `</div>`
@@ -670,28 +754,32 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
         'A confiança declarada indica o que vai ser esquecido? A revisão repete, 7 dias depois, as questões da verificação: aqui só entram as que a pessoa tinha acertado.',
         barra('Firmes que continuaram certos', ind.firmes, 'firme') +
             barra('Frágeis que continuaram certos', ind.frageis, 'fragil') +
-            `<p class="nota">Se os Firmes resistem mais que os Frágeis, a confiança prevê o esquecimento, e o app sabe o que cada pessoa precisa rever.` +
+            `<p class="nota">As barras mostram o que aconteceu, sem descontar o chute. Se o que se sabia com certeza resiste mais que o que se sabia sem ela, a confiança prevê o esquecimento, e o app sabe o que cada pessoa precisa rever.` +
             (ind.antesDaHora > 0 ? ` Revisões feitas antes dos 7 dias: ${ind.antesDaHora}.` : '') +
             `</p>` +
-            (ind.incerteza.firmesMenosFrageis === null
+            (corrigida.diferenca === null
                 ? ''
-                : `<div class="cartoes">` +
-                  cartao(
-                      'Firmes menos Frágeis',
-                      pontos(ind.incerteza.firmesMenosFrageis.estimativa),
-                      `na turma · ${textoDoIntervalo(ind.incerteza.firmesMenosFrageis, pontos)}` +
-                          (incluiZero(ind.incerteza.firmesMenosFrageis) ? ' · sem evidência de diferença' : '')
-                  ) +
-                  (ind.incerteza.pareado === null
-                      ? ''
+                : `<h3>Descontado o chute</h3>` +
+                  `<div class="cartoes">` +
+                  (['alta', 'baixa'] as const)
+                      .map((nivel) => {
+                          const intervalo = corrigida[nivel];
+                          const rotulo = nivel === 'alta' ? 'Do que se sabia, com certeza' : 'Do que se sabia, sem certeza';
+                          if (intervalo === null) return '';
+                          if (poucas(corrigida.respostas[nivel])) return cartao(rotulo, 'poucos dados', 'amostra pequena · continuou sabido na revisão');
+                          return cartao(rotulo, porcento(intervalo.estimativa), `continuou sabido na revisão · ${ic(intervalo, porcento)}`);
+                      })
+                      .join('') +
+                  (poucas(corrigida.respostas.alta) || poucas(corrigida.respostas.baixa)
+                      ? cartao('Diferença', 'poucos dados', 'amostra pequena · com certeza menos sem certeza')
                       : cartao(
-                            'Na mesma pessoa',
-                            pontos(ind.incerteza.pareado.intervalo.estimativa),
-                            `média de ${plural(ind.incerteza.pareado.pessoas, 'pessoa', 'pessoas')} com Firmes e Frágeis · ${textoDoIntervalo(ind.incerteza.pareado.intervalo, pontos)}` +
-                                (incluiZero(ind.incerteza.pareado.intervalo) ? ' · sem evidência de diferença' : '')
+                            'Diferença',
+                            pontos(corrigida.diferenca.estimativa),
+                            `com certeza menos sem certeza · ${ic(corrigida.diferenca, pontos)}` +
+                                (incluiZero(corrigida.diferenca) ? ' · sem evidência de diferença' : '')
                         )) +
                   `</div>` +
-                  `<p class="nota">A diferença na turma mistura duas coisas além da confiança: os Frágeis incluem acertos no chute, que não têm o que reter, e quem marca certeza costuma ser quem sabe mais. A comparação na mesma pessoa tira a segunda; a primeira continua. Os intervalos reamostram pessoas, e não respostas.</p>`)
+                  `<p class="nota">As barras acima contam os acertos no chute, que não têm o que reter e só se repetem por acaso; como há mais chute entre os Frágeis, elas fazem a certeza parecer proteger mesmo quando não protege. Os cartões descontam o chute: do acerto em cada nível sai a parte que a pessoa sabia, e o número é quanto dessa parte ela ainda sabia na revisão. Com poucas respostas, ele pode passar de 100% ou ficar abaixo de 0%. Os intervalos reamostram pessoas, e não respostas.</p>`)
     );
 
     // Perfis de resposta
@@ -835,6 +923,26 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                       `<p class="nota">Os tipos do gerador foram desenhados junto com os perfis, então acertar a diagonal não prova que o classificador funciona com gente de verdade. O que esta tabela mostra são as confusões: que tipo é lido como qual perfil.</p>`
               );
 
+    // Conferência dos defeitos: só na página simulada com --defeitos.
+    const conferenciaDosDefeitos =
+        simulacao?.defeitos === undefined
+            ? ''
+            : bloco(
+                  'Conferência dos defeitos plantados',
+                  'O gerador estragou três questões de propósito. A tabela de conteúdo acima as encontrou?',
+                  `<div class="tabela"><table><thead><tr><th>Defeito</th><th>Questão</th><th>Na tabela</th></tr></thead><tbody>` +
+                      simulacao.defeitos
+                          .map(
+                              (d) =>
+                                  `<tr><td>${esc(d.rotulo)}<br><span class="n">${esc(d.descricao)}</span></td>` +
+                                  `<td>${esc(d.enunciado)}<br><span class="n">${esc(d.topico)}</span></td>` +
+                                  `<td class="num">${d.posicao === null ? 'fora da lista' : `${d.posicao}ª`}</td></tr>`
+                          )
+                          .join('') +
+                      `</tbody></table></div>` +
+                      `<p class="nota">A tabela ordena pelo acerto na verificação. Um defeito que pesa em quem não sabe, como o distrator irresistível, mexe pouco nesse acerto, porque depois da lição quase todos sabem.</p>`
+              );
+
     // 8. Quem respondeu
     const perfil = bloco(
         'Quem respondeu',
@@ -871,7 +979,21 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
     );
 
     return pagina(
-        [resumo, aprendizagem, consciencia, retencaoBloco, perfisDeResposta, autoavaliacao, porGrupo, engajamento, conteudoBloco, perfil, conferencia, comoLer]
+        [
+            resumo,
+            aprendizagem,
+            consciencia,
+            retencaoBloco,
+            perfisDeResposta,
+            autoavaliacao,
+            porGrupo,
+            engajamento,
+            conteudoBloco,
+            perfil,
+            conferencia,
+            conferenciaDosDefeitos,
+            comoLer,
+        ]
             .filter((b) => b !== '')
             .join('\n')
     );

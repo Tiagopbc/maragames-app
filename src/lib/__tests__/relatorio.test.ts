@@ -395,22 +395,41 @@ describe('indicadoresDoRelatorio', () => {
             expect(incerteza.ganhoDaTurma!.superior).toBeGreaterThanOrEqual(incerteza.ganhoDaTurma!.estimativa);
         });
 
-        it('a retenção e a diferença entre Firmes e Frágeis também', () => {
+        it('a retenção também', () => {
             expect(incerteza.retencao!.estimativa).toBeCloseTo(0.5);
-            // A Ana manteve o Firme (1 de 1) e perdeu o Frágil (0 de 1).
-            expect(incerteza.firmesMenosFrageis!.estimativa).toBeCloseTo(1);
         });
 
-        it('o Firme contra o Frágil pareado, dentro da mesma pessoa, de quem tem os dois', () => {
-            expect(incerteza.pareado).toMatchObject({ pessoas: 1, intervalo: { estimativa: 1 } });
+        // Item 37: a retenção só do que se sabia, descontado o chute, em cada nível de confiança.
+        it('a retenção corrigida pelo chute, da confiança alta, da baixa e a diferença', () => {
+            // A Ana acertou as duas da verificação, uma com certeza e outra sem; manteve só a primeira.
+            // Com tudo sabido, a alta retém 100%; a baixa, perdendo a única, fica abaixo do acaso.
+            expect(incerteza.retencaoCorrigida.alta!.estimativa).toBeCloseTo(1);
+            expect(incerteza.retencaoCorrigida.baixa!.estimativa).toBeCloseTo(-1 / 3);
+            expect(incerteza.retencaoCorrigida.diferenca!.estimativa).toBeCloseTo(4 / 3);
+        });
+
+        it('a calibração: o acerto com confiança alta menos o com baixa, na verificação', () => {
+            // Com certeza: a Ana acertou 1 de 1 e a Bia 1 de 2. Sem certeza: a Ana, 1 de 1.
+            expect(incerteza.calibracao!.estimativa).toBeCloseTo(2 / 3 - 1);
+        });
+
+        it('o teste pareado do diagnóstico para a verificação, por pessoa', () => {
+            // Ana: de 1 de 2 para 2 de 2; Bia: de 0 de 2 para 1 de 2. As duas sobem meio ponto.
+            expect(incerteza.testePareado).toEqual({ pessoas: 2, media: 0.5, p: 0.5, exato: true });
         });
 
         it('sem revisão, não há intervalo de retenção', () => {
             const semRevisao = indicadores({ ...DADOS, respostas: DADOS.respostas.filter((r) => r.fase !== 'reteste') }).incerteza;
 
             expect(semRevisao.retencao).toBeNull();
-            expect(semRevisao.firmesMenosFrageis).toBeNull();
-            expect(semRevisao.pareado).toBeNull();
+            expect(semRevisao.retencaoCorrigida).toMatchObject({ alta: null, baixa: null, diferenca: null });
+        });
+
+        it('sem verificação, não há teste pareado nem calibração', () => {
+            const soDiagnostico = indicadores({ ...DADOS, respostas: DADOS.respostas.filter((r) => r.fase === 'pre') }).incerteza;
+
+            expect(soDiagnostico.testePareado).toBeNull();
+            expect(soDiagnostico.calibracao).toBeNull();
         });
     });
 
@@ -739,7 +758,8 @@ describe('relatorioHtml', () => {
 
     describe('intervalos', () => {
         it('o resumo mostra o intervalo de 95% do ganho da turma', () => {
-            const resumo = pagina().slice(0, pagina().indexOf('<h2>Aprendizagem</h2>'));
+            const html = pagina(indicadores(), 1);
+            const resumo = html.slice(0, html.indexOf('<h2>Aprendizagem</h2>'));
 
             expect(resumo).toContain('IC 95%');
         });
@@ -748,25 +768,59 @@ describe('relatorioHtml', () => {
             const ind = indicadores();
             const semEvidencia = { ...ind, incerteza: { ...ind.incerteza, ganhoDaTurma: { estimativa: 0.05, inferior: -0.1, superior: 0.2 } } };
 
-            expect(pagina(semEvidencia)).toContain('sem evidência de ganho');
-            expect(pagina(ind)).not.toContain('sem evidência de ganho');
+            expect(pagina(semEvidencia, 1)).toContain('sem evidência de ganho');
+            expect(pagina(ind, 1)).not.toContain('sem evidência de ganho');
         });
 
-        it('o cartão da mesma pessoa também avisa quando o intervalo cruza o zero', () => {
-            const ind = indicadores();
-            const cruza = { ...ind, incerteza: { ...ind.incerteza, pareado: { pessoas: 30, intervalo: { estimativa: 0.1, inferior: -0.05, superior: 0.25 } } } };
-            const bloco = (html: string) => html.slice(html.indexOf('Na mesma pessoa'), html.indexOf('<h2>Perfis de resposta</h2>'));
-
-            expect(bloco(pagina(cruza))).toContain('sem evidência de diferença');
-        });
-
-        it('a retenção traz Firmes menos Frágeis com o intervalo, a comparação pareada e o aviso de composição', () => {
-            const html = pagina();
+        it('a retenção traz a corrigida pelo chute, alta, baixa e a diferença, e não mais Firmes menos Frágeis', () => {
+            const html = pagina(indicadores(), 1);
             const bloco = html.slice(html.indexOf('<h2>Retenção</h2>'), html.indexOf('<h2>Perfis de resposta</h2>'));
 
-            expect(bloco).toContain('Firmes menos Frágeis');
-            expect(bloco).toContain('mesma pessoa');
+            expect(bloco).toContain('Do que se sabia, com certeza');
+            expect(bloco).toContain('Do que se sabia, sem certeza');
+            expect(bloco).toContain('Diferença');
             expect(bloco).toContain('chute');
+            expect(bloco).not.toContain('Firmes menos Frágeis');
+            expect(bloco).not.toContain('Na mesma pessoa');
+        });
+
+        it('a diferença corrigida avisa quando o intervalo cruza o zero', () => {
+            const ind = indicadores();
+            const cruza = {
+                ...ind,
+                incerteza: {
+                    ...ind.incerteza,
+                    retencaoCorrigida: { ...ind.incerteza.retencaoCorrigida, diferenca: { estimativa: 0.1, inferior: -0.05, superior: 0.25 } },
+                },
+            };
+            const bloco = (html: string) => html.slice(html.indexOf('<h2>Retenção</h2>'), html.indexOf('<h2>Perfis de resposta</h2>'));
+
+            expect(bloco(pagina(cruza, 1))).toContain('sem evidência de diferença');
+            // Com o corte de amostra, nenhum dos cartões corrigidos vira número.
+            expect(bloco(pagina(cruza))).toContain('poucos dados');
+        });
+
+        it('o resumo traz o p do teste pareado ao lado do ganho, e a calibração', () => {
+            const html = pagina(indicadores(), 1);
+            const resumo = html.slice(0, html.indexOf('<h2>Aprendizagem</h2>'));
+
+            expect(resumo).toContain('teste pareado: p = 0,50');
+            expect(resumo).toContain('Calibração');
+        });
+
+        it('com menos de 30 pessoas, o intervalo é dito aproximado', () => {
+            expect(pagina(indicadores(), 1)).toContain('intervalo aproximado');
+            const muitos = { ...indicadores(), participantes: 30 };
+            expect(pagina(muitos, 1)).not.toContain('intervalo aproximado');
+        });
+
+        it('o ganho do resumo obedece ao corte de amostra, como os outros cartões', () => {
+            const resumo = (html: string) => html.slice(0, html.indexOf('<h2>Aprendizagem</h2>'));
+
+            // São 4 respostas no diagnóstico: com o corte em 10, o ganho não vira número grande.
+            expect(resumo(pagina(indicadores(), 10))).toContain('amostra pequena');
+            expect(resumo(pagina(indicadores(), 10))).not.toContain('<div class="valor">0,67</div>');
+            expect(resumo(pagina(indicadores(), 1))).toContain('<div class="valor">0,67</div>');
         });
     });
 
@@ -818,7 +872,7 @@ describe('relatorioHtml', () => {
     });
 
     it('o resumo traz o ganho da turma como número principal, com a média por pessoa ao lado', () => {
-        const html = pagina();
+        const html = pagina(indicadores(), 1);
         const resumo = html.slice(html.indexOf('<h2>Em resumo</h2>'), html.indexOf('<h2>Aprendizagem</h2>'));
 
         expect(resumo).toContain('Ganho da turma');

@@ -171,17 +171,39 @@ const DIAS_DE_ENTRADA = 14; // a turma chega ao longo de duas semanas
 /** Quanto tempo a turma dura: o bastante para todas as revisões abrirem. */
 export const DIAS_DA_SIMULACAO = 60;
 
-export type Cenario = 'base' | 'nulo' | 'confianca_cega' | 'forma_b_dificil';
+export type Cenario = 'base' | 'nulo' | 'confianca_cega' | 'forma_b_dificil' | 'certeza_protege';
 
 export const CENARIOS: Record<Cenario, { rotulo: string; descricao: string }> = {
     base: { rotulo: 'Base', descricao: 'a turma como foi sorteada' },
     nulo: { rotulo: 'Nulo', descricao: 'ninguém aprende nem esquece: a lição não faz efeito' },
     confianca_cega: { rotulo: 'Confiança cega', descricao: 'a chance de marcar certeza é a mesma sabendo ou não' },
     forma_b_dificil: { rotulo: 'Forma B difícil', descricao: 'as questões da forma B são mais difíceis que as da A' },
+    certeza_protege: { rotulo: 'Certeza protege', descricao: 'o que se sabe e se marca com certeza se esquece menos' },
 };
 
 // Na forma B difícil, a chance de saber uma questão da forma B cai a este tanto.
 const FATOR_DA_FORMA_B_DIFICIL = 0.75;
+// Na certeza protege, quem sabia e marcou certeza esquece só este tanto do que esqueceria.
+const FATOR_DA_CERTEZA_QUE_PROTEGE = 0.3;
+
+// Os defeitos que o simulador sabe plantar numa questão medida (item 37), para conferir se a
+// tabela de conteúdo do relatório os acha.
+export type TipoDeDefeito = 'gabarito_trocado' | 'distrator_irresistivel' | 'ambigua';
+
+export const DEFEITOS: Record<TipoDeDefeito, { rotulo: string; descricao: string }> = {
+    gabarito_trocado: { rotulo: 'Gabarito trocado', descricao: 'quem sabe marca sempre o mesmo distrator' },
+    distrator_irresistivel: { rotulo: 'Distrator irresistível', descricao: 'quase todo mundo que não sabe vai nele, e com certeza' },
+    ambigua: { rotulo: 'Questão ambígua', descricao: 'quem sabe se divide entre a correta e um distrator' },
+};
+
+export interface DefeitoPlantado {
+    questaoId: string;
+    tipo: TipoDeDefeito;
+    distrator: string; // a alternativa errada que o defeito puxa
+}
+
+// No distrator irresistível, a parte de quem não sabe que vai nele.
+const PUXADA_DO_IRRESISTIVEL = 0.9;
 
 export interface OpcoesDaSimulacao {
     alunos: number;
@@ -194,6 +216,7 @@ export interface OpcoesDaSimulacao {
     cenario?: Cenario; // por padrão, 'base'
     limiteDiario?: boolean; // no máximo uma lição nova por dia de calendário
     diasDeEstudo?: number; // lições novas só nos primeiros N dias desde a entrada; as revisões seguem
+    defeitos?: boolean; // planta os três defeitos em três questões medidas, sorteadas pela semente
 }
 
 export interface Turma {
@@ -203,6 +226,24 @@ export interface Turma {
     proporcoes: Record<TipoDeAluno, number>; // as proporções sorteadas para esta turma
     topicos: Record<string, string[]>; // os tópicos que cada aluno começou, na ordem
     cenario: Cenario;
+    defeitos: DefeitoPlantado[]; // vazio sem a opção
+}
+
+/**
+ * Três questões medidas, de tópicos diferentes, uma para cada defeito, e o distrator de cada uma.
+ * Sorteio próprio da semente: plantar os defeitos não mexe no resto da turma.
+ */
+function sortearDefeitos(questoes: readonly Question[], semente: number): DefeitoPlantado[] {
+    const sorteio = gerador(hash(`${semente}|defeitos`));
+    const medidas = questoes.filter((q) => q.bloco === 'forma_a' || q.bloco === 'forma_b');
+    const usados = new Set<string>();
+    return (Object.keys(DEFEITOS) as TipoDeDefeito[]).map((tipo) => {
+        const livres = medidas.filter((q) => !usados.has(q.topicId));
+        const questao = livres[Math.floor(sorteio() * livres.length)];
+        usados.add(questao.topicId);
+        const erradas = questao.alternativas.filter((a) => !a.correta);
+        return { questaoId: questao.id, tipo, distrator: erradas[Math.floor(sorteio() * erradas.length)].id };
+    });
 }
 
 // O que os arquivos de content/ trazem. O seed acrescenta o resto ao gravar no banco.
@@ -283,6 +324,8 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
     const { semente } = opcoes;
     const sementeDoPerfil = opcoes.sementeDoPerfil ?? semente;
     const cenario = opcoes.cenario ?? 'base';
+    const defeitos = opcoes.defeitos ? sortearDefeitos(questoes, semente) : [];
+    const defeitoDa = new Map(defeitos.map((d) => [d.questaoId, d]));
     // A dificuldade real de cada questão: a prevista pelo autor, deslocada por um sorteio fixo da
     // turma. Assim a real pode divergir da prevista, e as formas A e B não são gêmeas perfeitas.
     const dificuldadeReal = new Map(
@@ -400,19 +443,36 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
 
         /** Uma resposta, de quem sabe ou não a questão: o acerto e a confiança saem juntos. */
         const responder = (questao: Question, fase: Fase, sabe: boolean) => {
-            const correta = sorteio() < (sabe ? ACERTO_SABENDO : ACERTO_NO_CHUTE);
-            const certeza = sabe ? certezaSabendo : certezaSemSaber;
+            let correta = sorteio() < (sabe ? ACERTO_SABENDO : ACERTO_NO_CHUTE);
+            let certeza = sabe ? certezaSabendo : certezaSemSaber;
             // Os dois sorteios saem sempre, para a sequência não depender do resultado: assim um
             // cenário que muda a confiança não muda o resto da turma.
             const sorteioDaCerteza = sorteio();
             const sorteioDaDuvida = sorteio();
-            const confianca: Confianca = sorteioDaCerteza < certeza ? 3 : sorteioDaDuvida < duvidaEmVezDePalpite ? 2 : 1;
             const erradas = questao.alternativas.filter((a) => !a.correta);
             // Os distratores não atraem igual, e quem atrai mais depende da questão.
             const errada = escolher(
                 sorteio,
                 erradas.map((a) => [a.id, atracao(questao.id, a.id)] as const)
             );
+            // O defeito plantado puxa para o distrator dele, com um sorteio à parte: a sequência do
+            // resto da turma não muda.
+            let escolha = correta ? questao.alternativas.find((a) => a.correta)!.id : errada;
+            const defeito = defeitoDa.get(questao.id);
+            if (defeito) {
+                const doDefeito = gerador(hash(`${uid}|${questao.id}|${fase}|defeito`))();
+                const puxa =
+                    (defeito.tipo === 'gabarito_trocado' && sabe) ||
+                    (defeito.tipo === 'ambigua' && sabe && doDefeito < 0.5) ||
+                    (defeito.tipo === 'distrator_irresistivel' && !sabe && doDefeito < PUXADA_DO_IRRESISTIVEL);
+                if (puxa) {
+                    correta = false;
+                    escolha = defeito.distrator;
+                    // Quem cai no distrator irresistível acha que sabe.
+                    if (defeito.tipo === 'distrator_irresistivel') certeza = certezaSabendo;
+                }
+            }
+            const confianca: Confianca = sorteioDaCerteza < certeza ? 3 : sorteioDaDuvida < duvidaEmVezDePalpite ? 2 : 1;
             const tempoMs = Math.max(800, Math.round(tempoSegundos * 1000 * (0.6 + sorteio() * 0.8)));
             relogio += tempoMs + Math.round(2000 + sorteio() * 6000);
             numero += 1;
@@ -423,7 +483,7 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
                 topicId: questao.topicId,
                 attemptId: `${uid}-${questao.topicId}-${fase}`,
                 fase,
-                escolha: correta ? questao.alternativas.find((a) => a.correta)!.id : errada,
+                escolha,
                 ordemExibida: ordemDasAlternativas(uid, questao.id, fase, questao.alternativas.map((a) => a.id)),
                 correta,
                 confianca,
@@ -434,7 +494,7 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             return resposta;
         };
 
-        const revisoes: { topicId: string; quando: number; daVerificacao: { questao: Question; sabia: boolean }[] }[] = [];
+        const revisoes: { topicId: string; quando: number; daVerificacao: { questao: Question; sabia: boolean; confianca: Confianca }[] }[] = [];
         const feitos: string[] = [];
         topicosDoAluno[uid] = feitos;
         const diaDeEntrada = diaDeCalendario(consentiuEm);
@@ -479,8 +539,8 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             abrirTentativa(topico.id, 'pos');
             const daVerificacao = questoesDoBlocoMedido(questoes, 'pos', [topico.id], formaPre).map((questao) => {
                 const sabia = sorteio() < depois(questao, 1);
-                responder(questao, 'pos', sabia);
-                return { questao, sabia };
+                const { confianca } = responder(questao, 'pos', sabia);
+                return { questao, sabia, confianca };
             });
 
             // A revisão abre 7 dias depois; nem todo mundo volta, e quem volta não volta no primeiro dia.
@@ -496,8 +556,9 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
             relogio = Math.max(relogio + 5 * MINUTO, revisao.quando);
             if (relogio + HORA > agora) continue;
             abrirTentativa(revisao.topicId, 'reteste');
-            for (const { questao, sabia } of revisao.daVerificacao) {
-                const sabeAinda = sabia ? sorteio() >= esquecer : sorteio() < aprendeAteARevisao;
+            for (const { questao, sabia, confianca } of revisao.daVerificacao) {
+                const protegida = cenario === 'certeza_protege' && confianca === 3;
+                const sabeAinda = sabia ? sorteio() >= esquecer * (protegida ? FATOR_DA_CERTEZA_QUE_PROTEGE : 1) : sorteio() < aprendeAteARevisao;
                 responder(questao, 'reteste', sabeAinda);
             }
         }
@@ -514,6 +575,7 @@ export function simularTurma(conteudo: { topicos: readonly Topico[]; questoes: r
         proporcoes,
         topicos: topicosDoAluno,
         cenario,
+        defeitos,
     };
 }
 
