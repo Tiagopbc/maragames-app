@@ -2,12 +2,24 @@ import type { Answer, Question, Topico } from '../../types/domain';
 import { questoesDaPratica, questoesDoBlocoMedido } from '../bloco';
 import { diaDeCalendario } from '../calendario';
 import { ordemDasAlternativas } from '../embaralhar';
+import { incluiZero } from '../estatistica';
 import { exportarDados } from '../exportacao';
 import { DIAS_ATE_A_REVISAO } from '../licao';
 import { modulosDosTopicos } from '../perfil';
 import { perfilDeResposta } from '../perfis-de-resposta';
 import { indicadoresDoRelatorio, relatorioHtml } from '../relatorio';
-import { TIPOS_DE_ALUNO, conteudoDoRepositorio, sementeAleatoria, simularTurma, type TipoDeAluno, type Turma } from '../simulacao';
+import {
+    CENARIOS,
+    DIAS_DA_SIMULACAO,
+    TIPOS_DE_ALUNO,
+    conteudoDoRepositorio,
+    matrizDeConfusao,
+    sementeAleatoria,
+    simularTurma,
+    type OpcoesDaSimulacao,
+    type TipoDeAluno,
+    type Turma,
+} from '../simulacao';
 
 // A turma simulada é a base sintética para validar o app (itens 23 e 35): alunos virtuais de
 // perfis variados, sorteados sem proporção fixa, respondendo às lições. Nada disto vem do banco
@@ -19,8 +31,8 @@ const questoesDoRepositorio = require('../../../content/questoes.json');
 const CONTEUDO = conteudoDoRepositorio(topicosDoRepositorio, questoesDoRepositorio);
 const INICIO = Date.parse('2026-09-01T00:00:00-03:00');
 
-function turma(alunos: number, semente = 7, sementeDoPerfil?: number): Turma {
-    return simularTurma(CONTEUDO, { alunos, semente, sementeDoPerfil, inicio: INICIO });
+function turma(alunos: number, semente = 7, sementeDoPerfil?: number, extra: Partial<OpcoesDaSimulacao> = {}): Turma {
+    return simularTurma(CONTEUDO, { alunos, semente, sementeDoPerfil, inicio: INICIO, ...extra });
 }
 
 function indicadoresDa(t: Turma) {
@@ -30,6 +42,12 @@ function indicadoresDa(t: Turma) {
 const taxa = (t: { acertos: number; total: number }) => t.acertos / t.total;
 
 describe('conteudoDoRepositorio', () => {
+    it('as questões levam a versão do conteúdo que o script calcula, e não um valor fixo', () => {
+        const comVersao = conteudoDoRepositorio(topicosDoRepositorio, questoesDoRepositorio, 'abc123def456');
+
+        expect(new Set(comVersao.questoes.map((q) => q.versaoConteudo))).toEqual(new Set(['abc123def456']));
+    });
+
     it('transforma os arquivos de content/ nos tópicos e nas questões que as contas do app usam', () => {
         expect(CONTEUDO.topicos).toHaveLength(9);
         expect(CONTEUDO.questoes).toHaveLength(100);
@@ -349,12 +367,168 @@ describe('simularTurma', () => {
             expect(acertos.length / grande.dados.perfis.length).toBeGreaterThan(0.6);
         });
 
-        it('o sexo e a faixa etária não entram no desempenho: trocar o sorteio do perfil não muda resposta nenhuma', () => {
+        it('nada do cadastro entra no desempenho: trocar o sorteio do perfil não muda resposta nenhuma', () => {
             const outra = turma(100, 7, 99);
             const base = turma(100, 7);
+            const campo = (t: Turma, nome: 'sexo' | 'faixaEtaria' | 'experiencia' | 'situacaoDeEstudo' | 'alunoDoSite') =>
+                t.dados.perfis.map((p) => p[nome]);
 
-            expect(outra.dados.perfis.map((p) => p.sexo)).not.toEqual(base.dados.perfis.map((p) => p.sexo));
+            for (const nome of ['sexo', 'faixaEtaria', 'experiencia', 'situacaoDeEstudo', 'alunoDoSite'] as const) {
+                expect(campo(outra, nome)).not.toEqual(campo(base, nome));
+            }
             expect(outra.dados.respostas).toEqual(base.dados.respostas);
+        });
+    });
+});
+
+describe('o gerador para medir o instrumento', () => {
+    const grande = turma(300);
+    const pessoasPorTopico = (t: Turma) =>
+        new Map(CONTEUDO.topicos.map((tp) => [tp.id, new Set(t.dados.respostas.filter((r) => r.topicId === tp.id && r.fase === 'pre').map((r) => r.uid))]));
+    const inicioDeCadaLicao = (t: Turma, uid: string) => {
+        const inicio = new Map<string, number>();
+        for (const r of t.dados.respostas) if (r.uid === uid && r.fase === 'pre' && !inicio.has(r.topicId)) inicio.set(r.topicId, r.respondidaEm);
+        return [...inicio].sort((a, b) => a[1] - b[1]);
+    };
+
+    describe('a escolha do tópico', () => {
+        it('os nove tópicos entram na simulação', () => {
+            for (const [, pessoas] of pessoasPorTopico(turma(100))) expect(pessoas.size).toBeGreaterThan(0);
+        });
+
+        it('cada aluno escolhe o tópico: a cobertura não cai pela ordem sugerida', () => {
+            const tamanhos = [...pessoasPorTopico(grande).values()].map((p) => p.size);
+
+            expect(Math.max(...tamanhos) / Math.min(...tamanhos)).toBeLessThan(2.5);
+        });
+
+        it('a turma guarda os tópicos de cada aluno, na ordem em que ele os começou', () => {
+            for (const perfil of grande.dados.perfis.slice(0, 60)) {
+                expect(grande.topicos[perfil.uid]).toEqual(inicioDeCadaLicao(grande, perfil.uid).map(([topicId]) => topicId));
+            }
+        });
+
+        it('nenhum aluno repete um tópico', () => {
+            for (const lista of Object.values(grande.topicos)) expect(new Set(lista).size).toBe(lista.length);
+        });
+
+        it('com o limite diário, ninguém começa duas lições novas no mesmo dia', () => {
+            const limitada = turma(150, 7, undefined, { limiteDiario: true });
+
+            for (const perfil of limitada.dados.perfis) {
+                const dias = inicioDeCadaLicao(limitada, perfil.uid).map(([, quando]) => diaDeCalendario(quando));
+                expect(new Set(dias).size).toBe(dias.length);
+            }
+            // Sem o limite, há quem faça duas no mesmo dia.
+            const repetem = grande.dados.perfis.some((p) => {
+                const dias = inicioDeCadaLicao(grande, p.uid).map(([, quando]) => diaDeCalendario(quando));
+                return new Set(dias).size < dias.length;
+            });
+            expect(repetem).toBe(true);
+        });
+
+        it('com dias de estudo, as lições novas começam só nesses dias, e as revisões vêm depois', () => {
+            const piloto = turma(150, 7, undefined, { diasDeEstudo: 6, limiteDiario: true });
+
+            for (const perfil of piloto.dados.perfis) {
+                const entrada = diaDeCalendario(perfil.consentiuEm!);
+                for (const [, quando] of inicioDeCadaLicao(piloto, perfil.uid)) expect(diaDeCalendario(quando) - entrada).toBeLessThan(6);
+                expect(piloto.topicos[perfil.uid].length).toBeLessThanOrEqual(6);
+            }
+            expect(piloto.dados.respostas.some((r) => r.fase === 'reteste')).toBe(true);
+        });
+
+        it('a forma A e a B se dividem em cada tópico, dentro de uma folga', () => {
+            const formaDe = new Map(grande.dados.perfis.map((p) => [p.uid, p.formaPre]));
+            for (const [, pessoas] of pessoasPorTopico(grande)) {
+                const naA = [...pessoas].filter((uid) => formaDe.get(uid) === 'A').length;
+                expect(naA / pessoas.size).toBeGreaterThan(0.3);
+                expect(naA / pessoas.size).toBeLessThan(0.7);
+            }
+        });
+    });
+
+    describe('os sorteios', () => {
+        it('os distratores atraem conforme a questão, e não pela posição no arquivo', () => {
+            const questoes = CONTEUDO.questoes.filter((q) => q.bloco !== 'pratica');
+            const primeiroEhOMaisEscolhido = questoes.filter((q) => {
+                const erros = grande.dados.respostas.filter((r) => r.questionId === q.id && !r.correta);
+                if (erros.length < 10) return false;
+                const vezes = (id: string) => erros.filter((r) => r.escolha === id).length;
+                const erradas = q.alternativas.filter((a) => !a.correta);
+                return erradas.every((a) => vezes(erradas[0].id) >= vezes(a.id));
+            });
+
+            expect(primeiroEhOMaisEscolhido.length / questoes.length).toBeLessThan(0.6);
+        });
+
+        it('a duração da turma vem de uma constante só, exportada', () => {
+            expect(grande.agora - INICIO).toBe(DIAS_DA_SIMULACAO * 24 * 60 * 60 * 1000);
+        });
+    });
+
+    describe('os cenários', () => {
+        const base = turma(300, 11);
+        const ind = (t: Turma) => indicadoresDa(t);
+
+        it('a turma é a mesma em todos: mudar o cenário não muda os alunos nem o caminho deles', () => {
+            const cega = turma(300, 11, undefined, { cenario: 'confianca_cega' });
+
+            expect(cega.tipos).toEqual(base.tipos);
+            expect(cega.topicos).toEqual(base.topicos);
+            // A confiança muda; o acerto e a alternativa escolhida, não.
+            expect(cega.dados.respostas.map((r) => [r.questionId, r.fase, r.correta, r.escolha])).toEqual(
+                base.dados.respostas.map((r) => [r.questionId, r.fase, r.correta, r.escolha])
+            );
+            expect(cega.dados.respostas.map((r) => r.confianca)).not.toEqual(base.dados.respostas.map((r) => r.confianca));
+        });
+
+        it('base: a turma aprende', () => {
+            expect(base.cenario).toBe('base');
+            expect(taxa(ind(base).pos) - taxa(ind(base).pre)).toBeGreaterThan(0.08);
+        });
+
+        it('nulo: sem aprender e sem esquecer, a verificação acerta o mesmo que o diagnóstico', () => {
+            const nulo = ind(turma(300, 11, undefined, { cenario: 'nulo' }));
+
+            expect(Math.abs(taxa(nulo.pos) - taxa(nulo.pre))).toBeLessThan(0.04);
+        });
+
+        it('confiança cega: a certeza não diz nada sobre saber, e Firmes não resistem mais que Frágeis', () => {
+            const cega = ind(turma(300, 11, undefined, { cenario: 'confianca_cega' }));
+
+            expect(Math.abs(taxa(cega.firmes) - taxa(cega.frageis))).toBeLessThan(0.06);
+        });
+
+        it('o intervalo do ganho exclui o zero na base e inclui no nulo, e a página diz isso', () => {
+            const naBase = ind(turma(100, 11)).incerteza.ganhoDaTurma!;
+            const doNulo = ind(turma(100, 11, undefined, { cenario: 'nulo' }));
+
+            expect(incluiZero(naBase)).toBe(false);
+            expect(incluiZero(doNulo.incerteza.ganhoDaTurma!)).toBe(true);
+            expect(relatorioHtml(doNulo, { geradoEm: '2026-10-13', simulacao: { alunos: 100, semente: 11 } })).toContain('sem evidência de ganho');
+        });
+
+        it('forma B mais difícil: a forma B acerta menos, e o contrabalanceamento mantém o ganho da turma', () => {
+            const dificil = turma(300, 11, undefined, { cenario: 'forma_b_dificil' });
+            const blocoDe = new Map(CONTEUDO.questoes.map((q) => [q.id, q.bloco]));
+            const acertoNaForma = (t: Turma, bloco: string) => {
+                const rs = t.dados.respostas.filter((r) => blocoDe.get(r.questionId) === bloco && r.fase !== 'reteste');
+                return rs.filter((r) => r.correta).length / rs.length;
+            };
+
+            expect(acertoNaForma(dificil, 'forma_a') - acertoNaForma(dificil, 'forma_b')).toBeGreaterThan(0.05);
+            expect(Math.abs(ind(dificil).ganhoDaTurma! - ind(base).ganhoDaTurma!)).toBeLessThan(0.06);
+        });
+    });
+
+    describe('a matriz de confusão', () => {
+        it('cruza o tipo sorteado com o perfil lido, e soma o número de alunos', () => {
+            const matriz = matrizDeConfusao(grande);
+            const soma = Object.values(matriz).flatMap((linha) => Object.values(linha)).reduce((a, b) => a + b, 0);
+
+            expect(Object.keys(matriz)).toEqual(Object.keys(TIPOS_DE_ALUNO));
+            expect(soma).toBe(300);
         });
     });
 });
@@ -384,8 +558,30 @@ describe('a página do relatório com dados simulados', () => {
         expect(topo).toContain('nenhum é evidência sobre a retenção de conteúdo');
     });
 
-    it('avisa que sexo e idade não influenciam o desempenho no gerador', () => {
-        expect(simulada).toContain('sexo e faixa etária não influenciam o desempenho');
+    it('avisa que nada do cadastro influencia o desempenho no gerador', () => {
+        expect(simulada).toContain('nada do cadastro (sexo, faixa etária, experiência, estudo, aluno do site) influencia o desempenho');
+    });
+
+    it('o rodapé diz como repetir a turma: semente, versão do conteúdo e cenário', () => {
+        const comTudo = relatorioHtml(ind, {
+            geradoEm: '2026-10-13',
+            simulacao: { alunos: 100, semente: 7, versaoConteudo: 'abc123def456', cenario: CENARIOS.nulo },
+        });
+        const rodape = comTudo.slice(comTudo.indexOf('<footer>'));
+
+        expect(rodape).toContain('semente 7');
+        expect(rodape).toContain('versão do conteúdo abc123def456');
+        expect(rodape).toContain('cenário Nulo');
+        expect(comTudo).toContain(CENARIOS.nulo.descricao);
+    });
+
+    it('com a matriz, mostra a conferência do classificador; sem ela, e na página real, não', () => {
+        const matriz = { tipos: [{ rotulo: 'Domina o assunto', contagens: [3, 1] }], perfis: ['Domina o conteúdo', 'Em progresso'] };
+        const comMatriz = relatorioHtml(ind, { geradoEm: '2026-10-13', simulacao: { alunos: 100, semente: 7, matriz } });
+
+        expect(comMatriz).toContain('<h2>Conferência do classificador</h2>');
+        expect(simulada).not.toContain('Conferência do classificador');
+        expect(real).not.toContain('Conferência do classificador');
     });
 
     it('o título da aba também avisa', () => {
