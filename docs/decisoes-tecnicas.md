@@ -376,7 +376,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 - Instalar num Android o APK de 15/10 (build `d7ae15d7`) e conferir o login, o campo de sexo, salvar o perfil, uma lição e os dois temas (passo 1 do plano abaixo).
 - Integrar o pull request da revisão do conteúdo (branch `fix/conteudo-das-questoes`), que já está gravada no Firestore.
-- Publicar de novo a página sintética, com os quatro cenários, quando o item 36 entrar (`npx vercel deploy relatorio/simulado --prod --yes`, depois de `npm run relatorio -- --simulado 100 --semente 1250808581`).
+- Publicar de novo a página sintética, com os quatro cenários e o conteúdo revisto, depois de integrar a branch do conteúdo (`npx vercel deploy relatorio/simulado --prod --yes`, depois de `npm run relatorio -- --simulado 100 --semente 1250808581`).
 - Mandar à Beast Maragames o link da página simulada (item 23), e decidir onde a página dos dados de verdade vai ser publicada quando houver participantes.
 - Fazer as revisões que faltam, quando abrirem: Playtest e iteração em 17/10 e Publicando na Steam em 19/10, na conta principal; Framework MDA em 19/10, na conta do Google, e em 20/10, na conta de e-mail e senha de apelido Tiagopbc. Decidido pelo Tiago em 13/10: as revisões continuam, e a limpeza das contas fica para depois delas.
 
