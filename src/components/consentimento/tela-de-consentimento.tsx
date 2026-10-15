@@ -52,6 +52,9 @@ export function TelaDeConsentimento(props: TelaDeConsentimentoProps) {
                 <ScrollView contentContainerStyle={styles.conteudo}>
                     <Mascote />
                     <ThemedText type="subtitle">{TEXTOS_DO_TERMO.titulo}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                        {TEXTOS_DO_TERMO.versao}
+                    </ThemedText>
 
                     {TERMO.map((secao) => (
                         <View key={secao.titulo} style={styles.secao}>

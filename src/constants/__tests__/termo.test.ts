@@ -1,4 +1,4 @@
-import { TERMO } from '../termo';
+import { TERMO, VERSAO_DO_TERMO } from '../termo';
 
 const texto = TERMO.map((secao) => `${secao.titulo} ${secao.texto}`).join(' ');
 
@@ -76,5 +76,40 @@ describe('o termo de participação', () => {
 
     it('diz que as mensagens da Beast Maragames só vão para quem aceitou', () => {
         expect(texto).toMatch(/só.*se você aceitar/i);
+    });
+
+    // Passo 4 do plano até o piloto (item 24): o termo diz para que serve cada dado, onde ele fica,
+    // por quanto tempo, e o que a pessoa pode pedir.
+    it('diz que no sexo há a opção de não informar', () => {
+        expect(texto).toMatch(/Prefiro não informar/);
+    });
+
+    it('diz para que servem a faixa etária, o sexo e o telefone', () => {
+        expect(texto).toMatch(/faixa etária e o sexo servem para/i);
+        expect(texto).toMatch(/sempre em conjunto/i);
+        expect(texto).toMatch(/menos de 5 pessoas/i);
+        expect(texto).toMatch(/telefone é para o grupo/i);
+    });
+
+    it('diz onde os dados ficam, quem tem acesso e até quando', () => {
+        expect(texto).toMatch(/Firebase/);
+        expect(texto).toMatch(/fora do Brasil/i);
+        expect(texto).toMatch(/só o grupo/i);
+        expect(texto).toMatch(/segundo semestre de 2026/i);
+    });
+
+    it('diz que a pessoa pode pedir para ver ou apagar os próprios dados, e por onde', () => {
+        expect(texto).toMatch(/ver o que foi gravado/i);
+        expect(texto).toMatch(/apagar/i);
+        expect(texto).toMatch(/seção Sobre/i);
+    });
+
+    it('fala dos riscos e dos benefícios', () => {
+        expect(texto).toMatch(/risco/i);
+        expect(texto).toMatch(/em troca/i);
+    });
+
+    it('tem a data da versão, para saber que texto cada pessoa aceitou', () => {
+        expect(VERSAO_DO_TERMO).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
     });
 });
