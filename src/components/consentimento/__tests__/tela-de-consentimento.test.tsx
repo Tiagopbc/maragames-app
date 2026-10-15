@@ -1,6 +1,6 @@
 import { act, render, screen, userEvent } from '@testing-library/react-native';
 
-import { TERMO } from '@/constants/termo';
+import { TERMO, VERSAO_DO_TERMO } from '@/constants/termo';
 
 import { TelaDeConsentimento } from '../tela-de-consentimento';
 
@@ -21,6 +21,11 @@ describe('a tela de consentimento', () => {
             expect(screen.getByText(secao.titulo)).toBeOnTheScreen();
             expect(screen.getByText(secao.texto)).toBeOnTheScreen();
         }
+    });
+
+    it('mostra a data da versão do termo, também para quem só relê', async () => {
+        await render(<TelaDeConsentimento aoAceitar={jest.fn()} aoSair={aoSair} />);
+        expect(screen.getByText(`Versão de ${VERSAO_DO_TERMO}`)).toBeOnTheScreen();
     });
 
     it('mostra o mascote, que é enfeite e não é lido pelo leitor de tela', async () => {
