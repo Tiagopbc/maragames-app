@@ -585,8 +585,16 @@ export function bancoFicticio(turma: Turma): BancoFicticio {
             ...(daOrigem?.versaoDoApp ? { versaoDoApp: daOrigem.versaoDoApp } : {}),
         });
     }
+    // O núcleo do perfil que o app exige e que a turma não sorteia: valores que não são de ninguém.
+    // O DDD 20 não existe no Brasil, então o telefone passa na validação sem ser um número real.
+    const comNucleo = (p: PerfilDoExport, i: number): PerfilDoExport => ({
+        ...p,
+        telefone: `20${String(i + 1).padStart(9, '0')}`,
+        cidade: 'Cidade virtual',
+        ...(p.situacaoDeEstudo === 'graduacao' || p.situacaoDeEstudo === 'pos' ? { instituicao: 'Instituição virtual', curso: 'Curso virtual' } : {}),
+    });
     return {
-        users: Object.fromEntries(perfis.map((p) => [p.uid, p])),
+        users: Object.fromEntries(perfis.map((p, i) => [p.uid, comNucleo(p, i)])),
         selfAssessments: Object.fromEntries(autoavaliacoes.map((a) => [a.uid, a])),
         attempts: [...attempts.values()],
         answers: [...respostas],

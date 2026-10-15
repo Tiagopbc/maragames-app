@@ -43,4 +43,4 @@ A turma de alunos virtuais passa pelo mesmo caminho, sem tocar o Firestore:
 - `npm run exportar -- --simulado 100 --semente 1250808581` grava em `exportacao/simulado-1250808581/` as mesmas tabelas e `dados-brutos.json`, com as quatro coleções no formato do app.
 - `npm run relatorio -- --simulado 100 --semente 1250808581` gera a página dessa mesma turma.
 
-A mesma semente dá sempre os mesmos alunos e as mesmas respostas. Na semente 1250808581: 100 perfis, 100 autoavaliações, 1.015 tentativas e 3.632 respostas (882 de diagnóstico, 1.436 de prática, 822 de verificação e 492 de revisão).
+Em `dados-brutos.json`, cada perfil em `users` tem o núcleo obrigatório do app, com valores que não são de ninguém: telefone com DDD 20, que não existe no Brasil, "Cidade virtual" e, para quem faz graduação ou pós, "Instituição virtual" e "Curso virtual". A mesma semente dá sempre os mesmos alunos e as mesmas respostas. Na semente 1250808581: 100 perfis, 100 autoavaliações, 1.015 tentativas e 3.632 respostas (882 de diagnóstico, 1.436 de prática, 822 de verificação e 492 de revisão).

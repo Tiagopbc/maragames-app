@@ -1,12 +1,13 @@
-import type { Answer, Question, Topico } from '../../types/domain';
+import type { Answer, Perfil, Question, Topico } from '../../types/domain';
 import { questoesDaPratica, questoesDoBlocoMedido } from '../bloco';
 import { diaDeCalendario } from '../calendario';
 import { ordemDasAlternativas } from '../embaralhar';
 import { incluiZero } from '../estatistica';
 import { exportarDados } from '../exportacao';
 import { DIAS_ATE_A_REVISAO } from '../licao';
-import { modulosDosTopicos } from '../perfil';
+import { modulosDosTopicos, perfilCompleto } from '../perfil';
 import { perfilDeResposta } from '../perfis-de-resposta';
+import { validarTelefone } from '../validacao';
 import { indicadoresDoRelatorio, relatorioHtml } from '../relatorio';
 import {
     CENARIOS,
@@ -544,14 +545,24 @@ describe('bancoFicticio', () => {
         expect(Object.keys(banco.selfAssessments)).toHaveLength(100);
     });
 
-    it('users guarda o perfil, a forma e o aceite, e nada de contato', () => {
+    it('users guarda o perfil, a forma e o aceite, sem e-mail', () => {
         const ana = banco.users['virtual-001'];
 
         expect(ana).toMatchObject({ uid: 'virtual-001', formaPre: 'A', consentiuEm: expect.any(Number), sexo: expect.any(String) });
+        for (const usuario of Object.values(banco.users)) expect(usuario).not.toHaveProperty('email');
+    });
+
+    it('todo perfil em users passa no núcleo obrigatório do app, com contato que não existe', () => {
         for (const usuario of Object.values(banco.users)) {
-            expect(usuario).not.toHaveProperty('email');
-            expect(usuario).not.toHaveProperty('telefone');
+            expect(perfilCompleto(usuario as Partial<Perfil>)).toBe(true);
+            // DDD 20 não existe no Brasil: o número passa na validação e não é de ninguém.
+            expect(usuario.telefone).toMatch(/^20\d{9}$/);
+            expect(validarTelefone(usuario.telefone!)).toBeNull();
+            expect(usuario.cidade).toBe('Cidade virtual');
         }
+        const estudam = Object.values(banco.users).filter((u) => u.situacaoDeEstudo === 'graduacao' || u.situacaoDeEstudo === 'pos');
+        expect(estudam.length).toBeGreaterThan(0);
+        for (const u of estudam) expect(u).toMatchObject({ instituicao: 'Instituição virtual', curso: 'Curso virtual' });
     });
 
     it('answers são as respostas da turma, uma por questão confirmada, com os campos do app', () => {
