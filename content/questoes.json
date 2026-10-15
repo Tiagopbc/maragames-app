@@ -97,9 +97,9 @@
       },
       {
         "id": "d",
-        "texto": "Um problema de tema, fora do MDA",
+        "texto": "Uma estratégia de quem joga melhor",
         "correta": false,
-        "explicacao": "O padrão nasce das regras, então está no centro do que o MDA descreve."
+        "explicacao": "Não é a escolha de um jogador só: o padrão aparece em quase toda partida, porque nasce das regras."
       }
     ],
     "fonte": "Hunicke, LeBlanc e Zubek (2004), MDA: A Formal Approach to Game Design and Game Research"
@@ -1047,7 +1047,7 @@
         "explicacao": "É um framework de jogos programado em JavaScript que roda direto no navegador."
       }
     ],
-    "fonte": "Documentação oficial do Phaser e das engines citadas"
+    "fonte": "Documentação oficial do Phaser e das engines citadas, consultada em 15/10/2026"
   },
   {
     "id": "logica_programacao_01",
@@ -2245,31 +2245,31 @@
     "bloco": "pratica",
     "dificuldade": "basico",
     "formato": "multipla_escolha",
-    "enunciado": "Quanto custa a taxa Steam Direct para publicar um jogo?",
+    "enunciado": "Antes de o jogo ser liberado na loja, o que a Valve revisa?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Nada: publicar na Steam é gratuito",
+        "texto": "Só o preço que o estúdio escolheu",
         "correta": false,
-        "explicacao": "Há uma taxa por jogo, a Steam Direct."
+        "explicacao": "A revisão vai além do preço: confere a página e o build."
       },
       {
         "id": "b",
-        "texto": "US$ 100 por jogo",
+        "texto": "A página da loja e o build do jogo",
         "correta": true,
-        "explicacao": "A taxa é cobrada por jogo e volta ao desenvolvedor quando o jogo atinge US$ 1.000 de receita bruta ajustada."
+        "explicacao": "A Valve confere a página e o build antes de liberar o jogo."
       },
       {
         "id": "c",
-        "texto": "US$ 100 por ano, como uma assinatura",
+        "texto": "As listas de desejos dos jogadores",
         "correta": false,
-        "explicacao": "A taxa é cobrada uma vez por jogo, não por ano."
+        "explicacao": "As listas de desejos são dos jogadores e não passam por revisão."
       },
       {
         "id": "d",
-        "texto": "Metade de todas as vendas do jogo",
+        "texto": "Nada: o jogo entra direto na loja",
         "correta": false,
-        "explicacao": "A Steam fica com uma parte das vendas, mas a taxa Steam Direct é outra coisa."
+        "explicacao": "Há revisão antes da liberação, da página e do build."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
@@ -2315,31 +2315,31 @@
     "bloco": "pratica",
     "dificuldade": "intermediario",
     "formato": "multipla_escolha",
-    "enunciado": "Qual é o tempo mínimo que a página \"em breve\" precisa ficar no ar antes do lançamento?",
+    "enunciado": "Uma página \"em breve\" tem só o nome do jogo e uma frase. O que falta para ela servir de vitrine?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Um dia",
+        "texto": "O comprovante de pagamento da taxa",
         "correta": false,
-        "explicacao": "Um dia é menos que o mínimo exigido."
+        "explicacao": "A taxa é assunto do Steamworks e não aparece para os jogadores."
       },
       {
         "id": "b",
-        "texto": "Seis meses",
+        "texto": "O arquivo do jogo completo para baixar",
         "correta": false,
-        "explicacao": "Muitos estúdios deixam a página no ar por meses, mas isso é escolha, não exigência."
+        "explicacao": "A página mostra o jogo, mas não o entrega antes do lançamento."
       },
       {
         "id": "c",
-        "texto": "Ela não é obrigatória",
+        "texto": "A lista de quem já comprou o jogo",
         "correta": false,
-        "explicacao": "Para jogos novos, a página antecipada é exigida."
+        "explicacao": "Antes do lançamento, ninguém comprou o jogo ainda."
       },
       {
         "id": "d",
-        "texto": "Duas semanas",
+        "texto": "Imagens, trailer e uma descrição",
         "correta": true,
-        "explicacao": "É a exigência mínima da Steam para produtos novos."
+        "explicacao": "É com eles que o jogador entende o jogo e decide pô-lo na lista de desejos."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
@@ -2420,31 +2420,31 @@
     "bloco": "pratica",
     "dificuldade": "avancado",
     "formato": "multipla_escolha",
-    "enunciado": "Um estúdio pequeno, sem verba de marketing, quer visibilidade antes do lançamento. Qual estratégia usa recursos da própria Steam?",
+    "enunciado": "Dois jogos parecidos são lançados no mesmo dia. Um juntou 5 mil listas de desejos; o outro, 200. Por que o primeiro tende a começar melhor?",
     "alternativas": [
       {
         "id": "a",
-        "texto": "Esperar que a Steam destaque o jogo sozinha",
+        "texto": "A Steam cobra uma taxa menor de quem tem mais listas",
         "correta": false,
-        "explicacao": "Sem sinais de interesse, como listas de desejos, o destaque dificilmente vem."
+        "explicacao": "A taxa Steam Direct é a mesma para qualquer jogo."
       },
       {
         "id": "b",
-        "texto": "Lançar de graça e cobrar depois",
+        "texto": "As listas viram compras automáticas no lançamento",
         "correta": false,
-        "explicacao": "Mudar de gratuito para pago gera reação negativa e não resolve a visibilidade antes do lançamento."
+        "explicacao": "Ninguém é cobrado automaticamente: a pessoa decide se compra."
       },
       {
         "id": "c",
-        "texto": "Publicar o jogo sem página antecipada",
+        "texto": "O jogo com mais listas pula a revisão da Valve",
         "correta": false,
-        "explicacao": "Além de não ser permitido para jogos novos, elimina o tempo de juntar listas de desejos."
+        "explicacao": "Todo jogo passa pela revisão da página e do build."
       },
       {
         "id": "d",
-        "texto": "Uma versão de teste num festival da loja",
+        "texto": "Mais gente recebe o aviso no dia do lançamento",
         "correta": true,
-        "explicacao": "Demos em eventos como o Steam Next Fest atraem jogadores para a página e geram listas de desejos."
+        "explicacao": "Cada lista de desejos vira um aviso por e-mail quando o jogo sai."
       }
     ],
     "fonte": "Documentação do Steamworks (taxa Steam Direct e página Em breve), consultada em 05/10/2026"
@@ -2494,13 +2494,13 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Jogo de ação em 2D para computador e celular",
+        "texto": "Jogo de ação em 2D para computador e celular, com controle opcional",
         "correta": false,
         "explicacao": "Isso é gênero e plataforma, que também entram no GDD, mas não descrevem o que se repete."
       },
       {
         "id": "b",
-        "texto": "Entrar na sala, vencer os inimigos, pegar a recompensa e seguir para a próxima",
+        "texto": "Entrar na sala, vencer os inimigos, pegar a recompensa e seguir",
         "correta": true,
         "explicacao": "O ciclo principal é o que o jogador faz repetidamente, do começo ao fim da partida."
       },
@@ -2512,7 +2512,7 @@
       },
       {
         "id": "d",
-        "texto": "Dez fases no lançamento, sem modo online",
+        "texto": "Dez fases no lançamento, sem modo online e sem editor de fases",
         "correta": false,
         "explicacao": "Isso é escopo: o que entra e o que fica de fora."
       }
@@ -2529,7 +2529,7 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Fazer um pouco de cada uma, para nenhuma ficar de fora",
+        "texto": "Fazer um pouco de cada uma, para nenhuma ficar de fora do lançamento",
         "correta": false,
         "explicacao": "Quinze funcionalidades pela metade não fazem um jogo. Falta decidir o que é essencial."
       },
@@ -2541,13 +2541,13 @@
       },
       {
         "id": "c",
-        "texto": "Marcar as que são essenciais e deixar as outras para depois do lançamento",
+        "texto": "Marcar as essenciais e deixar as outras para depois do lançamento",
         "correta": true,
         "explicacao": "Separar o essencial do desejável é o que impede o projeto de crescer além do prazo."
       },
       {
         "id": "d",
-        "texto": "Adiar o lançamento até caberem as quinze",
+        "texto": "Adiar o lançamento até caberem as quinze funcionalidades da lista",
         "correta": false,
         "explicacao": "É assim que o lançamento escorrega: o escopo manda no prazo, e não o contrário."
       }
@@ -2634,7 +2634,7 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Aceitar, porque ideia boa não se desperdiça",
+        "texto": "Aceitar, porque ideia boa não se desperdiça e o jogo fica maior",
         "correta": false,
         "explicacao": "Aceitar cada ideia nova perto do prazo é o aumento descontrolado de escopo."
       },
@@ -2646,7 +2646,7 @@
       },
       {
         "id": "c",
-        "texto": "Aceitar e cortar os testes para caber no prazo",
+        "texto": "Aceitar e cortar os testes finais para o modo caber no prazo",
         "correta": false,
         "explicacao": "Além de aumentar o escopo, o jogo sairia sem teste."
       },
@@ -2704,25 +2704,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Uma barra de vida no canto da tela",
+        "texto": "Uma barra de vida no canto da tela, que pisca quando a vida acaba",
         "correta": false,
         "explicacao": "Ela está sobreposta à imagem. Só quem joga a vê, e não o personagem."
       },
       {
         "id": "b",
-        "texto": "O menu de pausa",
+        "texto": "O menu de pausa, com as opções de som e de controles",
         "correta": false,
         "explicacao": "O menu fica fora do mundo do jogo."
       },
       {
         "id": "c",
-        "texto": "A pontuação no topo da tela",
+        "texto": "A pontuação no topo da tela, em números grandes",
         "correta": false,
         "explicacao": "É parte do HUD comum, desenhado por cima da cena."
       },
       {
         "id": "d",
-        "texto": "Um mapa de papel que o personagem abre e segura nas mãos",
+        "texto": "Um mapa de papel que o personagem abre nas mãos",
         "correta": true,
         "explicacao": "O mapa existe dentro do mundo do jogo: o personagem também o vê."
       }
@@ -2739,13 +2739,13 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Desenhar a parede rachada e pôr uma igual logo no começo, num ponto seguro",
+        "texto": "Desenhar a parede rachada e pôr uma igual no começo, num ponto seguro",
         "correta": true,
         "explicacao": "A forma do objeto sugere o que fazer, e o jogador aprende usando, sem risco."
       },
       {
         "id": "b",
-        "texto": "Abrir uma janela de texto explicando todas as paredes do jogo",
+        "texto": "Abrir uma janela de texto, no início da fase, explicando todas as paredes",
         "correta": false,
         "explicacao": "É despejar informação de uma vez, longe do momento em que ela é usada."
       },
@@ -2774,7 +2774,7 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Da UI: a aparência dos menus",
+        "texto": "Da UI: a aparência visual dos botões e dos menus",
         "correta": false,
         "explicacao": "A aparência ele elogiou. O problema está em se orientar."
       },
@@ -2786,7 +2786,7 @@
       },
       {
         "id": "c",
-        "texto": "Do desempenho do jogo",
+        "texto": "Do desempenho do jogo nos menus",
         "correta": false,
         "explicacao": "Ele não falou de travamentos nem de lentidão."
       },
@@ -2850,19 +2850,19 @@
       },
       {
         "id": "b",
-        "texto": "Dividir a lista em duas telas de seis comandos",
+        "texto": "Dividir a lista em duas telas de seis comandos cada, mais fáceis de ler",
         "correta": false,
         "explicacao": "Continua sendo informação despejada antes de ser usada."
       },
       {
         "id": "c",
-        "texto": "Repetir a tela inteira no começo de cada fase",
+        "texto": "Repetir a tela inteira no começo de cada fase, como lembrete",
         "correta": false,
         "explicacao": "Repetir a lista não resolve: falta o jogador usar cada comando."
       },
       {
         "id": "d",
-        "texto": "Apresentar um comando por vez, num trecho em que ele já é usado sem risco",
+        "texto": "Mostrar um comando por vez, num trecho seguro em que ele é usado",
         "correta": true,
         "explicacao": "O jogador aprende fazendo, no momento em que precisa do comando."
       }
@@ -2914,7 +2914,7 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "O volume do disparo está baixo demais",
+        "texto": "O volume do disparo está baixo demais em relação ao resto",
         "correta": false,
         "explicacao": "Volume baixo deixaria o som fraco, e não artificial."
       },
@@ -2926,7 +2926,7 @@
       },
       {
         "id": "c",
-        "texto": "Falta música de fundo",
+        "texto": "Falta música de fundo para encher o silêncio entre os disparos",
         "correta": false,
         "explicacao": "A música não muda o fato de o disparo ser sempre igual."
       },
@@ -2949,13 +2949,13 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "A música, porque dá o clima da corrida",
+        "texto": "A música, porque é ela que dá o clima e o ritmo da corrida",
         "correta": false,
         "explicacao": "Clima é importante, mas não pode esconder uma informação de jogo."
       },
       {
         "id": "b",
-        "texto": "A torcida, porque é o som mais constante",
+        "texto": "A torcida, porque é o som mais constante durante a prova toda",
         "correta": false,
         "explicacao": "Ser constante não a torna prioridade. Ela é ambiente."
       },
@@ -2967,7 +2967,7 @@
       },
       {
         "id": "d",
-        "texto": "Todos no mesmo volume, para nenhum sumir",
+        "texto": "Todos no mesmo volume, para nenhum som sumir no meio dos outros",
         "correta": false,
         "explicacao": "Com tudo igual, o aviso se perde no meio dos outros."
       }
@@ -3019,25 +3019,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Ter algumas versões do som e variar um pouco o tom e o volume a cada toque",
+        "texto": "Gravar algumas versões e variar um pouco o tom a cada toque",
         "correta": true,
         "explicacao": "Pequenas diferenças a cada vez evitam a repetição exata, que cansa."
       },
       {
         "id": "b",
-        "texto": "Aumentar o volume a cada golpe",
+        "texto": "Aumentar o volume a cada golpe, para ele ganhar mais impacto",
         "correta": false,
         "explicacao": "O som só ficaria mais alto, e continuaria igual."
       },
       {
         "id": "c",
-        "texto": "Tocar o som só a cada três golpes",
+        "texto": "Tocar o som só a cada três golpes, para ele aparecer menos",
         "correta": false,
         "explicacao": "Golpes sem som parecem não ter acertado. O jogador perde a confirmação da ação."
       },
       {
         "id": "d",
-        "texto": "Trocar o som do golpe por música",
+        "texto": "Trocar o som do golpe por um trecho da música do jogo",
         "correta": false,
         "explicacao": "A música não confirma o golpe."
       }
@@ -3054,25 +3054,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Aumentar todos os volumes ao mesmo tempo",
+        "texto": "Aumentar todos os volumes ao mesmo tempo, música e efeitos juntos",
         "correta": false,
         "explicacao": "A proporção continua a mesma, e a música segue cobrindo os passos."
       },
       {
         "id": "b",
-        "texto": "Baixar a música nesses momentos, para os passos do monstro ficarem audíveis",
+        "texto": "Baixar a música nesses momentos, para os passos ficarem audíveis",
         "correta": true,
         "explicacao": "O som de que o jogador precisa para jogar vem antes da música."
       },
       {
         "id": "c",
-        "texto": "Tirar os passos do monstro, já que ninguém os ouve",
+        "texto": "Tirar os passos do monstro, já que ninguém consegue ouvi-los mesmo",
         "correta": false,
         "explicacao": "O jogo perderia de vez a informação que estava faltando."
       },
       {
         "id": "d",
-        "texto": "Trocar a trilha por outra mais rápida",
+        "texto": "Trocar a trilha por outra mais rápida, que aumente a tensão",
         "correta": false,
         "explicacao": "A velocidade da música não é o problema. O problema é o volume dela sobre os passos."
       }
@@ -3124,25 +3124,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Para ele se distrair menos",
+        "texto": "Para ele se distrair menos e prestar atenção só no jogo",
         "correta": false,
         "explicacao": "Não é esse o objetivo. Falar pode até dividir a atenção."
       },
       {
         "id": "b",
-        "texto": "Para o teste terminar mais rápido",
+        "texto": "Para o teste terminar mais rápido, sem pausas para perguntas",
         "correta": false,
         "explicacao": "Pensar em voz alta não encurta o teste."
       },
       {
         "id": "c",
-        "texto": "Para gravar a voz dele e usar no jogo",
+        "texto": "Para gravar a voz dele e usar depois nos diálogos do jogo",
         "correta": false,
         "explicacao": "A gravação serve à análise do teste."
       },
       {
         "id": "d",
-        "texto": "Para saber o que ele está tentando fazer e onde se confunde",
+        "texto": "Para saber o que ele tenta fazer e onde se confunde",
         "correta": true,
         "explicacao": "Só olhando a tela não dá para saber a intenção. A fala mostra o raciocínio."
       }
@@ -3159,25 +3159,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "A saída da sala, que trava a maioria logo no começo, e testar de novo",
+        "texto": "A saída da sala, que trava a maioria, e testar de novo",
         "correta": true,
         "explicacao": "Vem primeiro o problema que mais afeta a experiência e aparece com mais jogadores."
       },
       {
         "id": "b",
-        "texto": "A cor do menu, que é mais rápida de mudar",
+        "texto": "A cor do menu, que é mais rápida de mudar e já foi apontada",
         "correta": false,
         "explicacao": "Rápido não é critério. Só uma pessoa notou, e isso não impede ninguém de jogar."
       },
       {
         "id": "c",
-        "texto": "Nenhum: esperar mais testes para ter certeza",
+        "texto": "Nenhum: esperar mais testes para ter certeza antes de mexer",
         "correta": false,
         "explicacao": "Oito em dez já é sinal forte. Esperar é perder um ciclo de teste."
       },
       {
         "id": "d",
-        "texto": "Os dois, cada um pela metade",
+        "texto": "Os dois, cada um pela metade, para não deixar nada de fora",
         "correta": false,
         "explicacao": "Meio ajuste não resolve a saída, e o próximo teste mostraria o mesmo problema."
       }
@@ -3229,13 +3229,13 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Que ela aperte o botão que falta",
+        "texto": "Que ela aperte o botão que falta para seguir em frente",
         "correta": false,
         "explicacao": "Ajudar esconde o problema: o jogo deveria ter mostrado o caminho sozinho."
       },
       {
         "id": "b",
-        "texto": "Que ela pare, porque travou",
+        "texto": "Que ela pare o teste, porque claramente travou",
         "correta": false,
         "explicacao": "O ponto em que ela trava é o que mais interessa observar."
       },
@@ -3264,25 +3264,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Lançar o jogo, porque os problemas graves acabaram",
+        "texto": "Lançar o jogo, já que os três problemas mais graves foram resolvidos",
         "correta": false,
         "explicacao": "Ninguém conferiu ainda se as correções funcionam."
       },
       {
         "id": "b",
-        "texto": "Corrigir todos os outros problemas antes de qualquer teste",
+        "texto": "Corrigir todos os outros problemas da lista antes de qualquer novo teste",
         "correta": false,
         "explicacao": "Sem testar, a equipe pode empilhar ajustes em cima de uma correção que não deu certo."
       },
       {
         "id": "c",
-        "texto": "Voltar ao documento do jogo e recomeçar o projeto",
+        "texto": "Voltar ao documento do jogo e recomeçar o projeto com o que aprendeu",
         "correta": false,
         "explicacao": "Iterar é ajustar e testar de novo, e não começar do zero."
       },
       {
         "id": "d",
-        "texto": "Testar de novo, de preferência com pessoas novas, para ver se a correção funcionou",
+        "texto": "Testar de novo, com pessoas novas, para ver se a correção funcionou",
         "correta": true,
         "explicacao": "O ciclo é prototipar, testar, analisar e ajustar. Depois do ajuste vem outro teste."
       }
@@ -3369,25 +3369,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Nenhum: cinco dias são suficientes",
+        "texto": "Nenhum: cinco dias bastam para a página juntar visitas e desejos",
         "correta": false,
         "explicacao": "O mínimo exigido são duas semanas."
       },
       {
         "id": "b",
-        "texto": "A página só pode ser publicada depois do lançamento",
+        "texto": "A página só pode ser publicada depois do lançamento, nunca antes",
         "correta": false,
         "explicacao": "É o contrário: ela vem antes, marcada como \"em breve\"."
       },
       {
         "id": "c",
-        "texto": "A página precisa ficar no ar pelo menos duas semanas antes do lançamento",
+        "texto": "A página precisa estar no ar ao menos duas semanas antes de lançar",
         "correta": true,
         "explicacao": "Com cinco dias não dá, e a Valve ainda revisa a página e o build antes de liberar."
       },
       {
         "id": "d",
-        "texto": "A taxa de US$ 100 só é aceita no dia do lançamento",
+        "texto": "A taxa de US$ 100 só é aceita no próprio dia do lançamento do jogo",
         "correta": false,
         "explicacao": "A taxa é paga antes, para o jogo poder ser preparado no Steamworks."
       }
@@ -3404,25 +3404,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "A lista dos jogos mais vendidos",
+        "texto": "O ranking da loja com os jogos mais vendidos da semana",
         "correta": false,
         "explicacao": "Isso é um ranking da loja."
       },
       {
         "id": "b",
-        "texto": "O painel onde se paga a taxa",
+        "texto": "O painel do Steamworks em que o estúdio paga a taxa de publicação",
         "correta": false,
         "explicacao": "O pagamento é feito no Steamworks, e não na página da loja."
       },
       {
         "id": "c",
-        "texto": "Uma versão de teste do jogo",
+        "texto": "Uma versão de teste gratuita, que se baixa antes do lançamento",
         "correta": false,
         "explicacao": "Versão de teste é a demo. A página é a vitrine do jogo."
       },
       {
         "id": "d",
-        "texto": "A página da loja no ar antes do lançamento, com imagens, trailer e descrição",
+        "texto": "A página do jogo na loja, publicada antes do lançamento",
         "correta": true,
         "explicacao": "É por ela que os jogadores conhecem o jogo e o põem na lista de desejos."
       }
@@ -3474,25 +3474,25 @@
     "alternativas": [
       {
         "id": "a",
-        "texto": "Publicar a página duas semanas antes, que é o mínimo exigido",
+        "texto": "Publicar a página duas semanas antes, que é o mínimo exigido pela loja",
         "correta": false,
         "explicacao": "Cumpre a regra, mas desperdiça meses em que a lista poderia crescer."
       },
       {
         "id": "b",
-        "texto": "Publicar a página \"em breve\" agora e levar uma demo a um evento da loja, como o Steam Next Fest",
+        "texto": "Pôr a página no ar já e levar uma demo ao Steam Next Fest",
         "correta": true,
         "explicacao": "Mais tempo no ar e mais visibilidade juntam mais gente para ser avisada no lançamento."
       },
       {
         "id": "c",
-        "texto": "Criar a página no dia do lançamento",
+        "texto": "Criar a página no dia do lançamento, para o jogo aparecer como novidade",
         "correta": false,
         "explicacao": "Nem é permitido: a página precisa estar no ar pelo menos duas semanas antes."
       },
       {
         "id": "d",
-        "texto": "Guardar tudo em segredo, para causar surpresa",
+        "texto": "Guardar tudo em segredo até o lançamento, para causar surpresa",
         "correta": false,
         "explicacao": "Sem página no ar, ninguém põe o jogo na lista de desejos."
       }

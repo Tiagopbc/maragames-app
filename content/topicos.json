@@ -85,7 +85,7 @@
       },
       {
         "titulo": "Godot",
-        "texto": "Open source sob licença MIT, que permite modificar o motor e distribuir a versão modificada sem pagar. O jogo é uma árvore de nós, agrupados em cenas que podem ser instanciadas umas dentro das outras. A linguagem própria é o GDScript, parecida com Python; aceita C#, mas até a versão atual da Godot 4 projetos em C# não exportam para a web."
+        "texto": "Open source sob licença MIT, que permite modificar o motor e distribuir a versão modificada sem pagar. O jogo é uma árvore de nós, agrupados em cenas que podem ser instanciadas umas dentro das outras. A linguagem própria é o GDScript, parecida com Python; aceita C#, mas, segundo a documentação oficial da Godot 4 conferida em outubro de 2026, projetos em C# ainda não exportam para a web."
       },
       {
         "titulo": "Unreal Engine",

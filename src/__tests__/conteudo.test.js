@@ -44,6 +44,18 @@ describe('o conteúdo do repositório', () => {
         expect(fora).toEqual([]);
     });
 
+    // A correta não pode se entregar pelo tamanho. Com quatro alternativas, o acaso a faria a mais
+    // longa em cerca de uma questão a cada quatro; acima de 30% vira pista para quem chuta.
+    it('a correta é a alternativa mais longa em no máximo 30% das questões', () => {
+        const tamanho = (a) => a.texto.length;
+        const maisLonga = questoes.filter((q) => {
+            const correta = tamanho(q.alternativas.find((a) => a.correta));
+            return q.alternativas.filter((a) => !a.correta).every((a) => tamanho(a) < correta);
+        });
+
+        expect(maisLonga.length).toBeLessThanOrEqual(Math.floor(questoes.length * 0.3));
+    });
+
     it('toda questão diz de onde veio', () => {
         expect(questoes.filter((q) => typeof q.fonte !== 'string' || q.fonte.trim() === '').map((q) => q.id)).toEqual([]);
     });
