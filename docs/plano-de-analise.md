@@ -6,7 +6,7 @@ Os números de "O que a simulação mostrou" vêm da base sintética (itens 35 a
 
 ## O que fica fixo
 
-- **Conteúdo**: versão `bd9ca4d71d9b`, gravada no Firestore em 15/10/2026. Uma questão mudada no meio do piloto muda a versão, e as respostas de antes e depois não se somam.
+- **Conteúdo**: versão `21c7b805a024`. A `bd9ca4d71d9b`, gravada em 15/10/2026, teve duas explicações corrigidas antes de qualquer dado do piloto. Uma questão mudada no meio do piloto muda a versão, e as respostas de antes e depois não se somam.
 - **Quem entra**: quem aceitou o termo a partir do dia em que o piloto começar (`npm run relatorio -- --desde AAAA-MM-DD`), sem as contas de teste do grupo.
 - **Unidade**: a pessoa. Toda conta de intervalo e de teste reamostra ou permuta pessoas, e não respostas, porque as respostas de uma mesma pessoa não são independentes.
 - **Lição que conta**: a de ciclo completo, com o diagnóstico e a verificação completos. A revisão conta quando tem as três questões.
@@ -68,6 +68,7 @@ Servem para levantar perguntas, e não para responder. Não têm teste, não tê
 - **Cada pessoa escolhe as lições.** O número de um tópico mistura a lição com quem a escolheu; a comparação justa é a de cada pessoa com ela mesma.
 - **Amostra pequena.** Ver as tabelas acima.
 - **O chute igual entre as alternativas.** A correção da retenção supõe que quem não sabe escolhe ao acaso entre as quatro. Um distrator que atrai mais quebra essa conta.
+- **O chute que se repete.** A correção supõe também que o acerto no chute só se repete por acaso. Como a verificação não mostra o resultado, quem chutou pode marcar de novo a mesma alternativa na revisão, por hábito ou por um engano firme; aí acertar as duas vezes fica mais provável que um em dezesseis, e esse excesso entra como retenção. O simulador não testa isso: nele os chutes são independentes.
 - **A revisão pelo relógio do aparelho.** O app libera a revisão pelo relógio do celular; a exportação conta, pelo horário do servidor, quantas foram feitas antes dos 7 dias.
 
 ## Depois do piloto

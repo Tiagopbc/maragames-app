@@ -270,6 +270,23 @@ export function conteudoDoRepositorio(
     };
 }
 
+/**
+ * O nome da pasta de uma turma: a semente e cada opção que muda as respostas. Assim uma turma com
+ * defeitos ou com outro cenário não cai por cima da turma limpa da mesma semente.
+ */
+export function nomeDaTurma(opcoes: Pick<OpcoesDaSimulacao, 'semente' | 'cenario' | 'limiteDiario' | 'diasDeEstudo' | 'defeitos'>): string {
+    const { semente, cenario = 'base', limiteDiario, diasDeEstudo, defeitos } = opcoes;
+    return [
+        `simulado-${semente}`,
+        cenario === 'base' ? null : cenario,
+        limiteDiario ? 'limite-diario' : null,
+        diasDeEstudo ? `${diasDeEstudo}-dias` : null,
+        defeitos ? 'defeitos' : null,
+    ]
+        .filter(Boolean)
+        .join('-');
+}
+
 /** Uma semente nova, para cada rodada sortear uma turma diferente. É o único sorteio sem semente. */
 export function sementeAleatoria(): number {
     const valores = new Uint32Array(1);

@@ -16,6 +16,7 @@ import {
     TIPOS_DE_ALUNO,
     conteudoDoRepositorio,
     matrizDeConfusao,
+    nomeDaTurma,
     sementeAleatoria,
     simularTurma,
     type OpcoesDaSimulacao,
@@ -576,6 +577,20 @@ describe('o gerador para medir o instrumento', () => {
             expect(Object.keys(matriz)).toEqual(Object.keys(TIPOS_DE_ALUNO));
             expect(soma).toBe(300);
         });
+    });
+});
+
+// Apontado na revisão do pull request nº 25: o banco fictício com outra opção não pode cair na
+// pasta da turma limpa da mesma semente.
+describe('nomeDaTurma', () => {
+    it('a turma limpa leva só a semente', () => {
+        expect(nomeDaTurma({ semente: 7 })).toBe('simulado-7');
+        expect(nomeDaTurma({ semente: 7, cenario: 'base', defeitos: false, limiteDiario: false })).toBe('simulado-7');
+    });
+
+    it('cada opção que muda a turma entra no nome', () => {
+        expect(nomeDaTurma({ semente: 7, cenario: 'nulo' })).toBe('simulado-7-nulo');
+        expect(nomeDaTurma({ semente: 7, limiteDiario: true, diasDeEstudo: 6, defeitos: true })).toBe('simulado-7-limite-diario-6-dias-defeitos');
     });
 });
 
