@@ -17,7 +17,7 @@
 //   --limite-diario        no máximo uma lição nova por dia, por aluno
 //   --dias-de-estudo N     lições novas só nos N primeiros dias de cada aluno; as revisões seguem
 //   --replicas R           roda R turmas (sementes N, N+1, ...) sem gravar página e mostra a mediana e
-//                          os percentis 5 e 95 de cada indicador; o tamanho vem de --simulado (padrão 15)
+//                          os percentis 5 e 95 de cada indicador; o tamanho vem de --simulado (padrão 100)
 //
 // Sem --saida, grava relatorio/index.html, por cima do anterior: a página diz de que dia é.
 // A pasta fica fora do git. Se ninguém entra no filtro, avisa e não grava nada.
@@ -28,47 +28,16 @@
 // em relatorio/simulado/<cenario>/index.html. A semente, a versão do conteúdo (o mesmo hash que o
 // seed grava) e o cenário aparecem no terminal e no rodapé de cada página.
 
-import { createHash } from 'crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { meiaNoiteDe } from '../src/lib/calendario';
 import { incluiZero, percentil, type Intervalo } from '../src/lib/estatistica';
 import { exportarDados } from '../src/lib/exportacao';
 import { PERFIS_DE_RESPOSTA, type PerfilDeResposta } from '../src/lib/perfis-de-resposta';
 import { indicadoresDoRelatorio, relatorioHtml, type Indicadores } from '../src/lib/relatorio';
-import {
-    CENARIOS,
-    DIAS_DA_SIMULACAO,
-    TIPOS_DE_ALUNO,
-    conteudoDoRepositorio,
-    matrizDeConfusao,
-    sementeAleatoria,
-    simularTurma,
-    type Cenario,
-    type OpcoesDaSimulacao,
-    type TipoDeAluno,
-} from '../src/lib/simulacao';
+import { CENARIOS, TIPOS_DE_ALUNO, matrizDeConfusao, type Cenario, type TipoDeAluno } from '../src/lib/simulacao';
 import { RAIZ, argumento, filtroDesde, hoje, lerDadosDoBanco } from './dados-do-banco';
-
-const marcado = (nome: string) => process.argv.includes(`--${nome}`);
-
-function inteiro(nome: string, minimo: number, maximo: number): number | undefined {
-    const texto = argumento(nome);
-    if (texto === undefined) return undefined;
-    const valor = Number(texto);
-    if (!Number.isInteger(valor) || valor < minimo || valor > maximo) throw new Error(`Valor inválido em --${nome}: ${texto} (use de ${minimo} a ${maximo}).`);
-    return valor;
-}
-
-/** O conteúdo de content/ e a versão dele, o mesmo hash que o seed grava em cada questão. */
-function conteudoComVersao() {
-    const bruto = (nome: string) => readFileSync(join(RAIZ, 'content', nome), 'utf8');
-    const topicos = bruto('topicos.json');
-    const questoes = bruto('questoes.json');
-    const versao = createHash('sha256').update(topicos).update(questoes).digest('hex').slice(0, 12);
-    return { versao, conteudo: conteudoDoRepositorio(JSON.parse(topicos), JSON.parse(questoes), versao) };
-}
+import { conteudoComVersao, inteiro, opcoesDaLinhaDeComando, turmaSimulada } from './turma-simulada';
 
 const PERFIS = Object.keys(PERFIS_DE_RESPOSTA) as PerfilDeResposta[];
 const TIPOS = Object.keys(TIPOS_DE_ALUNO) as TipoDeAluno[];
@@ -93,31 +62,13 @@ function principais(ind: Indicadores) {
 /** As turmas virtuais e as páginas delas, sem ler nem tocar o banco. */
 function simular(alunosTexto: string | undefined) {
     const replicas = inteiro('replicas', 1, 2000);
-    const alunos = alunosTexto === undefined ? 15 : Number(alunosTexto);
-    if (!Number.isInteger(alunos) || alunos < 1 || alunos > 999) throw new Error(`Número de alunos inválido em --simulado: ${alunosTexto} (use de 1 a 999).`);
-    const sementeTexto = argumento('semente');
-    const semente = sementeTexto === undefined ? sementeAleatoria() : Number(sementeTexto);
-    if (!Number.isInteger(semente) || semente < 1) throw new Error(`Semente inválida em --semente: ${sementeTexto} (use um número inteiro positivo).`);
-    const cenarioPedido = argumento('cenario');
-    if (cenarioPedido !== undefined && !(cenarioPedido in CENARIOS))
-        throw new Error(`Cenário inválido em --cenario: ${cenarioPedido} (use ${Object.keys(CENARIOS).join(', ')}).`);
+    // Sem --simulado, as réplicas usam turmas de 100, o tamanho da base sintética.
+    const { alunos, semente, cenarioPedido, diasDeEstudo, limiteDiario } = opcoesDaLinhaDeComando(alunosTexto, 100);
     const cenarios = (cenarioPedido === undefined ? Object.keys(CENARIOS) : [cenarioPedido]) as Cenario[];
-    const diasDeEstudo = inteiro('dias-de-estudo', 1, DIAS_DA_SIMULACAO - 14);
-    const limiteDiario = marcado('limite-diario');
 
     const { versao, conteudo } = conteudoComVersao();
-    // A turma termina hoje: os primeiros alunos chegaram há DIAS_DA_SIMULACAO dias.
-    const inicio = meiaNoiteDe(hoje())! - DIAS_DA_SIMULACAO * 24 * 60 * 60 * 1000;
-    const opcoesDa = (cenario: Cenario, sementeDaTurma: number): OpcoesDaSimulacao => ({
-        alunos,
-        semente: sementeDaTurma,
-        inicio,
-        cenario,
-        limiteDiario,
-        diasDeEstudo,
-    });
     const indicadoresDa = (cenario: Cenario, sementeDaTurma: number) => {
-        const turma = simularTurma(conteudo, opcoesDa(cenario, sementeDaTurma));
+        const turma = turmaSimulada(conteudo, { alunos, semente: sementeDaTurma, cenario, limiteDiario, diasDeEstudo });
         return { turma, ind: indicadoresDoRelatorio(exportarDados(turma.dados, { agora: turma.agora }), conteudo) };
     };
     const opcoesNoTexto = [limiteDiario ? 'limite de uma lição nova por dia' : null, diasDeEstudo ? `${diasDeEstudo} dias de estudo` : null]

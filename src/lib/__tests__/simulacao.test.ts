@@ -10,6 +10,7 @@ import { perfilDeResposta } from '../perfis-de-resposta';
 import { indicadoresDoRelatorio, relatorioHtml } from '../relatorio';
 import {
     CENARIOS,
+    bancoFicticio,
     DIAS_DA_SIMULACAO,
     TIPOS_DE_ALUNO,
     conteudoDoRepositorio,
@@ -530,6 +531,60 @@ describe('o gerador para medir o instrumento', () => {
             expect(Object.keys(matriz)).toEqual(Object.keys(TIPOS_DE_ALUNO));
             expect(soma).toBe(300);
         });
+    });
+});
+
+describe('bancoFicticio', () => {
+    const t = turma(100, 1250808581);
+    const banco = bancoFicticio(t);
+
+    it('tem as quatro coleções do Firestore, uma entrada por aluno em users e selfAssessments', () => {
+        expect(Object.keys(banco).sort()).toEqual(['answers', 'attempts', 'selfAssessments', 'users']);
+        expect(Object.keys(banco.users)).toHaveLength(100);
+        expect(Object.keys(banco.selfAssessments)).toHaveLength(100);
+    });
+
+    it('users guarda o perfil, a forma e o aceite, e nada de contato', () => {
+        const ana = banco.users['virtual-001'];
+
+        expect(ana).toMatchObject({ uid: 'virtual-001', formaPre: 'A', consentiuEm: expect.any(Number), sexo: expect.any(String) });
+        for (const usuario of Object.values(banco.users)) {
+            expect(usuario).not.toHaveProperty('email');
+            expect(usuario).not.toHaveProperty('telefone');
+        }
+    });
+
+    it('answers são as respostas da turma, uma por questão confirmada, com os campos do app', () => {
+        expect(banco.answers).toEqual(t.dados.respostas);
+        expect(Object.keys(banco.answers[0]).sort()).toEqual(
+            ['attemptId', 'confianca', 'correta', 'escolha', 'fase', 'id', 'ordemExibida', 'questionId', 'respondidaEm', 'tempoMs', 'topicId', 'uid'].sort()
+        );
+    });
+
+    it('cada passo de lição é uma tentativa, com as questões respondidas nela, a plataforma e a versão', () => {
+        const porId = new Map(banco.attempts.map((a) => [a.id, a]));
+
+        expect(banco.attempts).toHaveLength(t.dados.tentativas!.length);
+        for (const r of banco.answers) {
+            const tentativa = porId.get(r.attemptId)!;
+            expect(tentativa).toMatchObject({ uid: r.uid, fase: r.fase, lessonId: `licao_${r.topicId}` });
+            expect(tentativa.respostas).toContain(r.questionId);
+        }
+        for (const a of banco.attempts) {
+            expect(['web', 'android', 'ios']).toContain(a.plataforma);
+            expect(a.createdAt).toBeLessThanOrEqual(Math.min(...banco.answers.filter((r) => r.attemptId === a.id).map((r) => r.respondidaEm)));
+        }
+    });
+
+    it('a tentativa só fica concluída quando todas as questões do passo foram respondidas', () => {
+        const desistentes = banco.attempts.filter((a) => !a.concluida);
+
+        expect(banco.attempts.some((a) => a.concluida)).toBe(true);
+        for (const a of desistentes) expect(a.fase).toBe('pre');
+    });
+
+    it('vira JSON e volta igual: é o arquivo do banco fictício', () => {
+        expect(JSON.parse(JSON.stringify(banco))).toEqual(banco);
     });
 });
 

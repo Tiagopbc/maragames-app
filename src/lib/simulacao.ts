@@ -20,6 +20,7 @@
 
 import type {
     Answer,
+    Attempt,
     Autoavaliacao,
     Confianca,
     Dificuldade,
@@ -537,4 +538,57 @@ export function matrizDeConfusao(turma: Turma): Record<TipoDeAluno, Record<Perfi
         matriz[turma.tipos[perfil.uid]][perfilDeResposta(delas)] += 1;
     }
     return matriz;
+}
+
+/**
+ * O banco fictício: a turma nas quatro coleções que o app grava no Firestore, no formato delas,
+ * para o grupo trabalhar em cima (item 36). Os horários ficam em milissegundos, como no app depois
+ * de ler o banco. Nada disto vai para o Firestore.
+ */
+export interface BancoFicticio {
+    users: Record<string, PerfilDoExport>;
+    selfAssessments: Record<string, Autoavaliacao>;
+    attempts: Attempt[];
+    answers: Answer[];
+}
+
+export function bancoFicticio(turma: Turma): BancoFicticio {
+    const { perfis, respostas, questoes, tentativas = [], autoavaliacoes = [] } = turma.dados;
+    const formaDe = new Map(perfis.map((p) => [p.uid, p.formaPre]));
+    // Quantas questões cada passo tem, para saber se a tentativa foi até o fim.
+    const tamanhoDoPasso = (r: Answer) => {
+        if (r.fase === 'pratica') return questoesDaPratica(questoes, r.topicId).length;
+        const forma = formaDe.get(r.uid);
+        if (!forma) return Infinity;
+        return questoesDoBlocoMedido(questoes, r.fase === 'pre' ? 'pre' : 'pos', [r.topicId], forma).length;
+    };
+    const origem = new Map(tentativas.map((t) => [t.id, t]));
+    const attempts = new Map<string, Attempt>();
+    for (const r of respostas) {
+        const existente = attempts.get(r.attemptId);
+        if (existente) {
+            existente.respostas.push(r.questionId);
+            existente.concluida = existente.respostas.length >= tamanhoDoPasso(r);
+            continue;
+        }
+        const daOrigem = origem.get(r.attemptId);
+        attempts.set(r.attemptId, {
+            id: r.attemptId,
+            uid: r.uid,
+            fase: r.fase,
+            lessonId: `licao_${r.topicId}`,
+            respostas: [r.questionId],
+            concluida: tamanhoDoPasso(r) <= 1,
+            // A tentativa nasce quando a primeira questão aparece na tela.
+            createdAt: r.respondidaEm - r.tempoMs,
+            ...(daOrigem?.plataforma ? { plataforma: daOrigem.plataforma } : {}),
+            ...(daOrigem?.versaoDoApp ? { versaoDoApp: daOrigem.versaoDoApp } : {}),
+        });
+    }
+    return {
+        users: Object.fromEntries(perfis.map((p) => [p.uid, p])),
+        selfAssessments: Object.fromEntries(autoavaliacoes.map((a) => [a.uid, a])),
+        attempts: [...attempts.values()],
+        answers: [...respostas],
+    };
 }
