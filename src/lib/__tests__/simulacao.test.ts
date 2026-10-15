@@ -696,8 +696,8 @@ describe('a página do relatório com dados simulados', () => {
 
     it('com os defeitos plantados, mostra onde cada um ficou na tabela de conteúdo; sem eles, não', () => {
         const defeitos = [
-            { rotulo: 'Gabarito trocado', descricao: 'quem sabe marca sempre o mesmo distrator', enunciado: 'Qual é a mecânica?', topico: 'Framework MDA', posicao: 1 },
-            { rotulo: 'Distrator irresistível', descricao: 'quase todo mundo que não sabe vai nele', enunciado: 'Qual engine?', topico: 'Escolha de engine', posicao: null },
+            { rotulo: 'Gabarito trocado', descricao: 'quem sabe marca sempre o mesmo distrator', enunciado: 'Qual é a mecânica?', topico: 'Framework MDA', posicao: 1, concentrado: false },
+            { rotulo: 'Distrator irresistível', descricao: 'quase todo mundo que não sabe vai nele', enunciado: 'Qual engine?', topico: 'Escolha de engine', posicao: null, concentrado: true },
         ];
         const comDefeitos = relatorioHtml(ind, { geradoEm: '2026-10-13', simulacao: { alunos: 100, semente: 7, defeitos } });
         const bloco = comDefeitos.slice(comDefeitos.indexOf('<h2>Conferência dos defeitos plantados</h2>'));
@@ -706,6 +706,8 @@ describe('a página do relatório com dados simulados', () => {
         expect(bloco).toContain('Qual é a mecânica?');
         expect(bloco).toContain('1ª');
         expect(bloco).toContain('fora da lista');
+        expect(bloco).toContain('<th>Erros concentrados</th>');
+        expect(bloco).toContain('<td class="num">sim</td>');
         expect(simulada).not.toContain('Conferência dos defeitos plantados');
         expect(real).not.toContain('Conferência dos defeitos plantados');
     });
@@ -782,7 +784,15 @@ describe('os defeitos plantados', () => {
     });
 
     // O distrator irresistível pesa em quem não sabe, e na verificação quase todos sabem: pelo
-    // acerto, ele não chega ao topo. Fica de fora até o Tiago decidir como a tabela o mostra.
+    // acerto, ele não chega ao topo. Aparece entre os erros concentrados numa alternativa.
+    it('o bloco de conteúdo acha o distrator irresistível entre os erros concentrados, com o distrator plantado', () => {
+        const defeito = comDefeitos.defeitos.find((d) => d.tipo === 'distrator_irresistivel')!;
+        const questao = questaoDe.get(defeito.questaoId)!;
+        const linha = indicadoresDa(comDefeitos).conteudo.concentrados.find((q) => q.enunciado === questao.enunciado);
+
+        expect(linha?.distrator).toBe(questao.alternativas.find((a) => a.id === defeito.distrator)!.texto);
+    });
+
     it('a tabela de conteúdo do relatório põe o gabarito trocado e a ambígua entre as questões a rever, com o distrator plantado', () => {
         const aRever = indicadoresDa(comDefeitos).conteudo.aRever;
         for (const defeito of comDefeitos.defeitos.filter((d) => d.tipo !== 'distrator_irresistivel')) {

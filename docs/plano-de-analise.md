@@ -60,7 +60,7 @@ Servem para levantar perguntas, e não para responder. Não têm teste, não tê
 
 - **Perfis de resposta** (`src/lib/perfis-de-resposta.ts`). Os limites atuais, a revisar depois do piloto: menos de 6 respostas, "poucas respostas"; mediana de tempo abaixo de 6 s e acerto até 40%, "responde no chute"; erro com certeza em 25% ou mais, "confiante demais"; acerto a partir de 75% com metade de acerto com certeza, "domina"; acerto a partir de 55% com certeza abaixo de 20%, "sabe, mas duvida"; acerto abaixo de 45%, "com dificuldade"; o resto, "em progresso".
 - **Por perfil**: sexo, faixa etária, experiência, situação de estudo e aluno do site, com o ganho, a retenção e o ponto cego de cada grupo.
-- **Conteúdo**: a lista de questões a rever, julgadas na verificação, com o distrator mais escolhido. Nas turmas com defeitos plantados (`--defeitos`), a lista acha o gabarito trocado (1º lugar) e a questão ambígua (8º, na base, e fora da lista em alguns cenários), mas não o distrator irresistível, que pesa em quem não sabe, e na verificação quase todos sabem. Fica como limite da lista até o grupo decidir como mostrá-lo.
+- **Conteúdo**: a lista de questões a rever, julgadas pelo acerto na verificação, com o distrator mais escolhido; e, à parte, as questões em que uma alternativa errada levou 80% ou mais dos erros do diagnóstico e da verificação, com pelo menos 8 erros (erros concentrados). Nas turmas com defeitos plantados (`--defeitos`, cinco turmas de 100, sementes 1250808581 e 1 a 4), o gabarito trocado ficou em 1º nas questões a rever todas as vezes; a questão ambígua, entre o 2º e o 8º, e fora da lista em alguns cenários da semente 1250808581; o distrator irresistível, que pesa em quem não sabe e mexe pouco no acerto da verificação, entrou nos erros concentrados em 4 das 5 turmas (na outra, a questão teve só 6 erros). Sem defeito plantado, de 0 a 3 questões por turma entram nos erros concentrados, por distratores que atraem mais por natureza: a lista é para conferir, e não um veredito.
 
 ## Limitações
 
@@ -73,8 +73,8 @@ Servem para levantar perguntas, e não para responder. Não têm teste, não tê
 ## Depois do piloto
 
 - Rever os limites dos perfis de resposta com os dados de verdade.
-- Decidir se a calibração passa a ser medida dentro de cada pessoa, para não misturar pessoas.
-- Decidir como a tabela de conteúdo mostra um distrator que concentra os erros.
+- Decidir se a calibração passa a ser medida dentro de cada pessoa, para não misturar pessoas (por ora, fica a da turma, decidido em 15/10).
+- Rever o corte dos erros concentrados (80% e 8 erros) com os dados de verdade.
 
 ## Como reproduzir
 

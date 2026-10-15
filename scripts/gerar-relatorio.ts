@@ -73,7 +73,7 @@ function principais(ind: Indicadores) {
     };
 }
 
-/** Os defeitos plantados e a posição de cada um na tabela de conteúdo. */
+/** Os defeitos plantados, a posição de cada um entre as questões a rever e se está nos erros concentrados. */
 function defeitosNaTabela(turma: Turma, ind: Indicadores, conteudo: ReturnType<typeof conteudoComVersao>['conteudo']) {
     const titulo = new Map(conteudo.topicos.map((t) => [t.id, t.titulo]));
     return turma.defeitos.map((d) => {
@@ -85,6 +85,7 @@ function defeitosNaTabela(turma: Turma, ind: Indicadores, conteudo: ReturnType<t
             enunciado: questao.enunciado,
             topico: titulo.get(questao.topicId) ?? questao.topicId,
             posicao: indice === -1 ? null : indice + 1,
+            concentrado: ind.conteudo.concentrados.some((q) => q.enunciado === questao.enunciado),
         };
     });
 }
@@ -163,7 +164,10 @@ function simular(alunosTexto: string | undefined) {
             console.log(`  Pessoas por tópico: ${ind.cobertura.map((c) => `${c.titulo} ${c.pessoas}`).join(' · ')}`);
         }
         for (const d of plantados ?? [])
-            console.log(`  Defeito ${d.rotulo} (${d.questaoId}): ${d.posicao === null ? 'fora da tabela de conteúdo' : `${d.posicao}ª da tabela de conteúdo`}`);
+            console.log(
+                `  Defeito ${d.rotulo} (${d.questaoId}): ${d.posicao === null ? 'fora das questões a rever' : `${d.posicao}ª das questões a rever`}` +
+                    (d.concentrado ? ' · nos erros concentrados' : '')
+            );
         console.log(`  Para repetir: ${repetir(cenario)}`);
     }
 

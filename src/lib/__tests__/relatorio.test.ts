@@ -377,6 +377,49 @@ describe('indicadoresDoRelatorio', () => {
         });
     });
 
+    // Item 37: um distrator que concentra os erros não derruba o acerto na verificação, porque
+    // depois da lição quase todos sabem. Ele aparece à parte, somando diagnóstico e verificação.
+    describe('conteúdo: erros concentrados numa alternativa', () => {
+        // mda_a2 com 10 erros, 9 no mesmo distrator; mda_b2 com 10 erros, 7 no mesmo; mda_b1 com
+        // 6 erros, todos no mesmo: poucos para dizer.
+        const comErros = () => {
+            const exportado = exportarDados(DADOS, { agora: AGORA });
+            const erros: Record<string, { respostas: number; acertos: number; vezes: number }> = {
+                mda_a2: { respostas: 14, acertos: 4, vezes: 9 },
+                mda_b2: { respostas: 14, acertos: 4, vezes: 7 },
+                mda_b1: { respostas: 8, acertos: 2, vezes: 6 },
+            };
+            const questoes = exportado.questoes.map((q) => {
+                const e = erros[String(q.questao)];
+                return e ? { ...q, respostas: e.respostas, acertos: e.acertos, vezes_no_distrator: e.vezes, distrator_mais_escolhido: 'O distrator C' } : q;
+            });
+            return indicadoresDoRelatorio({ ...exportado, questoes }, CONTEUDO).conteudo.concentrados;
+        };
+
+        it('lista a questão em que uma alternativa errada leva 80% ou mais dos erros, com pelo menos 8 erros', () => {
+            expect(comErros()).toEqual([
+                { enunciado: 'Enunciado de mda_a2', topico: 'Framework MDA', distrator: 'O distrator C', vezes: 9, erros: 10 },
+            ]);
+        });
+
+        it('sem erros concentrados, a lista fica vazia', () => {
+            expect(indicadores().conteudo.concentrados).toEqual([]);
+        });
+
+        it('a página mostra a lista à parte, no bloco de conteúdo', () => {
+            const ind = indicadores();
+            const comLista = {
+                ...ind,
+                conteudo: { ...ind.conteudo, concentrados: [{ enunciado: 'Qual é a mecânica?', topico: 'Framework MDA', distrator: 'A tensão', vezes: 9, erros: 10 }] },
+            };
+            const bloco = (html: string) => html.slice(html.indexOf('<h2>Conteúdo</h2>'), html.indexOf('<h2>Quem respondeu</h2>'));
+
+            expect(bloco(pagina(comLista, 1))).toContain('Erros concentrados numa alternativa');
+            expect(bloco(pagina(comLista, 1))).toContain('9 de 10');
+            expect(bloco(pagina(ind, 1))).not.toContain('Erros concentrados numa alternativa');
+        });
+    });
+
     describe('cobertura por tópico', () => {
         it('quantas pessoas começaram cada lição, e em que forma', () => {
             expect(indicadores().cobertura).toEqual([

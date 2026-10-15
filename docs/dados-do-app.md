@@ -34,7 +34,7 @@ Exemplo de uma resposta (da turma virtual):
 
 ## Das tabelas ao relatório
 
-`npm run relatorio` parte das mesmas tabelas e monta uma página só, com números em conjunto e sem dado de pessoa nenhuma: aprendizagem (antes, depois e revisão, com o ganho da turma, o intervalo de 95% e o teste pareado), consciência do próprio saber (acerto por confiança, calibração e quadrantes), retenção (Firmes e Frágeis, e a retenção corrigida pelo chute em cada nível de confiança), perfis de resposta, autoavaliação, resultados por perfil (grupo com menos de 5 pessoas mostra só a contagem), engajamento, conteúdo (questões a rever, julgadas na verificação) e quem respondeu.
+`npm run relatorio` parte das mesmas tabelas e monta uma página só, com números em conjunto e sem dado de pessoa nenhuma: aprendizagem (antes, depois e revisão, com o ganho da turma, o intervalo de 95% e o teste pareado), consciência do próprio saber (acerto por confiança, calibração e quadrantes), retenção (Firmes e Frágeis, e a retenção corrigida pelo chute em cada nível de confiança), perfis de resposta, autoavaliação, resultados por perfil (grupo com menos de 5 pessoas mostra só a contagem), engajamento, conteúdo (questões a rever, julgadas na verificação, e erros concentrados numa alternativa) e quem respondeu.
 
 ## O banco fictício
 

@@ -38,6 +38,13 @@ export const AMOSTRA_MINIMA = 10;
 export const MINIMO_DE_PESSOAS_POR_GRUPO = 5;
 
 const MAXIMO_DE_QUESTOES_A_REVER = 10;
+// Erros concentrados (item 37): a questão em que uma alternativa errada leva esta parte dos erros
+// do diagnóstico e da verificação, com pelo menos tantos erros. Com três distratores, o acaso
+// dá um terço a cada um.
+const CONCENTRACAO_DOS_ERROS = 0.8;
+const MINIMO_DE_ERROS_CONCENTRADOS = 8;
+const MAXIMO_DE_ERROS_CONCENTRADOS = 5;
+
 /** Abaixo disto, o intervalo por reamostragem sai estreito demais: a página o chama de aproximado. */
 const PESSOAS_PARA_INTERVALO_CONFIAVEL = 30;
 const ACASO = 0.25; // uma de quatro alternativas
@@ -56,6 +63,15 @@ export interface QuestaoARever {
     pontosCegos: number;
     distrator: string | null;
     diagnostico: Taxa;
+}
+
+// Uma questão em que uma alternativa errada leva quase todos os erros.
+export interface ErrosConcentrados {
+    enunciado: string;
+    topico: string;
+    distrator: string;
+    vezes: number; // os erros que foram nela
+    erros: number; // os erros da questão, no diagnóstico e na verificação
 }
 
 // Quantas pessoas começaram cada lição, em que forma, e quantas chegaram à verificação.
@@ -107,7 +123,7 @@ export interface Indicadores extends Agregados {
         plataformas: { rotulo: string; respostas: number }[];
     };
     autoavaliacao: { modulo: string; notaMedia: number; pessoas: number; diagnostico: Taxa }[];
-    conteudo: { total: number; avaliadas: number; aRever: QuestaoARever[] };
+    conteudo: { total: number; avaliadas: number; aRever: QuestaoARever[]; concentrados: ErrosConcentrados[] };
     cobertura: CoberturaDoTopico[];
     incerteza: Incerteza;
     perfil: { titulo: string; itens: Contagem[] }[];
@@ -291,6 +307,23 @@ export function indicadoresDoRelatorio(
             diagnostico: { acertos: numero(q, 'diagnostico_acertos'), total: numero(q, 'diagnostico_respostas') },
         }));
 
+    // Um distrator que atrai quem não sabe mexe pouco no acerto da verificação, porque depois da
+    // lição quase todos sabem: ele aparece à parte, pelos erros do diagnóstico e da verificação
+    // somados (a exportação já os soma, sem a revisão, que repete a verificação).
+    const errosDe = (q: Linha) => numero(q, 'respostas') - numero(q, 'acertos');
+    const concentracaoDe = (q: Linha) => numero(q, 'vezes_no_distrator') / errosDe(q);
+    const concentrados = dasFormas
+        .filter((q) => errosDe(q) >= MINIMO_DE_ERROS_CONCENTRADOS && concentracaoDe(q) >= CONCENTRACAO_DOS_ERROS)
+        .sort((a, b) => concentracaoDe(b) - concentracaoDe(a) || errosDe(b) - errosDe(a))
+        .slice(0, MAXIMO_DE_ERROS_CONCENTRADOS)
+        .map((q) => ({
+            enunciado: enunciadoDaQuestao.get(String(q.questao)) ?? String(q.questao),
+            topico: tituloDoTopico.get(String(q.topico)) ?? String(q.topico),
+            distrator: texto(q, 'distrator_mais_escolhido') ?? '',
+            vezes: numero(q, 'vezes_no_distrator'),
+            erros: errosDe(q),
+        }));
+
     // Quem começou cada lição de ciclo completo, e em que forma. Com escolha livre, cada tópico tem
     // a sua gente: a cobertura diz de quantas pessoas sai cada número por tópico.
     const cobertura = conteudo.topicos.flatMap((t) => {
@@ -410,7 +443,7 @@ export function indicadoresDoRelatorio(
             plataformas: [...porPlataforma].map(([rotulo, respostas]) => ({ rotulo, respostas })).sort((a, b) => b.respostas - a.respostas),
         },
         autoavaliacao,
-        conteudo: { total: dasFormas.length, avaliadas: avaliadas.length, aRever },
+        conteudo: { total: dasFormas.length, avaliadas: avaliadas.length, aRever, concentrados },
         cobertura,
         incerteza,
         perfil: [
@@ -450,9 +483,9 @@ export interface OpcoesDoRelatorio {
         cenario?: { rotulo: string; descricao: string };
         // O tipo sorteado contra o perfil lido, para conferir o classificador.
         matriz?: { tipos: { rotulo: string; contagens: number[] }[]; perfis: string[] };
-        // Os defeitos plantados (item 37) e a posição de cada questão na tabela de conteúdo; null
-        // quando ela ficou fora da lista.
-        defeitos?: { rotulo: string; descricao: string; enunciado: string; topico: string; posicao: number | null }[];
+        // Os defeitos plantados (item 37): a posição de cada questão entre as questões a rever (null
+        // quando ficou fora) e se ela está entre os erros concentrados numa alternativa.
+        defeitos?: { rotulo: string; descricao: string; enunciado: string; topico: string; posicao: number | null; concentrado: boolean }[];
     };
 }
 
@@ -905,7 +938,20 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                                 `<td>${q.distrator === null ? '—' : esc(q.distrator)}</td><td class="num">${q.diagnostico.total === 0 ? '—' : fracao(q.diagnostico)}</td></tr>`
                         )
                         .join('') +
-                    `</tbody></table></div>`)
+                    `</tbody></table></div>`) +
+              (conteudo.concentrados.length === 0
+                  ? ''
+                  : `<h3>Erros concentrados numa alternativa</h3>` +
+                    `<div class="tabela"><table><thead><tr><th>Questão</th><th>Alternativa errada</th><th>Erros nela</th></tr></thead><tbody>` +
+                    conteudo.concentrados
+                        .map(
+                            (q) =>
+                                `<tr><td>${esc(q.enunciado)}<br><span class="n">${esc(q.topico)}</span></td>` +
+                                `<td>${esc(q.distrator)}</td><td class="num">${q.vezes} de ${q.erros}</td></tr>`
+                        )
+                        .join('') +
+                    `</tbody></table></div>` +
+                    `<p class="nota">Questões em que uma alternativa errada levou ${Math.round(CONCENTRACAO_DOS_ERROS * 100)}% ou mais dos erros do diagnóstico e da verificação, com pelo menos ${MINIMO_DE_ERROS_CONCENTRADOS} erros. Com três alternativas erradas, o acaso daria um terço a cada uma. Pode ser um erro comum de quem ainda não estudou, que vale tratar no cartão, uma alternativa que parece certa ou o gabarito trocado.</p>`)
     );
 
     // Conferência do classificador: só na página simulada, quando o script passa a matriz.
@@ -929,18 +975,19 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
             ? ''
             : bloco(
                   'Conferência dos defeitos plantados',
-                  'O gerador estragou três questões de propósito. A tabela de conteúdo acima as encontrou?',
-                  `<div class="tabela"><table><thead><tr><th>Defeito</th><th>Questão</th><th>Na tabela</th></tr></thead><tbody>` +
+                  'O gerador estragou três questões de propósito. O bloco de conteúdo acima as encontrou?',
+                  `<div class="tabela"><table><thead><tr><th>Defeito</th><th>Questão</th><th>Entre as questões a rever</th><th>Erros concentrados</th></tr></thead><tbody>` +
                       simulacao.defeitos
                           .map(
                               (d) =>
                                   `<tr><td>${esc(d.rotulo)}<br><span class="n">${esc(d.descricao)}</span></td>` +
                                   `<td>${esc(d.enunciado)}<br><span class="n">${esc(d.topico)}</span></td>` +
-                                  `<td class="num">${d.posicao === null ? 'fora da lista' : `${d.posicao}ª`}</td></tr>`
+                                  `<td class="num">${d.posicao === null ? 'fora da lista' : `${d.posicao}ª`}</td>` +
+                                  `<td class="num">${d.concentrado ? 'sim' : 'não'}</td></tr>`
                           )
                           .join('') +
                       `</tbody></table></div>` +
-                      `<p class="nota">A tabela ordena pelo acerto na verificação. Um defeito que pesa em quem não sabe, como o distrator irresistível, mexe pouco nesse acerto, porque depois da lição quase todos sabem.</p>`
+                      `<p class="nota">As questões a rever vêm pelo acerto na verificação. Um defeito que pesa em quem não sabe, como o distrator irresistível, mexe pouco nesse acerto, porque depois da lição quase todos sabem: ele aparece nos erros concentrados numa alternativa.</p>`
               );
 
     // 8. Quem respondeu
