@@ -49,9 +49,10 @@ export const TERMO: readonly SecaoDoTermo[] = [
         titulo: 'Por que pedimos esses dados',
         texto:
             'A faixa etária e o sexo servem para ver se o resultado muda entre grupos de pessoas, ' +
-            'sempre em conjunto: um grupo com menos de 5 pessoas não aparece em nenhum relatório. A ' +
-            'faixa etária também confirma que você tem 18 anos ou mais. Cidade, estado, situação de ' +
-            'estudo, instituição, curso e experiência servem para descrever quem participou. O e-mail é ' +
+            'sempre em conjunto: de um grupo com menos de 5 pessoas, os relatórios mostram só quantas ' +
+            'pessoas ele tem, e nenhum resultado. A faixa etária também confirma que você tem 18 anos ' +
+            'ou mais. Cidade, estado, situação de estudo, instituição, curso e experiência servem para ' +
+            'descrever quem participou. O e-mail é ' +
             'o da sua conta, para entrar e recuperar a senha. O telefone é para o grupo falar com você ' +
             'sobre o estudo, por exemplo para lembrar de uma revisão.',
     },

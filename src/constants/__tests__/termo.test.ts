@@ -88,6 +88,9 @@ describe('o termo de participação', () => {
         expect(texto).toMatch(/faixa etária e o sexo servem para/i);
         expect(texto).toMatch(/sempre em conjunto/i);
         expect(texto).toMatch(/menos de 5 pessoas/i);
+        // O relatório mostra quantas pessoas há em cada grupo; o que some são os resultados.
+        expect(texto).toMatch(/só quantas pessoas ele tem/i);
+        expect(texto).not.toMatch(/não aparece em nenhum relatório/i);
         expect(texto).toMatch(/telefone é para o grupo/i);
     });
 
