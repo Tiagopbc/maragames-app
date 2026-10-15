@@ -13,9 +13,10 @@
 //                                            o banco fictício: a turma de alunos virtuais, sem ler o banco
 //
 // Com --simulado, o Firestore não é lido nem tocado: a turma é a mesma que `npm run relatorio`
-// sorteia com a mesma semente (e as mesmas --cenario, --limite-diario e --dias-de-estudo). Grava em
-// exportacao/simulado-<semente>/ os mesmos arquivos da exportação real e dados-brutos.json, com as
-// quatro coleções (users, selfAssessments, attempts, answers) no formato do app (item 36).
+// sorteia com a mesma semente (e as mesmas --cenario, --limite-diario, --dias-de-estudo e
+// --defeitos). Grava em exportacao/simulado-<semente>/ os mesmos arquivos da exportação real e
+// dados-brutos.json, com as quatro coleções (users, selfAssessments, attempts, answers) no formato
+// do app (item 36).
 //
 // Sem --saida, grava em exportacao/AAAA-MM-DD, ou em exportacao/AAAA-MM-DD-desde-AAAA-MM-DD
 // quando há filtro. Se ninguém entra no filtro, avisa e não grava nada.
@@ -33,10 +34,10 @@ import { conteudoComVersao, opcoesDaLinhaDeComando, turmaSimulada } from './turm
 
 /** O banco fictício: a turma virtual em arquivos, para o grupo trabalhar em cima. */
 function exportarSimulado(alunosTexto: string) {
-    const { alunos, semente, cenarioPedido, diasDeEstudo, limiteDiario } = opcoesDaLinhaDeComando(alunosTexto, 100);
+    const { alunos, semente, cenarioPedido, diasDeEstudo, limiteDiario, defeitos } = opcoesDaLinhaDeComando(alunosTexto, 100);
     const cenario = cenarioPedido ?? 'base';
     const { versao, conteudo } = conteudoComVersao();
-    const turma = turmaSimulada(conteudo, { alunos, semente, cenario, limiteDiario, diasDeEstudo });
+    const turma = turmaSimulada(conteudo, { alunos, semente, cenario, limiteDiario, diasDeEstudo, defeitos });
     const exportado = exportarDados(turma.dados, { agora: turma.agora });
     const banco = bancoFicticio(turma);
 

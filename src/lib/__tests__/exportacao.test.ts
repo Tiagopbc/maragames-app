@@ -270,6 +270,14 @@ describe('participantes: uma linha por pessoa', () => {
         });
     });
 
+    // A correção do chute (item 37) precisa do acerto em cada nível de confiança, e o acerto
+    // conta também as erradas: por isso as respostas todas da verificação, das lições revisadas.
+    it('quantas respostas da verificação revisada foram com confiança alta e com baixa, certas ou não', () => {
+        expect(linhaDa('P01')).toMatchObject({ confianca_alta_no_pos: 1, confianca_baixa_no_pos: 1 });
+        // A Bia marcou certeza nas duas, e errou uma.
+        expect(linhaDa('P02')).toMatchObject({ confianca_alta_no_pos: 2, confianca_baixa_no_pos: 0, firmes_no_pos: 1 });
+    });
+
     it('quantas lições a pessoa começou, verificou, revisou e concluiu', () => {
         // Ana: MDA com revisão feita e GDD (só prática) concluída.
         expect(linhaDa('P01')).toMatchObject({ licoes_comecadas: 2, licoes_verificadas: 1, licoes_revisadas: 1, licoes_concluidas: 2 });
@@ -307,6 +315,8 @@ describe('participantes: uma linha por pessoa', () => {
             reteste_total: null,
             retencao: null,
             licoes_revisadas: 0,
+            confianca_alta_no_pos: null,
+            confianca_baixa_no_pos: null,
         });
     });
 });

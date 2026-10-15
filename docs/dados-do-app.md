@@ -25,7 +25,7 @@ Exemplo de uma resposta (da turma virtual):
 
 | Tabela | Uma linha por | O que traz |
 |---|---|---|
-| `participantes.csv` | pessoa | o perfil, as lições começadas, verificadas e revisadas, os acertos antes e depois, o ganho, Firmes e Frágeis, os dias ativos |
+| `participantes.csv` | pessoa | o perfil, as lições começadas, verificadas e revisadas, os acertos antes e depois, o ganho, Firmes e Frágeis, as respostas da verificação revisada com confiança alta e baixa, os dias ativos |
 | `licoes.csv` | pessoa e lição | antes, depois, revisão, ganho, retenção, Firmes e Frágeis daquela lição |
 | `eventos.csv` | resposta | a resposta com o quadrante, o XP, a posição escolhida na tela e a plataforma |
 | `questoes.csv` | questão | o acerto geral e por fase (diagnóstico e verificação), os pontos cegos e o distrator mais escolhido |
@@ -34,7 +34,7 @@ Exemplo de uma resposta (da turma virtual):
 
 ## Das tabelas ao relatório
 
-`npm run relatorio` parte das mesmas tabelas e monta uma página só, com números em conjunto e sem dado de pessoa nenhuma: aprendizagem (antes, depois e revisão, com o ganho da turma e o intervalo de 95%), consciência do próprio saber (acerto por confiança e quadrantes), retenção (Firmes e Frágeis), perfis de resposta, autoavaliação, resultados por perfil (grupo com menos de 5 pessoas mostra só a contagem), engajamento, conteúdo (questões a rever, julgadas na verificação) e quem respondeu.
+`npm run relatorio` parte das mesmas tabelas e monta uma página só, com números em conjunto e sem dado de pessoa nenhuma: aprendizagem (antes, depois e revisão, com o ganho da turma, o intervalo de 95% e o teste pareado), consciência do próprio saber (acerto por confiança, calibração e quadrantes), retenção (Firmes e Frágeis, e a retenção corrigida pelo chute em cada nível de confiança), perfis de resposta, autoavaliação, resultados por perfil (grupo com menos de 5 pessoas mostra só a contagem), engajamento, conteúdo (questões a rever, julgadas na verificação, e erros concentrados numa alternativa) e quem respondeu.
 
 ## O banco fictício
 
