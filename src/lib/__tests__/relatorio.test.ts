@@ -752,6 +752,14 @@ describe('relatorioHtml', () => {
             expect(pagina(ind)).not.toContain('sem evidência de ganho');
         });
 
+        it('o cartão da mesma pessoa também avisa quando o intervalo cruza o zero', () => {
+            const ind = indicadores();
+            const cruza = { ...ind, incerteza: { ...ind.incerteza, pareado: { pessoas: 30, intervalo: { estimativa: 0.1, inferior: -0.05, superior: 0.25 } } } };
+            const bloco = (html: string) => html.slice(html.indexOf('Na mesma pessoa'), html.indexOf('<h2>Perfis de resposta</h2>'));
+
+            expect(bloco(pagina(cruza))).toContain('sem evidência de diferença');
+        });
+
         it('a retenção traz Firmes menos Frágeis com o intervalo, a comparação pareada e o aviso de composição', () => {
             const html = pagina();
             const bloco = html.slice(html.indexOf('<h2>Retenção</h2>'), html.indexOf('<h2>Perfis de resposta</h2>'));

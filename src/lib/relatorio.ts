@@ -687,7 +687,8 @@ export function relatorioHtml(ind: Indicadores, opcoes: OpcoesDoRelatorio): stri
                       : cartao(
                             'Na mesma pessoa',
                             pontos(ind.incerteza.pareado.intervalo.estimativa),
-                            `média de ${plural(ind.incerteza.pareado.pessoas, 'pessoa', 'pessoas')} com Firmes e Frágeis · ${textoDoIntervalo(ind.incerteza.pareado.intervalo, pontos)}`
+                            `média de ${plural(ind.incerteza.pareado.pessoas, 'pessoa', 'pessoas')} com Firmes e Frágeis · ${textoDoIntervalo(ind.incerteza.pareado.intervalo, pontos)}` +
+                                (incluiZero(ind.incerteza.pareado.intervalo) ? ' · sem evidência de diferença' : '')
                         )) +
                   `</div>` +
                   `<p class="nota">A diferença na turma mistura duas coisas além da confiança: os Frágeis incluem acertos no chute, que não têm o que reter, e quem marca certeza costuma ser quem sabe mais. A comparação na mesma pessoa tira a segunda; a primeira continua. Os intervalos reamostram pessoas, e não respostas.</p>`)

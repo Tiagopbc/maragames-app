@@ -420,7 +420,7 @@ Revisto em 09/10 (virada, item 30): os grupos deixam de ser as sessões do pilot
 
 **Resolvidas em 15/10**
 
-- Simulação como validação do instrumento (item 36), com o desenho aprovado pelo Tiago em 14/10: escolha livre de tópico, cenários, intervalos por reamostragem de pessoas, réplicas do piloto e o relatório revisto. Na branch `feat/simulador-medida`, que sai da do pull request nº 22. `npm test` passa com 931.
+- Simulação como validação do instrumento (item 36), com o desenho aprovado pelo Tiago em 14/10: escolha livre de tópico, cenários, intervalos por reamostragem de pessoas, réplicas do piloto e o relatório revisto. Na branch `feat/simulador-medida`, que sai da do pull request nº 22. `npm test` passa com 932.
 - Três apontamentos da revisão do pull request nº 22 tratados (item 35): mínimo de 5 pessoas por grupo no "Por perfil", ganho do grupo sob a regra de amostra e aceite de contato preservado. Push na branch e conversas resolvidas, com a liberação do Tiago.
 
 **Resolvidas em 14/10**
@@ -950,4 +950,4 @@ Decidido em 14/10 e feito em 15/10, a partir de uma revisão do gerador e do rel
 
 **Ficou para depois**: a força latente contínua por pessoa e questão, com esquecimento exponencial e as duas versões da confiança, e a injeção de defeitos conhecidos (gabarito trocado, distrator irresistível, questão ambígua) para ver se a tabela de Conteúdo os põe no topo. E, sinalizado sem mexer no conteúdo: a alternativa correta é a mais longa em 48 das 100 questões (ao acaso, perto de 25), 14 delas avançadas das formas A e B, uma pista que quem chuta pode usar.
 
-Teste antes do código, com uma exceção: os três testes da página simulada (rodapé, matriz e nota do cadastro) foram escritos logo depois da mudança no relatório. `npm test` passa com 931, `npx tsc --noEmit` sem erros e `npm run lint` limpo.
+Teste antes do código, com uma exceção: os três testes da página simulada (rodapé, matriz e nota do cadastro) foram escritos logo depois da mudança no relatório. `npm test` passa com 932, `npx tsc --noEmit` sem erros e `npm run lint` limpo.
