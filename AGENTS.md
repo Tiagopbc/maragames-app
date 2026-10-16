@@ -14,7 +14,7 @@ App independente do maragames.app. Não há continuidade de lição entre dispos
 
 `docs/decisoes-tecnicas.md` tem todas as decisões numeradas, com o raciocínio e as pendências. Leia antes de propor arquitetura, modelo de dados, regra de pontuação ou fluxo de telas, e não contradiga um item sem apontar qual e por quê.
 
-`docs/plano-do-app-completo.md` tem a visão de produto: a home, o ciclo de cada lição, a sugestão do dia, as fases com a prova de cada uma e as decisões em aberto. Use para saber o que construir e em que ordem. `docs/rota-recalculada.md` é o plano anterior, do piloto, e fica só como registro. `docs/plano-de-analise.md` diz, antes dos dados, o que o piloto mede e o que conta como evidência (item 37); o que mudar depois dos dados entra lá como desvio.
+`docs/plano-do-app-completo.md` tem a visão de produto: a home, o ciclo de cada lição, a sugestão do dia, as fases com a prova de cada uma e as decisões em aberto. Use para saber o que construir e em que ordem. `docs/rota-recalculada.md` é o plano anterior, do piloto, e fica só como registro. `docs/plano-de-analise.md` diz, antes dos dados, o que o piloto mede e o que conta como evidência (item 37); o que mudar depois dos dados entra lá como desvio. `docs/logica-do-app.md` resume, em linguagem simples, como o app funciona por dentro, para o grupo apresentar; a mesma coisa em página está em `docs/logica-do-app.html`. Mudou uma regra que aparece lá, atualize os dois.
 
 Quando uma decisão técnica relevante for tomada na sessão, atualize esse arquivo (item novo ou "Revisto em dd/mm" no item existente, e a linha de última atualização no topo) e avise que a lista foi atualizada. Pendências ficam no item 24, na ordem das fases do plano.
 
