@@ -44,7 +44,7 @@ Confiança baixa são os níveis 1 e 2 (Palpite e Tenho dúvida); confiança alt
 | Retenção | Ainda sabe dias depois? | Acerto no reteste dividido pelo acerto no pós-teste | No piloto, reteste de 7 a 9 dias após o pós; no produto, revisão em intervalos crescentes |
 | Ganho (paper) | O app ensinou? | Ganho normalizado de Hake: (pós − pré) ÷ (100 − pré), com pré e pós no dia 1 | Só no piloto |
 
-**XP pela pontuação por certeza (revisto em 05/10, noite).** O domínio continua sem peso de confiança, mas o XP segue o esquema de Gardner-Medwin para mais de duas opções: 1, 2 e 3 pontos por acerto em Palpite, Tenho dúvida e Tenho certeza, e 0, −1 e −4 por erro (o original, 0, −2 e −6, é para verdadeiro ou falso). Declarar Dúvida compensa a partir de 50% de chance de acerto, e Certeza a partir de 75%; abaixo disso, Palpite rende mais e nunca perde ponto. O palpite puro em 4 alternativas acerta 25%. Diferente de pesos em que certeza nunca rende menos (regra "não motivadora", Gardner-Medwin; Gahan, 2003), esse esquema incentiva a sinceridade, então a limitação anterior ("sem ponto em jogo, nada incentiva a sinceridade") deixa de valer.
+**XP pela pontuação por certeza (revisto em 05/10, noite).** O domínio continua sem peso de confiança, mas o XP segue a pontuação por certeza de Gardner-Medwin, com o erro adaptado pelo grupo para 4 alternativas: 1, 2 e 3 pontos por acerto em Palpite, Tenho dúvida e Tenho certeza, e 0, −1 e −4 por erro (o original usa 0, −2 e −6; revisto em 16/10, item 14: a adaptação é do grupo, e não um esquema do autor). Declarar Dúvida compensa a partir de 50% de chance de acerto, e Certeza a partir de 75%; abaixo disso, Palpite rende mais e nunca perde ponto. O palpite puro em 4 alternativas acerta 25%. Diferente de pesos em que certeza nunca rende menos (regra "não motivadora", Gardner-Medwin; Gahan, 2003), esse esquema incentiva a sinceridade, então a limitação anterior ("sem ponto em jogo, nada incentiva a sinceridade") deixa de valer.
 
 O XP é calculado a partir de `answers`, não gravado. Nos blocos medidos (pré, pós e reteste), só aparece no fim do bloco, porque mostrá-lo a cada questão revelaria o acerto. Limitações para o paper: o XP vale pouco fora do app (incentivo real, mas fraco), e a confiança deixa de ser independente da regra. A calibração continua visível para o aluno e no relatório.
 
@@ -187,7 +187,7 @@ Decididos em 04/10 e 05/10:
 - [x] Prazos: 09/10 protótipo no Figma, 16/10 relatório de evolução, 14/11 apresentação ao cliente com análise, 27/11 paper final. Piloto: sessão 1 até 30/10 (no máximo 03/11), reteste entre 06/11 e 10/11, análise até 13/11.
 - [x] Continuidade entre dispositivos saiu do projeto; o Firebase fica; o DRDA entregue não será alterado.
 - [x] Domínio por acerto simples; confiança baixa são Palpite e Dúvida.
-- [x] XP pela pontuação por certeza de Gardner-Medwin (1/2/3 e 0/−1/−4), exibido só no fim dos blocos medidos.
+- [x] XP pela pontuação por certeza de Gardner-Medwin, com o erro adaptado pelo grupo (1/2/3 e 0/−1/−4), exibido só no fim dos blocos medidos.
 - [x] XP negativo (06/10): o saldo do bloco aparece como é; o piso em 0 vale só para o total acumulado.
 - [x] Pergunta: alternativa e confiança em qualquer ordem, Confirmar só com as duas, sem pular.
 - [x] Perfil completo obrigatório; código anônimo só na exportação.
