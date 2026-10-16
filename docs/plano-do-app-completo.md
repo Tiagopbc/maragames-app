@@ -255,6 +255,6 @@ A D1, a D2, a D3 e a D5 foram decididas pelo Tiago em 09/10, conforme a recomend
 | D5 | Mostrar antes e depois no fim da lição? | **Decidido: sim, em contagem.** Revê o item 27. |
 | D6 | Navegação por atalhos na home ou barra de abas? | **Decidido em 10/10: atalhos na home.** A barra de abas volta à discussão quando as quatro áreas existirem. |
 | D7 | Uma revisão aos 7 dias ou intervalos crescentes? | **Decidido em 10/10: uma, por ora; a Fase 7 fica de fora.** Os intervalos são a Fase 7. |
-| D8 | As duas contas de teste: apagar ou manter? | Manter até a Fase 2, porque servem de prova de que os dados antigos são lidos pelo modelo novo. |
+| D8 | As duas contas de teste: apagar ou manter? | **Decidido em 16/10: apagadas.** Serviram de prova até a Fase 2; a partir daí, o grupo usa o app como participante (item 24 de `docs/decisoes-tecnicas.md`). |
 
 A virada foi confirmada pelo grupo em 12/10: pelo `AGENTS.md`, decisão de produto é do grupo, e este plano tinha sido fechado só com o Tiago.
