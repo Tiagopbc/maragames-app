@@ -7,9 +7,10 @@
 //   node scripts/limpar-dados-de-teste.js --email a@exemplo.com --email b@exemplo.com
 //   node scripts/limpar-dados-de-teste.js --email a@exemplo.com --apagar
 //
-// O que --apagar faz, só nas contas citadas: apaga as respostas (`answers`) e as tentativas
-// (`attempts`) delas e tira do perfil o aceite do termo (`formaPre` e `consentiuEm`). O perfil e
-// o login continuam. Com --zerar-contador, apaga também `piloto/contador`, para a próxima pessoa
+// O que --apagar faz, só nas contas citadas: apaga as respostas (`answers`), as tentativas
+// (`attempts`) e as notas por módulo (`selfAssessments`) delas e tira do perfil o aceite do termo
+// (`formaPre` e `consentiuEm`). O perfil e o login continuam. Sem as notas, quem aceitar o termo de
+// novo com a conta dá as notas de novo, antes do primeiro diagnóstico (item 34). Com --zerar-contador, apaga também `piloto/contador`, para a próxima pessoa
 // a aceitar o termo receber a forma A; só faz sentido quando nenhuma conta de verdade aceitou.
 //
 // Apagar não tem volta. Usa a chave de serviço (serviceAccountKey.json, fora do git).
@@ -25,8 +26,11 @@ function argumentos(nome) {
     return valores;
 }
 
-/** O que cada conta tem, a partir do que foi lido do banco. Função pura, para poder ser testada. */
-function resumirContas(usuarios, respostas, tentativas) {
+/**
+ * O que cada conta tem, a partir do que foi lido do banco. `notas` são os uids com notas por módulo
+ * (o id de cada documento de `selfAssessments`). Função pura, para poder ser testada.
+ */
+function resumirContas(usuarios, respostas, tentativas, notas = []) {
     const contar = (lista, uid) => lista.filter((x) => x.uid === uid).length;
     return usuarios
         .map((u) => ({
@@ -34,6 +38,7 @@ function resumirContas(usuarios, respostas, tentativas) {
             email: u.email ?? '',
             apelido: u.apelido ?? '',
             aceitouOTermo: u.consentiuEm !== undefined && u.consentiuEm !== null,
+            deuAsNotas: notas.includes(u.uid),
             respostas: contar(respostas, u.uid),
             tentativas: contar(tentativas, u.uid),
         }))
@@ -69,22 +74,24 @@ async function main() {
     initializeApp({ credential: cert(JSON.parse(readFileSync(join(__dirname, '..', 'serviceAccountKey.json'), 'utf8'))) });
     const db = getFirestore();
 
-    const [usuarios, respostas, tentativas, contador] = await Promise.all([
+    const [usuarios, respostas, tentativas, notas, contador] = await Promise.all([
         db.collection('users').get(),
         db.collection('answers').get(),
         db.collection('attempts').get(),
+        db.collection('selfAssessments').get(),
         db.doc('piloto/contador').get(),
     ]);
     const contas = resumirContas(
         usuarios.docs.map((d) => ({ uid: d.id, ...d.data() })),
         respostas.docs.map((d) => d.data()),
-        tentativas.docs.map((d) => d.data())
+        tentativas.docs.map((d) => d.data()),
+        notas.docs.map((d) => d.id)
     );
 
     console.log(`Contas no banco: ${contas.length} · contador do termo: ${contador.exists ? contador.data().total : 'não existe'}`);
     for (const c of contas) {
         console.log(
-            `  ${(c.email || '(sem e-mail)').padEnd(34)} ${c.apelido.padEnd(14)} termo: ${c.aceitouOTermo ? 'sim' : 'não'} · respostas: ${c.respostas} · tentativas: ${c.tentativas}`
+            `  ${(c.email || '(sem e-mail)').padEnd(34)} ${c.apelido.padEnd(14)} termo: ${c.aceitouOTermo ? 'sim' : 'não'} · notas: ${c.deuAsNotas ? 'sim' : 'não'} · respostas: ${c.respostas} · tentativas: ${c.tentativas}`
         );
     }
 
@@ -97,10 +104,12 @@ async function main() {
     const uids = new Set(escolhidas.map((c) => c.uid));
     const refsDeRespostas = respostas.docs.filter((d) => uids.has(d.data().uid)).map((d) => d.ref);
     const refsDeTentativas = tentativas.docs.filter((d) => uids.has(d.data().uid)).map((d) => d.ref);
+    const refsDeNotas = notas.docs.filter((d) => uids.has(d.id)).map((d) => d.ref);
 
     console.log(`\nContas escolhidas: ${escolhidas.map((c) => c.email).join(', ')}`);
     console.log(`  respostas a apagar:  ${refsDeRespostas.length}`);
     console.log(`  tentativas a apagar: ${refsDeTentativas.length}`);
+    console.log(`  notas por módulo a apagar: ${refsDeNotas.length}`);
     console.log(`  aceite do termo a tirar do perfil: ${escolhidas.filter((c) => c.aceitouOTermo).length}`);
     if (zerarContador) console.log('  contador do termo: será apagado');
 
@@ -109,7 +118,7 @@ async function main() {
         return;
     }
 
-    await apagarEmLotes(db, [...refsDeRespostas, ...refsDeTentativas]);
+    await apagarEmLotes(db, [...refsDeRespostas, ...refsDeTentativas, ...refsDeNotas]);
     for (const uid of uids) {
         await db.doc(`users/${uid}`).update({ formaPre: FieldValue.delete(), consentiuEm: FieldValue.delete() });
     }

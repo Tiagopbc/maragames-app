@@ -9,18 +9,20 @@ const USUARIOS = [
 ];
 const RESPOSTAS = [{ uid: 'u1' }, { uid: 'u1' }, { uid: 'u2' }];
 const TENTATIVAS = [{ uid: 'u1' }];
+// As notas por módulo (`selfAssessments`) têm o uid como id do documento.
+const NOTAS = ['u1'];
 
 describe('resumirContas', () => {
-    it('conta as respostas e as tentativas de cada conta, em ordem de e-mail', () => {
-        expect(resumirContas(USUARIOS, RESPOSTAS, TENTATIVAS)).toEqual([
-            { uid: 'u1', email: 'ana@exemplo.com', apelido: 'Ana', aceitouOTermo: true, respostas: 2, tentativas: 1 },
-            { uid: 'u2', email: 'bia@exemplo.com', apelido: 'Bia', aceitouOTermo: false, respostas: 1, tentativas: 0 },
+    it('conta as respostas e as tentativas de cada conta, em ordem de e-mail, e diz se ela deu as notas por módulo', () => {
+        expect(resumirContas(USUARIOS, RESPOSTAS, TENTATIVAS, NOTAS)).toEqual([
+            { uid: 'u1', email: 'ana@exemplo.com', apelido: 'Ana', aceitouOTermo: true, deuAsNotas: true, respostas: 2, tentativas: 1 },
+            { uid: 'u2', email: 'bia@exemplo.com', apelido: 'Bia', aceitouOTermo: false, deuAsNotas: false, respostas: 1, tentativas: 0 },
         ]);
     });
 });
 
 describe('escolherContas', () => {
-    const contas = resumirContas(USUARIOS, RESPOSTAS, TENTATIVAS);
+    const contas = resumirContas(USUARIOS, RESPOSTAS, TENTATIVAS, NOTAS);
 
     it('fica só com as contas dos e-mails pedidos, sem diferenciar maiúsculas', () => {
         expect(escolherContas(contas, [' ANA@exemplo.com ']).map((c) => c.uid)).toEqual(['u1']);
