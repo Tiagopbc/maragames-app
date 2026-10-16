@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Lógica do app Beast Maragames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Lexend:wght@400;500;600&family=Silkscreen&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: guia longo em página clara; índice fixo à esquerda no computador, que vira uma faixa
+   rolável no celular; capítulos numerados porque seguem o caminho do dado, da tela ao relatório. */
+:root {
+  color-scheme: light;
+  --paper: #FBFAFE;
+  --white: #FFFFFF;
+  --lilac: #EFEAF9;
+  --lilac-2: #E3DBF5;
+  --ink: #1A1530;
+  --soft: #5E5873;
+  --line: #E2DCEF;
+  --brand: #3B2781;
+  --brand-2: #6A55C2;
+  --firme: #1E7A4C;   --firme-bg: #E5F4EC;
+  --fragil: #8A6100;  --fragil-bg: #FBF1D9;
+  --lacuna: #1F3C86;  --lacuna-bg: #E4EAF8;
+  --cego: #B91E1E;    --cego-bg: #FBE6E6;
+  --display: "Bricolage Grotesque", "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --body: "Lexend", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --pixel: "Silkscreen", ui-monospace, Menlo, monospace;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.65; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 5.4vw, 3.4rem); line-height: 1.02; letter-spacing: -0.03em; color: var(--brand); }
+h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 3.2vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; }
+h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; line-height: 1.25; }
+p { margin: 0; max-width: 66ch; }
+a { color: var(--brand); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 3px; border-radius: 4px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--lilac); color: var(--brand); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+.px { font-family: var(--pixel); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brand-2); }
+.soft { color: var(--soft); }
+.num { font-variant-numeric: tabular-nums; }
+
+.hero { background: var(--lilac); padding-block: 52px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.hero-in { max-width: 1120px; margin: 0 auto; display: grid; gap: 18px; }
+.lede { font-size: 1.12rem; color: var(--soft); max-width: 62ch; }
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.pillar { background: var(--white); border-radius: 18px; padding: 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.pillar p { font-size: 0.9rem; color: var(--soft); }
+
+.layout { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 72px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); align-self: start; display: grid; gap: 2px; font-size: 0.88rem; }
+nav.toc .px { margin-bottom: 8px; }
+nav.toc a { text-decoration: none; color: var(--soft); padding: 5px 10px; border-radius: 8px; display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+nav.toc a span { font-family: var(--pixel); font-size: 0.68rem; color: var(--brand-2); padding-top: 3px; }
+nav.toc a:hover { background: var(--lilac); color: var(--ink); }
+
+article { display: grid; gap: 0; min-width: 0; }
+.ch { padding-block: 36px; border-top: 1px solid var(--line); display: grid; gap: 16px; scroll-margin-top: 16px; min-width: 0; }
+.ch:first-child { border-top: 0; padding-top: 0; }
+.ch-head { display: grid; gap: 8px; }
+.ch-head .px { display: flex; gap: 10px; align-items: center; }
+.ch-head .px b { font-weight: 400; background: var(--brand); color: var(--white); border-radius: 6px; padding: 2px 7px; }
+.where { font-size: 0.85rem; color: var(--soft); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.where::before { content: "No código:"; font-family: var(--pixel); font-size: 0.66rem; color: var(--brand-2); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.box { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: grid; gap: 12px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.card p { font-size: 0.9rem; color: var(--soft); }
+.card .px { font-size: 0.64rem; }
+
+/* Camadas */
+.layers { display: grid; gap: 8px; }
+.layer { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: center; border-radius: 14px; padding: 14px 16px; }
+.layer h3 { font-size: 1rem; }
+.layer p { font-size: 0.9rem; }
+.l1 { background: var(--lilac); } .l2 { background: var(--lilac-2); } .l3 { background: var(--brand-2); color: var(--white); } .l4 { background: var(--brand); color: var(--white); }
+.l3 p, .l4 p { color: var(--lilac); }
+.l3 code, .l4 code { background: rgba(255,255,255,0.16); color: var(--white); }
+.rule { font-size: 0.9rem; padding: 12px 16px; border-radius: 12px; border: 1.5px dashed var(--brand-2); color: var(--ink); max-width: none; }
+
+/* Estados e fluxos */
+.states { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.state { background: var(--white); border: 1.5px solid var(--brand-2); color: var(--brand); border-radius: 10px; padding: 6px 12px; font-size: 0.88rem; font-weight: 500; }
+.state.m { background: var(--brand); color: var(--white); border-color: var(--brand); }
+.state.w { border-style: dashed; }
+.arrow { color: var(--brand-2); font-weight: 600; }
+.gates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.gate { border-radius: 14px; padding: 14px; background: var(--white); border: 1px solid var(--line); display: grid; gap: 4px; }
+.gate .px { font-size: 0.62rem; }
+.gate p { font-size: 0.86rem; color: var(--soft); }
+
+/* Tabelas */
+.tw { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--white); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--pixel); font-weight: 400; font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--soft); background: var(--paper); }
+td.c, th.c { text-align: center; }
+.plus { color: var(--firme); font-weight: 600; } .minus { color: var(--cego); font-weight: 600; } .zero { color: var(--soft); font-weight: 600; }
+
+/* Quadrantes */
+.quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.q { border-radius: 14px; padding: 14px; display: grid; gap: 2px; }
+.q b { font-family: var(--display); font-weight: 800; font-size: 1.15rem; }
+.q span { font-size: 0.85rem; }
+.q.firme { background: var(--firme-bg); } .q.firme b { color: var(--firme); }
+.q.fragil { background: var(--fragil-bg); } .q.fragil b { color: var(--fragil); }
+.q.cego { background: var(--cego-bg); } .q.cego b { color: var(--cego); }
+.q.lacuna { background: var(--lacuna-bg); } .q.lacuna b { color: var(--lacuna); }
+
+/* Lista em ordem */
+.order { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: o; }
+.order li { counter-increment: o; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 0.93rem; }
+.order li::before { content: counter(o); font-family: var(--pixel); font-size: 0.75rem; width: 24px; height: 24px; border-radius: 7px; background: var(--lilac-2); color: var(--brand); display: grid; place-items: center; }
+.order li > span { min-width: 0; padding-top: 1px; }
+
+.pipe { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.pipe .step { flex: 1 1 180px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.pipe .step p { font-size: 0.86rem; color: var(--soft); }
+
+.faq { display: grid; gap: 0; }
+.faq div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.93rem; align-items: baseline; }
+.faq div:last-child { border-bottom: 0; }
+.faq span { font-family: var(--pixel); font-size: 0.68rem; color: var(--brand-2); white-space: nowrap; }
+
+.stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.stat { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; display: grid; }
+.stat b { font-family: var(--display); font-size: 1.6rem; font-weight: 800; color: var(--brand); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 0.82rem; color: var(--soft); }
+
+footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 40px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--soft); }
+footer div { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 18px; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: 20px; }
+  nav.toc { position: static; display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 6px; }
+  nav.toc .px { display: none; }
+  nav.toc a { display: flex; gap: 6px; white-space: nowrap; background: var(--white); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+  .pillars, .grid3, .gates { grid-template-columns: minmax(0, 1fr); }
+  .layer { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (max-width: 560px) {
+  .grid2, .quad { grid-template-columns: minmax(0, 1fr); }
+  .faq div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+</style>
+
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="px">Guia do grupo · Mobile Builders</div>
+    <h1>A lógica do app, do toque na tela ao relatório</h1>
+    <p class="lede">Um resumo de como o app funciona por dentro, em linguagem simples, para o grupo explicar qualquer parte na apresentação. Cada capítulo diz onde a regra mora no código e em que item de <code>docs/decisoes-tecnicas.md</code> está o porquê.</p>
+    <div class="pillars">
+      <div class="pillar"><span class="px">ideia 1</span><h3>Guardar o que aconteceu</h3><p>Cada resposta confirmada vira um registro que nunca muda. O app não guarda resultado pronto.</p></div>
+      <div class="pillar"><span class="px">ideia 2</span><h3>Calcular tudo na hora</h3><p>XP, domínio, quadrante, passo da lição e sequência saem sempre das respostas, toda vez que a tela abre.</p></div>
+      <div class="pillar"><span class="px">ideia 3</span><h3>Regras em funções puras</h3><p>Cada regra é uma função sem tela e sem banco, com teste. A tela só mostra o que a função devolve.</p></div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Capítulos">
+    <div class="px">Capítulos</div>
+    <a href="#camadas"><span>01</span>As camadas</a>
+    <a href="#navegacao"><span>02</span>Quem vê qual tela</a>
+    <a href="#licao"><span>03</span>O ciclo da lição</a>
+    <a href="#questao"><span>04</span>Uma questão</a>
+    <a href="#leituras"><span>05</span>XP, quadrante, domínio</a>
+    <a href="#home"><span>06</span>A home e o Progresso</a>
+    <a href="#formas"><span>07</span>Formas A e B</a>
+    <a href="#banco"><span>08</span>O banco e a segurança</a>
+    <a href="#conteudo"><span>09</span>O conteúdo</a>
+    <a href="#relatorio"><span>10</span>Do banco ao relatório</a>
+    <a href="#simulacao"><span>11</span>A turma virtual</a>
+    <a href="#publicacao"><span>12</span>Onde o app roda</a>
+    <a href="#qualidade"><span>13</span>Como sabemos que funciona</a>
+    <a href="#perguntas"><span>14</span>Se perguntarem…</a>
+  </nav>
+
+  <article>
+
+    <section class="ch" id="camadas">
+      <div class="ch-head"><div class="px"><b>01</b>As camadas</div><h2>Quatro andares, e cada um só fala com o de baixo</h2></div>
+      <p>O app é um só código em React Native com Expo, que vira app de verdade no Android e no iPhone e também roda no navegador. Por dentro, ele se divide em quatro andares.</p>
+      <div class="layers">
+        <div class="layer l1"><h3>Telas</h3><p>O que a pessoa vê e toca. Ficam em <code>src/app</code>, uma pasta por endereço (Expo Router). Não calculam nada importante.</p></div>
+        <div class="layer l2"><h3>Regras</h3><p>Funções puras em <code>src/lib</code>: recebem respostas e devolvem números ou estados. Sem tela, sem banco, sem relógio escondido.</p></div>
+        <div class="layer l3"><h3>Repositório</h3><p>A interface <code>ProgressRepository</code> é a única porta para os dados. Hoje a implementação é <code>FirebaseProgressRepository</code>.</p></div>
+        <div class="layer l4"><h3>Firebase</h3><p>Auth para o login e Firestore para os dados. As regras de segurança (<code>firestore.rules</code>) conferem tudo no servidor.</p></div>
+      </div>
+      <p class="rule"><b>Regra do time:</b> nenhuma tela importa Firebase. Se um dia a Beast Maragames liberar a API dela, troca-se só o repositório, e as telas e regras ficam iguais.</p>
+      <div class="where">itens 1, 3 e 26</div>
+    </section>
+
+    <section class="ch" id="navegacao">
+      <div class="ch-head"><div class="px"><b>02</b>Navegação</div><h2>Quem vê qual tela depende do estado da sessão</h2></div>
+      <p>O app não manda a pessoa para outra tela depois do login. Ele olha o estado da sessão e mostra só o grupo de telas permitido. Ao entrar ou salvar o perfil, o estado muda e a tela certa aparece sozinha.</p>
+      <div class="gates">
+        <div class="gate"><span class="px">sem login</span><h3>Entrar ou criar conta</h3><p><code>sign-in</code> e <code>sign-up</code>, com redefinição de senha por e-mail.</p></div>
+        <div class="gate"><span class="px">login sem perfil</span><h3>Completar o perfil</h3><p><code>complete-profile</code>. O núcleo é obrigatório; as perguntas de "Sobre você e os jogos" não.</p></div>
+        <div class="gate"><span class="px">perfil completo</span><h3>O app</h3><p>Home, Lições, Progresso e Perfil, mais o termo e a autoavaliação na primeira lição.</p></div>
+      </div>
+      <p class="soft">O perfil é conferido duas vezes: no aparelho, para avisar na hora (<code>validacao.ts</code> e <code>perfil.ts</code>), e no servidor, para garantir (<code>perfilValido()</code> nas regras). Um teste compara as duas listas de campos.</p>
+      <div class="where"><code>src/app/_layout.tsx</code> com <code>Stack.Protected</code> · itens 7, 8, 9 e 34</div>
+    </section>
+
+    <section class="ch" id="licao">
+      <div class="ch-head"><div class="px"><b>03</b>O ciclo da lição</div><h2>Cada lição está sempre num de sete estados, calculado das respostas</h2></div>
+      <p>O app não grava "a pessoa está na verificação". Toda vez que a lição abre, a função olha as respostas daquele tópico e descobre o estado.</p>
+      <div class="box">
+        <div class="states">
+          <span class="state">nova</span><span class="arrow">→</span>
+          <span class="state m">diagnóstico</span><span class="arrow">→</span>
+          <span class="state">estudo: cartão e prática</span><span class="arrow">→</span>
+          <span class="state m">verificação</span><span class="arrow">→</span>
+          <span class="state w">aguardando revisão</span><span class="arrow">→</span>
+          <span class="state m">revisão</span><span class="arrow">→</span>
+          <span class="state">concluída</span>
+        </div>
+        <p class="soft" style="font-size:0.88rem">Os estados em roxo cheio são os medidos: 3 questões cada, sem resposta certa nem XP até o fim do passo.</p>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Como o estado é descoberto</h3><p>Sem respostas do tópico, é nova. Se faltam questões do diagnóstico, é diagnóstico. Depois vem a prática, depois a verificação. Com a verificação completa, conta 7 dias de calendário a partir dela: antes disso é "aguardando revisão", depois é "revisão". Com a revisão completa, é concluída.</p></div>
+        <div class="card"><h3>As travas</h3><p>As lições são livres: qualquer uma abre, em qualquer ordem. Dentro da lição, os passos não se pulam. Entre a verificação e a revisão, a prática fecha e o cartão continua aberto, porque refazer a prática na véspera mudaria o que a revisão mede.</p></div>
+        <div class="card"><h3>O que se vê no fim</h3><p>O resultado do diagnóstico só aparece no fim da lição, ao lado do da verificação. Assim a pessoa não estuda para as questões que acabou de ver.</p></div>
+        <div class="card"><h3>Ciclo curto</h3><p>Um tópico sem as duas formas de questões faria só cartão e prática. Hoje os 9 tópicos têm o ciclo completo.</p></div>
+      </div>
+      <div class="where"><code>licao.ts</code> (estado e passo) · <code>bloco.ts</code> (questões de cada passo) · itens 19, 22 e 30</div>
+    </section>
+
+    <section class="ch" id="questao">
+      <div class="ch-head"><div class="px"><b>04</b>Uma questão</div><h2>Duas escolhas, uma resposta gravada para sempre</h2></div>
+      <div class="grid2">
+        <div class="card"><h3>Alternativa e confiança</h3><p>São duas escolhas separadas, em qualquer ordem: a alternativa e o quanto confia nela (Palpite, Tenho dúvida, Tenho certeza). Confirmar só ativa com as duas, e não há como pular. No dado, a confiança é 1, 2 ou 3; os nomes ficam só na tela, num arquivo de textos.</p></div>
+        <div class="card"><h3>A ordem das alternativas</h3><p>É embaralhada por uma semente feita do código da pessoa, da questão e da fase. A mesma pessoa vê a mesma ordem em qualquer aparelho, e a ordem muda entre a verificação e a revisão. A ordem mostrada também é gravada.</p></div>
+      </div>
+      <div class="box">
+        <h3>O que vai para o banco quando a pessoa confirma</h3>
+        <p class="soft" style="font-size:0.9rem">Quem respondeu, a questão, o tópico, a tentativa, a fase (<code>pre</code>, <code>pratica</code>, <code>pos</code> ou <code>reteste</code>), a alternativa escolhida, a ordem em que as alternativas apareceram, se acertou, a confiança, o tempo até confirmar e o horário do servidor. Esse registro nunca é alterado nem apagado pelo app.</p>
+      </div>
+      <div class="where"><code>embaralhar.ts</code> · <code>pergunta.ts</code> · <code>src/constants/textos.ts</code> · itens 12, 18 e 25</div>
+    </section>
+
+    <section class="ch" id="leituras">
+      <div class="ch-head"><div class="px"><b>05</b>As leituras</div><h2>XP, quadrante e domínio respondem a perguntas diferentes</h2></div>
+      <div class="grid2">
+        <div class="box">
+          <h3>XP: a certeza honesta rende mais</h3>
+          <div class="tw"><table>
+            <thead><tr><th>Confiança</th><th class="c">Acertou</th><th class="c">Errou</th></tr></thead>
+            <tbody>
+              <tr><td>Palpite</td><td class="c plus">+1</td><td class="c zero">0</td></tr>
+              <tr><td>Tenho dúvida</td><td class="c plus">+2</td><td class="c minus">−1</td></tr>
+              <tr><td>Tenho certeza</td><td class="c plus">+3</td><td class="c minus">−4</td></tr>
+            </tbody>
+          </table></div>
+          <p class="soft" style="font-size:0.88rem">É a pontuação de Gardner-Medwin. Em média, compensa marcar Tenho dúvida acima de 50% de chance de acertar, e Tenho certeza acima de 75%. Na prática o XP aparece a cada questão; nos passos medidos, só no fim, e a home só soma o passo concluído.</p>
+        </div>
+        <div class="box">
+          <h3>Quadrante: o acerto cruzado com a certeza</h3>
+          <div class="quad">
+            <div class="q firme"><b>Firme</b><span>acertou com certeza</span></div>
+            <div class="q fragil"><b>Frágil</b><span>acertou sem certeza</span></div>
+            <div class="q cego"><b>Ponto cego</b><span>errou com certeza</span></div>
+            <div class="q lacuna"><b>Lacuna</b><span>errou sem certeza</span></div>
+          </div>
+          <p class="soft" style="font-size:0.88rem">"Com certeza" é só o nível 3. Palpite e Tenho dúvida contam como sem certeza.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="card"><span class="px">domínio</span><h3>Quanto acerta no tópico</h3><p>Percentual de acerto simples, sem peso da confiança. É o número do Progresso.</p></div>
+        <div class="card"><span class="px">sequência</span><h3>Dias seguidos</h3><p>Dias de calendário com pelo menos uma resposta. Um dia inteiro sem responder zera.</p></div>
+        <div class="card"><span class="px">resultado</span><h3>O fim de cada passo</h3><p>Acertos, XP, quadrantes e o que revisar primeiro, recalculados sempre que o passo reabre.</p></div>
+      </div>
+      <div class="where"><code>xp.ts</code> · <code>quadrante.ts</code> · <code>dominio.ts</code> · <code>sequencia.ts</code> · <code>resultado.ts</code> · itens 14, 15 e 27</div>
+    </section>
+
+    <section class="ch" id="home">
+      <div class="ch-head"><div class="px"><b>06</b>Home e Progresso</div><h2>Um passo por dia na home, o quadro inteiro no Progresso</h2></div>
+      <div class="grid2">
+        <div class="box">
+          <h3>O cartão "Para hoje" escolhe um passo só, nesta ordem</h3>
+          <ol class="order">
+            <li><span>Uma revisão vencida, porque ela tem prazo.</span></li>
+            <li><span>Uma lição pela metade.</span></li>
+            <li><span>A próxima lição nova. Não há limite de lições por dia.</span></li>
+          </ol>
+          <p class="soft" style="font-size:0.88rem">Sem nada para fazer, mostra quando abre a próxima revisão. Abaixo do cartão ficam as revisões marcadas e os atalhos.</p>
+        </div>
+        <div class="box">
+          <h3>O Progresso</h3>
+          <p class="soft" style="font-size:0.9rem">O domínio de cada tópico e, em "O que revisar primeiro", as questões em ponto cego antes das lacunas. Só entram respostas que a pessoa já pode ver: as do diagnóstico ficam escondidas até a lição chegar ao fim.</p>
+          <p class="soft" style="font-size:0.9rem">As três telas que mostram todas as lições (home, Lições e Progresso) leem da mesma fonte, para nunca se contradizerem.</p>
+        </div>
+      </div>
+      <div class="where"><code>sugestao.ts</code> · <code>progresso.ts</code> · <code>useLicoes</code> · itens 6 e 30</div>
+    </section>
+
+    <section class="ch" id="formas">
+      <div class="ch-head"><div class="px"><b>07</b>Formas A e B</div><h2>Questões diferentes antes e depois, alternando entre as pessoas</h2></div>
+      <p>Cada lição tem duas formas de 3 questões, com uma básica, uma intermediária e uma avançada em cada. Quem faz o diagnóstico na forma A faz a verificação e a revisão na B, e vice-versa. Assim ninguém acerta a verificação só por lembrar do diagnóstico.</p>
+      <div class="grid2">
+        <div class="card"><h3>Como a forma é sorteada</h3><p>Não é sorteio: é a ordem de chegada. Um contador no banco (<code>piloto/contador</code>) soma um a cada aceite do termo. A 1ª pessoa pega A, a 2ª pega B, a 3ª pega A, e assim por diante.</p></div>
+        <div class="card"><h3>Por que alternar</h3><p>Se uma forma for mais fácil que a outra, metade da turma começa por cada uma e o efeito se compensa. A forma fica gravada no perfil e não muda depois.</p></div>
+      </div>
+      <div class="where"><code>participante.ts</code> (<code>formaDoParticipante</code>) · <code>formaDoContador</code> nas regras · itens 19 e 22</div>
+    </section>
+
+    <section class="ch" id="banco">
+      <div class="ch-head"><div class="px"><b>08</b>O banco</div><h2>Seis lugares no Firestore, cada um com a sua regra</h2></div>
+      <div class="tw"><table>
+        <thead><tr><th>Coleção</th><th>O que guarda</th><th>Quem pode o quê</th></tr></thead>
+        <tbody>
+          <tr><td><code>users</code></td><td>O perfil, a forma (A ou B) e a hora do aceite do termo</td><td>Só o dono lê. O perfil passa por <code>perfilValido()</code>; a forma não muda depois de gravada</td></tr>
+          <tr><td><code>selfAssessments</code></td><td>A nota de 1 a 5 em cada módulo</td><td>Gravada uma vez; ninguém altera nem apaga pelo app</td></tr>
+          <tr><td><code>attempts</code></td><td>Cada passo de lição começado, com o aparelho e a versão do app</td><td>Só o dono lê e atualiza a sua</td></tr>
+          <tr><td><code>answers</code></td><td>Uma resposta confirmada</td><td>Só o dono lê. Ninguém altera nem apaga, nem o dono</td></tr>
+          <tr><td><code>questions</code></td><td>As 100 questões</td><td>Quem está logado lê. Ninguém grava pelo app, só o script de seed</td></tr>
+          <tr><td><code>piloto/contador</code></td><td>Quantas pessoas aceitaram o termo</td><td>Só sobe de um em um, no aceite</td></tr>
+        </tbody>
+      </table></div>
+      <p class="soft">Os scripts do grupo (seed, exportação, relatório e limpeza) usam a chave de administrador, que fica só no computador do Tiago e nunca vai para o repositório.</p>
+      <div class="where"><code>firestore.rules</code> · testes em <code>regras/</code>, rodando no emulador · itens 2, 4, 5 e 21</div>
+    </section>
+
+    <section class="ch" id="conteudo">
+      <div class="ch-head"><div class="px"><b>09</b>O conteúdo</div><h2>As questões moram em arquivos, e o banco recebe uma cópia carimbada</h2></div>
+      <div class="stats">
+        <div class="stat"><b>6</b><span>módulos</span></div>
+        <div class="stat"><b>9</b><span>tópicos</span></div>
+        <div class="stat"><b>54</b><span>questões medidas, nas formas A e B</span></div>
+        <div class="stat"><b>46</b><span>de prática</span></div>
+      </div>
+      <div class="pipe">
+        <div class="step"><span class="px">1 · arquivo</span><h3><code>content/*.json</code></h3><p>Os tópicos, os cartões e as questões, com a fonte de cada uma.</p></div>
+        <div class="step"><span class="px">2 · conferência</span><h3>Validação</h3><p>Cada tópico precisa das formas A e B completas, toda explicação fecha com ponto e a correta não pode ser a mais longa em mais de 30% das questões.</p></div>
+        <div class="step"><span class="px">3 · gravação</span><h3><code>npm run seed:conteudo</code></h3><p>Grava no Firestore com uma versão, que é a impressão digital do conteúdo. Hoje: <code>21c7b805a024</code>.</p></div>
+      </div>
+      <p class="soft">Ninguém edita questão pelo console. Mudou uma vírgula, muda a versão, e respostas de versões diferentes não se somam na análise.</p>
+      <div class="where"><code>scripts/seed-conteudo.js</code> · <code>conteudo.test.js</code> · itens 17 e 21</div>
+    </section>
+
+    <section class="ch" id="relatorio">
+      <div class="ch-head"><div class="px"><b>10</b>Do banco ao relatório</div><h2>Duas saídas: tabelas para o grupo, uma página para a Beast Maragames</h2></div>
+      <div class="pipe">
+        <div class="step"><span class="px">npm run exportar</span><h3>Tabelas do grupo</h3><p>Participantes, lições, respostas, questões e notas, com cada pessoa trocada por um código (P01, P02…). A lista que liga código e nome não sai do grupo.</p></div>
+        <div class="step"><span class="px">npm run relatorio</span><h3>Página da turma</h3><p>Só números em conjunto. Um percentual sobre menos de 10 respostas vira contagem, e um grupo com menos de 5 pessoas mostra só quantas tem.</p></div>
+      </div>
+      <p>Os dois usam as mesmas funções do app, então o número da tabela é o mesmo da tela. Com <code>--desde 2026-10-16</code>, entra só quem aceitou o termo a partir do início do uso aberto.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Pergunta</th><th>Medida</th><th>Em palavras simples</th></tr></thead>
+        <tbody>
+          <tr><td>A turma aprende?</td><td>Ganho de Hake e teste pareado</td><td>Do que faltava acertar no diagnóstico, quanto passou a ser acertado na verificação. O teste troca ao acaso o sinal da melhora de cada pessoa milhares de vezes e vê se a melhora real é rara nesse sorteio.</td></tr>
+          <tr><td>Quanto confiar no número?</td><td>Intervalo de 95%</td><td>Sorteia de novo as pessoas 2000 vezes e vê quanto o número varia. Com menos de 30 pessoas, a página o chama de aproximado.</td></tr>
+          <tr><td>A certeza informa?</td><td>Calibração</td><td>Acerto de quem marcou Tenho certeza menos o de quem não marcou, na verificação.</td></tr>
+          <tr><td>Quem tem certeza esquece menos?</td><td>Retenção corrigida</td><td>Quanto da verificação continuou certo na revisão, descontando o que se acerta por sorte. O plano já diz que um piloto pequeno não responde a isso.</td></tr>
+          <tr><td>Que questão está ruim?</td><td>Conteúdo</td><td>As que poucos acertam na verificação e as que têm uma alternativa errada atraindo 80% ou mais dos erros.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="soft">O que conta como evidência foi escrito antes de qualquer dado, em <code>docs/plano-de-analise.md</code>. O que mudar depois entra lá como desvio, com data e motivo.</p>
+      <div class="where"><code>exportacao.ts</code> · <code>relatorio.ts</code> · <code>estatistica.ts</code> · itens 23 e 37</div>
+    </section>
+
+    <section class="ch" id="simulacao">
+      <div class="ch-head"><div class="px"><b>11</b>A turma virtual</div><h2>Antes de medir gente, conferimos a régua com alunos inventados</h2></div>
+      <p>O simulador cria alunos virtuais com regras conhecidas, como quem domina, quem chuta, quem se acha mais sabido do que é e quem desiste. As respostas deles passam pelo mesmo caminho do relatório. Como sabemos a verdade, dá para ver se cada medida acusa o efeito quando ele existe, e só quando ele existe.</p>
+      <div class="grid3">
+        <div class="card"><span class="px">cinco cenários</span><h3>Base, nulo e mais três</h3><p>No nulo ninguém aprende: o teste não pode acusar ganho. Na confiança cega a certeza é sorteada: a calibração tem que sumir. Há ainda forma B difícil e certeza protege.</p></div>
+        <div class="card"><span class="px">réplicas</span><h3>O que uma turma de 15 vê</h3><p>Repetir a turma centenas de vezes mostra o poder do teste: com 100 pessoas acha o ganho em 95% das vezes, com 15 em 25%.</p></div>
+        <div class="card"><span class="px">defeitos</span><h3>Questões estragadas de propósito</h3><p><code>--defeitos</code> planta um gabarito trocado, um distrator irresistível e uma questão ambígua, para ver se a tabela de conteúdo acha.</p></div>
+      </div>
+      <p class="soft">Nada simulado é gravado no Firestore, e a página simulada avisa no topo que os dados são sintéticos.</p>
+      <div class="where"><code>simulacao.ts</code> · <code>scripts/gerar-relatorio.ts</code> · itens 35 e 36</div>
+    </section>
+
+    <section class="ch" id="publicacao">
+      <div class="ch-head"><div class="px"><b>12</b>Onde roda</div><h2>Três lugares, cada um publicado de um jeito</h2></div>
+      <div class="grid3">
+        <div class="card"><span class="px">web</span><h3><code>maragames-app.vercel.app</code></h3><p>Projeto da Vercel ligado ao GitHub: cada pull request integrado ao <code>main</code> publica o app sozinho.</p></div>
+        <div class="card"><span class="px">android</span><h3>APK pelo EAS</h3><p>Gerado na nuvem da Expo com <code>eas build</code>, instalado direto no aparelho.</p></div>
+        <div class="card"><span class="px">relatório</span><h3><code>maragames-relatorio.vercel.app</code></h3><p>Projeto separado e sem ligação com o GitHub. Só recebe o que o Tiago publica à mão.</p></div>
+      </div>
+      <div class="where"><code>vercel.json</code> · <code>eas.json</code> · itens 23 e 32</div>
+    </section>
+
+    <section class="ch" id="qualidade">
+      <div class="ch-head"><div class="px"><b>13</b>Qualidade</div><h2>Como sabemos que funciona</h2></div>
+      <div class="stats">
+        <div class="stat"><b class="num">988</b><span>testes passando</span></div>
+        <div class="stat"><b class="num">53</b><span>arquivos de teste</span></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Teste antes do código</h3><p>Toda regra nova começa por um teste que falha. Só depois vem o código que o faz passar.</p></div>
+        <div class="card"><h3>Regras de segurança no emulador</h3><p><code>npm run test:regras</code> tenta, num Firestore de mentira, o que um usuário mal-intencionado tentaria, como editar uma resposta ou ler a de outra pessoa.</p></div>
+        <div class="card"><h3>Revisão automática</h3><p>Cada pull request passa pela revisão do Codex, e os apontamentos ficam registrados nos itens das decisões.</p></div>
+        <div class="card"><h3>Conferência em aparelho</h3><p>As telas foram vistas no iPhone, pelo Expo Go e pela web, nos dois temas. Falta o Android.</p></div>
+      </div>
+      <div class="where"><code>npm test</code> · <code>npm run lint</code> · item 26</div>
+    </section>
+
+    <section class="ch" id="perguntas">
+      <div class="ch-head"><div class="px"><b>14</b>Se perguntarem…</div><h2>Onde está a resposta de cada pergunta provável</h2></div>
+      <div class="faq">
+        <div><p>Por que é híbrido, se não usa WebView?</p><span>item 1</span></div>
+        <div><p>Por que guardar cada resposta, e não só a nota final?</p><span>item 2</span></div>
+        <div><p>Por que Firebase, e não o Supabase do site da cliente?</p><span>item 11</span></div>
+        <div><p>Por que três níveis de confiança, e por que essa pontuação?</p><span>itens 12 e 14</span></div>
+        <div><p>Por que só múltipla escolha nas questões medidas?</p><span>item 18</span></div>
+        <div><p>Por que o resultado do diagnóstico fica escondido?</p><span>itens 27 e 30</span></div>
+        <div><p>O que acontece com os dados de quem participa?</p><span>item 34</span></div>
+        <div><p>Como vocês sabem que as medidas funcionam?</p><span>itens 36 e 37</span></div>
+        <div><p>O que ainda falta?</p><span>item 24</span></div>
+      </div>
+    </section>
+
+  </article>
+</div>
+
+<footer><div><span>Mobile Builders · Programação Mobile, UNDB</span><span>Estado do código em 16/10/2026 · conteúdo <code>21c7b805a024</code></span></div></footer>
+</body>
+</html>
