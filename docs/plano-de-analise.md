@@ -7,7 +7,7 @@ Os números de "O que a simulação mostrou" vêm da base sintética (itens 35 a
 ## O que fica fixo
 
 - **Conteúdo**: versão `21c7b805a024`. A `bd9ca4d71d9b`, gravada em 15/10/2026, teve duas explicações corrigidas antes de qualquer dado do piloto. Uma questão mudada no meio do piloto muda a versão, e as respostas de antes e depois não se somam.
-- **Quem entra**: quem aceitou o termo a partir do dia em que o piloto começar (`npm run relatorio -- --desde AAAA-MM-DD`), sem as contas de teste do grupo.
+- **Quem entra**: quem aceitou o termo a partir de 16/10/2026 (`npm run relatorio -- --desde 2026-10-16`), o grupo incluído. O piloto é o uso aberto do app: desde esse dia, quem tiver acesso usa como uso de verdade, e não há mais limpeza de contas (decidido pelo Tiago em 16/10, antes de qualquer dado).
 - **Unidade**: a pessoa. Toda conta de intervalo e de teste reamostra ou permuta pessoas, e não respostas, porque as respostas de uma mesma pessoa não são independentes.
 - **Lição que conta**: a de ciclo completo, com o diagnóstico e a verificação completos. A revisão conta quando tem as três questões.
 - **Cortes**: um percentual sobre menos de 10 respostas vira contagem (`AMOSTRA_MINIMA`); um grupo do "Por perfil" com menos de 5 pessoas vira contagem (`MINIMO_DE_PESSOAS_POR_GRUPO`). O ganho do resumo segue o mesmo corte.
@@ -67,6 +67,7 @@ Servem para levantar perguntas, e não para responder. Não têm teste, não tê
 - **Sem grupo de controle.** O ganho mistura o efeito da lição com o de ter feito o diagnóstico. As formas A e B, alternadas entre as pessoas, impedem que a mesma questão seja vista duas vezes, mas não substituem um controle.
 - **Cada pessoa escolhe as lições.** O número de um tópico mistura a lição com quem a escolheu; a comparação justa é a de cada pessoa com ela mesma.
 - **Amostra pequena.** Ver as tabelas acima.
+- **O grupo entre os participantes.** Tiago, Francisco e Jadson usam o app com as próprias contas e entram nos números. Os três conhecem o conteúdo e o desenho do estudo, o que puxa para cima o acerto no diagnóstico e pode mexer na confiança declarada. Com poucas pessoas, três pesam; a exportação, que fica com o grupo, permite refazer a conta sem eles para conferir.
 - **O chute igual entre as alternativas.** A correção da retenção supõe que quem não sabe escolhe ao acaso entre as quatro. Um distrator que atrai mais quebra essa conta.
 - **O chute que se repete.** A correção supõe também que o acerto no chute só se repete por acaso. Como a verificação não mostra o resultado, quem chutou pode marcar de novo a mesma alternativa na revisão, por hábito ou por um engano firme; aí acertar as duas vezes fica mais provável que um em dezesseis, e esse excesso entra como retenção. O simulador não testa isso: nele os chutes são independentes.
 - **A revisão pelo relógio do aparelho.** O app libera a revisão pelo relógio do celular; a exportação conta, pelo horário do servidor, quantas foram feitas antes dos 7 dias.
@@ -84,7 +85,7 @@ npm run relatorio -- --simulado 100 --semente 1250808581            # as cinco p
 npm run relatorio -- --simulado 100 --semente 1250808581 --defeitos # com os defeitos plantados
 npm run relatorio -- --simulado 100 --semente 1000 --replicas 100   # as réplicas de 100
 npm run relatorio -- --simulado 15 --semente 20261014 --replicas 200 --dias-de-estudo 6 --limite-diario
-npm run relatorio -- --desde AAAA-MM-DD                              # os dados de verdade
+npm run relatorio -- --desde 2026-10-16                              # os dados de verdade
 ```
 
 ## Desvios
