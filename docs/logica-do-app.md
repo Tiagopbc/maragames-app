@@ -52,7 +52,7 @@ No código: `licao.ts` (estado e passo) e `bloco.ts` (questões de cada passo); 
 
 ## 4. Uma questão
 
-- **Alternativa e confiança** são duas escolhas separadas, em qualquer ordem: a alternativa e o quanto a pessoa confia nela (Palpite, Tenho dúvida, Tenho certeza). Confirmar só ativa com as duas, e não há como pular. No dado, a confiança é 1, 2 ou 3; os nomes ficam só na tela, num arquivo de textos.
+- **Alternativa e confiança** são duas escolhas separadas, em qualquer ordem: a alternativa e o quanto a pessoa confia nela (Palpite, Tenho dúvida, Tenho certeza). Confirmar só ativa com as duas, e não há como pular. No dado, a confiança é 1, 2 ou 3; os nomes ficam só na tela, num arquivo de textos. Os nomes são escolha do grupo: Gardner-Medwin prefere números ou termos neutros (baixa, média e alta), porque palavras como "certeza" ou "chute" significam coisas diferentes para pessoas diferentes, e isso fica registrado como limitação. "Palpite" entrou no lugar de "Estou chutando" por soar menos acusatório (item 12).
 - **A ordem das alternativas** é embaralhada por uma semente feita do código da pessoa, da questão e da fase. A mesma pessoa vê a mesma ordem em qualquer aparelho, e a ordem muda entre a verificação e a revisão.
 - **O que vai para o banco** quando a pessoa confirma: quem respondeu, a questão, o tópico, a tentativa, a fase (`pre`, `pratica`, `pos` ou `reteste`), a alternativa escolhida, a ordem em que as alternativas apareceram, se acertou, a confiança, o tempo até confirmar e o horário do servidor. Esse registro nunca é alterado nem apagado pelo app.
 
