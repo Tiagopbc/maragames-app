@@ -45,7 +45,7 @@ React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, F
 - Confiança: valor 1, 2, 3 no dado; rótulos "Palpite", "Tenho dúvida", "Tenho certeza" só na tela, num único arquivo de strings.
 - Questão: alternativa e confiança são seleções independentes, em qualquer ordem; Confirmar só ativa com as duas. Sem opção de pular.
 - Quadrante: confiança alta = nível 3; níveis 1 e 2 = baixa. Firme, Frágil, Lacuna, Ponto cego.
-- XP (Gardner-Medwin): acerto 1/2/3, erro 0/−1/−4 por nível de confiança. Nos blocos pré, pós e reteste, nenhum feedback nem XP por questão; tudo aparece só no fim do bloco, e o total da home só conta o bloco depois de concluído.
+- XP (pontuação por certeza de Gardner-Medwin, com o erro adaptado pelo grupo, item 14): acerto 1/2/3, erro 0/−1/−4 por nível de confiança. Nos blocos pré, pós e reteste, nenhum feedback nem XP por questão; tudo aparece só no fim do bloco, e o total da home só conta o bloco depois de concluído.
 - Domínio por tópico = acerto simples, sem peso de confiança.
 - O app é para maiores de 18 anos: as faixas etárias começam em "18 a 24", e o termo diz isso.
 - Antes do primeiro diagnóstico, depois do termo, a pessoa se dá a nota por módulo (autoavaliação). Não há como pular uma área.
