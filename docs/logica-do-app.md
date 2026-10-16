@@ -128,7 +128,7 @@ São 6 módulos, 9 tópicos e 100 questões: 54 medidas (formas A e B) e 46 de p
 2. **Conferência.** Cada tópico precisa das formas A e B completas, toda explicação fecha com ponto e a correta não pode ser a mais longa em mais de 30% das questões.
 3. **Gravação.** `npm run seed:conteudo` grava no Firestore com uma versão, que é a impressão digital do conteúdo (hoje, `21c7b805a024`).
 
-Ninguém edita questão pelo console. Mudou uma vírgula, muda a versão, e respostas de versões diferentes não se somam na análise.
+Ninguém edita questão pelo console. Mudou uma vírgula, muda a versão. A resposta, porém, não guarda a versão da questão, e a análise não separa sozinha o antes e o depois de uma troca: por isso o conteúdo fica parado durante o uso, e uma troca inevitável entra em "Desvios", no plano de análise, com a data, para a análise cortar pelo horário.
 
 No código: `scripts/seed-conteudo.js` e `src/__tests__/conteudo.test.js`; itens 17 e 21.
 
@@ -155,7 +155,7 @@ No código: `exportacao.ts`, `relatorio.ts` e `estatistica.ts`; itens 23 e 37.
 
 Antes de medir gente, conferimos a régua com alunos inventados. O simulador cria alunos virtuais com regras conhecidas, como quem domina, quem chuta, quem se acha mais sabido do que é e quem desiste, e as respostas deles passam pelo mesmo caminho do relatório. Como sabemos a verdade, dá para ver se cada medida acusa o efeito quando ele existe, e só quando ele existe.
 
-- **Cinco cenários:** base, nulo, confiança cega, forma B difícil e certeza protege. No nulo ninguém aprende, e o teste não pode acusar ganho; na confiança cega a certeza é sorteada, e a calibração tem que sumir.
+- **Cinco cenários:** base, nulo, confiança cega, forma B difícil e certeza protege. No nulo ninguém aprende, então um ganho só sai por acaso: o teste acusou ganho em 2% das turmas de 100 e em 5% das de 15, perto dos 5% esperados. Na confiança cega a certeza é sorteada, mas a calibração da turma ainda saiu diferente de zero em 19% das turmas de 100, porque mistura pessoas diferentes; o plano de análise registra esse limite.
 - **Réplicas:** repetir a turma centenas de vezes mostra o poder do teste. Com 100 pessoas, ele acha o ganho em 95% das vezes; com 15, em 25%.
 - **Defeitos:** `--defeitos` planta um gabarito trocado, um distrator irresistível e uma questão ambígua, para ver se a tabela de conteúdo acha.
 
@@ -174,7 +174,7 @@ No código: `vercel.json` e `eas.json`; itens 23 e 32.
 ## 13. Como sabemos que funciona
 
 - **988 testes em 53 arquivos**, todos passando em 16/10 (`npm test`).
-- **Teste antes do código:** toda regra nova começa por um teste que falha; só depois vem o código que o faz passar.
+- **Teste antes do código:** é a regra do grupo. Uma regra nova começa por um teste que falha, e só depois vem o código que o faz passar. As vezes em que o teste veio depois do código estão registradas, uma a uma, nos itens das decisões.
 - **Regras de segurança no emulador:** `npm run test:regras` tenta, num Firestore de mentira, o que alguém mal-intencionado tentaria, como editar uma resposta ou ler a de outra pessoa.
 - **Revisão automática:** cada pull request passa pela revisão do Codex, e os apontamentos ficam registrados nos itens das decisões.
 - **Conferência em aparelho:** as telas foram vistas no iPhone, pelo Expo Go e pela web, nos dois temas. Falta o Android.
