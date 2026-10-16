@@ -6,11 +6,16 @@
 //   node scripts/limpar-dados-de-teste.js
 //   node scripts/limpar-dados-de-teste.js --email a@exemplo.com --email b@exemplo.com
 //   node scripts/limpar-dados-de-teste.js --email a@exemplo.com --apagar
+//   node scripts/limpar-dados-de-teste.js --email a@exemplo.com --apagar-conta --apagar
 //
 // O que --apagar faz, só nas contas citadas: apaga as respostas (`answers`), as tentativas
 // (`attempts`) e as notas por módulo (`selfAssessments`) delas e tira do perfil o aceite do termo
 // (`formaPre` e `consentiuEm`). O perfil e o login continuam. Sem as notas, quem aceitar o termo de
-// novo com a conta dá as notas de novo, antes do primeiro diagnóstico (item 34). Com --zerar-contador, apaga também `piloto/contador`, para a próxima pessoa
+// novo com a conta dá as notas de novo, antes do primeiro diagnóstico (item 34).
+//
+// Com --apagar-conta, além disso, a conta some inteira: o perfil (`users/{uid}`) e o login (Firebase
+// Auth). A lista mostra também quem só tem o login, sem perfil, para essas contas poderem ser
+// apagadas. Com --zerar-contador, apaga também `piloto/contador`, para a próxima pessoa
 // a aceitar o termo receber a forma A; só faz sentido quando nenhuma conta de verdade aceitou.
 //
 // Apagar não tem volta. Usa a chave de serviço (serviceAccountKey.json, fora do git).
@@ -28,21 +33,35 @@ function argumentos(nome) {
 
 /**
  * O que cada conta tem, a partir do que foi lido do banco. `notas` são os uids com notas por módulo
- * (o id de cada documento de `selfAssessments`). Função pura, para poder ser testada.
+ * (o id de cada documento de `selfAssessments`); `logins`, os usuários do Firebase Auth. Uma conta
+ * entra na lista se tem perfil, login ou os dois. Função pura, para poder ser testada.
  */
-function resumirContas(usuarios, respostas, tentativas, notas = []) {
+function resumirContas(usuarios, respostas, tentativas, notas = [], logins = []) {
     const contar = (lista, uid) => lista.filter((x) => x.uid === uid).length;
-    return usuarios
-        .map((u) => ({
-            uid: u.uid,
-            email: u.email ?? '',
-            apelido: u.apelido ?? '',
-            aceitouOTermo: u.consentiuEm !== undefined && u.consentiuEm !== null,
-            deuAsNotas: notas.includes(u.uid),
-            respostas: contar(respostas, u.uid),
-            tentativas: contar(tentativas, u.uid),
-        }))
+    const perfis = new Map(usuarios.map((u) => [u.uid, u]));
+    const login = new Map(logins.map((l) => [l.uid, l]));
+    const uids = [...new Set([...perfis.keys(), ...login.keys()])];
+    return uids
+        .map((uid) => {
+            const u = perfis.get(uid);
+            return {
+                uid,
+                email: u?.email ?? login.get(uid)?.email ?? '',
+                apelido: u?.apelido ?? '',
+                temPerfil: u !== undefined,
+                temLogin: login.has(uid),
+                aceitouOTermo: u?.consentiuEm !== undefined && u?.consentiuEm !== null,
+                deuAsNotas: notas.includes(uid),
+                respostas: contar(respostas, uid),
+                tentativas: contar(tentativas, uid),
+            };
+        })
         .sort((a, b) => a.email.localeCompare(b.email));
+}
+
+/** Apagar, de qualquer jeito, só com as contas ditas pelo e-mail. */
+function validarOpcoes({ emails, apagar, apagarConta }) {
+    if ((apagar || apagarConta) && emails.length === 0) throw new Error('Para apagar, diga de quais contas: --email a@exemplo.com');
 }
 
 /** As contas pedidas pelo e-mail. E-mail que não é de ninguém é erro: nada é apagado por engano. */
@@ -64,15 +83,27 @@ async function apagarEmLotes(db, refs) {
 
 async function main() {
     const { cert, initializeApp } = require('firebase-admin/app');
+    const { getAuth } = require('firebase-admin/auth');
     const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 
     const emails = argumentos('email');
     const apagar = process.argv.includes('--apagar');
     const zerarContador = process.argv.includes('--zerar-contador');
-    if (apagar && emails.length === 0) throw new Error('Para apagar, diga de quais contas: --email a@exemplo.com');
+    const apagarConta = process.argv.includes('--apagar-conta');
+    validarOpcoes({ emails, apagar, apagarConta });
 
     initializeApp({ credential: cert(JSON.parse(readFileSync(join(__dirname, '..', 'serviceAccountKey.json'), 'utf8'))) });
     const db = getFirestore();
+    const auth = getAuth();
+
+    // Todos os logins, de mil em mil.
+    const logins = [];
+    let pagina;
+    do {
+        const lote = await auth.listUsers(1000, pagina);
+        logins.push(...lote.users.map((u) => ({ uid: u.uid, email: u.email ?? '' })));
+        pagina = lote.pageToken;
+    } while (pagina);
 
     const [usuarios, respostas, tentativas, notas, contador] = await Promise.all([
         db.collection('users').get(),
@@ -85,13 +116,14 @@ async function main() {
         usuarios.docs.map((d) => ({ uid: d.id, ...d.data() })),
         respostas.docs.map((d) => d.data()),
         tentativas.docs.map((d) => d.data()),
-        notas.docs.map((d) => d.id)
+        notas.docs.map((d) => d.id),
+        logins
     );
 
     console.log(`Contas no banco: ${contas.length} · contador do termo: ${contador.exists ? contador.data().total : 'não existe'}`);
     for (const c of contas) {
         console.log(
-            `  ${(c.email || '(sem e-mail)').padEnd(34)} ${c.apelido.padEnd(14)} termo: ${c.aceitouOTermo ? 'sim' : 'não'} · notas: ${c.deuAsNotas ? 'sim' : 'não'} · respostas: ${c.respostas} · tentativas: ${c.tentativas}`
+            `  ${(c.email || '(sem e-mail)').padEnd(34)} ${c.apelido.padEnd(14)} ${c.temPerfil ? '' : 'sem perfil · '}${c.temLogin ? '' : 'sem login · '}termo: ${c.aceitouOTermo ? 'sim' : 'não'} · notas: ${c.deuAsNotas ? 'sim' : 'não'} · respostas: ${c.respostas} · tentativas: ${c.tentativas}`
         );
     }
 
@@ -110,7 +142,11 @@ async function main() {
     console.log(`  respostas a apagar:  ${refsDeRespostas.length}`);
     console.log(`  tentativas a apagar: ${refsDeTentativas.length}`);
     console.log(`  notas por módulo a apagar: ${refsDeNotas.length}`);
-    console.log(`  aceite do termo a tirar do perfil: ${escolhidas.filter((c) => c.aceitouOTermo).length}`);
+    if (!apagarConta) console.log(`  aceite do termo a tirar do perfil: ${escolhidas.filter((c) => c.aceitouOTermo).length}`);
+    if (apagarConta) {
+        console.log(`  perfis a apagar: ${escolhidas.filter((c) => c.temPerfil).length}`);
+        console.log(`  logins a apagar: ${escolhidas.filter((c) => c.temLogin).length}`);
+    }
     if (zerarContador) console.log('  contador do termo: será apagado');
 
     if (!apagar) {
@@ -119,8 +155,14 @@ async function main() {
     }
 
     await apagarEmLotes(db, [...refsDeRespostas, ...refsDeTentativas, ...refsDeNotas]);
-    for (const uid of uids) {
-        await db.doc(`users/${uid}`).update({ formaPre: FieldValue.delete(), consentiuEm: FieldValue.delete() });
+    for (const conta of escolhidas) {
+        const perfil = db.doc(`users/${conta.uid}`);
+        if (apagarConta) {
+            if (conta.temPerfil) await perfil.delete();
+            if (conta.temLogin) await auth.deleteUser(conta.uid);
+        } else if (conta.temPerfil) {
+            await perfil.update({ formaPre: FieldValue.delete(), consentiuEm: FieldValue.delete() });
+        }
     }
     if (zerarContador && contador.exists) await contador.ref.delete();
     console.log('\nLimpeza concluída.');
@@ -136,4 +178,4 @@ if (require.main === module) {
     );
 }
 
-module.exports = { resumirContas, escolherContas };
+module.exports = { resumirContas, escolherContas, validarOpcoes };
