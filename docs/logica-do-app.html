@@ -347,7 +347,7 @@ footer div { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; 
         <div class="step"><span class="px">2 · conferência</span><h3>Validação</h3><p>Cada tópico precisa das formas A e B completas, toda explicação fecha com ponto e a correta não pode ser a mais longa em mais de 30% das questões.</p></div>
         <div class="step"><span class="px">3 · gravação</span><h3><code>npm run seed:conteudo</code></h3><p>Grava no Firestore com uma versão, que é a impressão digital do conteúdo. Hoje: <code>21c7b805a024</code>.</p></div>
       </div>
-      <p class="soft">Ninguém edita questão pelo console. Mudou uma vírgula, muda a versão, e respostas de versões diferentes não se somam na análise.</p>
+      <p class="soft">Ninguém edita questão pelo console. Mudou uma vírgula, muda a versão. A resposta, porém, não guarda a versão da questão, e a análise não separa sozinha o antes e o depois de uma troca: por isso o conteúdo fica parado durante o uso, e uma troca inevitável entra em "Desvios", no plano de análise, com a data, para a análise cortar pelo horário.</p>
       <div class="where"><code>scripts/seed-conteudo.js</code> · <code>conteudo.test.js</code> · itens 17 e 21</div>
     </section>
 
@@ -376,7 +376,7 @@ footer div { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; 
       <div class="ch-head"><div class="px"><b>11</b>A turma virtual</div><h2>Antes de medir gente, conferimos a régua com alunos inventados</h2></div>
       <p>O simulador cria alunos virtuais com regras conhecidas, como quem domina, quem chuta, quem se acha mais sabido do que é e quem desiste. As respostas deles passam pelo mesmo caminho do relatório. Como sabemos a verdade, dá para ver se cada medida acusa o efeito quando ele existe, e só quando ele existe.</p>
       <div class="grid3">
-        <div class="card"><span class="px">cinco cenários</span><h3>Base, nulo e mais três</h3><p>No nulo ninguém aprende: o teste não pode acusar ganho. Na confiança cega a certeza é sorteada: a calibração tem que sumir. Há ainda forma B difícil e certeza protege.</p></div>
+        <div class="card"><span class="px">cinco cenários</span><h3>Base, nulo e mais três</h3><p>No nulo ninguém aprende, então um ganho só sai por acaso: o teste acusou ganho em 2% das turmas de 100 e em 5% das de 15. Na confiança cega a certeza é sorteada, mas a calibração da turma ainda saiu diferente de zero em 19% das turmas de 100, porque mistura pessoas; o plano registra esse limite. Há ainda forma B difícil e certeza protege.</p></div>
         <div class="card"><span class="px">réplicas</span><h3>O que uma turma de 15 vê</h3><p>Repetir a turma centenas de vezes mostra o poder do teste: com 100 pessoas acha o ganho em 95% das vezes, com 15 em 25%.</p></div>
         <div class="card"><span class="px">defeitos</span><h3>Questões estragadas de propósito</h3><p><code>--defeitos</code> planta um gabarito trocado, um distrator irresistível e uma questão ambígua, para ver se a tabela de conteúdo acha.</p></div>
       </div>
@@ -401,7 +401,7 @@ footer div { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; 
         <div class="stat"><b class="num">53</b><span>arquivos de teste</span></div>
       </div>
       <div class="grid2">
-        <div class="card"><h3>Teste antes do código</h3><p>Toda regra nova começa por um teste que falha. Só depois vem o código que o faz passar.</p></div>
+        <div class="card"><h3>Teste antes do código</h3><p>É a regra do grupo: uma regra nova começa por um teste que falha, e só depois vem o código. As vezes em que o teste veio depois estão registradas, uma a uma, nos itens das decisões.</p></div>
         <div class="card"><h3>Regras de segurança no emulador</h3><p><code>npm run test:regras</code> tenta, num Firestore de mentira, o que um usuário mal-intencionado tentaria, como editar uma resposta ou ler a de outra pessoa.</p></div>
         <div class="card"><h3>Revisão automática</h3><p>Cada pull request passa pela revisão do Codex, e os apontamentos ficam registrados nos itens das decisões.</p></div>
         <div class="card"><h3>Conferência em aparelho</h3><p>As telas foram vistas no iPhone, pelo Expo Go e pela web, nos dois temas. Falta o Android.</p></div>

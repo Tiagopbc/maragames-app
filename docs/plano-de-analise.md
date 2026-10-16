@@ -6,7 +6,7 @@ Os números de "O que a simulação mostrou" vêm da base sintética (itens 35 a
 
 ## O que fica fixo
 
-- **Conteúdo**: versão `21c7b805a024`. A `bd9ca4d71d9b`, gravada em 15/10/2026, teve duas explicações corrigidas antes de qualquer dado do piloto. Uma questão mudada no meio do piloto muda a versão, e as respostas de antes e depois não se somam.
+- **Conteúdo**: versão `21c7b805a024`. A `bd9ca4d71d9b`, gravada em 15/10/2026, teve duas explicações corrigidas antes de qualquer dado do piloto. Uma questão mudada no meio do piloto muda a versão, e as respostas de antes e depois não devem ser somadas. Como a resposta não guarda a versão da questão, a separação não é automática: o conteúdo não muda durante o piloto, e uma troca inevitável entra em "Desvios" com a data e a hora, para a análise cortar as respostas daquela questão pelo horário.
 - **Quem entra**: quem aceitou o termo a partir de 16/10/2026 (`npm run relatorio -- --desde 2026-10-16`), o grupo incluído. O piloto é o uso aberto do app: desde esse dia, quem tiver acesso usa como uso de verdade, e não há mais limpeza de contas (decidido pelo Tiago em 16/10, antes de qualquer dado).
 - **Unidade**: a pessoa. Toda conta de intervalo e de teste reamostra ou permuta pessoas, e não respostas, porque as respostas de uma mesma pessoa não são independentes.
 - **Lição que conta**: a de ciclo completo, com o diagnóstico e a verificação completos. A revisão conta quando tem as três questões.
