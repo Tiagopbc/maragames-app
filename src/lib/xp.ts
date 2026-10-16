@@ -1,4 +1,4 @@
-// XP pela pontuação por certeza de Gardner-Medwin para mais de duas opções (item 14).
+// XP pela pontuação por certeza de Gardner-Medwin, com o erro adaptado pelo grupo para 4 alternativas (item 14).
 // Função pura: sem React, sem Firebase, sem estado. O XP nunca é gravado, é calculado de `answers`.
 
 import type { Answer, Confianca } from '../types/domain';

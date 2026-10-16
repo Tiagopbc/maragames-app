@@ -60,7 +60,7 @@ No código: `embaralhar.ts`, `pergunta.ts` e `src/constants/textos.ts`; itens 12
 
 ## 5. XP, quadrante e domínio
 
-**XP: a certeza honesta rende mais** (pontuação de Gardner-Medwin).
+**XP: a certeza honesta rende mais** (pontuação por certeza de Gardner-Medwin, com o erro adaptado pelo grupo para 4 alternativas).
 
 | Confiança | Acertou | Errou |
 |---|---|---|
