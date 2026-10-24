@@ -97,8 +97,7 @@ beforeEach(() => {
 });
 
 async function abrirEm(url: string) {
-    const rotas = renderRouter('./src/app', { initialUrl: url });
-    await rotas;
+    const rotas = await renderRouter('./src/app', { initialUrl: url });
     return { caminho: () => rotas.getPathname() };
 }
 

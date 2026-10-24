@@ -1,6 +1,6 @@
 # Expo HAS CHANGED
 
-Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before writing any code.
+Read the exact versioned docs at https://docs.expo.dev/versions/v58.0.0/ before writing any code.
 
 # Projeto maragames-app
 
@@ -20,7 +20,7 @@ Quando uma decisão técnica relevante for tomada na sessão, atualize esse arqu
 
 ## Stack
 
-React Native + Expo SDK 57 (compatível com Expo Go), Expo Router, TypeScript, Firebase (Auth + Firestore). Desenvolvimento em macOS.
+React Native + Expo SDK 58 (compatível com Expo Go), Expo Router, TypeScript, Firebase (Auth + Firestore). Desenvolvimento em macOS.
 
 ## Regras de arquitetura
 

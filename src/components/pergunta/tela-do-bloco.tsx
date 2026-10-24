@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BarraDeProgresso } from '@/components/barra-de-progresso';
@@ -136,7 +136,7 @@ function Pergunta({ estado, aviso, aoConfirmar, aoAvancar }: PerguntaProps) {
     // Só existem aqui, na tela: trocar de ideia antes de confirmar não gera evento.
     const theme = useTheme();
     const [selecao, setSelecao] = useState<Selecao>(SELECAO_VAZIA);
-    const rolagem = useRef<ScrollView>(null);
+    const rolagem = useRef<ScrollViewInstance>(null);
 
     const { pergunta } = estado;
     const feedback = estado.tipo === 'feedback' ? estado.feedback : null;
