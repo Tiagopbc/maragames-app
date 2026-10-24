@@ -23,7 +23,7 @@ describe('useColorScheme', () => {
     });
 
     it('sem esquema definido no aparelho, fica o claro', async () => {
-        doAparelho.mockReturnValue('unspecified');
+        doAparelho.mockReturnValue(null);
 
         const { result } = await renderHook(() => useColorScheme());
 

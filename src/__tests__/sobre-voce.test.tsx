@@ -55,8 +55,7 @@ beforeEach(() => {
 });
 
 async function abrir() {
-    const rotas = renderRouter('./src/app', { initialUrl: '/sobre-voce' });
-    await rotas;
+    const rotas = await renderRouter('./src/app', { initialUrl: '/sobre-voce' });
     await screen.findByText('O que você faz hoje?');
     return { user: userEvent.setup(), caminho: () => rotas.getPathname() };
 }

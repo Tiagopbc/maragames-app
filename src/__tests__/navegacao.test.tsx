@@ -120,11 +120,10 @@ beforeEach(() => {
 
 const ROTAS = './src/app';
 
-// No Testing Library 14 o render é assíncrono, e o `renderRouter` devolve a promessa com os
-// métodos de rota pendurados nela. Por isso se espera a promessa e se lê a rota pelo objeto.
+// Desde o SDK 58 o `renderRouter` é assíncrono e a promessa resolve no objeto com os métodos de
+// rota: espera-se a promessa e lê-se a rota pelo que ela devolve.
 async function abrirEm(url: string) {
-    const rotas = renderRouter(ROTAS, { initialUrl: url });
-    await rotas;
+    const rotas = await renderRouter(ROTAS, { initialUrl: url });
     return { segmentos: () => rotas.getSegments(), caminho: () => rotas.getPathname() };
 }
 
