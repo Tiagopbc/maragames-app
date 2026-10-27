@@ -4,9 +4,9 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { Mascote } from '@/components/mascote';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TERMO, TEXTOS_DO_TERMO } from '@/constants/termo';
 import { useTheme } from '@/hooks/use-theme';
@@ -47,7 +47,7 @@ export function TelaDeConsentimento(props: TelaDeConsentimentoProps) {
     }
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <ScrollView contentContainerStyle={styles.conteudo}>
                     <Mascote />
@@ -106,7 +106,7 @@ export function TelaDeConsentimento(props: TelaDeConsentimentoProps) {
                     </View>
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

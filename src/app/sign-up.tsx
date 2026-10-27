@@ -6,6 +6,7 @@ import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
 import { CampoSenha } from '@/components/campo-senha';
 import { CampoTexto } from '@/components/campo-texto';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -75,7 +76,7 @@ export default function SignUpScreen() {
     }
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <ThemedView style={styles.card}>
                 <ThemedText type="subtitle">Criar conta</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -141,7 +142,7 @@ export default function SignUpScreen() {
                     <ThemedText type="linkPrimary">Já tenho conta — entrar</ThemedText>
                 </Link>
             </ThemedView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

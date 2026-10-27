@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
-import { ThemedView } from '@/components/themed-view';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { TEXTOS } from '@/constants/textos';
 import { useLicao } from '@/hooks/use-licao';
 import { podeAbrirNaLicao, type Licao, type PassoDaLicao } from '@/lib/licao';
@@ -41,9 +41,9 @@ export function PortaoDaLicao({ uid, topicId, formaPre, passo, barrado, relogio,
 
     if (decisao === null) {
         return (
-            <ThemedView style={styles.centro}>
+            <FundoDaMarca style={styles.centro}>
                 <ActivityIndicator accessibilityLabel={TEXTOS.conferindoLicao} />
-            </ThemedView>
+            </FundoDaMarca>
         );
     }
 

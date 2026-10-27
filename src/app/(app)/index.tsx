@@ -5,8 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import {
   TEXTOS,
@@ -95,7 +95,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <FundoDaMarca style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.conteudo} showsVerticalScrollIndicator={false}>
           <View style={styles.saudacao}>
@@ -220,7 +220,7 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </ThemedView>
+    </FundoDaMarca>
   );
 }
 

@@ -5,10 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BarraDeProgresso } from '@/components/barra-de-progresso';
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ResultadoDoBloco } from '@/components/resultado/resultado-do-bloco';
 import { TextoComCodigo } from '@/components/texto-com-codigo';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS, TEXTO_DA_FALTA } from '@/constants/textos';
 import { useBloco, type EntradaDoBloco, type EstadoDoBloco, type Relatorio } from '@/hooks/use-bloco';
@@ -46,7 +46,7 @@ export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
     const aviso = faseTemFeedback(entrada.fase) ? null : entrada.fase === 'pre' ? TEXTOS.semFeedbackNaLicao : TEXTOS.semFeedback;
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -120,7 +120,7 @@ export function TelaDoBloco({ aoSair, fim, ...entrada }: TelaDoBlocoProps) {
                     />
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

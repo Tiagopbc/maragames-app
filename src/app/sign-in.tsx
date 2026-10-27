@@ -6,9 +6,9 @@ import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
 import { CampoSenha } from '@/components/campo-senha';
 import { CampoTexto } from '@/components/campo-texto';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { LogoBeast } from '@/components/logo-beast';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { TEXTOS_DO_LOGIN } from '@/constants/textos';
 import { useTheme } from '@/hooks/use-theme';
@@ -70,7 +70,7 @@ export default function SignInScreen() {
     }
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <View style={styles.coluna}>
                 <View style={styles.topo}>
                     <LogoBeast />
@@ -153,7 +153,7 @@ export default function SignInScreen() {
                     </Link>
                 </View>
             </View>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

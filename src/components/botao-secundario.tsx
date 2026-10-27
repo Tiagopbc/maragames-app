@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
+import { useRelevo, useTheme } from '@/hooks/use-theme';
 
 type BotaoSecundarioProps = {
     rotulo: string;
@@ -9,10 +9,11 @@ type BotaoSecundarioProps = {
     desabilitado?: boolean;
 };
 
-// A ação alternativa da tela (entrar com o Google, por exemplo): só contorno, para não
-// disputar com o botão principal.
+// A ação alternativa da tela (entrar com o Google, por exemplo): no claro, só contorno, para não
+// disputar com o botão principal; no escuro, o card roxo com relevo, sobre o padrão do fundo.
 export function BotaoSecundario({ rotulo, onPress, desabilitado = false }: BotaoSecundarioProps) {
     const theme = useTheme();
+    const relevo = useRelevo();
 
     return (
         <Pressable
@@ -22,7 +23,12 @@ export function BotaoSecundario({ rotulo, onPress, desabilitado = false }: Botao
             onPress={onPress}
             style={({ pressed }) => [
                 styles.botao,
-                { borderColor: theme.borda, opacity: desabilitado ? 0.4 : pressed ? 0.7 : 1 },
+                {
+                    backgroundColor: relevo.espessura > 0 ? theme.cartao : undefined,
+                    borderColor: theme.bordaDoCartao,
+                    borderBottomWidth: 1.5 + relevo.espessura,
+                    opacity: desabilitado ? 0.4 : pressed ? 0.7 : 1,
+                },
             ]}>
             <ThemedText themeColor="primaria" style={styles.rotulo}>
                 {rotulo}

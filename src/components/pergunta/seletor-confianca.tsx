@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { NIVEIS_DE_CONFIANCA, ROTULO_CONFIANCA, TEXTOS } from '@/constants/textos';
-import { useTheme } from '@/hooks/use-theme';
+import { useRelevo, useTheme } from '@/hooks/use-theme';
 import type { Confianca } from '@/types/domain';
 
 type SeletorConfiancaProps = {
@@ -18,6 +18,10 @@ type SeletorConfiancaProps = {
 // nenhum deles pode depender de rolar a tela para ser visto.
 export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfiancaProps) {
     const theme = useTheme();
+    const relevo = useRelevo();
+    // No escuro, cada nível é um card roxo sobre o padrão do fundo; no claro, fica no fundo da
+    // tela, como sempre foi.
+    const fundoSolto = relevo.espessura > 0 ? theme.cartao : theme.background;
 
     return (
         <View accessibilityRole="radiogroup" accessibilityLabel={TEXTOS.perguntaDeConfianca} style={styles.grupo}>
@@ -39,10 +43,18 @@ export function SeletorConfianca({ valor, onChange, desabilitado }: SeletorConfi
                             style={({ pressed }) => [
                                 styles.nivel,
                                 {
-                                    backgroundColor: marcado ? theme.backgroundSelected : theme.background,
-                                    borderColor: marcado ? theme.bordaSelecionada : theme.borda,
+                                    backgroundColor: marcado ? theme.cartaoSelecionado : fundoSolto,
+                                    borderColor: marcado ? theme.bordaSelecionada : theme.bordaDoCartao,
                                     opacity: pressed ? 0.7 : 1,
                                 },
+                                // O marcado fica "apertado", como a alternativa escolhida.
+                                marcado
+                                    ? {
+                                          borderBottomWidth: 1.5,
+                                          marginTop: relevo.afunda,
+                                          marginBottom: relevo.espessura - relevo.afunda,
+                                      }
+                                    : { borderBottomWidth: 1.5 + relevo.espessura, marginTop: 0, marginBottom: 0 },
                             ]}>
                             {/* O marcado muda de borda, de fundo e de peso: não depende só de cor. */}
                             <ThemedText type={marcado ? 'smallBold' : 'small'} style={styles.rotulo}>

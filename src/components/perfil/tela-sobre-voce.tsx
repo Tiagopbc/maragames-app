@@ -4,9 +4,9 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { Opcoes, OpcoesMultiplas, type Opcao } from '@/components/opcoes';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { LarguraDoFormulario, Spacing } from '@/constants/theme';
 import {
     ROTULO_DA_ENGINE,
@@ -108,7 +108,7 @@ export function TelaSobreVoce({ inicial, aoSalvar, aoSair }: TelaSobreVoceProps)
         respostas.alunoDoSite === undefined ? null : respostas.alunoDoSite ? 'sim' : 'nao';
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -233,7 +233,7 @@ export function TelaSobreVoce({ inicial, aoSalvar, aoSair }: TelaSobreVoceProps)
                     />
                 </ScrollView>
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

@@ -110,6 +110,7 @@ export const TEXTOS = {
     voltar: 'Voltar',
     proximo: 'Próximo',
     comecarPratica: 'Começar a prática',
+    conceito: 'Conceito', // o tipo da carta, no pé da carta de jogo
     abrindoPratica: 'Abrindo a prática',
     erroAoCarregarCartao: 'Não foi possível carregar o cartão. Confira a conexão e tente de novo.',
     resultado: 'Resultado',
@@ -195,6 +196,16 @@ export function resumirQuadrantes(quadrantes: Record<Quadrante, number>): string
 /** "2 de 6": a posição do slide dentro do cartão. */
 export function posicaoNoCartao(indice: number, total: number): string {
     return `${indice + 1} de ${total}`;
+}
+
+/** O número da carta no pé da carta de jogo, como numa carta colecionável: "4/5". */
+export function numeroDaCarta(indice: number, total: number): string {
+    return `${indice + 1}/${total}`;
+}
+
+/** O pé da carta lido em voz alta: "Conceito, 4 de 5". */
+export function peDaCartaParaLeitor(indice: number, total: number): string {
+    return `${TEXTOS.conceito}, ${posicaoNoCartao(indice, total)}`;
 }
 
 /** "Sequência: 3 dias", para o selo da home. */

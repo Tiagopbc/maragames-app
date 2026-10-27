@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BarraDeProgresso } from '@/components/barra-de-progresso';
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { GradeDeQuadrantes } from '@/components/resultado/grade-de-quadrantes';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import {
     NIVEIS_DE_CONFIANCA,
@@ -55,7 +55,7 @@ export function TelaDoProgresso({ estado, aoAbrir, aoTentarDeNovo, aoSair }: Tel
     const aRevisar = porRevisao.filter((l) => ORDEM_DE_REVISAO.some((q) => l.quadrantes[q] > 0)).slice(0, QUANTAS_A_REVISAR);
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -205,7 +205,7 @@ export function TelaDoProgresso({ estado, aoAbrir, aoTentarDeNovo, aoSair }: Tel
                     </ScrollView>
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

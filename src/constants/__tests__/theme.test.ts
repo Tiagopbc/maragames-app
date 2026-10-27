@@ -1,4 +1,4 @@
-import { Colors, Fonts, type ThemeColor } from '../theme';
+import { Colors, Fonts, Relevo, type ThemeColor } from '../theme';
 
 // Contraste entre duas cores, pela fórmula da WCAG 2: de 1 (iguais) a 21 (preto no branco).
 function luminancia(hex: string): number {
@@ -36,12 +36,27 @@ const PARES_DE_TEXTO: [ThemeColor, ThemeColor][] = [
     ['lacuna', 'backgroundElement'],
     ['erro', 'background'],
     ['erro', 'backgroundElement'],
+    // Os cards com relevo (alternativa, confiança, feedback e botão secundário).
+    ['text', 'cartao'],
+    ['text', 'cartaoSelecionado'],
+    ['text', 'fundoCerta'],
+    ['text', 'fundoErrada'],
+    ['primaria', 'cartao'],
+    ['textoDaLetra', 'fundoDaLetra'],
+    ['sucesso', 'fundoCerta'],
+    ['erro', 'fundoErrada'],
+    // A carta de jogo do cartão de conceito.
+    ['text', 'placaDaCarta'],
+    ['text', 'caixaDaCarta'],
+    ['textoDoPe', 'cartao'],
 ];
 
 const PARES_DE_CONTORNO: [ThemeColor, ThemeColor][] = [
     ['bordaSelecionada', 'background'],
     ['bordaSelecionada', 'backgroundElement'],
     ['bordaSelecionada', 'backgroundSelected'],
+    ['bordaSelecionada', 'cartao'],
+    ['bordaSelecionada', 'cartaoSelecionado'],
 ];
 
 describe.each(['light', 'dark'] as const)('tema %s', (tema) => {
@@ -74,6 +89,15 @@ describe('a identidade da Beast Maragames', () => {
             semibold: 'Lexend_600SemiBold',
             bold: 'Lexend_700Bold',
         });
+    });
+
+    it('no escuro, a borda de baixo dos cards soma 5 (1,5 + o relevo); no claro, não há relevo', () => {
+        expect(1.5 + Relevo.dark.espessura).toBe(5);
+        expect(Relevo.light).toEqual({ espessura: 0, afunda: 0 });
+    });
+
+    it('o card apertado desce 3 pt no escuro', () => {
+        expect(Relevo.dark.afunda).toBe(3);
     });
 
     it('os dois temas têm os mesmos nomes de cor', () => {

@@ -6,18 +6,28 @@ import { TextoComCodigo } from '@/components/texto-com-codigo';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { DESCRICAO_QUADRANTE, TEXTOS, formatarXp } from '@/constants/textos';
-import { useTheme } from '@/hooks/use-theme';
+import { useRelevo, useTheme } from '@/hooks/use-theme';
 import type { Feedback } from '@/lib/pergunta';
 
 // Só existe na prática. Nos blocos medidos (pré, pós e reteste) este componente nem é montado.
 export function FeedbackQuestao({ feedback }: { feedback: Feedback }) {
     const theme = useTheme();
+    const relevo = useRelevo();
     const cor = feedback.correta ? theme.sucesso : theme.erro;
 
     return (
         <View
+            testID="feedback"
             aria-live="polite"
-            style={[styles.cartao, { backgroundColor: theme.backgroundElement, borderColor: cor }]}>
+            style={[
+                styles.cartao,
+                {
+                    // O mesmo card das alternativas, em verde ou vermelho.
+                    backgroundColor: feedback.correta ? theme.fundoCerta : theme.fundoErrada,
+                    borderColor: cor,
+                    borderBottomWidth: 1.5 + relevo.espessura,
+                },
+            ]}>
             <View style={styles.linha}>
                 <Ionicons name={feedback.correta ? 'checkmark-circle' : 'close-circle'} size={24} color={cor} />
                 <ThemedText type="default" style={styles.titulo}>

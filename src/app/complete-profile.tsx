@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { FormularioDoPerfil } from '@/components/perfil/formulario-do-perfil';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -15,7 +16,7 @@ export default function CompleteProfileScreen() {
     const { user, perfil, salvarPerfil, sair } = useSession();
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
                 <ThemedView style={styles.card}>
                     <ThemedText type="subtitle">{TEXTOS_DO_PERFIL.seuPerfil}</ThemedText>
@@ -39,7 +40,7 @@ export default function CompleteProfileScreen() {
                     </Pressable>
                 </ThemedView>
             </ScrollView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

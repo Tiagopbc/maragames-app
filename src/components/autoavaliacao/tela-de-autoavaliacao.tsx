@@ -5,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS, TEXTOS_DO_PERFIL, notaDoModulo } from '@/constants/textos';
 import type { EstadoDosModulos } from '@/hooks/use-modulos';
@@ -61,7 +61,7 @@ export function TelaDeAutoavaliacao({ estado, aoGravar, aoTentarDeNovo, aoSair }
     }
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -146,7 +146,7 @@ export function TelaDeAutoavaliacao({ estado, aoGravar, aoTentarDeNovo, aoSair }
                     </>
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

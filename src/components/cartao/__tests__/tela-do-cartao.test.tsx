@@ -43,13 +43,43 @@ async function abrir(topicId = 'logica') {
 const botao = (nome: string) => screen.getByRole('button', { name: nome });
 
 describe('o cartão de conceito', () => {
-    it('abre no primeiro slide, com o nome do tópico e a posição', async () => {
+    it('abre no primeiro slide, com o nome do tópico no cabeçalho', async () => {
         await abrir();
 
         expect(await screen.findByText('Variáveis')).toBeOnTheScreen();
         expect(screen.getByText('Lógica de Programação')).toBeOnTheScreen();
-        expect(screen.getByText('1 de 3')).toBeOnTheScreen();
         expect(screen.queryByText('Condições')).not.toBeOnTheScreen();
+    });
+
+    it('a posição sai do cabeçalho e vai para o pé da carta', async () => {
+        await abrir();
+        await screen.findByText('Variáveis');
+
+        expect(screen.queryByText('1 de 3')).not.toBeOnTheScreen();
+        expect(screen.getByText('Conceito')).toBeOnTheScreen();
+        expect(screen.getByText('1/3')).toBeOnTheScreen();
+    });
+
+    it('o leitor de tela continua anunciando a posição', async () => {
+        await abrir();
+        await screen.findByText('Variáveis');
+
+        expect(screen.getByLabelText('Conceito, 1 de 3')).toBeOnTheScreen();
+    });
+
+    it('o pé acompanha o slide: no do meio e no último', async () => {
+        await abrir();
+        await screen.findByText('Variáveis');
+        const user = userEvent.setup();
+
+        await user.press(botao('Próximo'));
+        expect(screen.getByText('2/3')).toBeOnTheScreen();
+        expect(screen.getByLabelText('Conceito, 2 de 3')).toBeOnTheScreen();
+
+        await user.press(botao('Próximo'));
+        expect(screen.getByText('3/3')).toBeOnTheScreen();
+        expect(screen.getByText('Conceito')).toBeOnTheScreen();
+        expect(botao('Começar a prática')).toBeOnTheScreen();
     });
 
     it('mostra trecho de código sem as crases do conteúdo', async () => {
@@ -67,7 +97,7 @@ describe('o cartão de conceito', () => {
         await userEvent.setup().press(botao('Próximo'));
 
         expect(screen.getByText('Condições')).toBeOnTheScreen();
-        expect(screen.getByText('2 de 3')).toBeOnTheScreen();
+        expect(screen.getByText('2/3')).toBeOnTheScreen();
         expect(screen.queryByText('Variáveis')).not.toBeOnTheScreen();
     });
 
@@ -87,7 +117,7 @@ describe('o cartão de conceito', () => {
         await user.press(botao('Voltar'));
 
         expect(screen.getByText('Variáveis')).toBeOnTheScreen();
-        expect(screen.getByText('1 de 3')).toBeOnTheScreen();
+        expect(screen.getByText('1/3')).toBeOnTheScreen();
     });
 
     it('antes do último slide não há como começar a prática', async () => {

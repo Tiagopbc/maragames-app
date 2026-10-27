@@ -9,8 +9,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { FundoDaPagina } from '@/components/fundo-da-pagina';
-import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SessionProvider, useSession } from '@/lib/session';
@@ -64,9 +64,9 @@ function RootNavigator() {
 
   if (isLoading) {
     return (
-      <ThemedView style={styles.loading}>
+      <FundoDaMarca style={styles.loading}>
         <ActivityIndicator />
-      </ThemedView>
+      </FundoDaMarca>
     );
   }
 

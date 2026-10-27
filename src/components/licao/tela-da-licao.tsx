@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing, type ThemeColor } from '@/constants/theme';
 import {
     SITUACAO_DA_ETAPA,
@@ -60,7 +60,7 @@ export function TelaDaLicao({ estado, temForma, aoAbrir, aoTentarDeNovo, aoSair 
         pronto !== null && pronto.licao.estado.tipo === 'concluida' && podeAbrirNaLicao(pronto.licao, 'pratica', temForma);
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -190,7 +190,7 @@ export function TelaDaLicao({ estado, temForma, aoAbrir, aoTentarDeNovo, aoSair 
                     </>
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

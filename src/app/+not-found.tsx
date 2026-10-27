@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { TEXTOS } from '@/constants/textos';
 import { useSession } from '@/lib/session';
@@ -18,7 +18,7 @@ export default function NaoEncontradaScreen() {
     const inicio = !user ? '/sign-in' : perfilCompleto ? '/' : '/complete-profile';
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <View style={styles.conteudo}>
                 <ThemedText type="subtitle" style={styles.centro}>
                     {TEXTOS.paginaNaoExiste}
@@ -29,7 +29,7 @@ export default function NaoEncontradaScreen() {
                 {/* `replace`, e não `push`: voltar não deve trazer o endereço errado de novo. */}
                 <BotaoPrincipal rotulo={TEXTOS.voltarAoInicio} onPress={() => router.replace(inicio)} />
             </View>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

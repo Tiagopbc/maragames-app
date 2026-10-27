@@ -4,12 +4,12 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoSecundario } from '@/components/botao-secundario';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { Caixa } from '@/components/opcoes';
 import { FormularioDoPerfil } from '@/components/perfil/formulario-do-perfil';
 import { Secao } from '@/components/perfil/secao';
 import { SeletorDeTema } from '@/components/perfil/seletor-de-tema';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { LarguraDoFormulario, Spacing } from '@/constants/theme';
 import {
     TEXTOS,
@@ -97,7 +97,7 @@ export function TelaDoPerfil({
     }
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -218,7 +218,7 @@ export function TelaDoPerfil({
                     <BotaoSecundario rotulo={TEXTOS.sair} onPress={aoSairDaConta} />
                 </ScrollView>
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

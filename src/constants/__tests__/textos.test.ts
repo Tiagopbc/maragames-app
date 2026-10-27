@@ -14,6 +14,8 @@ import {
     situacaoDaLicao,
     verificacaoEHoje,
     formatarAcertos,
+    numeroDaCarta,
+    peDaCartaParaLeitor,
     formatarTaxa,
     formatarXp,
     formatarXpTotal,
@@ -168,3 +170,14 @@ describe('formatarTaxa e formatarAcertos', () => {
     });
 });
 
+
+describe('o pé da carta de conceito', () => {
+    it('mostra o número da carta e o total, sem espaço', () => {
+        expect(numeroDaCarta(0, 5)).toBe('1/5');
+        expect(numeroDaCarta(4, 5)).toBe('5/5');
+    });
+
+    it('para o leitor de tela, diz o tipo da carta e a posição por extenso', () => {
+        expect(peDaCartaParaLeitor(0, 3)).toBe('Conceito, 1 de 3');
+    });
+});

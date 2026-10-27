@@ -3,11 +3,11 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BotaoPrincipal } from '@/components/botao-principal';
+import { FundoDaMarca } from '@/components/fundo-da-marca';
 import { GradeDeQuadrantes } from '@/components/resultado/grade-de-quadrantes';
 import { SeloQuadrante } from '@/components/selo-quadrante';
 import { TextoComCodigo } from '@/components/texto-com-codigo';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import {
     NIVEIS_DE_CONFIANCA,
@@ -55,7 +55,7 @@ export function TelaDoTopico({ estado, topicId, aoAbrirLicao, aoTentarDeNovo, ao
     const enunciadoDe = (id: string) => pronto?.questoes.find((q) => q.id === id)?.enunciado ?? '';
 
     return (
-        <ThemedView style={styles.container}>
+        <FundoDaMarca style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.cabecalho}>
                     <Pressable
@@ -185,7 +185,7 @@ export function TelaDoTopico({ estado, topicId, aoAbrirLicao, aoTentarDeNovo, ao
                     </>
                 )}
             </SafeAreaView>
-        </ThemedView>
+        </FundoDaMarca>
     );
 }
 

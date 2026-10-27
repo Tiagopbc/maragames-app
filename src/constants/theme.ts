@@ -28,6 +28,20 @@ export const Colors = {
     aviso: '#8A6100',
     lacuna: '#1F3C86',
     erro: '#B91E1E',
+    // Cards com relevo e carta de jogo (identidade do tema escuro). No claro, cada um repete a
+    // cor que aquele lugar já usava: só a estrutura da carta é nova aqui.
+    cartao: '#F6F4FA',
+    bordaDoCartao: '#E4E0EE',
+    cartaoSelecionado: '#F1EDF8',
+    fundoDaLetra: '#FFFFFF',
+    textoDaLetra: '#5E5873',
+    fundoCerta: '#F6F4FA',
+    fundoErrada: '#F6F4FA',
+    relevoDoBotao: '#3B2781',
+    placaDaCarta: '#F1EDF8',
+    caixaDaCarta: '#FFFFFF',
+    bordaDaCaixa: '#E4E0EE',
+    textoDoPe: '#5E5873',
   },
   dark: {
     text: '#F2F1F6',
@@ -47,7 +61,27 @@ export const Colors = {
     aviso: '#FFCA16',
     lacuna: '#9EB1FF',
     erro: '#FF6369',
+    // Roxo da marca + Tátil: superfícies puxadas para o roxo, com borda roxa e relevo embaixo.
+    cartao: '#1A1730',
+    bordaDoCartao: '#3B2781',
+    cartaoSelecionado: '#2A2152',
+    fundoDaLetra: '#3B2781',
+    textoDaLetra: '#E4DDF3',
+    fundoCerta: '#142522',
+    fundoErrada: '#24152A',
+    relevoDoBotao: '#3B2781',
+    placaDaCarta: '#2A2152',
+    caixaDaCarta: '#120F22',
+    bordaDaCaixa: '#33285F',
+    textoDoPe: '#9D92C4',
   },
+} as const;
+
+// O relevo dos cards: a espessura que a borda de baixo ganha a mais (1,5 + 3,5 = 5 no escuro) e
+// quanto o card desce quando fica apertado (selecionado). No claro não há relevo.
+export const Relevo = {
+  light: { espessura: 0, afunda: 0 },
+  dark: { espessura: 3.5, afunda: 3 },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
